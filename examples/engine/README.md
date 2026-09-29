@@ -9,9 +9,9 @@ the first table and read down: every example states the plain question first and
 answers it second.
 
 The narrative these sit under is the [501 pages of the `d2w fhir` guide
-series](../../../docs/index.md) — [FHIRPath](../../../docs/501-fhirpath.md),
-[CQL](../../../docs/501-cql.md), [quality measures](../../../docs/501-measures.md), and
-[the FHIR version binding](../../../docs/501-version-binding.md).
+series](../../docs/index.md) — [FHIRPath](../../docs/501-fhirpath.md),
+[CQL](../../docs/501-cql.md), [quality measures](../../docs/501-measures.md), and
+[the FHIR version binding](../../docs/501-version-binding.md).
 
 ## What every example here is
 

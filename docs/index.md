@@ -18,6 +18,9 @@ one page, with the command that does each and the link that owns it - read it
 first if you are new here. Everything else in this series is depth behind one of
 those steps, or one of the capabilities that sit beyond them.
 
+[Features](features.md) is the catalog of every capability of the three packages
+on one page.
+
 The series is graded 100 to 501: the **100** page is the front door, **101**
 pages explain and demonstrate, **201** pages operate a project day to day,
 **301** pages configure `fhir.toml`, **401** pages integrate against and extend

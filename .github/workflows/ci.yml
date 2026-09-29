@@ -41,5 +41,8 @@ jobs:
       - name: Test
         run: make test
 
+      - name: Check the example commands
+        run: make check-examples
+
       - name: Build the docs site
         run: make docs
