@@ -594,11 +594,89 @@ says so and carries on.
 
 ## Publish it
 
-The generated site lands in `ig/output/` - plain static files. Publish them
-however your organisation hosts static sites; the canonical URL you
-scaffolded with is where consumers will expect to find it. Before handing
-it over, read `ig/output/qa.html` - the publisher's own QA summary of
-errors, warnings, and broken links.
+A build leaves everything a reader or a FHIR tool needs in `ig/output/`: the
+guide as plain static HTML, every resource as JSON and XML, the FHIR package
+`package.tgz`, and the publisher's QA report `qa.html`. Publishing is copying
+that directory to the address the guide says it lives at. Nothing else needs
+to run on the server.
+
+### Before you publish
+
+- **Read `ig/output/qa.html`.** It is the publisher's own summary of errors,
+  warnings and broken links. Publish a build with no errors.
+- **Run `make check`.** It scans the built artifacts offline and names what a
+  consumer would trip on, such as a reference to an organisation unit the
+  registry does not publish.
+- **Make the canonical the real address.** Every resource in the guide is
+  identified by a URL under its canonical: `[ig] canonical` in `fhir.toml`,
+  mirrored as `canonical:` in `ig/sushi-config.yaml`, set once by
+  `d2w fhir init --canonical`. A guide scaffolded with a placeholder such as
+  `http://example.org/fhir` identifies its resources at a domain nobody
+  serves. Set the address you will publish at in both files, then run
+  `make generate` and `make build` again before copying anything.
+- **Set the version.** `version:` in `ig/sushi-config.yaml` is the guide's
+  version and its package's version. Raise it for every release you publish.
+- **Set the status.** `[ig] status` is `draft` while you build; `active` marks
+  a release for production, on the guide and on every CodeSystem, ValueSet and
+  Questionnaire it generates.
+
+### Copy the output
+
+Copy the whole of `ig/output/` as it is to the canonical address, so that
+`<canonical>/index.html` is the guide's home page and
+`<canonical>/package.tgz` is its package. Any static host serves it: a web
+server, a storage bucket behind a content delivery network, or GitHub Pages
+for a guide small enough to fit its size limit. Two things matter on the
+server:
+
+- **Content types.** Serve `.json` as `application/fhir+json` or
+  `application/json`, `.xml` as `application/fhir+xml` or `application/xml`,
+  and `.tgz` as `application/gzip`, so FHIR tools and browsers read what
+  they fetch.
+- **Paths as built.** Keep the directory layout and the file names; the pages
+  link to each other and to the resources by relative path.
+
+### A registry package and its guide
+
+A guide that takes its organisation units from a
+[registry package](201-registry-package.md) depends on it by canonical and
+version: its `ig/sushi-config.yaml` names the registry under `dependencies`
+with the registry's ImplementationGuide URL and version. Publish the pair in
+that order:
+
+1. **The registry first**, at the registry's canonical, with its `package.tgz`.
+2. **The guide second**, at its own canonical.
+
+Every Location and Organization the guide's forms reference is a URL under the
+registry's canonical, so the guide only resolves for a reader once the registry
+is there. The two must be the versions the guide was built against: republish
+the guide whenever the registry's version changes. See
+[A registry and a guide](201-registry-and-guide.md) for how the two are built.
+
+### Keep earlier versions reachable
+
+A published version is a promise: anything that depends on version 1.0.0
+keeps asking for it after 1.1.0 is out. Publish each release under its own
+path as well as at the canonical root, for example `<canonical>/1.0.0/` beside
+`<canonical>/` for the current one, and leave earlier versions in place.
+
+A FHIR package can also be listed on the public package registry,
+[packages.fhir.org](https://packages.fhir.org), so any FHIR tool installs it
+by id and version rather than by URL. Registration is done on the registry's
+side, through a package feed.
+
+### What stays with you
+
+`ig/output/` is the only directory to publish. The project's sources,
+`fhir.toml`, `reports/`, the capture spool and the virtual environment stay in
+the project. They hold the connection to your DHIS2 instance, which is no
+concern of the server's.
+
+To make the guide's forms usable as well as readable, serve it: `d2w fhir serve`
+turns the same project into a FHIR endpoint with the capture UI. That is a
+running service rather than static files, and
+[Run a secured facade](201-run-a-secured-facade.md) covers putting it on a
+server.
 
 ## The weekly publisher check
 
