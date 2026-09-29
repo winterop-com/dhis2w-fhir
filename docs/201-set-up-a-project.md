@@ -297,9 +297,12 @@ refresh      Wipe build output, pull latest tooling, regenerate, revalidate, reb
 Move the pin when you want the newer toolchain, not by accident:
 
 ```bash
-uv lock --upgrade
+uv lock --upgrade --refresh
 uv sync
 ```
+
+`--refresh` makes uv re-read the package index instead of its cache, so a release published
+minutes ago is seen and the CLI, the generator and the server land on the same one.
 
 Then regenerate and rebuild against the new pin. `make refresh` is the one
 target worth using over the raw commands, because it is a chain no single
@@ -510,7 +513,7 @@ Three verbs share a word, so keep them apart: `init --refresh` touches the
 scaffold and never the generated output; the scaffolded `make refresh`
 rebuilds the IG from the instance; and the one-command way to bring an older
 project up to the current d2w is `make update` - it moves the toolchain pin
-(`uv lock --upgrade`), syncs, and runs `init --refresh`, pin first, so the
+(`uv lock --upgrade --refresh`), syncs, and runs `init --refresh`, pin first, so the
 refresh runs on the d2w it just installed.
 
 Why this exists is concrete: a project scaffolded before `path-resource`

@@ -200,7 +200,9 @@ generate:  ## Regenerate FSH from DHIS2 metadata
 
 .PHONY: update
 update:  ## Update the project to the current d2w: move the toolchain pin, sync, refresh the scaffold-managed files
-	uv lock --upgrade
+# --refresh re-reads the package index, so a release published minutes ago is not missed from
+# uv's cache, which would leave the three d2w packages on different releases.
+	uv lock --upgrade --refresh
 	uv sync
 	$(D2W) fhir init --refresh
 
