@@ -121,7 +121,7 @@ from that, and neither is the scaffold's fault:
   own, so no guide here has ever been `uv sync`ed. A per-guide lock would pin the
   same commit nine times and go stale nine times. A real project you scaffold
   from these does commit its lock - [Set up an IG
-  project](../../../docs/201-set-up-a-project.md#install-the-pinned-toolchain)
+  project](../../docs/201-set-up-a-project.md#install-the-pinned-toolchain)
   says why.
 
 ## The refresh doctrine
@@ -181,7 +181,7 @@ Per guide, in order:
    `aliases.fsh` and the foundation target under `ig/input/fsh/`, nothing after
    them, and no compile beside them.
 
-The runner is [`scripts/verify_igs.py`](../../../scripts/verify_igs.py).
+The runner is [`scripts/verify_igs.py`](../../scripts/verify_igs.py).
 It is an on-demand target: it needs a reachable DHIS2 instance and docker, so it
 is not part of `make test` and not part of the default CI run. `--only <guide>`
 narrows it to one, and `--no-compile` drops the docker step.
@@ -206,7 +206,7 @@ make clean-artifacts               # sweep the regenerated trees back off disk
 ```
 
 `make dhis2-run` restores the prebuilt dump, so it is minutes rather than the
-hours a full reseed takes; [`docs/local-setup.md`](../../../docs/local-setup.md)
+hours a full reseed takes; [`docs/local-setup.md`](../../docs/local-setup.md)
 covers rebuilding that dump. Every UID a `fhir.toml` here names belongs to that
 dump, so `play.dhis2.org` is not a substitute: run the catalog against the local
 stack or not at all.
@@ -222,12 +222,12 @@ sweep it before reading anything under a guide as what the catalog ships.
 export DHIS2_PROFILE=local_basic
 cd examples/igs/facility-mixed
 
-uv run --project ../../../.. d2w fhir validate    # what the instance costs this guide
-uv run --project ../../../.. d2w fhir generate    # the IG source, from the instance
+uv run --project ../../.. d2w fhir validate    # what the instance costs this guide
+uv run --project ../../.. d2w fhir generate    # the IG source, from the instance
 make setup                                        # the SUSHI + IG publisher image, once
 make sushi                                        # compile the FSH
 ```
 
-`uv run --project ../../../..` is what makes the workspace build of `d2w` run
+`uv run --project ../../..` is what makes the workspace build of `d2w` run
 inside a directory that is itself a `uv` project. `make clean` inside a guide
 removes everything those two steps wrote.

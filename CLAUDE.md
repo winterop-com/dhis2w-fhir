@@ -66,9 +66,19 @@ Run every invocation with `BROWSER=true`.
 
 Examples live in `examples/`: `cli/` and `client/` for `d2w fhir` and the facade, `engine/` for the
 evaluation engine, and `igs/` for the committed example guides that `make verify-igs` refreshes,
-generates and compiles. The documentation site is `docs/` built by mkdocs-material (`make docs`;
+generates and compiles. `make verify-examples` runs every example in `cli/`, `client/` and `engine/`
+against a DHIS2 (`--list` shows what a pass runs and skips); an example that cannot run in a batch
+pass goes in `SKIP_BY_DEFAULT` in `scripts/verify_examples.py` with its reason. `make check-examples`
+checks, with no instance, that every `d2w ...` command an example script runs exists, and runs in CI. The documentation site is `docs/` built by mkdocs-material (`make docs`;
 published to GitHub Pages by `.github/workflows/docs.yml`). A change to a command, a `fhir.toml`
 key or a public symbol updates its page and its example in the same PR.
+
+## Keep docs/features.md in sync with code
+
+`docs/features.md` is the user-facing catalog of what the three packages do. A PR that adds,
+removes or renames a command, a `fhir.toml` key, an endpoint, an engine function or any other
+user-visible capability updates `docs/features.md` in the same PR. A stale feature list is worse
+than no feature list.
 
 ## Upstream DHIS2 quirks
 

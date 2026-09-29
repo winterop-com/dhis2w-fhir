@@ -82,6 +82,7 @@ plugins:
 nav:
   - Overview: index.md
   - Introduction: 100-introduction.md
+  - Features: features.md
   - 101 - Understand:
       - Glossary: glossary.md
       - What and why: 101-what-and-why.md

@@ -11,12 +11,13 @@ FHIR for DHIS2, as one [dhis2w](https://github.com/winterop-com/dhis2w) plugin p
 `dhis2w-fhir` registers `d2w fhir` through the `dhis2w.plugins.v1` entry point, so installing it
 next to `dhis2w-cli` is all it takes.
 
-Documentation: <https://winterop-com.github.io/dhis2w-fhir/>
+Documentation: <https://winterop-com.github.io/dhis2w-fhir/>, with every capability of the three
+packages listed on one page in [Features](https://winterop-com.github.io/dhis2w-fhir/features/).
 
 ## Install
 
 ```bash
-uv tool install dhis2w-cli --with dhis2w-fhir --with dhis2w-fhir-serve
+uv tool install "dhis2w-cli[fhir,serve]"   # d2w fhir, plus the facade behind d2w fhir serve
 d2w fhir --help
 ```
 
@@ -29,6 +30,8 @@ make install         # uv sync --all-packages --all-groups, then the capture UI 
 make lint            # ruff, mypy, pyright
 make test            # the suite, without the tests that need a running DHIS2
 make test-slow       # the live tests against a running DHIS2
+make check-examples  # every `d2w ...` command an example script runs exists (no DHIS2 needed)
+make verify-examples # run every example against a DHIS2 (`--list` in scripts/verify_examples.py shows the plan)
 make ui              # build the capture UI into dhis2w_fhir_serve/static
 make test-frontend   # the capture UI's unit tests
 make e2e-frontend    # the capture UI's browser tests, against a real server on 8377

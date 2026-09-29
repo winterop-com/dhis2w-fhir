@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install lint test test-slow coverage ui ui-if-available lint-frontend test-frontend e2e-frontend frontend-dev screenshot verify-igs publisher-check-summary docs docs-serve build clean
+.PHONY: help install lint test test-slow coverage ui ui-if-available lint-frontend test-frontend e2e-frontend frontend-dev screenshot verify-examples check-examples verify-igs publisher-check-summary docs docs-serve build clean
 
 FRONTEND_DIR := packages/dhis2w-fhir-serve/frontend
 # Where `make frontend-dev` proxies the capture UI's FHIR calls: a running `d2w fhir serve`.
@@ -74,6 +74,12 @@ else
 	@cd $(FRONTEND_DIR) && DOCS_SCREENSHOTS=1 D2W_SCREENSHOT_PROJECT="$(D2W_SCREENSHOT_PROJECT)" \
 		pnpm exec playwright test e2e/docs-screenshots-live.spec.ts
 endif
+
+verify-examples:  ## Run every non-interactive example against DHIS2_PROFILE (default local_basic; needs a DHIS2)
+	uv run python -u scripts/verify_examples.py --profile $${DHIS2_PROFILE:-local_basic}
+
+check-examples:  ## Check that every `d2w ...` command an example script runs exists (no DHIS2 needed)
+	uv run python scripts/check_example_refs.py
 
 verify-igs:  ## Refresh, validate, generate and SUSHI-compile every example guide (needs docker and a DHIS2)
 	uv run python -u scripts/verify_igs.py

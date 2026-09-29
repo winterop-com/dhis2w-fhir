@@ -4,7 +4,7 @@
 
 `dhis2w-fhir`, `dhis2w-fhir-serve` and `dhis2w-fhir-engine` are not per-version packages — the client detects the DHIS2 major from `/api/system/info`, and the engine talks to no DHIS2 at all — so this is one copy that runs against v41, v42, and v43 alike.
 
-The narrative these scripts sit under is the [`d2w fhir` guide series](../../docs/index.md); [`docs/examples.md`](../../docs/examples.md) is the curated catalogue.
+The narrative these scripts sit under is the [`d2w fhir` guide series](https://winterop-com.github.io/dhis2w-fhir/); [`docs/features.md`](https://winterop-com.github.io/dhis2w-fhir/features/) is the catalog of what the packages do.
 
 ## Prerequisites
 
@@ -87,7 +87,7 @@ Nine examples with [their own README](engine/README.md). `dhis2w-fhir-engine` ev
 | Score a quality measure | How do I turn that into populations, a score, and a FHIR `MeasureReport`? |
 | Against a real DHIS2 instance | What does the whole chain look like over seeded tracker data? |
 
-The narrative these sit under is the [501 pages](../../docs/index.md) of the guide series: [FHIRPath](../../docs/501-fhirpath.md), [CQL](../../docs/501-cql.md), [Quality measures](../../docs/501-measures.md), and [The FHIR version binding](../../docs/501-version-binding.md).
+The narrative these sit under is the [501 pages](https://winterop-com.github.io/dhis2w-fhir/) of the guide series: [FHIRPath](../docs/501-fhirpath.md), [CQL](../docs/501-cql.md), [Quality measures](../docs/501-measures.md), and [The FHIR version binding](../docs/501-version-binding.md).
 
 **Every one runs in `make verify-examples`.** The eight pure-evaluation examples read the inline Bundle in [`engine/_bundle.py`](engine/_bundle.py); `e2e_measure_from_dhis2.py` reads `DHIS2_URL`, `DHIS2_USERNAME`, and `DHIS2_PASSWORD`, which the verify suite sources from the seeded credentials file and skips with the missing names stated when they are absent.
 
