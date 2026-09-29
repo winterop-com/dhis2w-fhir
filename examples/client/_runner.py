@@ -1,4 +1,4 @@
-"""Entry-point helper for `examples/fhir/client/*.py` — handles NoProfileError and FixtureError cleanly."""
+"""Entry-point helper for `examples/client/*.py` — handles NoProfileError and FixtureError cleanly."""
 
 from __future__ import annotations
 

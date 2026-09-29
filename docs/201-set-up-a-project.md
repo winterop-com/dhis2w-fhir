@@ -158,7 +158,7 @@ $ d2w fhir init --list-templates
 │                        │          │ answering two stage forms.                 │
 └────────────────────────┴──────────┴────────────────────────────────────────────┘
 note: a bundled template rides the installed package; a checkout one is read from
-examples/fhir/igs/ of the dhis2w repository and exists only in a clone of it
+examples/igs/ of the dhis2w repository and exists only in a clone of it
 ```
 
 The listing comes off the template manifest and the catalog's own declarations,
@@ -167,11 +167,11 @@ said it held. A bundled template's line is written for it in the manifest; a
 checkout one's is the `summary` of its own `template.toml`.
 
 **An example is a template only when it says so.** Each guide under
-`examples/fhir/igs/` carries a `template.toml` beside its `fhir.toml`, holding
+`examples/igs/` carries a `template.toml` beside its `fhir.toml`, holding
 either `scaffolds = true` with the `summary` the listing prints, or
 `scaffolds = false` with the `refusal` `--template` prints instead. The catalog
 holds exhibits as well as guides -
-[`refused-names`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/igs/refused-names/README.md)
+[`refused-names`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/igs/refused-names/README.md)
 exists to show a selection `d2w fhir generate` refuses, so it has no generated
 tree to lay down and nothing `make sushi` can compile - and the declaration
 is what keeps one of those out of the listing:
@@ -183,12 +183,12 @@ error: `refused-names` is an example, not a template. It demonstrates the names
 aborts the IG publisher's last pass. The run is refused on the first such name,
 which leaves the foundation target on disk and nothing after it, so this example
 carries no generated tree to lay down and `make sushi` has nothing it can
-compile. Read it at examples/fhir/igs/refused-names/README.md.
+compile. Read it at examples/igs/refused-names/README.md.
 ```
 
 **Bundled or checkout.** A bundled template rides the installed package and
 works anywhere `d2w` does. A checkout one is read from
-[`examples/fhir/igs/`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/igs/README.md)
+[`examples/igs/`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/igs/README.md)
 of the dhis2w repository, which no wheel carries, so it scaffolds only
 from a clone. Three of the eight ride the wheel; asking an installed package for
 one of the other five is refused by saying where it lives:

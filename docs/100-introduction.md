@@ -46,7 +46,7 @@ $ d2w fhir serve . --ui
 Success looks like a FHIR server answering `/metadata`, six Questionnaires and
 83 Locations behind it, and capture screens at `/`.
 
-![The Overview: the receipt counts one per lifecycle state, the served forms as cards that open them, and the strip naming the guide this server serves](../img/fhir/capture-ui-overview.png)
+![The Overview: the receipt counts one per lifecycle state, the served forms as cards that open them, and the strip naming the guide this server serves](img/capture-ui-overview.png)
 
 `d2w fhir init --list-templates` names the others.
 [Start from a template](201-set-up-a-project.md#start-from-a-template) states
@@ -117,7 +117,7 @@ The server answers `201 Created` and holds the submission in a local spool as a
 [`d2w fhir forward`](201-forward.md) drains the spool into the instance, and
 `withdrawn` if a forwarded one is later retracted.
 
-![The Responses table: the lifecycle states as a filter row carrying their own counts, and a row per receipt with what it answers and where it is now](../img/fhir/capture-ui-responses.png)
+![The Responses table: the lifecycle states as a filter row carrying their own counts, and a row per receipt with what it answers and where it is now](img/capture-ui-responses.png)
 
 ## What else it does
 

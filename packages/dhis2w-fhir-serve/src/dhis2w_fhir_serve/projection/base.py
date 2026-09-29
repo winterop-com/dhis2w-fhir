@@ -11,7 +11,7 @@ whole job while disclosing nothing but the fact that some identifier matched.
 
 AUTHORIZATION BY CONSTRUCTION, WHICH IS WHY `NameMatch` CARRIES SO LITTLE. DHIS2 enforces sharing,
 organisation-unit scope, and tracker ownership in the request path, and a projection takes DHIS2 out
-of the request path. `docs/fhir/design/projection.md` R9 is the posture that answer forces: an index
+of the request path. `docs/design/projection.md` R9 is the posture that answer forces: an index
 discloses a tracked entity UID and how well it matched, and **resolving one of those UIDs into a
 record goes back through the live, caller-credentialed read** - `register.wire.fetch_tracked_entity`,
 under the caller's own credentials, exactly as a register read runs today. So DHIS2 decides, per UID,
@@ -53,7 +53,7 @@ class ProjectionEndpoint(StrEnum):
     """Which DHIS2 tracker collection a watermark belongs to.
 
     One watermark per collection rather than one for the projection, because
-    `docs/fhir/design/projection.md` section 3.4 measured them as independent polls with independent
+    `docs/design/projection.md` section 3.4 measured them as independent polls with independent
     tombstone behaviour, and 5.2 rule 3 draws the conclusion: a single global cursor would be a guess
     about which endpoint's clock leads.
 
@@ -240,7 +240,7 @@ class ProjectionBatch(BaseModel):
     """Which collection's watermark this batch advances, or None for a batch that advances none.
 
     Per-endpoint because the three collections are polled independently
-    (`docs/fhir/design/projection.md` section 5.2, rule 3). None is the honest value for a batch
+    (`docs/design/projection.md` section 5.2, rule 3). None is the honest value for a batch
     written to re-materialize entities an enrollment poll found stale: it carries rows, it advances
     no watermark of its own, and the poll that found them advances theirs when it finishes.
     """

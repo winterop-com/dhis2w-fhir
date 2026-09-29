@@ -2,7 +2,7 @@
 # d2w fhir forward — the dry run: DHIS2 judges every payload and nothing is written.
 # Needs the serve extra to fill the spool: `pip install 'dhis2w-cli[serve]'` or `uv add dhis2w-fhir-serve`.
 # Needs docker for the SUSHI compile and binds a port to fill the spool, so `make verify-examples`
-# skips it: `infra/scripts/verify_examples.py` lists it under "slow server-side jobs". The drain
+# skips it: `scripts/verify_examples.py` lists it under "slow server-side jobs". The drain
 # itself writes nothing to the instance.
 set -euo pipefail
 
@@ -65,6 +65,6 @@ ls .serve/responses/received | wc -l
 # [generate] tables the rest of the project does:
 #   make forward
 #
-# The committing run is examples/fhir/cli/forward_import.sh.
+# The committing run is examples/cli/forward_import.sh.
 
 cd .. && rm -rf forward-dry-run-demo

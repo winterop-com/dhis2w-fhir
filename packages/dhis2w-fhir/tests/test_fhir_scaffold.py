@@ -1202,7 +1202,7 @@ def test_refresh_keeps_the_sushi_timeout_no_other_file_records(tmp_path: Path) -
 def test_every_committed_guide_matches_the_current_scaffold_render() -> None:
     """Every scaffold-managed file of every committed guide is byte-identical to today's render.
 
-    The copies under examples/fhir/igs/ are what a reader browsing the repository sees, and nothing
+    The copies under examples/igs/ are what a reader browsing the repository sees, and nothing
     else asserts they kept up. This once checked `fhir.example.toml` alone, and the narrowness cost
     what narrow guards always cost: `pyproject.toml` sat on a `[tool.uv.sources]` block the scaffold
     had stopped writing, telling readers to resolve the toolchain from a git branch when the
@@ -1219,7 +1219,7 @@ def test_every_committed_guide_matches_the_current_scaffold_render() -> None:
     from dhis2w_fhir.scaffold.refresh import read_project_scaffold_state
 
     repository_root = Path(__file__).resolve().parents[3]
-    guides = sorted((repository_root / "examples" / "fhir" / "igs").glob("*/fhir.toml"))
+    guides = sorted((repository_root / "examples" / "igs").glob("*/fhir.toml"))
     assert guides, "no committed guides found - the path layout moved"
     stale: list[str] = []
     for config_path in guides:

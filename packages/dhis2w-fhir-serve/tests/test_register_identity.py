@@ -1,6 +1,6 @@
 """The identity dial on the register: what a nomination fills, what it states absent, and what it leaves alone.
 
-`docs/fhir/design/ips.md` section 9, phase 1. The fixture guide publishes no attribute that means
+`docs/design/ips.md` section 9, phase 1. The fixture guide publishes no attribute that means
 "name" - no DHIS2 instance does, which is the whole argument - so the nomination here names the one
 TEXT attribute the fixture publishes. What is under test is the reading, not the fixture's semantics.
 

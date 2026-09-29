@@ -1,0 +1,34 @@
+.venv/
+__pycache__/
+*.py[cod]
+dist/
+build/
+*.egg-info/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.hypothesis/
+site/
+.DS_Store
+
+# Project-local DHIS2 profiles are never committed.
+.dhis2/
+
+# The capture UI. The bundle is built by `make ui` (CI runs it before packaging), so a committed
+# copy would only be the same bytes going stale; the directory is kept by a .gitkeep the vite
+# build rewrites.
+node_modules/
+packages/dhis2w-fhir-serve/src/dhis2w_fhir_serve/static/*
+!packages/dhis2w-fhir-serve/src/dhis2w_fhir_serve/static/.gitkeep
+# Browser e2e working state: the IG project the suite boots a server over, and the reports.
+packages/dhis2w-fhir-serve/frontend/e2e/.fixture-project/
+packages/dhis2w-fhir-serve/frontend/test-results/
+packages/dhis2w-fhir-serve/frontend/playwright-report/
+packages/dhis2w-fhir-serve/frontend/blob-report/
+packages/dhis2w-fhir-serve/frontend/.playwright/
+
+# Run output: d2w fhir doctor, validate, and generate write their reports here.
+reports/

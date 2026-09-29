@@ -29,7 +29,7 @@ An event that belongs to a tracker programme's enrollment is a different form ki
 `convert_registration_to_dhis2.py` for the enrollment such an event answers against.
 
 Usage:
-    uv run python examples/fhir/client/convert_event_to_dhis2.py
+    uv run python examples/client/convert_event_to_dhis2.py
 
 Reads the example project's guide through the shared fixture; see the README beside this file.
 """

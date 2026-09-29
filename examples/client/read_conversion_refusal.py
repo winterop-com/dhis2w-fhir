@@ -24,7 +24,7 @@ The last one is the only category that is not a data problem or a guide problem:
 either can resolve it, which is why a forwarder files such a receipt instead of retrying it.
 
 Usage:
-    uv run python examples/fhir/client/read_conversion_refusal.py
+    uv run python examples/client/read_conversion_refusal.py
 
 Reads the example project's guide through the shared fixture; see the README beside this file.
 """

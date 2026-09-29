@@ -27,7 +27,7 @@ nobody.
 
 Usage:
     d2w fhir serve --live --port 8123      # in the project directory, in another shell
-    uv run python examples/fhir/client/find_person_by_identifier.py
+    uv run python examples/client/find_person_by_identifier.py
 """
 
 from __future__ import annotations

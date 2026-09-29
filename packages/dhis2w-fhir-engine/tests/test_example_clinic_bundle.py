@@ -1,6 +1,6 @@
-"""Pins `examples/fhir/engine/clinic.json` to the module that writes it.
+"""Pins `examples/engine/clinic.json` to the module that writes it.
 
-The Python examples in `examples/fhir/engine/` read the Bundle from `_bundle.clinic_bundle()`; the
+The Python examples in `examples/engine/` read the Bundle from `_bundle.clinic_bundle()`; the
 command-line examples and the two 501 guides read it from `clinic.json` beside them. They are one
 Bundle told twice, and a reader who runs both is entitled to the same four children, three doses and
 two weights out of each. This test is what makes that entitlement true.
@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-_EXAMPLES_DIRECTORY = Path(__file__).resolve().parents[3] / "examples" / "fhir" / "engine"
+_EXAMPLES_DIRECTORY = Path(__file__).resolve().parents[3] / "examples" / "engine"
 _BUNDLE_MODULE_PATH = _EXAMPLES_DIRECTORY / "_bundle.py"
 _BUNDLE_FILE_PATH = _EXAMPLES_DIRECTORY / "clinic.json"
 
@@ -23,7 +23,7 @@ _JSON_INDENT = 2
 
 
 def _load_bundle_module() -> ModuleType:
-    """Import `examples/fhir/engine/_bundle.py` by path - it sits outside every installed package."""
+    """Import `examples/engine/_bundle.py` by path - it sits outside every installed package."""
     specification = importlib.util.spec_from_file_location("clinic_bundle_example", _BUNDLE_MODULE_PATH)
     if specification is None or specification.loader is None:
         pytest.fail(f"cannot import the example bundle module at {_BUNDLE_MODULE_PATH}")

@@ -17,12 +17,12 @@ process - as a library, with no server to run, no port to bind, and no UI.
   own authentication
 
 **The runnable version of this page** is the five files this page quotes:
-[`embed_the_facade.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/embed_the_facade.py),
-[`capture_headless.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/capture_headless.py),
-[`forward_headless.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/forward_headless.py),
-[`projection_local_store.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/projection_local_store.py),
+[`embed_the_facade.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/embed_the_facade.py),
+[`capture_headless.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/capture_headless.py),
+[`forward_headless.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/forward_headless.py),
+[`projection_local_store.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/projection_local_store.py),
 and
-[`embed_in_fastapi.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/embed_in_fastapi.py).
+[`embed_in_fastapi.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/embed_in_fastapi.py).
 Every console block below is their output.
 
 ## The third posture
@@ -60,7 +60,7 @@ async with application.router.lifespan_context(application):
    no host and reaches none - it is the authority in front of every path.
 
 ```console
-$ uv run python examples/fhir/client/embed_the_facade.py
+$ uv run python examples/client/embed_the_facade.py
 d2w fhir serve 1.8.0.dev0 - loaded, not listening
   serves: QuestionnaireResponse, Questionnaire, CodeSystem, ValueSet, Location, Organization, List, ConceptMap, Patient
 7 Questionnaire(s) published
@@ -89,7 +89,7 @@ The capture surface is a route like any other, so an embedded facade receives
 submissions by being handed one:
 
 ```console
-$ uv run python examples/fhir/client/capture_headless.py
+$ uv run python examples/client/capture_headless.py
 $generate on BfMAe6Itzgt: a completed draft with 2 item(s)
 POST -> 201, receipt 65feb2ba5fd84c3784525312197b72f2 answering http://example.org/fhir/example-demo/Questionnaire/BfMAe6Itzgt
 spool: .../.serve/responses
@@ -121,7 +121,7 @@ with two things the command line cannot give it:
   service that decides these in its own configuration states them here.
 
 ```console
-$ uv run python examples/fhir/client/forward_headless.py
+$ uv run python examples/client/forward_headless.py
 instance: http://localhost:8080 (profile local_basic)
 dry run, lenient coded answers
   14 spooled, 14 translated, 0 refused, 14 posted (validate only), 10 accepted, 4 rejected
@@ -143,7 +143,7 @@ publishes. `run_sync` fills it - it is what `d2w fhir sync` calls - and
 `ProjectionStore` is the protocol every read goes through:
 
 ```console
-$ uv run python examples/fhir/client/projection_local_store.py
+$ uv run python examples/client/projection_local_store.py
 projection: .../.serve/projection.sqlite
 sync (incremental): created 0, updated 1, removed 0 over 2 page(s)
 read as far as: tracked entities 2026-08-22 00:06:48.152000, enrollments 2026-08-22 00:06:47.986000
@@ -215,7 +215,7 @@ last so every fixed path ahead of them wins. A route added after that call is a
 route the catch-all already claimed.
 
 ```console
-$ uv run python examples/fhir/client/embed_in_fastapi.py
+$ uv run python examples/client/embed_in_fastapi.py
 guarded routers: 16 of 17
 GET /status -> the embedding application
 GET /metadata -> 200 (no key sent)

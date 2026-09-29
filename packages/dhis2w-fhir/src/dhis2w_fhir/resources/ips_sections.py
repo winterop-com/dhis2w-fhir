@@ -1,11 +1,11 @@
 """The published map from this instance's own DHIS2 objects onto the IPS sections they feed.
 
-`docs/fhir/design/ips.md` section 5 lays out three sources a section mapping could come from and
+`docs/design/ips.md` section 5 lays out three sources a section mapping could come from and
 the owner took option C: **`fhir.toml` is the input and the ConceptMap is the published output.**
 The operator states the mapping once in the file they already edit, `d2w fhir generate` publishes it
 beside the vocabularies it maps, and a consumer audits the assignment without ever seeing this
 project's config - which is also the shape a cross-instance comparison would later diff
-(`docs/fhir/design/harmonization.md`).
+(`docs/design/harmonization.md`).
 
 **The sources are the DHIS2 identifier namespaces, not the generated concept codes.** A program
 stage rides `{base}/id/program-stage` and a data element rides `{base}/id/data-element` - the very

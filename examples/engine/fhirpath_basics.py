@@ -13,7 +13,7 @@ A path walks elements by name. `where(...)` keeps the entries a condition holds 
 `unwrap_primitives` is what turns them into the plain Python strings and numbers you print.
 
 Usage:
-    uv run python examples/fhir/engine/fhirpath_basics.py
+    uv run python examples/engine/fhirpath_basics.py
 
 Needs no DHIS2, no server, and no project: the resource is inline.
 """

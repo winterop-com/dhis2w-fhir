@@ -20,7 +20,7 @@ different people, which is why the facade is careful to say which it met.
 
 Usage:
     d2w fhir serve --port 8123           # in the project directory, in another shell
-    uv run python examples/fhir/client/read_capture_refusal.py
+    uv run python examples/client/read_capture_refusal.py
 """
 
 from __future__ import annotations

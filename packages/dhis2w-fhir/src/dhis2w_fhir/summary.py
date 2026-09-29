@@ -6,7 +6,7 @@ WHAT AN IPS IS, AND WHAT THIS BUILDS. One FHIR **document**: a Bundle whose firs
 invariant `bdl-ips-1` - an IPS document has no `Composition` besides the first.
 `Composition-uv-ips` pins `type` to the LOINC pattern `60591-5`, constrains `subject` to one
 `Patient`, and sets `section` to 3..* with `title`, `code`, and `text` required on every section
-present. This module builds exactly that, and `docs/fhir/design/ips.md` is the argument behind
+present. This module builds exactly that, and `docs/design/ips.md` is the argument behind
 every choice in it.
 
 **IT IS A LIBRARY AND NOT A ROUTE.** Everything below is a pure function of what somebody already
@@ -16,7 +16,7 @@ opens a connection, reads a store, or knows what a request is.
 
 **THREE REQUIRED SECTIONS, AND WHAT THEY SAY WHEN NOTHING IS MAPPED.** Problems, Allergies and
 Intolerances, and Medication Summary are the sections the IPS puts a `SHALL:populate` obligation on
-the Creator actor for, and this project maps none of them (`docs/fhir/design/ips.md` section 6:
+the Creator actor for, and this project maps none of them (`docs/design/ips.md` section 6:
 Allergies is `HONESTLY EMPTY`, the other two are `WITH A MAPPING` nobody has written yet). So each
 carries `Composition.section.emptyReason`, which is what the invariant `ips-comp-1` accepts in place
 of an entry, with the `unavailable` code out of R4's own `list-empty-reason`. Nothing is invented to

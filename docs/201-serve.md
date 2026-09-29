@@ -61,7 +61,7 @@ d2w fhir serve
 run above, `make serve` is `uv run d2w fhir serve --ui` - the same endpoint
 plus the capture UI at `/`.)
 
-![The Overview: the receipt counts one per lifecycle state, the served forms as cards that open them, and the strip naming the guide this server serves](../img/fhir/capture-ui-overview.png)
+![The Overview: the receipt counts one per lifecycle state, the served forms as cards that open them, and the strip naming the guide this server serves](img/capture-ui-overview.png)
 
 Then, from another shell, ask the server what it is:
 

@@ -13,7 +13,7 @@ The R4 subpackage also ships a terminology service, for the moment a client want
 asked directly rather than folded into a retrieve: is this code a member of that ValueSet?
 
 Usage:
-    uv run python examples/fhir/engine/cql_terminology.py
+    uv run python examples/engine/cql_terminology.py
 
 Needs no DHIS2, no server, and no project: the Bundle and the ValueSet are inline.
 """

@@ -169,7 +169,7 @@ RULE_ASSIGNS_SUB_EXTENSION = "assigns"
 #: The two program rules the fixture's instance holds for its antenatal visit stage, exactly as the
 #: DHIS2 demo database states them: one that refuses an implausible haemoglobin reading, and one that
 #: warns on a visit filed out of order. The first is the rule the `E1300` repro in
-#: docs/fhir/design/dhis2-fidelity.md names, which is what makes a rejection carrying that uid
+#: docs/design/dhis2-fidelity.md names, which is what makes a rejection carrying that uid
 #: something the receipt page can read a name off.
 HAEMOGLOBIN_RULE_UID = "PrRuleHb001"
 HAEMOGLOBIN_RULE_NAME = "The haemoglobin value cannot be above 99"

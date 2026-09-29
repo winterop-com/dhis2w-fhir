@@ -6,7 +6,7 @@ entries are the resources that Composition's sections point at.
 **This is the assembly done by hand, in typed Python, against a live instance.** The served
 surface is `d2w fhir serve --live` answering `GET /Patient/{uid}/$summary`
 ([`../cli/summary.sh`](../cli/summary.sh) walks it), and it maps its one section through
-[`[ips.sections]`](../../../docs/fhir/301-what-goes-in.md#ips-sections) rather than through
+[`[ips.sections]`](../../../docs/301-what-goes-in.md#ips-sections) rather than through
 constants. This file states its own nominations instead, and maps a different section - **Results**
 rather than Immunizations - so that what it shows is how a section is assembled at all, over a
 project whose `fhir.toml` nominates nothing.
@@ -40,7 +40,7 @@ The person, the enrollment, and the two events are created here and deleted agai
 ends, so the example leaves the instance exactly as it found it.
 
 Usage:
-    uv run python examples/fhir/client/ips_document.py
+    uv run python examples/client/ips_document.py
 
 Requires a DHIS2 profile (`d2w profile list`) and the seeded Child Programme.
 """

@@ -4,7 +4,7 @@ Two claims are under test. The first is that the route table `create_app` produc
 `serve_routers` describes - path for path, method for method, in mount order, which is the order that
 decides whether `/metadata` is a read of a resource named `metadata`. The second is that an
 application mounting those routers over a runtime it opened itself answers what the factory answers,
-which is the contract `docs/fhir/design/library.md` section 3.4 states and the thing an embedder is
+which is the contract `docs/design/library.md` section 3.4 states and the thing an embedder is
 entitled to rely on.
 
 Two answers carry the moment they were made - the CapabilityStatement's `date`, and the id a receipt

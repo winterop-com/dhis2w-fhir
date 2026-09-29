@@ -2,7 +2,7 @@
 # FHIR facade — generate an IG, compile it, serve it, post a load set, read the receipts back.
 # Needs the serve extra: `pip install 'dhis2w-cli[serve]'` or `uv add dhis2w-fhir-serve`.
 # Needs docker for the SUSHI compile and binds a port for the facade, so `make verify-examples`
-# skips it: `infra/scripts/verify_examples.py` lists it under "slow server-side jobs". Run it by
+# skips it: `scripts/verify_examples.py` lists it under "slow server-side jobs". Run it by
 # hand.
 set -euo pipefail
 
@@ -51,7 +51,7 @@ TOML
 # caller on loopback and refuses any other interface at startup, naming the line to write -
 # so a project that means to bind 0.0.0.0 states the posture rather than defaulting into it.
 # `auth = "none"` written out is that statement. All four postures run in
-# examples/fhir/cli/serve_auth_postures.sh; this script is about the routes.
+# examples/cli/serve_auth_postures.sh; this script is about the routes.
 
 # Serve it. The default binds loopback on port 8080, [serve] port overrides that, and
 # --port overrides both. Startup loads the project, the store, and the response spool once.
@@ -182,7 +182,7 @@ ls .serve/responses/received | wc -l
 
 # Who this facade answers is its own story, and it has its own script: static bearer tokens
 # out of the environment, the caller's own DHIS2 credentials checked against the instance,
-# and a token from an OpenID Connect issuer. See examples/fhir/cli/serve_auth_postures.sh.
+# and a token from an OpenID Connect issuer. See examples/cli/serve_auth_postures.sh.
 
 # Stop the server and clean up.
 kill "$SERVER_PID"

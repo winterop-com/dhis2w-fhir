@@ -24,11 +24,11 @@ project's own `[generate.naming]` prefix - which is why this example derives the
 rather than writing them out.
 
 Usage:
-    uv run python examples/fhir/client/read_form_fidelity.py
+    uv run python examples/client/read_form_fidelity.py
 
 Reads all five kinds of form the example fixture publishes, from the facade the fixture serves.
 
-The registry of every `D2*` extension is at docs/fhir/401-identifiers-and-extensions.md.
+The registry of every `D2*` extension is at docs/401-identifiers-and-extensions.md.
 """
 
 from __future__ import annotations

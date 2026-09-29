@@ -25,7 +25,7 @@ This example reads the four cells off the form itself rather than typing them ou
 real capture client does.
 
 Usage:
-    uv run python examples/fhir/client/build_aggregate_disaggregated_response.py
+    uv run python examples/client/build_aggregate_disaggregated_response.py
 
 Requires a DHIS2 profile (`d2w profile list`).
 """

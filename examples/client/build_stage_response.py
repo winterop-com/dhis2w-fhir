@@ -26,7 +26,7 @@ A stage form also says whether the stage **repeats** - the `D2Repeatable` extens
 knows whether one enrollment may hold several events of it before offering to add another.
 
 Usage:
-    uv run python examples/fhir/client/build_stage_response.py
+    uv run python examples/client/build_stage_response.py
 
 Requires a DHIS2 profile (`d2w profile list`) and at least one enrollment in the tracker programme.
 """

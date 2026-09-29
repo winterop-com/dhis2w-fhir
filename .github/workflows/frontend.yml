@@ -95,7 +95,7 @@ jobs:
         # Deliberately not a make target: the Makefile does not download a
         # browser behind your back, and CI is the one place that choice is made
         # explicitly. --with-deps pulls the system libraries headless Chromium
-        # needs on ubuntu-latest, as the E2E workflow does for its own run.
+        # needs on ubuntu-latest.
         run: pnpm exec playwright install --with-deps chromium
         working-directory: packages/dhis2w-fhir-serve/frontend
 

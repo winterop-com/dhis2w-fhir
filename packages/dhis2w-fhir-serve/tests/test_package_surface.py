@@ -3,7 +3,7 @@
 Three things drift apart on their own and are pinned together here. A name in `__all__` that does not
 import is a broken promise; a module the API reference renders that the package exports nothing from
 sends a reader who followed the docs to an import that does not exist; and a name published for the
-React bundle's sake would make the doctrine's one exception - see `docs/fhir/design/library.md` R8 -
+React bundle's sake would make the doctrine's one exception - see `docs/design/library.md` R8 -
 a sentence in a design paper rather than something a reviewer can check.
 
 The rule the last of those leaves behind is short enough to read: if a name exists so the capture UI
@@ -27,7 +27,7 @@ import pytest
 PACKAGE_NAME = "dhis2w_fhir_serve"
 
 #: The API reference page for this package, and the directive mkdocstrings renders a module with.
-REFERENCE_PAGE = Path(__file__).resolve().parents[3] / "docs" / "fhir" / "api-dhis2w-fhir-serve.md"
+REFERENCE_PAGE = Path(__file__).resolve().parents[3] / "docs" / "api-dhis2w-fhir-serve.md"
 RENDER_DIRECTIVE = re.compile(rf"^:::\s+({PACKAGE_NAME}[\w.]*)\s*$", re.MULTILINE)
 
 #: The modules that exist so the built React bundle can work.

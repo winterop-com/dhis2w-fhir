@@ -45,7 +45,7 @@ as pre-built JSON beside them and are loaded, not compiled.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/aggregate-minimal
+cd examples/igs/aggregate-minimal
 
 uv run --project ../../../.. d2w fhir generate
 make setup      # the SUSHI + IG publisher docker image, once per machine

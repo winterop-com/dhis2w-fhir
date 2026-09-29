@@ -5,7 +5,7 @@ run - `filter=<attribute>:eq:<value>` against `/api/tracker/trackedEntities`, on
 tracked entity type, `orgUnitMode=ACCESSIBLE` on every one of them - so it is exactly as weak as an exact
 match is, and it carries exactly today's authorization properties. Its whole value is that once a
 lookup is the only path a register search takes, swapping in a real index is a config line rather
-than a refactor. `docs/fhir/design/projection.md` section 7.2 is the design, and R5 is the reason
+than a refactor. `docs/design/projection.md` section 7.2 is the design, and R5 is the reason
 this backend is built first: a seam nothing has crossed is not a seam.
 
 WHOSE CREDENTIALS IT READS UNDER. Whatever the `RegisterReader` it was handed reads under, which is
@@ -16,7 +16,7 @@ where that is decided, and nothing here branches on the answer.
 WHAT IT DISCLOSES, AND WHAT IT DOES NOT. A match is a tracked entity UID and a score. The record
 behind one is not this index's to hand over: the register resolves each match through
 `register.wire.fetch_tracked_entity`, under the same credentials, so DHIS2 authorizes the disclosure
-per match per caller - `docs/fhir/design/projection.md` R9. This backend therefore reads more than it
+per match per caller - `docs/design/projection.md` R9. This backend therefore reads more than it
 discloses, because the tracker endpoint answers a filtered search with whole entities and this index
 keeps their identifiers alone. Narrowing that projection is an optimisation the index backends make
 moot, and it is not what proves the seam.

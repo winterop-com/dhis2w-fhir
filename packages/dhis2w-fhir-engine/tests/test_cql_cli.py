@@ -69,7 +69,7 @@ CLINIC_BUNDLE = {
         },
     ],
 }
-"""Four children, three of them vaccinated - the same shape as `examples/fhir/engine/clinic.json`."""
+"""Four children, three of them vaccinated - the same shape as `examples/engine/clinic.json`."""
 
 
 def write_library(directory: Path, name: str, source: str) -> Path:

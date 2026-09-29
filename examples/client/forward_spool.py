@@ -14,10 +14,10 @@ derived views a caller would otherwise have to compute: `accepted` / `rejected` 
 as the three things that are actually wrong.
 
 Usage:
-    uv run python examples/fhir/client/forward_spool.py [PROJECT_DIRECTORY]
+    uv run python examples/client/forward_spool.py [PROJECT_DIRECTORY]
 
 With no argument it drains the shared example project's spool (see `_fixture.py`). Fill a
-spool first - see examples/fhir/cli/serve.sh, or any `d2w fhir serve` that has been POSTed
+spool first - see examples/cli/serve.sh, or any `d2w fhir serve` that has been POSTed
 a QuestionnaireResponse. An empty spool reports a run of zero, which is a valid answer
 rather than an error.
 """

@@ -1,6 +1,6 @@
 """The `[ips]` tables: which attribute carries a person's identity, and which stage data is a dose.
 
-`docs/fhir/design/ips.md` sections 4 and 5 are the argument in full, and they are one argument made
+`docs/design/ips.md` sections 4 and 5 are the argument in full, and they are one argument made
 twice. DHIS2 has no name field, no sex field, and no date-of-birth field, and it marks no data
 element as an immunisation, a problem, or an allergy. Which of an instance's tracked entity
 attributes mean those demographic things, and which of its data elements belong in which section of
@@ -172,7 +172,7 @@ class IdentityNominations(BaseModel):
     `administrative_gender` maps the value DHIS2 stores against the `sex` attribute - the option's
     DHIS2 code on an option-set-bound attribute - onto one of R4's four `administrative-gender`
     codes. It is a map rather than a rename because the binding on `Patient.gender` is required, and
-    it is the smallest possible instance of the clinical-vocabulary source `docs/fhir/design/ips.md`
+    it is the smallest possible instance of the clinical-vocabulary source `docs/design/ips.md`
     section 3 says does not exist yet: four codes rather than forty thousand.
 
     `name` publishes as `Patient.name[0].text`, `given_name` as `name[0].given`, and `family_name`
@@ -279,7 +279,7 @@ class IdentityNominations(BaseModel):
 class ImmunizationsMapping(BaseModel):
     """Which recorded values are doses - the `[ips.sections.immunizations]` table.
 
-    `docs/fhir/design/ips.md` section 6 puts the Immunizations row at `WITH A MAPPING` and says what
+    `docs/design/ips.md` section 6 puts the Immunizations row at `WITH A MAPPING` and says what
     the mapping has to state: dose events in an immunisation program stage, with the event's own date
     as the occurrence. This table states exactly that, in two lists.
 
@@ -350,7 +350,7 @@ class SectionMappings(BaseModel):
     """Which recorded values belong in which section of a summary - the `[ips.sections]` tables.
 
     One sub-table per IPS section this project maps, and `immunizations` is the only one phase 2
-    ships: `docs/fhir/design/ips.md` section 9 says why it goes first, and section 6 says why every
+    ships: `docs/design/ips.md` section 9 says why it goes first, and section 6 says why every
     other section needs its own nomination rather than a general rule. A section named here that this
     version does not map is refused by name, so a project writing `[ips.sections.problems]` today is
     told the key is not one rather than left with a table that quietly does nothing.
@@ -412,7 +412,7 @@ def nominated_value_type_issues(
 ) -> list[NominatedValueTypeIssue]:
     """Check every nomination against the value type `D2TEA_CS` publishes for it, in key order.
 
-    `docs/fhir/design/ips.md` section 4, "Value-shape validation": a nomination whose value type
+    `docs/design/ips.md` section 4, "Value-shape validation": a nomination whose value type
     cannot fill the element it was nominated for refuses the run, in the manner
     `[generate.tracked_entity_types]` refuses a resource type that is not one.
 

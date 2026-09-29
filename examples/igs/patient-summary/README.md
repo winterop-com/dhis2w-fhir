@@ -11,7 +11,7 @@ two things nobody but the instance's own operator can state.
 DHIS2 has no name field and no sex field, and it marks no data element as an
 immunisation. So a patient summary built from a DHIS2 instance is exactly as good as
 what somebody wrote down, and this guide writes both halves down and serves the
-result. [The IPS design paper](../../../../docs/fhir/design/ips.md) is the argument
+result. [The IPS design paper](../../../../docs/design/ips.md) is the argument
 in full.
 
 ## The two nominations, and the dial
@@ -69,7 +69,7 @@ SUSHI compiles the FSH into 88 resources.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/patient-summary
+cd examples/igs/patient-summary
 
 uv run --project ../../../.. d2w fhir generate
 uv run --project ../../../.. d2w fhir serve --live --port 8141
@@ -107,7 +107,7 @@ resources.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/patient-summary
+cd examples/igs/patient-summary
 
 uv run --project ../../../.. d2w fhir generate
 make setup      # the SUSHI + IG publisher docker image, once per machine

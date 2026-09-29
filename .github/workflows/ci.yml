@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least-privilege token: the job only reads the checkout and runs lint, test and the docs build.
+permissions:
+  contents: read
+
+jobs:
+  lint-test:
+    name: lint + test + docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install Python (pinned to 3.13 - matches CLAUDE.md)
+        run: uv python install 3.13
+
+      - name: Sync the environment
+        # No pnpm on this runner, so `make install` syncs the Python packages and skips the
+        # capture UI; the Frontend workflow builds and tests it.
+        run: make install
+
+      - name: Lint (ruff + mypy + pyright)
+        run: make lint
+
+      - name: Test
+        run: make test
+
+      - name: Build the docs site
+        run: make docs

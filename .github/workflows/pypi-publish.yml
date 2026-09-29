@@ -1,0 +1,257 @@
+name: Publish to PyPI
+
+# Triggers:
+#   - push of a `v*.*.*` tag (e.g. `v0.5.0`).
+#   - manual dispatch with an explicit version.
+#
+# The `resolve-version` job strips the tag (or takes the dispatch input) once
+# and hands that version to every other job. Each `build` leg then asserts its
+# package's `project.version` in packages/<name>/pyproject.toml equals it, and
+# fails before `uv build` when it does not — so a mistyped tag or dispatch
+# input stops the run ahead of any upload, rather than shipping the version
+# that happens to be checked out. `verify` reads the same resolved value.
+#
+# Authentication uses PyPI Trusted Publishing (OIDC). Configure on PyPI at
+# https://pypi.org/manage/account/publishing/ for each `dhis2w-*` project,
+# pointing the workflow file at `pypi-publish.yml` and the environment at
+# `pypi`. No API tokens needed.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.5.0). Required for manual runs."
+        required: true
+        type: string
+
+# Least-privilege default for every job; the publish job overrides with the
+# id-token: write it needs for PyPI Trusted Publishing.
+permissions:
+  contents: read
+
+jobs:
+  resolve-version:
+    name: Resolve release version
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.version.outputs.value }}
+    steps:
+      - name: Compute the release version from the tag (or the dispatch input)
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          if [ -z "${VERSION}" ]; then
+            echo "::error::no release version could be resolved from ${GITHUB_REF} or the dispatch input"
+            exit 1
+          fi
+          echo "releasing ${VERSION}"
+          echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.package }}
+    needs: resolve-version
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every workspace member of this repository ships to PyPI.
+        package:
+          - dhis2w-fhir-engine
+          - dhis2w-fhir
+          - dhis2w-fhir-serve
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install Python 3.13
+        run: uv python install 3.13
+
+      - name: Sync workspace
+        run: make install
+
+      # The capture UI ships inside the dhis2w-fhir-serve wheel as static/,
+      # and the repository holds only its source - so this leg builds it
+      # before the wheel, and the guard below refuses a wheel without it.
+      # The other two wheels carry no frontend and skip these steps.
+      - name: Install pnpm
+        if: matrix.package == 'dhis2w-fhir-serve'
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - name: Install Node
+        if: matrix.package == 'dhis2w-fhir-serve'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+          cache-dependency-path: packages/dhis2w-fhir-serve/frontend/pnpm-lock.yaml
+
+      - name: Build the capture UI into the package
+        if: matrix.package == 'dhis2w-fhir-serve'
+        run: make ui
+
+      - name: Refuse a package whose version is not the release version
+        # The wheel carries whatever packages/<name>/pyproject.toml says, so a
+        # tag that names a different version would upload the checked-out one
+        # under a release nobody bumped to. Compare the two before building.
+        env:
+          RELEASE_VERSION: ${{ needs.resolve-version.outputs.value }}
+          PACKAGE: ${{ matrix.package }}
+        run: |
+          FILE="packages/${PACKAGE}/pyproject.toml"
+          FILE_VERSION="$(uv run --no-project python -c "import sys, tomllib; print(tomllib.load(open(sys.argv[1], 'rb'))['project']['version'])" "${FILE}")"
+          if [ "${FILE_VERSION}" != "${RELEASE_VERSION}" ]; then
+            echo "::error::${PACKAGE}: ${FILE} says ${FILE_VERSION}, the release names ${RELEASE_VERSION} — bump the package or retag"
+            exit 1
+          fi
+          echo "${PACKAGE}: ${FILE} version ${FILE_VERSION} matches the release version"
+
+      - name: Build wheel + sdist
+        run: uv build --package ${{ matrix.package }}
+
+      - name: Refuse a serve wheel without the capture UI
+        if: matrix.package == 'dhis2w-fhir-serve'
+        run: |
+          python3 - <<'PY'
+          import glob, sys, zipfile
+          wheel = glob.glob("dist/dhis2w_fhir_serve-*.whl")[0]
+          names = zipfile.ZipFile(wheel).namelist()
+          if "dhis2w_fhir_serve/static/index.html" not in names:
+              sys.exit(f"{wheel} carries no built capture UI - static/index.html is missing")
+          print(f"{wheel}: capture UI present")
+          PY
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ matrix.package }}
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/dhis2w-fhir
+    permissions:
+      # Trusted Publishing — PyPI verifies the OIDC token and accepts the
+      # upload without an API key. Each dhis2w-* project on PyPI must be
+      # configured with this workflow + environment.
+      id-token: write
+    steps:
+      - name: Download all dist artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+
+      - name: List built artifacts
+        run: ls -lah dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          # Idempotent re-runs: skip any wheel/sdist already on PyPI so a
+          # partial publish can be re-driven (e.g. after a new project's
+          # Trusted Publisher is configured) without erroring on the
+          # siblings that already uploaded.
+          skip-existing: true
+          # No `password` — trusted publishing handles auth via the OIDC
+          # token minted by the `id-token: write` permission above.
+
+  verify:
+    name: Verify ${{ matrix.package }} from PyPI
+    needs: [resolve-version, publish]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - dhis2w-fhir-engine
+          - dhis2w-fhir
+          - dhis2w-fhir-serve
+    steps:
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install Python 3.13
+        run: uv python install 3.13
+
+      - name: Wait for every dhis2w-* ${{ needs.resolve-version.outputs.value }} on PyPI simple index
+        # uv resolves against PyPI's simple index, which lags the per-project
+        # JSON endpoint by several seconds. Poll the simple index — what uv
+        # actually reads — and require every sibling package to be visible
+        # before this verify job proceeds. If we only wait for the one package
+        # being verified, uv can still fail to resolve a sibling the simple
+        # index has not yet caught up on.
+        #
+        # PEP 625 normalizes distribution filenames — hyphens in the project
+        # name become underscores (`dhis2w-client` -> `dhis2w_client-...`).
+        # Grep for the normalized form, otherwise the pattern never matches
+        # newer-style sdist/wheel filenames.
+        run: |
+          VERSION="${{ needs.resolve-version.outputs.value }}"
+          PACKAGES="dhis2w-fhir-engine dhis2w-fhir dhis2w-fhir-serve"
+          for pkg in $PACKAGES; do
+            normalized="${pkg//-/_}"
+            for i in $(seq 1 36); do
+              if curl -fsSL "https://pypi.org/simple/${pkg}/" \
+                | grep -qE "${normalized}-${VERSION}(\.tar\.gz|-[^ \"<>]*\.whl)"; then
+                echo "${pkg} ${VERSION} on simple index (attempt ${i})"
+                break
+              fi
+              if [ "${i}" = "36" ]; then
+                echo "::error::${pkg} ${VERSION} did not appear on PyPI simple index within 180s"
+                exit 1
+              fi
+              echo "attempt ${i}/36 for ${pkg}: not yet on simple index, sleeping 5s"
+              sleep 5
+            done
+          done
+
+      - name: Smoke-test ${{ matrix.package }}
+        # Install the published wheel into a throwaway venv (uv's --no-project
+        # keeps it isolated from the runner's checkout) and exercise it.
+        # The check is an import of each package.
+        #
+        # The install step retries: PyPI's simple index (which the wait step
+        # above polls) lags the resolver-visible index by several seconds, so
+        # uv can still error with "No solution found" right after the wait
+        # check passes. Retry with --refresh until the resolver catches up.
+        run: |
+          VERSION="${{ needs.resolve-version.outputs.value }}"
+          PKG="${{ matrix.package }}"
+          MODULE="${PKG//-/_}"
+
+          retry_install() {
+            local attempt
+            for attempt in $(seq 1 12); do
+              if "$@"; then
+                return 0
+              fi
+              echo "attempt ${attempt}/12 failed, sleeping 5s before retry"
+              sleep 5
+            done
+            echo "::error::install never succeeded after 12 attempts"
+            return 1
+          }
+
+          echo ">>> import ${MODULE}"
+          retry_install uv run --no-project --refresh --with "${PKG}==${VERSION}" \
+            python -c "import ${MODULE}; print(f'{${MODULE}.__name__} {${MODULE}.__file__}')"

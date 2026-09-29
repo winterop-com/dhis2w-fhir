@@ -10,7 +10,7 @@ Templates come from two places, and the difference is visible to whoever asks fo
 - **Bundled.** The payloads under `projects/` ride the wheel, so they work in every install.
   `projects/manifest.toml` beside them is the one file that names them, and the listing is read
   straight off it.
-- **Checkout.** The example guides at `examples/fhir/igs/` of the dhis2w repository that declare
+- **Checkout.** The example guides at `examples/igs/` of the dhis2w repository that declare
   themselves templates, found by walking up from this file. A wheel carries no `examples/`, so
   these exist only in a checkout; asking for one anywhere else is refused by name, naming the
   bundled ones instead.
@@ -74,7 +74,7 @@ _CHECKOUT_ONLY_KEY = "checkout_only"
 _PAYLOAD_RELATIVE_ROOT = "ig/input"
 
 #: Where the full example catalog sits in a dhis2w checkout, relative to the repository root.
-_CHECKOUT_CATALOG = Path("examples/fhir/igs")
+_CHECKOUT_CATALOG = Path("examples/igs")
 
 _BUNDLED_DIRECTORY = Path(__file__).parent / "projects"
 

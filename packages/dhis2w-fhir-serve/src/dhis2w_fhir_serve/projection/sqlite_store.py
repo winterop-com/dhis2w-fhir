@@ -1,6 +1,6 @@
 """The SQLite backend of `ProjectionStore`: one file under the project, written only by a sync.
 
-This is step 3 of `docs/fhir/design/projection.md` and it is the Embedded posture's whole backend -
+This is step 3 of `docs/design/projection.md` and it is the Embedded posture's whole backend -
 no service, no port, no operator, one file `make install` already gave you the driver for. It is also
 the reference implementation of the Protocol, which is the part that outlives it: every later backend
 is measured against what this one does, and every test of the sync and of the serving path runs
@@ -19,7 +19,7 @@ THE THREE CORRECTNESS RULES, EACH IN ONE PLACE HERE.
    duplicating (section 5.2, rule 2).
 3. **A tombstone removes the row.** `removed` deletes the resource, its identifiers, and its search
    keys. It never archives a last known state - the collection route enumerates a tombstone but the
-   single-resource route answers 404 for it (`docs/fhir/design/projection.md` section 3.4, finding 3),
+   single-resource route answers 404 for it (`docs/design/projection.md` section 3.4, finding 3),
    so there is no final state to archive and pretending otherwise would be inventing one.
 
 WHAT THIS CLASS IS, AND WHY IT IS NOT A PYDANTIC MODEL. It holds an open database engine and a file
@@ -32,7 +32,7 @@ WHAT IT DOES NOT DO. It does not write itself: D2 says the sync is the only writ
 is reachable from a route that changes anything. It does not reconcile: a row that disagrees with
 DHIS2 is a sync defect whose honest fix is `rebuild`. And it never decides who may read what - every
 answer it gives is a set of resources, and which caller may see which of them is settled by the
-instance, on the live read that resolves each one (`docs/fhir/design/projection.md` R9).
+instance, on the live read that resolves each one (`docs/design/projection.md` R9).
 """
 
 from __future__ import annotations

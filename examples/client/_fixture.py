@@ -1,4 +1,4 @@
-"""The shared fixture every `examples/fhir/client/` example reads: one project, one context, one facade.
+"""The shared fixture every `examples/client/` example reads: one project, one context, one facade.
 
 A FHIR example needs three things a reader should never have to assemble by hand - a project to
 answer forms from, the translation context those answers are read through, and, for the examples
@@ -80,7 +80,7 @@ _FIXTURE_REVISION = 2
 #: build down in its last pass. That refusal is a build-time gate, and this fixture never builds:
 #: it scaffolds a project and reads the instance through `fetch_live_artifacts`, which produces the
 #: same documents in memory for a translator and a served facade to read. Serving a name is not
-#: publishing a page, so the selection stands. `examples/fhir/igs/refused-names/` is the exhibit
+#: publishing a page, so the selection stands. `examples/igs/refused-names/` is the exhibit
 #: for what generate does with the same data set.
 _DATA_SET_IDS = ("BfMAe6Itzgt", "TuL8IOPzpHh")
 _EVENT_PROGRAM_IDS = ("EVTsupVis01",)
@@ -216,7 +216,7 @@ def served_facade(*, auth: str = DEFAULT_FACADE_POSTURE) -> str:
     bending everybody else's.
 
     A facade named in the environment answers for the default posture only - both when an
-    operator names one and when `infra/scripts/verify_examples.py` names the one it stood up for
+    operator names one and when `scripts/verify_examples.py` names the one it stood up for
     a batch pass. A facade somebody else started has whatever posture they gave it, and asking a
     posture-none server to prove a credential would fail in a way that reads as a bug in the
     feature.
@@ -235,7 +235,7 @@ def stop_facades() -> None:
 
     Registered as this process's `atexit` hook the moment a facade starts, so an example that
     simply ends leaves nothing listening. A caller that stands the fixture up on somebody else's
-    behalf - `infra/scripts/verify_examples.py` does, once for a whole batch pass - calls it
+    behalf - `scripts/verify_examples.py` does, once for a whole batch pass - calls it
     directly when the last reader is done rather than holding the port until the process exits.
     """
     running, _facade_processes[:] = list(_facade_processes), []

@@ -40,7 +40,7 @@ a question of the person's own record - refuses the whole response when the subj
 exists, rather than being dropped or written onto a record this capture does not own.
 
 Usage:
-    uv run python examples/fhir/client/convert_registration_to_dhis2.py
+    uv run python examples/client/convert_registration_to_dhis2.py
 
 Reads the example project's guide through the shared fixture; see the README beside this file.
 """

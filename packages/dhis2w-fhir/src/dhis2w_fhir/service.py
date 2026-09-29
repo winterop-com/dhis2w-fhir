@@ -6014,7 +6014,7 @@ class ForwardOutcomeKind(StrEnum):
 #: for the rest of the project's life. The discriminator is stated as a set rather than as a flag on
 #: a refusal, because membership is a doctrine about what this toolchain builds rather than a
 #: property of the response: `entered-in-error` asks for a withdrawal, withdrawal is a deletion, and
-#: this toolchain imports - see `docs/fhir/design/data-lifecycle.md`. Every other refusal has a fix
+#: this toolchain imports - see `docs/design/data-lifecycle.md`. Every other refusal has a fix
 #: somewhere, so every other refusal stays in the queue.
 TERMINAL_REFUSAL_CATEGORIES = frozenset({ConversionRefusalCategory.ENTERED_IN_ERROR_IS_A_DELETION})
 
@@ -6033,7 +6033,7 @@ _TERMINAL_REFUSAL_MESSAGE = (
     "The translator will never convert this response, whatever changes in the guide or in the data, so it is "
     "filed here rather than retried by every drain. A drain imports; retracting what one already imported is "
     "`d2w fhir withdraw <response id>`, naming the forwarded receipt to take back rather than this one - see "
-    "docs/fhir/design/data-lifecycle.md. `d2w fhir requeue` puts the receipt back in the queue for an operator "
+    "docs/design/data-lifecycle.md. `d2w fhir requeue` puts the receipt back in the queue for an operator "
     "who wants it tried again."
 )
 
@@ -8220,7 +8220,7 @@ _TRACKER_DELETE_PARAMS = {"importStrategy": "DELETE", "async": "false"}
 #: an aggregate tuple that was never written materialises a tombstone that blocks the parent data
 #: element for ever (BUGS.md 87); a registration lands a person and an enrollment whose deletion
 #: cascades into events other receipts named. Both are designed and neither is built - see
-#: `docs/fhir/design/data-lifecycle.md`.
+#: `docs/design/data-lifecycle.md`.
 _WITHDRAWABLE_FORM_KINDS = frozenset({"event", "tracker-event"})
 
 #: What the sidecar of a withdrawn receipt says in the words a person reading `withdrawn/` cold
@@ -8417,7 +8417,7 @@ def _refuse_unwithdrawable(spooled: Sequence[SpooledResponse]) -> None:
         f"{named}: a withdrawal retracts the one `/api/tracker` event a receipt landed, and these landed "
         "something else. `d2w data aggregate delete` and `d2w data tracker delete` are the raw escape "
         "hatches outside the FHIR path; the design that brings the other kinds inside it is in "
-        "docs/fhir/design/data-lifecycle.md."
+        "docs/design/data-lifecycle.md."
     )
 
 

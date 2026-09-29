@@ -29,7 +29,7 @@ other, and neither is configured anywhere. It falls out of what each DHIS2 endpo
 identity it has seen before.
 
 Usage:
-    uv run python examples/fhir/client/derive_receipt_event_uid.py
+    uv run python examples/client/derive_receipt_event_uid.py
 
 Reads the example project's guide through the shared fixture; see the README beside this file.
 """

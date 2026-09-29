@@ -25,7 +25,7 @@ refused for having no occurrence rather than for missing a timestamp.
 `stopped` to SKIPPED. `entered-in-error` means a deletion, which a capture is not, so it is refused.
 
 Usage:
-    uv run python examples/fhir/client/build_event_response.py
+    uv run python examples/client/build_event_response.py
 
 Requires a DHIS2 profile (`d2w profile list`).
 """

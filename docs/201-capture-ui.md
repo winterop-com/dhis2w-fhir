@@ -142,7 +142,7 @@ none. Build it with `make ui` (an installed wheel ships it already).
 
 The root route answers one question: what is the state of capture right now.
 
-![The Overview: the receipt counts one per lifecycle state, the served forms as cards that open them, and the strip naming the guide this server serves](../img/fhir/capture-ui-overview.png)
+![The Overview: the receipt counts one per lifecycle state, the served forms as cards that open them, and the strip naming the guide this server serves](img/capture-ui-overview.png)
 
 **Receipts** is the spool's counts off `GET /facade/spool` - `Received`,
 `Forwarded`, `Rejected`, `Withdrawn`, and, when the spool holds files it could
@@ -190,7 +190,7 @@ registration-only form is reportable at every published organisation unit and
 gets a **Tracked entity registration** shelf of its own in the
 organisation-units rail too.
 
-![The forms list: the four shelves - data sets, event programs, tracker programs, and tracked entity registration - as sections of cards, each card carrying its kind as a tinted badge with the question count and id beside it](../img/fhir/capture-ui-forms.png)
+![The forms list: the four shelves - data sets, event programs, tracker programs, and tracked entity registration - as sections of cards, each card carrying its kind as a tinted badge with the question count and id beside it](img/capture-ui-forms.png)
 
 Open one and you get the form itself - every question as the control its R4
 item type asks for: a switch for a yes/no, a bounded number field for a
@@ -244,7 +244,7 @@ on screen. A run whose cells are not one element cut several ways - a section of
 plain numeric data elements reaches this shape too - is drawn without any total,
 because adding live births to bed nets is not a figure.
 
-![A run of data elements as a table: the elements down the rows, the category option combos across the columns, and a muted Total closing each row](../img/fhir/capture-ui-form-grid.png)
+![A run of data elements as a table: the elements down the rows, the category option combos across the columns, and a muted Total closing each row](img/capture-ui-form-grid.png)
 
 *A cut over two categories is banded first.* Such a combo writes both categories
 into its name - `Female, under 15y` - and one table over all of them is wider
@@ -295,7 +295,7 @@ way it was left, and a run nobody has an opinion about follows the ladder. A cut
 no arrangement makes a table of - more than a dozen columns however it is banded -
 offers no switch, because there is nothing to switch to.
 
-![The same run after the switch: one band per data element, the combos as lines beneath it, and what the element adds up to on the band](../img/fhir/capture-ui-form-rows.png)
+![The same run after the switch: one band per data element, the combos as lines beneath it, and what the element adds up to on the band](img/capture-ui-form-rows.png)
 
 **No uids inside a run.** Every cell of a table belongs to a data element and a
 category option combo that both have one, and a chip on each would put fifty-six
@@ -405,9 +405,9 @@ two of them to happen before anything leaves the browser.
   answer that reaches such a question by any other route - an item's `initial`,
   a draft drawn before the rule landed - is dropped, in the same sentence.
 
-![A stage form's computed question: the control taking no answer, naming the program rule this DHIS2 instance works the value out under, with the two questions the submission actually asks counted at the foot of the page](../img/fhir/capture-ui-computed-question.png)
+![A stage form's computed question: the control taking no answer, naming the program rule this DHIS2 instance works the value out under, with the two questions the submission actually asks counted at the foot of the page](img/capture-ui-computed-question.png)
 
-![An aggregate form filled with test data, with the Reporting from picker and the attribute option combo picker above the questions](../img/fhir/capture-ui-form-fill.png)
+![An aggregate form filled with test data, with the Reporting from picker and the attribute option combo picker above the questions](img/capture-ui-form-fill.png)
 
 **Fill with test data** answers the whole form from `$generate` and puts the
 answers *into the form* rather than posting them - so you can change one
@@ -514,7 +514,7 @@ sit above the questions - both visible in the screenshot:
   shape stated is accepted as typed and graded by the server, whose refusal
   names both types.
 
-![The reporting period open: the recent months of the data set's period type, each with the identifier DHIS2 keys by beside it, and Other period at the foot](../img/fhir/capture-ui-reporting-period.png)
+![The reporting period open: the recent months of the data set's period type, each with the identifier DHIS2 keys by beside it, and Other period at the foot](img/capture-ui-reporting-period.png)
 
 A tracker registration form shows a third block: the enrollment it is about to
 file - when it begins, the incident date when the program collects one, and
@@ -635,19 +635,19 @@ picker for narrowing to one questionnaire. The state filter lives in the URL
 (`#/responses?lifecycle=rejected`), which is what lets the Overview's tiles
 link straight into a narrowed table.
 
-![The Responses table: the lifecycle states as a filter row carrying their own counts, and a row per receipt with what it answers and where it is now](../img/fhir/capture-ui-responses.png)
+![The Responses table: the lifecycle states as a filter row carrying their own counts, and a row per receipt with what it answers and where it is now](img/capture-ui-responses.png)
 
 **A row opens the receipt as a sheet over the table**, which is the posture the
 page is for: reading down a spool one receipt at a time without losing the
 filter or the place in the table. The address gains `?open=<id>` while the sheet
 is up, and Esc closes it.
 
-![A receipt as a sheet over the Responses table, headed by the form it answers, with Open the full page beside its lifecycle badge](../img/fhir/capture-ui-receipt-sheet.png)
+![A receipt as a sheet over the Responses table, headed by the form it answers, with Open the full page beside its lifecycle badge](img/capture-ui-receipt-sheet.png)
 
 **Open the full page** takes the same receipt to `/responses/{id}`, which is the
 address to send somebody - one receipt is a link:
 
-![A receipt at its own address: lifecycle badge, capture context, and the answers joined to the questions](../img/fhir/capture-ui-receipt.png)
+![A receipt at its own address: lifecycle badge, capture context, and the answers joined to the questions](img/capture-ui-receipt.png)
 
 The page reads the served `Questionnaire` as well as the receipt and puts
 them side by side: the question text in the order the form asks it, with its
@@ -718,7 +718,7 @@ stored no receipt* is a fact about the spool and nothing more - data entered int
 the instance by any other route leaves none here - and where the record is drawn
 below, the sentence goes on to say that the instance is read there.
 
-![The Responses page of a live run holding no receipt yet: the empty spool said as the fact it is, and under it one tracked entity found by an identifier value, with one of their events opened onto the answers this DHIS2 instance holds](../img/fhir/capture-ui-live-responses-record.png)
+![The Responses page of a live run holding no receipt yet: the empty spool said as the fact it is, and under it one tracked entity found by an identifier value, with one of their events opened onto the answers this DHIS2 instance holds](img/capture-ui-live-responses-record.png)
 
 ## The register
 
@@ -764,7 +764,7 @@ page lists the people the instance holds, twenty-five at a time, with **Next**
 and **Previous** underneath. Searching is for a clerk holding a card; browsing is
 for one who is not.
 
-![The register: the identifier search over a table of the people this DHIS2 instance holds, one column per attribute they hold a value of, with the tracked entity uid beside the identifier values](../img/fhir/capture-ui-register.png)
+![The register: the identifier search over a table of the people this DHIS2 instance holds, one column per attribute they hold a value of, with the tracked entity uid beside the identifier values](img/capture-ui-register.png)
 
 !!! note "A project keeping a synced copy searches wider, and the box says so"
     `/metadata` is what decides which search the box sends, read before anything
@@ -819,7 +819,7 @@ type has nothing to choose between and shows no chips at all. Narrowing starts
 the paging again at the server's first page, because a page token names a place
 inside a scope and means nothing in the scope next door.
 
-![The register of a live run serving three tracked entity types on one resource: the type chips over the table, the attribute filter beside them, and a row per tracked entity with the attribute values this DHIS2 instance holds](../img/fhir/capture-ui-live-register.png)
+![The register of a live run serving three tracked entity types on one resource: the type chips over the table, the attribute filter beside them, and a row per tracked entity with the attribute values this DHIS2 instance holds](img/capture-ui-live-register.png)
 
 **What a row shows is what the server states about a person, and nothing
 more.** The identifier values that name them - the values of the attributes
@@ -867,7 +867,7 @@ record is the first three and the summary line under it counts the enrollments
 alone - a section drawn over a refusal states nothing a reader can use, and "0
 events" would be the bar counting a surface this server never offered.
 
-![One person in the register: the identifier values that name them, every attribute value this DHIS2 instance holds, and the programmes they are enrolled in](../img/fhir/capture-ui-register-person.png)
+![One person in the register: the identifier values that name them, every attribute value this DHIS2 instance holds, and the programmes they are enrolled in](img/capture-ui-register-person.png)
 
 **An event opens onto what it recorded, where it stands.** Every row of that
 last list unfolds in place - closed to start with, opened by the row itself -
@@ -887,7 +887,7 @@ the document carries. A question nobody answered is not in the document and so
 is not on the screen; an event the instance holds no answer on says exactly
 that.
 
-![One record's events: two rows closed, the third opened onto the answers this DHIS2 instance holds for it, each question named the way the served form asks it and each coded answer carrying the code DHIS2 stores](../img/fhir/capture-ui-live-register-person-event.png)
+![One record's events: two rows closed, the third opened onto the answers this DHIS2 instance holds for it, each question named the way the served form asks it and each coded answer carrying the code DHIS2 stores](img/capture-ui-live-register-person-event.png)
 
 !!! warning "A completed enrollment is listed, and said to be completed"
     DHIS2 accepts a new event into a completed enrollment with no error and no
@@ -940,7 +940,7 @@ that.
   starfield, the layers control, and a recenter button back to whatever the
   map is framing - the selection's extent, or the whole registry.
 
-    ![Organisation units in three panes: the hierarchy tree, the map with the selected organisation unit lit against the organisation units below it, and the rail naming that organisation unit and the forms reportable at it](../img/fhir/capture-ui-organisation-units.png)
+    ![Organisation units in three panes: the hierarchy tree, the map with the selected organisation unit lit against the organisation units below it, and the rail naming that organisation unit and the forms reportable at it](img/capture-ui-organisation-units.png)
 
 - **Terminology** is a browser over the code systems, value sets, and
   concept maps the project publishes - concept tables with the DHIS2
@@ -948,9 +948,9 @@ that.
   detail pages, answering from the running server exactly as
   `d2w fhir forward` resolves a coded answer.
 
-    ![Terminology: the code systems, value sets, and concept maps as tabs carrying their own counts, shelved by what the DHIS2 objects behind them are](../img/fhir/capture-ui-terminology.png)
+    ![Terminology: the code systems, value sets, and concept maps as tabs carrying their own counts, shelved by what the DHIS2 objects behind them are](img/capture-ui-terminology.png)
 
-    ![One code system: a concept per row with its code, its display, the DHIS2 identifier it carries, and the value type, over a filter across all of them](../img/fhir/capture-ui-code-system.png)
+    ![One code system: a concept per row with its code, its display, the DHIS2 identifier it carries, and the value type, over a filter across all of them](img/capture-ui-code-system.png)
 
 - **Evaluate** is a place to run one expression and see what this server
   answers: pick FHIRPath, CQL, or a compiled ELM library, pick what it runs
@@ -963,7 +963,7 @@ that.
   caret under the character. See [FHIRPath](501-fhirpath.md) and
   [CQL](501-cql.md) for the languages themselves.
 
-    ![Evaluate answering a worked example: the expression, the resource it ran over, the values it returned as a numbered table, and the examples panel it was loaded from](../img/fhir/capture-ui-evaluate.png)
+    ![Evaluate answering a worked example: the expression, the resource it ran over, the values it returned as a numbered table, and the examples panel it was loaded from](img/capture-ui-evaluate.png)
 
 - **Playground** is the API itself with the reading taken off: build a request,
   send it, and read the bytes under the status code. It is the page an
@@ -981,7 +981,7 @@ that.
   pointed at a stale `--live` process and one pointed at a freshly compiled
   IG look identical until you read the conformance document.
 
-    ![The Server page with one resource type unfolded, the operations declared above it and each search parameter's contract stated under the type](../img/fhir/capture-ui-server.png)
+    ![The Server page with one resource type unfolded, the operations declared above it and each search parameter's contract stated under the type](img/capture-ui-server.png)
 
 - **Metadata health** is the `d2w fhir validate` analysis rendered over the
     served selection, with translation coverage beside it. It sits last, under
@@ -999,7 +999,7 @@ that.
     heading states what is inside it - which severity, which DHIS2 collection,
     how many rows - so opening one is the drill-down rather than the arrival.
 
-    ![Metadata health as it opens: the three severity counts, how many objects were read and which hostile-names posture they were graded under, the translation coverage per locale, and the severity shelves closed under the filter box](../img/fhir/capture-ui-live-metadata-health.png)
+    ![Metadata health as it opens: the three severity counts, how many objects were read and which hostile-names posture they were graded under, the translation coverage per locale, and the severity shelves closed under the filter box](img/capture-ui-live-metadata-health.png)
 
     The findings are shelved by severity first and by DHIS2 collection second -
     an error stops the build whichever kind of object it sits on, and somebody
@@ -1012,7 +1012,7 @@ that.
     because a terminal line has to, and a row whose first two cells are the
     object and the field would be saying it a third time.
 
-    ![One severity opened onto the DHIS2 collections under it, and one collection opened onto its findings table: the object and its uid, the field at fault, the problem, and what the grade costs](../img/fhir/capture-ui-live-metadata-health-findings.png)
+    ![One severity opened onto the DHIS2 collections under it, and one collection opened onto its findings table: the object and its uid, the field at fault, the problem, and what the grade costs](img/capture-ui-live-metadata-health-findings.png)
 
     **Translations** is the analysis the command does not do, and it is coverage
     rather than deficiency. The locales are the union of the tags the selection's
@@ -1090,7 +1090,7 @@ server, answered in the box below it, JSON first. It is where an integration
 starts, because the question a client author has is what the address is and what
 comes back, and everywhere else in the app that has been answered for them.
 
-![The Playground after a send: the builder with the path and the parameters this path answers, the presets read off this server's own declaration, and the status code, the round trip, and the body underneath](../img/fhir/capture-ui-playground.png)
+![The Playground after a send: the builder with the path and the parameters this path answers, the presets read off this server's own declaration, and the status code, the round trip, and the body underneath](img/capture-ui-playground.png)
 
 **The builder** is a method (`GET` or `POST`, the two this facade answers), a
 path relative to the service base, and query parameters as rows rather than as
@@ -1173,7 +1173,7 @@ Evaluate carries no chip: `$evaluate` is a POST, and there is no URL to open.
 whatever page you are on - and the magnifying glass in the header opens the same
 thing for anyone who was never told about the chord. Type, and it narrows:
 
-![The command palette over the page it was opened on: the pages first, then the forms, each row an icon, a name, the line about it, and the kind of thing it is at the right-hand edge](../img/fhir/capture-ui-palette.png)
+![The command palette over the page it was opened on: the pages first, then the forms, each row an icon, a name, the line about it, and the kind of thing it is at the right-hand edge](img/capture-ui-palette.png)
 
 - **Pages** - every page this run offers, under the name this run gives it. A
   server with no DHIS2 instance behind it offers no register, so no register row
@@ -1247,7 +1247,7 @@ it is made, and the dialog stays open in front of it. Collapsed to icons, the
 gear stays where it is; on a narrow screen the rail lies down into a strip above
 the pane rather than taking a second column.
 
-![The settings dialog on Appearance: the sections down the left, the seven themes each with what it looks like, and the mode switch under them](../img/fhir/capture-ui-settings.png)
+![The settings dialog on Appearance: the sections down the left, the seven themes each with what it looks like, and the mode switch under them](img/capture-ui-settings.png)
 
 Two sections today:
 
@@ -1273,7 +1273,7 @@ flashes one theme under another.
 | **DHIS2** | Steel-blue chrome over the familiar gray - the instance's own face. |
 | **FHIR** | Warm white under the flame, spent only where the app acts. |
 
-![Organisation units under the DHIS2 theme: steel-blue chrome over the same three panes the default theme draws](../img/fhir/capture-ui-theme-dhis2.png)
+![Organisation units under the DHIS2 theme: steel-blue chrome over the same three panes the default theme draws](img/capture-ui-theme-dhis2.png)
 
 A theme repaints everything the app draws from a token, the source colours in
 the Evaluate editors and the organisation-unit map's boundary tiers included.
@@ -1287,7 +1287,7 @@ meaning when the walls are repainted. Terminal's phosphor green is its identity,
 carried by `--primary` and the cast its uids wear, and it sits beside the
 accepted green rather than taking its place.
 
-![The Responses table on the dark ground, the lifecycle states carrying the same four hues they carry on the light one](../img/fhir/capture-ui-dark.png)
+![The Responses table on the dark ground, the lifecycle states carrying the same four hues they carry on the light one](img/capture-ui-dark.png)
 
 ## Opening an identity in DHIS2
 
@@ -1339,7 +1339,7 @@ make screenshot D2W_SCREENSHOT_PROJECT=~/ig      # and the live-only pages
 The target builds the bundle first, kills anything left on the ports the two
 shoots bind, and runs each spec alone rather than inside the suite. Both are
 skipped by default - CI has no business rewriting documentation images - and the
-images land in `docs/img/fhir/`; commit them with the change that moved the UI.
+images land in `docs/img/`; commit them with the change that moved the UI.
 
 **The compiled shoot** is `e2e/docs-screenshots.spec.ts`, against the same
 committed fixture project the browser suite tests, so the forms, counts, and

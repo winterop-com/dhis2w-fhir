@@ -11,9 +11,9 @@ FastAPI application already, and somewhere to put a failure already. What they n
 they cannot write themselves - a captured `QuestionnaireResponse` as the DHIS2 import payload it
 means. That is `translate_response`, and `build_facade` below is the whole recipe around it.
 
-The levels above this one are `examples/fhir/client/basic_facade.py` (one client for the process, a
-health route, a log line per verdict), `examples/fhir/client/complex_facade.py` (a durable spool and
-a background drain), and `examples/fhir/client/advanced_facade.py` (tracker routing, the
+The levels above this one are `examples/client/basic_facade.py` (one client for the process, a
+health route, a log line per verdict), `examples/client/complex_facade.py` (a durable spool and
+a background drain), and `examples/client/advanced_facade.py` (tracker routing, the
 coded-answer dial, overwrite naming, and a small `/metadata`).
 
 What this gives up, all of it deliberately:
@@ -32,11 +32,11 @@ What this gives up, all of it deliberately:
 refused capture must survive until a person fixes it, and when the receipts are the record. Take this
 recipe when the submitting side is yours and the facade is one route in an application that exists.
 
-The guide is [Build your own facade](../../../docs/fhir/401-build-your-own-facade.md); what a valid
-response is, is [the capture contract](../../../docs/fhir/401-capture-contract.md).
+The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:
-    uv run python examples/fhir/client/minimal_facade.py
+    uv run python examples/client/minimal_facade.py
 
 Requires a DHIS2 profile (`d2w profile list`). The fixture builds the translation context on first run.
 """

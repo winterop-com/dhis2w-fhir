@@ -1,6 +1,6 @@
 """Filling the projection: the initial materialization, the incremental poll, and the report of both.
 
-This is step 4 of `docs/fhir/design/projection.md`, and `d2w fhir sync` is the one thing that calls
+This is step 4 of `docs/design/projection.md`, and `d2w fhir sync` is the one thing that calls
 it. Section 5.1 states the shape in three sentences and this module is those three sentences:
 
 - **Initial materialization.** Walk the mapped scope - the tracked entity types
@@ -475,7 +475,7 @@ def _since(watermark: datetime | None, overlap: timedelta) -> datetime | None:
     subtracted rather than the watermark trusted exactly, because `updatedAfter` boundary semantics,
     clock skew, and transactions in flight at the instant of a poll all drop rows at the edge - and
     a re-read costs one upsert where a dropped row is a person who silently stops existing
-    (`docs/fhir/design/projection.md` section 5.2, rule 2).
+    (`docs/design/projection.md` section 5.2, rule 2).
     """
     return None if watermark is None else watermark - overlap
 

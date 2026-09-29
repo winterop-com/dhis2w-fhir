@@ -210,7 +210,7 @@ TOML
 # `--substitute-hostile-names` answers the one question a run against the seeded demo database
 # stops to ask: several of its DHIS2 names carry a raw `<`, which the IG publisher writes into a
 # page it then strict-parses. The rewrite changes the published guide and never the instance.
-# examples/fhir/cli/generate_hostile_names.sh is that gate's own story.
+# examples/cli/generate_hostile_names.sh is that gate's own story.
 d2w fhir generate --substitute-hostile-names
 
 # The map the running facade reads its resources off. `fhir.toml` is the generator's input and is

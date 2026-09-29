@@ -14,7 +14,7 @@ cd demo-generate
 
 # `init` has a flag per data-definition table and none for the terminology, so the option sets
 # and the categories are written straight into fhir.toml — which is what every guide in
-# examples/fhir/igs/ does too. Naming them is not an optimisation: a table left absent selects
+# examples/igs/ does too. Naming them is not an optimisation: a table left absent selects
 # everything of its kind, and one DHIS2 name carrying a raw '<' anywhere in that everything
 # refuses the whole run. On the seeded instance that is option set "Age (<5 - 49) & over".
 # `d2w fhir validate` is the command that lists the offenders before you spend a run on them.
@@ -44,6 +44,6 @@ ls ig/input/fsh
 ls ig/input/resources
 
 # The scaffolded project compiles this source with `make setup && make sushi`, and
-# examples/fhir/cli/serve.sh is the compile and the facade in one script.
+# examples/cli/serve.sh is the compile and the facade in one script.
 
 cd .. && rm -rf demo-generate

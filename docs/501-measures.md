@@ -196,9 +196,9 @@ to read it.
 `cql measure` scores a measure without Python. **A Bundle behind `--data` supplies
 both halves of the run: every `Patient` entry is a person to evaluate, and the whole
 Bundle is the data source the numerator retrieves from.** The measure above is
-[`examples/fhir/engine/measles-coverage.cql`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/engine/measles-coverage.cql)
+[`examples/engine/measles-coverage.cql`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/engine/measles-coverage.cql)
 and the clinic is
-[`clinic.json`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/engine/clinic.json)
+[`clinic.json`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/engine/clinic.json)
 beside it:
 
 ```console
@@ -248,7 +248,7 @@ Three steps:
 Against the seeded Sierra Leone demo database:
 
 ```console
-$ uv run python examples/fhir/engine/e2e_measure_from_dhis2.py
+$ uv run python examples/engine/e2e_measure_from_dhis2.py
 reading Child Programme (IpHINAT79UW) tracked entities from http://localhost:8080
   12 tracked entities, 22 weight data values
   11 of those children carry at least one weight
@@ -305,8 +305,8 @@ the official HL7 ANTLR grammars, and the decisions still reserved to the owner.
 
 | File | Shows |
 | --- | --- |
-| [`measure_report.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/engine/measure_report.py) | The populations, both scorings, the per-person decisions, and `to_fhir()` |
-| [`e2e_measure_from_dhis2.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/engine/e2e_measure_from_dhis2.py) | Read a DHIS2 cohort, map it to FHIR, score it, check the counts against DHIS2's own records |
+| [`measure_report.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/engine/measure_report.py) | The populations, both scorings, the per-person decisions, and `to_fhir()` |
+| [`e2e_measure_from_dhis2.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/engine/e2e_measure_from_dhis2.py) | Read a DHIS2 cohort, map it to FHIR, score it, check the counts against DHIS2's own records |
 
 The first needs nothing running. The second needs `make dhis2-run` and reads
 `DHIS2_URL`, `DHIS2_USERNAME`, and `DHIS2_PASSWORD`.

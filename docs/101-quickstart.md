@@ -35,7 +35,7 @@ and counts will differ, and long absolute paths are shortened to
 `/home/you/my-ig`. To run it against the public play server instead, use a URL
 from [play.im.dhis2.org](https://play.im.dhis2.org/) in step 3 - the instance names
 rotate, so pick a current one. To run a DHIS2 locally, see
-[the local setup page](../local-setup.md).
+[the local setup page](https://winterop-com.github.io/dhis2w/local-setup/).
 
 If you want one command that tells you whether an instance can carry this whole
 chain before you invest in it, run [`d2w fhir doctor`](201-doctor.md) first - it
@@ -400,7 +400,7 @@ itself and then could not read back. Read `template-hostile-name` as build-break
 rather than cosmetic. Angle brackets are ordinary in real DHIS2 metadata (`<1y`,
 `< 5y`, `>5 & over` are all real names on this instance), so this is worth checking
 on any instance before you invest a build in it. The
-[`refused-names`](https://github.com/winterop-com/dhis2w/tree/main/examples/fhir/igs/refused-names)
+[`refused-names`](https://github.com/winterop-com/dhis2w-fhir/tree/main/examples/igs/refused-names)
 example is a project that keeps one in on purpose, so you can watch the refusal.
 
 Open the generated site:

@@ -15,7 +15,7 @@ not a 200: a stored context is a promise the server can keep or refuse, and a re
 
 Usage:
     d2w fhir serve --port 8123          # in the project directory, in another shell
-    uv run python examples/fhir/client/evaluate_stored_resource.py [BASE_URL]
+    uv run python examples/client/evaluate_stored_resource.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

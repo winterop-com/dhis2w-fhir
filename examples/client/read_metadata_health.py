@@ -15,7 +15,7 @@ with `available: false` and the reason in words, so a caller reads the body rath
 which is what the branch below does.
 
 Usage:
-    uv run python examples/fhir/client/read_metadata_health.py [BASE_URL]
+    uv run python examples/client/read_metadata_health.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a `--live` facade on
 the example project and stops it at exit, which is what lets this run unattended.

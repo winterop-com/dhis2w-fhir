@@ -20,7 +20,7 @@ models rather than a Bundle.
 AND SO IT LIVES UNDER `/facade`, which is where every answer of that kind lives. The base URL is
 FHIR's and its contract is the CapabilityStatement; this facade's own API is a different contract at
 a different address, published as OpenAPI at `/facade/openapi.json`. Two APIs, two documents, one
-process. `dhis2w_fhir_serve.routes` states the mounting and `docs/fhir/design/endpoint-naming.md`
+process. `dhis2w_fhir_serve.routes` states the mounting and `docs/design/endpoint-naming.md`
 states the rule a new endpoint is placed by.
 
 Every read re-reads the directory. `d2w fhir forward` moves files while this server runs, so a

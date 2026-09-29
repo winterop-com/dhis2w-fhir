@@ -3,7 +3,7 @@
 # Needs the serve extra to fill the spool: `pip install 'dhis2w-cli[serve]'` or `uv add dhis2w-fhir-serve`.
 # Needs docker for the SUSHI compile, binds a port to fill the spool, and writes data values to
 # the instance. `make verify-examples` skips it for all three reasons:
-# `infra/scripts/verify_examples.py` lists it under "slow server-side jobs". Run it by hand,
+# `scripts/verify_examples.py` lists it under "slow server-side jobs". Run it by hand,
 # against an instance you are willing to write to.
 set -euo pipefail
 
@@ -50,7 +50,7 @@ trap - EXIT
 wait "$SERVER_PID" 2>/dev/null || true
 ls .serve/responses/received | wc -l
 
-# --import posts for real - the dry run in examples/fhir/cli/forward_dry_run.sh is what runs
+# --import posts for real - the dry run in examples/cli/forward_dry_run.sh is what runs
 # without it - and then files each receipt by what it became:
 #   accepted -> .serve/responses/forwarded/<id>.json
 #   rejected -> .serve/responses/rejected/<id>.json, beside <id>.report.json saying why

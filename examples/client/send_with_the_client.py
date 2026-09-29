@@ -19,7 +19,7 @@ What the client is doing that a raw caller has to remember:
   is what drains the queue into an instance.
 
 Usage:
-    uv run python examples/fhir/client/send_with_the_client.py [BASE_URL]
+    uv run python examples/client/send_with_the_client.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended. A guarded facade

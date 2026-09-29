@@ -1,6 +1,6 @@
 """The seams a materialized FHIR projection is served over, and the backends that sit behind them.
 
-`docs/fhir/design/projection.md` section 7 is what this package implements: two Protocols, shaped the
+`docs/design/projection.md` section 7 is what this package implements: two Protocols, shaped the
 way `AuthProvider` is shaped - the Protocol in `base.py`, one frozen-pydantic backend per file beside
 it, and a `build_*` factory in `factory.py` dispatching on a config value. `ProjectionStore` holds a
 durable copy of the mapped scope of a DHIS2 instance; `NameSearchIndex` finds candidates in it.
@@ -21,5 +21,5 @@ any value a person holds, in one indexed query rather than one tracker query per
 it changes what an answer claims: `serving.py` stamps every one of them with the instant it is as of,
 because an answer out of a copy is never "now". It does not change who may see whom. Every match is
 read back from the instance under the caller's own credentials, so DHIS2 authorizes each disclosure
-per person per request, which is `docs/fhir/design/projection.md` R9 and its posture (iii).
+per person per request, which is `docs/design/projection.md` R9 and its posture (iii).
 """

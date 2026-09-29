@@ -256,7 +256,7 @@ max_level = 4                       # or root = "<uid>" for one sub-hierarchy
 Name the terminology tables too, and not only the form tables. A table left
 absent selects everything of its kind, and one DHIS2 name carrying a raw `<`
 anywhere in that everything refuses the run - which is why every guide in
-`examples/fhir/igs/` names its option sets and its categories explicitly.
+`examples/igs/` names its option sets and its categories explicitly.
 
 Or seed the same lists while scaffolding: `d2w fhir init --data-set ...
 --event-program ... --tracker-program ... --org-unit-max-level 4` (offline; written
@@ -351,7 +351,7 @@ are gated too, on the six collections whose codes become identifier values -
 Run `d2w fhir validate` first anyway: generate stops at the first object it
 cannot write, so on an instance with several offenders only validate lists them
 all. The fix is in DHIS2 - rename the object - or leave it out of the selection.
-`examples/fhir/igs/refused-names/` is a working exhibit of both commands on one
+`examples/igs/refused-names/` is a working exhibit of both commands on one
 poisoned selection.
 
 **A build reads neither of them.** `make build` publishes whatever

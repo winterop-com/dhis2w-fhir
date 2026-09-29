@@ -247,7 +247,7 @@ class SummaryDisabledError(ServeError):
 
     Same status and issue code as every other "this server does not serve that here", with the key
     named so an operator reads it as a decision this project wrote down rather than as a missing
-    feature. A summary is a clinical document about a person, and `docs/fhir/design/ips.md` R7 puts
+    feature. A summary is a clinical document about a person, and `docs/design/ips.md` R7 puts
     it behind a key for that reason - offering one is a posture a deployment states rather than one
     it inherits.
     """

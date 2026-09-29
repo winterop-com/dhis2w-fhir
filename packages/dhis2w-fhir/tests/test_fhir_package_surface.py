@@ -1,7 +1,7 @@
 """Tests for the stated import surface of `dhis2w_fhir` - what the package says it exports, and what the docs render.
 
 The package docstring calls `from dhis2w_fhir import ...` the one stable surface, and
-`docs/fhir/api-dhis2w-fhir.md` renders a list of modules as the reference for it. Those two claims
+`docs/api-dhis2w-fhir.md` renders a list of modules as the reference for it. Those two claims
 can drift apart silently - a module reaching the API reference while none of its names reach
 `__all__` leaves a reader following the docs onto an `ImportError`. This asserts they agree.
 """
@@ -16,7 +16,7 @@ import dhis2w_fhir
 import pytest
 
 #: The API reference page whose rendered modules this surface is measured against.
-_API_REFERENCE = Path(__file__).resolve().parents[3] / "docs" / "fhir" / "api-dhis2w-fhir.md"
+_API_REFERENCE = Path(__file__).resolve().parents[3] / "docs" / "api-dhis2w-fhir.md"
 
 #: One mkdocstrings directive as the page writes it, e.g. `::: dhis2w_fhir.doctor`.
 _RENDER_DIRECTIVE = re.compile(r"^:::\s+(dhis2w_fhir[\w.]*)\s*$", re.MULTILINE)

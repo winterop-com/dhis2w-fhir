@@ -37,7 +37,7 @@ holds that UID, and whether a `unique` attribute's value is already taken, are g
 state that no facade holds - DHIS2 refuses the duplicate at import instead.
 
 Usage:
-    uv run python examples/fhir/client/build_registration_response.py
+    uv run python examples/client/build_registration_response.py
 
 Requires a DHIS2 profile (`d2w profile list`). Two UIDs are minted on every run, so the printed
 response differs each time.

@@ -322,7 +322,7 @@ _TOUCHED_ENROLLMENT_FIELDS = "enrollment,trackedEntity,updatedAt,deleted"
 
 #: The parameter that makes a poll see a deletion, and it is a CONSTANT rather than a dial.
 #:
-#: `docs/fhir/design/projection.md` section 3.4, finding 2: without it a cursor poll returns zero rows
+#: `docs/design/projection.md` section 3.4, finding 2: without it a cursor poll returns zero rows
 #: for a deleted entity and does not error, so a sync that forgot it would simply never learn that
 #: anybody left. R10 makes it a constant for exactly that reason - its absence is silent, and the
 #: single most dangerous line in a sync is the one that can be switched off by accident.

@@ -23,7 +23,7 @@ which names are its parameters. What it still does not carry is printed at the e
 out of the comparison quietly.
 
 Usage:
-    uv run python examples/fhir/engine/elm_round_trip.py
+    uv run python examples/engine/elm_round_trip.py
 
 Needs no DHIS2, no server, and no project: the library and its data are inline.
 """

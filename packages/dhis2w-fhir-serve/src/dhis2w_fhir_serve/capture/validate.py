@@ -62,7 +62,7 @@ A CORRECTION AND A WITHDRAWAL ARE POSTURES, NOT SHAPES. R4 spells both on the re
 with the dial off the submission is refused here rather than spooled for a drain that would never
 act on it: a receipt accepted and then never forwarded is a client told "kept" about a fact that
 never reaches the instance. With the dial on the submission is stored like any other receipt, status
-and all - what a drain then does with it is `docs/fhir/design/data-lifecycle.md`.
+and all - what a drain then does with it is `docs/design/data-lifecycle.md`.
 
 Nothing here talks to DHIS2. A capture is validated against the served IG and stored; translating
 a receipt into DHIS2 data values, events, and enrollments is a later phase.

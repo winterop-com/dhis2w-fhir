@@ -34,11 +34,11 @@ Every form of a program carries its program's rules, stage forms and registratio
 aggregate form carries none: DHIS2 states program rules over programs.
 
 Usage:
-    uv run python examples/fhir/client/read_form_program_rules.py
+    uv run python examples/client/read_form_program_rules.py
 
 Reads every form the example fixture publishes, from the facade the fixture serves.
 
-The tiering rules are at docs/fhir/401-identifiers-and-extensions.md#program-rules.
+The tiering rules are at docs/401-identifiers-and-extensions.md#program-rules.
 """
 
 from __future__ import annotations

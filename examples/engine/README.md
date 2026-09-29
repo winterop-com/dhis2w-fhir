@@ -9,9 +9,9 @@ the first table and read down: every example states the plain question first and
 answers it second.
 
 The narrative these sit under is the [501 pages of the `d2w fhir` guide
-series](../../../docs/fhir/index.md) — [FHIRPath](../../../docs/fhir/501-fhirpath.md),
-[CQL](../../../docs/fhir/501-cql.md), [quality measures](../../../docs/fhir/501-measures.md), and
-[the FHIR version binding](../../../docs/fhir/501-version-binding.md).
+series](../../../docs/index.md) — [FHIRPath](../../../docs/501-fhirpath.md),
+[CQL](../../../docs/501-cql.md), [quality measures](../../../docs/501-measures.md), and
+[the FHIR version binding](../../../docs/501-version-binding.md).
 
 ## What every example here is
 
@@ -84,7 +84,7 @@ uv sync        # the engine is a workspace member; nothing else is needed
 Then any example runs on its own:
 
 ```bash
-uv run python examples/fhir/engine/fhirpath_basics.py
+uv run python examples/engine/fhirpath_basics.py
 ```
 
 Only `e2e_measure_from_dhis2.py` needs more:
@@ -92,7 +92,7 @@ Only `e2e_measure_from_dhis2.py` needs more:
 ```bash
 make dhis2-run                                       # DHIS2 + seeded auth
 set -a; . infra/home/credentials/.env.auth; set +a
-uv run python examples/fhir/engine/e2e_measure_from_dhis2.py
+uv run python examples/engine/e2e_measure_from_dhis2.py
 ```
 
 With no DHIS2 reachable it fails with one sentence naming what is missing and how to supply it —

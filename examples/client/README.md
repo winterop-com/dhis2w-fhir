@@ -5,8 +5,8 @@ path that needs no dhis2w package at all. If you know DHIS2 data sets, programs,
 combinations, and you know no FHIR, start at the top of the first table and read down: every example
 states the DHIS2 fact first and the FHIR shape that carries it second.
 
-The narrative these sit under is the [`d2w fhir` guide series](../../../docs/fhir/index.md),
-and [the capture contract](../../../docs/fhir/401-capture-contract.md) is the document the
+The narrative these sit under is the [`d2w fhir` guide series](../../../docs/index.md),
+and [the capture contract](../../../docs/401-capture-contract.md) is the document the
 response-building examples meet.
 
 ## What every example here is
@@ -144,7 +144,7 @@ Generating, serving, and draining from Python, rather than from the command line
 ## Embed the facade
 
 The headless path: `dhis2w-fhir-serve` as a library in your own process — no server, no port, no UI,
-no `d2w` command. The narrative is [Embed the facade](../../../docs/fhir/401-embed-the-facade.md).
+no `d2w` command. The narrative is [Embed the facade](../../../docs/401-embed-the-facade.md).
 
 | File | Shows |
 | --- | --- |
@@ -192,7 +192,7 @@ uv sync --all-extras       # serving needs dhis2w-fhir-serve
 Then any example runs on its own:
 
 ```bash
-uv run python examples/fhir/client/build_aggregate_response.py
+uv run python examples/client/build_aggregate_response.py
 ```
 
 With no DHIS2 reachable, every example fails with one sentence naming what is missing and how to

@@ -97,10 +97,10 @@ questions.
 | **Validation** - DHIS2 metadata against what the guide's naming can carry | `build_code_validation` (`validation/__init__.py:198`) is a pure function - option sets, metadata collections, and a `GenerateConfig` in, `FhirValidationReport` out, no I/O - plus the three renderers and every schema, all re-exported | The four functions that **produce** a report from an instance are not: `validate_codes` (`service.py:749`), `resolve_validation_context` (`:688`), `resolve_validation_scope` (`:851`), `resolve_code_source` (`:738`). `build_aborting_code` / `build_aborting_name` (`validation/__init__.py:179`, `:188`) are in the submodule's own `__all__` and not the package's, despite their docstrings calling them the single source of truth the generate-time refusal shares. `display_code` (`report.py:51`) is public, in no `__all__`, and reached into by `cli.py:888`. Format parsing, output directory, timestamp, and exit code are in `cli.py:831-975` | The four producers and the two refusal predicates on `dhis2w_fhir.__all__`. A caller can render a report it cannot yet produce, which is the wrong way round. **Note the scope the name hides**: this validates DHIS2 metadata for FHIR-safety - is a code a legal R4 `code`, would a name survive the publisher's templates. It does not validate a FHIR resource against a StructureDefinition, and nothing in this toolchain does | `MODULE-ONLY` |
 | **Scaffold** - init | `InitOptions`, `ScaffoldFile`, `ScaffoldReport`, `build_scaffold_files` - re-exported | `init_project` (`service.py:956`) is public and unexported; it is `build_scaffold_files` plus the write loop at `:958-966`. The flag policy `_reject_scaffold_flags` (`cli.py:300`) and the name/title derivation (`cli.py:261-266`) are command-body only | `init_project` exported; the derivations that decide what a project is called move to `InitOptions` where a library caller meets them | `MODULE-ONLY` |
 | **Scaffold** - refresh | Nothing on the package surface | `refresh_project(directory: Path) -> ScaffoldReport` (`scaffold/refresh.py:80`), `read_project_scaffold_state` (`:41`), `preserves_every_line` (`:74`), `normalize_project_name` (`schemas.py:20`), `ProjectScaffoldState` (`schemas.py:63`) - all public in their modules, none exported. `_refresh_project` (`cli.py:346`) wraps it with console output | `refresh_project` and `read_project_scaffold_state` exported. **And a shape question beside the visibility one**: refresh takes a directory, not a model, and re-derives the options by scraping `sushi-config.yaml` and `fsh.ini` with three regexes (`refresh.py:32-38`), so a caller already holding `InitOptions` round-trips through the filesystem to be understood | `MODULE-ONLY` |
-| **Doctor** - the conformance run | Nothing on the package surface | `run_doctor(generation, options, *, reporter=None) -> DoctorReport` (`doctor.py:400`) prints nothing and returns models; `DoctorOptions`, `DoctorPhase`, `DoctorOutcome`, `DoctorFinding`, `DoctorPhaseResult`, the four graders, `resolve_doctor_profile`, `render_doctor_markdown`, `phase_evidence` are all public. **None is in `dhis2w_fhir.__all__`**, and `docs/fhir/api-dhis2w-fhir.md:140` renders the module as though they were. The report path (`cli.py:2248`) and the exit code (`cli.py:2331`) are the command's | The whole runner exported - but this is the one row where publication is not the end of the argument. `doctor.py:13-15` declares the runner CLI-only on purpose, and it earns that: it mints a temporary workspace and removes it (`:1103`, `:671`), shells out to `sushi` or `docker run` (`:1287`, `:1316`), writes into `ig/fsh-generated/resources` (`:1344`), and runs an ASGI application in-process (`:894`). Two of its public graders also take private argument types - `grade_capture(Sequence[_CaptureOutcome])` (`:328`, type at `:1084`) and `grade_oracle(Sequence[_FamilyOutcome])` (`:384`, type at `:1094`) - so they cannot be called from annotated code. Publishing the runner means publishing those two types and stating what the call does to the filesystem, not just adding names | `MODULE-ONLY` |
+| **Doctor** - the conformance run | Nothing on the package surface | `run_doctor(generation, options, *, reporter=None) -> DoctorReport` (`doctor.py:400`) prints nothing and returns models; `DoctorOptions`, `DoctorPhase`, `DoctorOutcome`, `DoctorFinding`, `DoctorPhaseResult`, the four graders, `resolve_doctor_profile`, `render_doctor_markdown`, `phase_evidence` are all public. **None is in `dhis2w_fhir.__all__`**, and `docs/api-dhis2w-fhir.md:140` renders the module as though they were. The report path (`cli.py:2248`) and the exit code (`cli.py:2331`) are the command's | The whole runner exported - but this is the one row where publication is not the end of the argument. `doctor.py:13-15` declares the runner CLI-only on purpose, and it earns that: it mints a temporary workspace and removes it (`:1103`, `:671`), shells out to `sushi` or `docker run` (`:1287`, `:1316`), writes into `ig/fsh-generated/resources` (`:1344`), and runs an ASGI application in-process (`:894`). Two of its public graders also take private argument types - `grade_capture(Sequence[_CaptureOutcome])` (`:328`, type at `:1084`) and `grade_oracle(Sequence[_FamilyOutcome])` (`:384`, type at `:1094`) - so they cannot be called from annotated code. Publishing the runner means publishing those two types and stating what the call does to the filesystem, not just adding names | `MODULE-ONLY` |
 | **Client lifecycle** - handing an open connection in | `open_live_client` (`live.py:83`) is the counter-example the rest of the toolchain does not follow: the caller enters it, holds it, and `build_live_store(project, settings, client)` takes it as an argument (`app.py:105-117` states why) | **Nothing else accepts a client.** `run_doctor` opens its own (`doctor.py:708`), `validate_codes` opens its own (`service.py:764`), every `generate_*` target takes a `Profile` and opens one. A caller already holding an authenticated `Dhis2Client` cannot hand it over anywhere | A `client` argument on every capability that reads DHIS2, with the `Profile` form kept as the convenience wrapper the commands use. This is the single most consequential gap in the paper, and it is uniform, which makes it one decision rather than twenty | `ASSEMBLY-ONLY` |
-| **Spool** - the write side | `ResponseSpool.at` / `.save` / `.get` / `.search` / `.read` / `.count_by_lifecycle`, `StoredResponseEnvelope`, `StoredReceipt`, `ResponseLifecycle`, `new_response_id`, `current_instant` - re-exported from `dhis2w_fhir_serve` | `SpoolCursor`, `SpoolPage`, `page_of`, `requested_page_size`, `requested_cursor` (`serve/spool.py:209-505`) are public and unexported - the paging half | The paging half exported. `examples/fhir/client/complex_facade.py` already writes receipts through the published primitives, which is the proof this half works | `LIBRARY` |
-| **Spool** - the drain side | `read_received_responses`, `read_spooled_receipts`, `move_to_forwarded`, `move_to_rejected`, `move_to_received`, `drain_lock`, `resolve_spool_root`, `SpoolLayout`, `SpoolState` - re-exported; `read_spool_state` (`service.py:5742`), `requeue_rejected_responses` (`:5783`), `spool_layout` (`:4985`) too | Nine of the module's twenty-eight `__all__` names are missing from the package's, including `record_refusal` (`spool.py:394`), `read_refusal_record` (`:406`), `ForwardRefusalRecord` (`:276`), `RefusalReason` (`:266`), and `SPOOL_RELATIVE_PATH` (`:103`) - and `examples/fhir/client/complex_facade.py:71` already imports two of them by module path | All nine exported. `ForwardRefusalRecord` is the sharpest of them: it is the declared type of `SpooledReceipt.refusal` (`spool.py:319`), so a caller reading the stated surface alone receives instances of a class it cannot name | `LIBRARY` |
+| **Spool** - the write side | `ResponseSpool.at` / `.save` / `.get` / `.search` / `.read` / `.count_by_lifecycle`, `StoredResponseEnvelope`, `StoredReceipt`, `ResponseLifecycle`, `new_response_id`, `current_instant` - re-exported from `dhis2w_fhir_serve` | `SpoolCursor`, `SpoolPage`, `page_of`, `requested_page_size`, `requested_cursor` (`serve/spool.py:209-505`) are public and unexported - the paging half | The paging half exported. `examples/client/complex_facade.py` already writes receipts through the published primitives, which is the proof this half works | `LIBRARY` |
+| **Spool** - the drain side | `read_received_responses`, `read_spooled_receipts`, `move_to_forwarded`, `move_to_rejected`, `move_to_received`, `drain_lock`, `resolve_spool_root`, `SpoolLayout`, `SpoolState` - re-exported; `read_spool_state` (`service.py:5742`), `requeue_rejected_responses` (`:5783`), `spool_layout` (`:4985`) too | Nine of the module's twenty-eight `__all__` names are missing from the package's, including `record_refusal` (`spool.py:394`), `read_refusal_record` (`:406`), `ForwardRefusalRecord` (`:276`), `RefusalReason` (`:266`), and `SPOOL_RELATIVE_PATH` (`:103`) - and `examples/client/complex_facade.py:71` already imports two of them by module path | All nine exported. `ForwardRefusalRecord` is the sharpest of them: it is the declared type of `SpooledReceipt.refusal` (`spool.py:319`), so a caller reading the stated surface alone receives instances of a class it cannot name | `LIBRARY` |
 | **Forward** - the drain | `forward_responses(profile, project, *, import_responses, coded_answer_mode, register_completeness, reporter) -> ForwardReport` (`service.py:4740`), plus every report model | Everything inside it: `_drain_spool` (`:4840`), `_post_translations` (`:5068`), `_post_result` (`:5383`), `_file_now` (`:5146`), `_file_terminal_refusals` (`:5180`), `_record_refusals` (`:5222`), `_collect_outcomes` (`:5557`), the dry-run classification `_outcome_kind` / `_is_unverifiable` (`:5615`, `:5637`) | `forward_responses` stays the reference assembly; the three steps below get public halves | `LIBRARY` (whole) |
 | **Forward** - completeness | Nothing | `_register_completeness` (`:5267`), `_post_completeness` (`:5320`), `_completeness_outcome` (`:5338`), and the endpoint constant `_COMPLETE_DATA_SET_REGISTRATIONS_PATH` (`:4168`). The only public handle is the `register_completeness=` dial | A public call taking a `CompleteDataSetRegistration` and returning a `ForwardCompletenessOutcome`. The outcome model is already public; only the call is not | `ASSEMBLY-ONLY` |
 | **Forward** - overwrite naming | `AggregateCell`, `ForwardedCellIndex`, `ForwardedSubmission`, `ForwardedValueRecord`, `ForwardOverwrite`, `OverwrittenValue`, `aggregate_cells`, `build_forwarded_cell_index` - all re-exported from `dhis2w_fhir.overwrite` | The policy (`_forwarded_cell_index`, `:4968` - build the index only when the drain carries an aggregate payload) and the join (inlined in `_post_translations`, `:5120-5138`) | The policy as a public predicate. A caller can ask "was this cell already sent" and cannot get the answer the drain itself computes without running the drain | `LIBRARY` (primitives) |
@@ -129,9 +129,9 @@ published. The layering this project chose is doing its job; the surface declara
 not kept up with it.
 
 **Finding 2 - the docs promised more than the imports delivered, and the tree closed the
-gap.** This was the most concrete harm in the paper: `docs/fhir/api-dhis2w-fhir.md`
+gap.** This was the most concrete harm in the paper: `docs/api-dhis2w-fhir.md`
 rendered `::: dhis2w_fhir.doctor` under "The conformance runner" while no doctor symbol
-was importable, and `docs/fhir/api-dhis2w-fhir-serve.md` rendered
+was importable, and `docs/api-dhis2w-fhir-serve.md` rendered
 `dhis2w_fhir_serve.live` and four route modules the package did not export. Both are now
 published: `dhis2w_fhir.__init__` re-exports the doctor surface, `run_doctor`,
 `DoctorOptions`, and `DoctorReport` included, and `dhis2w_fhir_serve.__init__` re-exports
@@ -144,7 +144,7 @@ does not export is the same harm again.
 `dhis2w_fhir/cli.py:1256` imports five names from `dhis2w_fhir_serve` behind a guarded
 `ImportError`, which is fine because all five are exported. `dhis2w_fhir/doctor.py:1356`
 imports `build_live_store` and `open_live_client` from `dhis2w_fhir_serve.live`, which
-are not. And `examples/fhir/client/complex_facade.py:71` imports `ForwardRefusalRecord`
+are not. And `examples/client/complex_facade.py:71` imports `ForwardRefusalRecord`
 and `RefusalReason` from `dhis2w_fhir.spool` for the same reason. When the reference
 assembly and the published example both need a private path, the surface is wrong rather
 than the callers.
@@ -393,12 +393,12 @@ exception legible rather than a sentence in a design paper.
 the modules the API reference renders, so the drift finding 2 describes fails a test
 rather than waiting for a reviewer. Cheap, and it is what keeps R1 from decaying.
 
-**R10 - The API reference pages match.** `docs/fhir/api-dhis2w-fhir.md` and
-`docs/fhir/api-dhis2w-fhir-serve.md` render only what the packages export, and their
+**R10 - The API reference pages match.** `docs/api-dhis2w-fhir.md` and
+`docs/api-dhis2w-fhir-serve.md` render only what the packages export, and their
 "When to reach for it" lists gain the capabilities R1 publishes.
 
 **R11 - The facade ladder gains its capstone.** A level above
-`examples/fhir/client/complex_facade.py` that mounts the **real** serve routers over a
+`examples/client/complex_facade.py` that mounts the **real** serve routers over a
 real `ServeRuntime` rather than reimplementing them. Section 5 says why this is the
 natural last PR rather than the first.
 
@@ -414,8 +414,8 @@ reference pages. Adds R1's entries, removes R8's UI names, adds R9's surface tes
 No symbol moves, no signature changes. **Tests prove**: every name the API reference
 renders is importable from its package root; the doctor, validate, scaffold, and
 refusal-record capabilities are reachable in one import each; and no name that exists for
-the capture UI is. **Docs move with it**: `docs/fhir/api-dhis2w-fhir.md`,
-`docs/fhir/api-dhis2w-fhir-serve.md`, and `docs/project/features.md`.
+the capture UI is. **Docs move with it**: `docs/api-dhis2w-fhir.md`,
+`docs/api-dhis2w-fhir-serve.md`, and `docs/project/features.md`.
 
 **PR 2 - `feat(fhir): a caller can hand in the DHIS2 client it already holds`.**
 Touches `dhis2w-fhir` (`service.py`, `doctor.py`, `cli.py`). Adds the `client` argument
@@ -466,17 +466,17 @@ Touches `dhis2w-fhir` (`service.py`, `cli.py`) and the examples. Adds
 `generate_concept_maps` and `d2w fhir generate concept-maps`, with the three emit paths
 calling it. **Tests prove**: a full run's artifact tree is unchanged; a concept-maps-only
 run writes the three families' maps and deletes nothing a sibling target owns.
-**Examples move with it**: a new `examples/fhir/cli/generate_concept_maps.sh` beside
-`generate_option_sets.sh`, and `docs/fhir/401-terminology-and-conceptmaps.md` gains the
+**Examples move with it**: a new `examples/cli/generate_concept_maps.sh` beside
+`generate_option_sets.sh`, and `docs/401-terminology-and-conceptmaps.md` gains the
 target.
 
 **PR 9 - `feat(examples): the facade ladder ends at the routers it has been describing`.**
-Touches the examples and `docs/fhir/401-build-your-own-facade.md`. Adds the capstone
+Touches the examples and `docs/401-build-your-own-facade.md`. Adds the capstone
 level: an application that opens a `ServeRuntime`, attaches it, mounts the real
 `serve_routers` beside its own routes, and serves a genuine FHIR facade with no
 reimplementation. **Tests prove**: it passes `make verify-examples` and `make check-examples`.
 
-**Why the capstone is last, and why it matters.** The ladder in `examples/fhir/client/`
+**Why the capstone is last, and why it matters.** The ladder in `examples/client/`
 runs four levels, not three: `minimal_facade.py` (one route, nothing written down),
 `basic_facade.py` (one client, a health route, a log line per verdict),
 `complex_facade.py` (a durable spool and a background drain), and `advanced_facade.py`

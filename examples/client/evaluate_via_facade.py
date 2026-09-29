@@ -18,7 +18,7 @@ calling from a script rather than guessing at an expression in a text editor.
 
 Usage:
     d2w fhir serve --port 8123          # in the project directory, in another shell
-    uv run python examples/fhir/client/evaluate_via_facade.py [BASE_URL]
+    uv run python examples/client/evaluate_via_facade.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

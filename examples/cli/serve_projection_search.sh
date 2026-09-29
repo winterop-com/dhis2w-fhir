@@ -5,7 +5,7 @@
 # DHIS2, and only `d2w fhir sync` writes to the projection.
 set -euo pipefail
 
-# `d2w fhir sync` fills the projection - examples/fhir/cli/sync.sh is that command's own story.
+# `d2w fhir sync` fills the projection - examples/cli/sync.sh is that command's own story.
 # This one is the half that reads it: `[serve.search] backend` says where a register search is
 # answered from, and it is the only thing that changes between the two facades below.
 #

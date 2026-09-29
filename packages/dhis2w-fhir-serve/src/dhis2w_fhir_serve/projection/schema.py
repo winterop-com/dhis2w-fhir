@@ -1,6 +1,6 @@
 """The four tables a materialized projection is held in, and the one connection they are reached over.
 
-`docs/fhir/design/projection.md` step 3 asks for SQLAlchemy over aiosqlite with typed `Mapped[...]`
+`docs/design/projection.md` step 3 asks for SQLAlchemy over aiosqlite with typed `Mapped[...]`
 columns, which is CLAUDE.md rule 10's own default for state - and a projection is state in the exact
 sense that rule draws: derived, mutable, queried by predicate. The spool stayed as files on the other
 side of that line, because a receipt is an immutable artifact; this is the side the line was drawn to
@@ -97,7 +97,7 @@ class ProjectedNameRow(ProjectionBase):
     """One attribute value a tracked entity is searchable by, and the folded key a name search matches.
 
     `folded` is `value.casefold()` and it is what makes a name search behave the way the `:like:`
-    filter of `docs/fhir/design/projection.md` section 3.3 measured: a case-insensitive substring
+    filter of `docs/design/projection.md` section 3.3 measured: a case-insensitive substring
     match, which is the finding that page tells any replacement index not to regress. Lao and Khmer
     are written without spaces, so a word-tokenising analyzer would find LESS than a substring does -
     the interior substring and the bare Khmer consonant both hit, and both keep hitting here.
@@ -126,7 +126,7 @@ class ProjectionWatermarkRow(ProjectionBase):
 
     One row per `ProjectionEndpoint`, never one row for the projection, because the polled collections
     move independently and a single global cursor would be a guess about which of their clocks leads
-    (`docs/fhir/design/projection.md` section 5.2, rule 3).
+    (`docs/design/projection.md` section 5.2, rule 3).
     """
 
     __tablename__ = "projection_watermark"

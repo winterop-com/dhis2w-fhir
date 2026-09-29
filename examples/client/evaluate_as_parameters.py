@@ -4,7 +4,7 @@
 three contexts, same engine - the difference is the answer: a `Parameters` resource with one
 parameter per define, named by the define, which a FHIR client reads without learning a shape this
 project invented. `/facade/evaluate` answers this project's own JSON and is what the capture UI reads;
-`examples/fhir/client/evaluate_via_facade.py` is that endpoint.
+`examples/client/evaluate_via_facade.py` is that endpoint.
 
 What this file shows is how to read the answer, which is four rules and no more:
 
@@ -22,7 +22,7 @@ reach.
 
 Usage:
     d2w fhir serve --port 8123          # in the project directory, in another shell
-    uv run python examples/fhir/client/evaluate_as_parameters.py [BASE_URL]
+    uv run python examples/client/evaluate_as_parameters.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

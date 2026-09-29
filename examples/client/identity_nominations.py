@@ -39,11 +39,11 @@ here.
 Nothing is replaced: the attribute's own value still rides the served resource as a labelled extra,
 so a reader who disagrees with a nomination can still see what DHIS2 holds.
 
-The design behind the table is `docs/fhir/design/ips.md`; what each key means is
-[What goes in](../../../docs/fhir/301-what-goes-in.md).
+The design behind the table is `docs/design/ips.md`; what each key means is
+[What goes in](../../../docs/301-what-goes-in.md).
 
 Usage:
-    uv run python examples/fhir/client/identity_nominations.py
+    uv run python examples/client/identity_nominations.py
 
 Requires a DHIS2 profile (`d2w profile list`) and the seeded Child Programme.
 """

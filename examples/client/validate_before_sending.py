@@ -20,7 +20,7 @@ submission is for. Inside one phase every problem is collected, so the refusal b
 things at once rather than one per round trip.
 
 Usage:
-    uv run python examples/fhir/client/validate_before_sending.py
+    uv run python examples/client/validate_before_sending.py
 """
 
 from __future__ import annotations

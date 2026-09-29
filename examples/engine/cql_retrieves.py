@@ -14,7 +14,7 @@ engine works out by following each resource type's patient reference element, a 
 FHIR version binding rather than knowing itself.
 
 Usage:
-    uv run python examples/fhir/engine/cql_retrieves.py
+    uv run python examples/engine/cql_retrieves.py
 
 Needs no DHIS2, no server, and no project: the Bundle is inline.
 """

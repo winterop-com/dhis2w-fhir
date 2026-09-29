@@ -19,7 +19,7 @@ questions bind. A `seed` makes it reproducible. An embedder filling forms from i
 its own document instead; `build_aggregate_response.py` builds one field by field.
 
 Usage:
-    uv run python examples/fhir/client/capture_headless.py [PROJECT_DIRECTORY]
+    uv run python examples/client/capture_headless.py [PROJECT_DIRECTORY]
 
 With no argument it captures into the shared example project (see `_fixture.py`).
 """

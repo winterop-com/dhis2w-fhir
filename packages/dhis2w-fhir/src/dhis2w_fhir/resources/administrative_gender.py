@@ -2,7 +2,7 @@
 
 `Patient.gender` is bound to `http://hl7.org/fhir/administrative-gender` with a **required**
 binding, and DHIS2's answer to the same question is an option code out of an option set. So the step
-between them is a ConceptMap rather than a rename, and `docs/fhir/design/ips.md` section 4 names it
+between them is a ConceptMap rather than a rename, and `docs/design/ips.md` section 4 names it
 the smallest possible instance of the clinical-vocabulary source section 3 says does not exist yet:
 four codes rather than forty thousand. It is the first map this project publishes onto a vocabulary
 that is not DHIS2's own, which is the line the whole IPS effort needs and the reason phase 1 spends

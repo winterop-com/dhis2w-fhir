@@ -16,7 +16,7 @@ WHICH IS WHY THOSE ELEMENTS COME FROM A NOMINATION AND FROM NOTHING ELSE. `[ips.
 names the attribute carrying a person's name (whole, or given and family apart), birth date, sex,
 phone number, and each part of their address, and maps that sex attribute's values onto R4's
 `administrative-gender` codes; `dhis2w_fhir.ips` reads a person's values through it
-(`docs/fhir/design/ips.md` section 4, and section 9's phase 1, which is this). A project that
+(`docs/design/ips.md` section 4, and section 9's phase 1, which is this). A project that
 nominates nothing serves exactly what this register served before the table existed, byte for byte,
 because a registered resource then answers exactly one question, which is what this thing is in this
 instance. A nomination adds a reading of a value and removes nothing: the value keeps riding the

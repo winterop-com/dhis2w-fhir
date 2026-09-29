@@ -16,7 +16,7 @@ Two shapes of the answer surprise a first-time sender, and both are R4 doing wha
 
 Usage:
     d2w fhir serve --port 8123           # in the project directory, in another shell
-    uv run python examples/fhir/client/send_response.py
+    uv run python examples/client/send_response.py
 """
 
 from __future__ import annotations

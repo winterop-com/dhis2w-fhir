@@ -40,7 +40,7 @@ WHICH READS ARE NOT. The startup store build, `/facade/uiconfig`'s instance addr
 drain read and write as the facade's own profile, and that is correct: none of them acts on behalf of
 a request. The store is one snapshot of the published guide, shared by every caller and holding no
 tracked entity data; the drain is the deployment's own act under the forwarding profile. Those are
-the paths `docs/fhir/301-serving.md` still asks for a least-privilege DHIS2 user for.
+the paths `docs/301-serving.md` still asks for a least-privilege DHIS2 user for.
 
 NOTHING ON THIS PATH IS CACHED. One caller's page is never another caller's page, so there is nothing
 to share and the reader keeps nothing between requests. The one cache the `dhis2` posture holds is

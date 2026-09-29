@@ -1,6 +1,6 @@
 """Level four of the facade ladder: everything the durable level has, plus the four things it lacked.
 
-`examples/fhir/client/complex_facade.py` receives, spools, and drains - but it takes aggregate
+`examples/client/complex_facade.py` receives, spools, and drains - but it takes aggregate
 reports only, translates under whatever dial the context was built with, says nothing about a value
 an earlier receipt already sent, and states its own surface nowhere. This level closes all four:
 
@@ -23,11 +23,11 @@ brings the capability statement, the published guide, the register, the capture 
 path, and a drain that is a separate process from the server - and it is one command. **At this
 level, run `d2w fhir serve`.**
 
-The guide is [Build your own facade](../../../docs/fhir/401-build-your-own-facade.md); what a valid
-response is, is [the capture contract](../../../docs/fhir/401-capture-contract.md).
+The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:
-    uv run python examples/fhir/client/advanced_facade.py
+    uv run python examples/client/advanced_facade.py
 
 Requires a DHIS2 profile (`d2w profile list`). The demo imports two data values and one event for
 real and deletes them again at the end, so the instance is left exactly as it was found.
@@ -510,7 +510,7 @@ async def remove_from_dhis2(
     One delete covers both aggregate receipts: they report the same two cells, and a delete names
     the cells rather than the numbers. The event is deleted by its DHIS2 UID, which is derived from
     the receipt id the facade stamped on the capture - see
-    `examples/fhir/client/derive_receipt_event_uid.py` - so the capture is translated again under
+    `examples/client/derive_receipt_event_uid.py` - so the capture is translated again under
     that id to learn the UID back.
     """
     aggregate = translate_response(

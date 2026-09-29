@@ -123,7 +123,7 @@ concept property; this selection's codes carry none. `[generate]
 hostile_names = "substitute"` is the same answer, standing, for one project;
 this guide deliberately states neither, so it stays the refusal exhibit. The
 whole picture is in [Answer the hostile-name
-question](https://winterop-com.github.io/dhis2w/fhir/201-generate/#answer-the-hostile-name-question).
+question](https://winterop-com.github.io/dhis2w-fhir/201-generate/#answer-the-hostile-name-question).
 
 `d2w fhir validate` is the command that tells you which objects those are,
 before you have spent anything on a build. It is the CI gate for the same
@@ -144,12 +144,12 @@ reason: errors exit 1.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/refused-names
+cd examples/igs/refused-names
 
 uv run --project ../../../.. d2w fhir validate --no-fail   # names every offender
 uv run --project ../../../.. d2w fhir generate             # refuses, exit 1
 ```
 
-Related: [Troubleshooting](../../../../docs/fhir/201-troubleshooting.md) carries the
+Related: [Troubleshooting](../../../../docs/201-troubleshooting.md) carries the
 publisher's own message and the fix, and
-[Validate the instance](../../../../docs/fhir/201-validate.md) explains the grading.
+[Validate the instance](../../../../docs/201-validate.md) explains the grading.

@@ -8,7 +8,7 @@ is why the facade takes `language: "elm"` alongside `language: "cql"`.
 This runs the same library both ways against the same stored resource and compares them define by
 define. The compile happens here, in the caller's own process, with `ELMSerializer` from
 `dhis2w_fhir_engine` - so the only thing that crosses the wire is JSON, and the facade never sees the
-CQL at all. `examples/fhir/engine/elm_round_trip.py` does the same comparison with no server in the
+CQL at all. `examples/engine/elm_round_trip.py` does the same comparison with no server in the
 picture; this one is the served half of that story.
 
 The ELM is parsed by the facade before the engine is handed it, and that is deliberate rather than
@@ -22,7 +22,7 @@ The gaps are stated separately, each one demonstrated by the run rather than rem
 
 Usage:
     d2w fhir serve --port 8123          # in the project directory, in another shell
-    uv run python examples/fhir/client/evaluate_compiled_library.py [BASE_URL]
+    uv run python examples/client/evaluate_compiled_library.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

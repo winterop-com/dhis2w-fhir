@@ -10,7 +10,7 @@ name: IG publisher check
 # plus a full publisher pass, and the Actions budget is scarce.
 on:
   schedule:
-    - cron: "0 3 * * 0" # Sundays 03:00 UTC — clear of version-bump-check's Monday 06:00
+    - cron: "0 3 * * 0" # Sundays 03:00 UTC
   workflow_dispatch:
     inputs:
       guide:
@@ -70,7 +70,7 @@ jobs:
 
       - name: Scaffold the guide from its bundled template
         # No `d2w fhir generate`: there is no DHIS2 instance in CI, and the committed
-        # trees under examples/fhir/igs/ carry their inputs alone — the generated FSH is
+        # trees under examples/igs/ carry their inputs alone — the generated FSH is
         # gitignored. A bundled template lays down the complete pre-built guide instead.
         run: |
           mkdir -p "$PROJECT_DIR"
@@ -101,7 +101,7 @@ jobs:
 
       - name: Summarise the QA report
         if: always()
-        run: uv run python infra/scripts/publisher_qa_summary.py --qa "$PROJECT_DIR/ig/output/qa.json"
+        run: uv run python scripts/publisher_qa_summary.py --qa "$PROJECT_DIR/ig/output/qa.json"
 
       - name: Upload the QA report
         if: always()

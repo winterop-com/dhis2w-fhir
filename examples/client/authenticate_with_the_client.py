@@ -24,7 +24,7 @@ must meet.
 
 Usage:
     d2w fhir serve --auth token --port 8123   # in the project directory, in another shell
-    uv run python examples/fhir/client/authenticate_with_the_client.py
+    uv run python examples/client/authenticate_with_the_client.py
 
 The shared fixture starts the guarded facade and stops it at exit - which is what lets this run
 unattended. It binds a port the operating system hands out, so nothing else you are running is

@@ -1,6 +1,6 @@
 """`$summary`: what the operation is gated by, whose record it reads, and what a dose becomes.
 
-`docs/fhir/design/ips.md` section 9, phase 2. Mocked (respx); no live stack. The store is the
+`docs/design/ips.md` section 9, phase 2. Mocked (respx); no live stack. The store is the
 compiled capture fixture, whose stage form `ZzYYXq4fJie` is the seeded Baby Postnatal form - so the
 data elements mapped here are real immunisation elements and the projection a dose is read through
 is the very one `GET /facade/tracked-entities/{uid}/events` answers with.

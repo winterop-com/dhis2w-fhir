@@ -19,7 +19,7 @@ import { type Page } from '@playwright/test'
 const here = path.dirname(fileURLToPath(import.meta.url))
 
 /** Where the docs page reads the images from. This directory is owned by the docs, not the suite. */
-export const screenshotDirectory = path.resolve(here, '../../../../docs/img/fhir')
+export const screenshotDirectory = path.resolve(here, '../../../../docs/img')
 
 /** One viewport for every shot, so the docs images line up beside each other. */
 export const VIEWPORT = { width: 1280, height: 860 }

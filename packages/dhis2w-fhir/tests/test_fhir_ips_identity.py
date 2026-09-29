@@ -1,7 +1,7 @@
 """The library half of the identity dial: reading one person's nominated values, and checking the nomination.
 
 The register is the first consumer and not the only one intended: a summary document reads a person
-the same way, so the reading lives here rather than in the server. `docs/fhir/design/ips.md`
+the same way, so the reading lives here rather than in the server. `docs/design/ips.md`
 section 4.
 """
 

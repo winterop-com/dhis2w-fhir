@@ -23,7 +23,7 @@ it, and never holds it past the request.
 
 Usage:
     d2w fhir serve --live --auth dhis2 --port 8123   # in the project directory, in another shell
-    uv run python examples/fhir/client/read_register_as_yourself.py
+    uv run python examples/client/read_register_as_yourself.py
 
 With no facade named in `D2W_FHIR_EXAMPLE_FACADE`, the shared fixture starts one under this posture
 and stops it at exit - which is what lets this run unattended.

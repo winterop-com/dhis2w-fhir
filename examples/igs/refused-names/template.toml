@@ -9,5 +9,5 @@ It demonstrates the names `d2w fhir generate` refuses: a selection whose DHIS2 n
 raw '<', which aborts the IG publisher's last pass. The run is refused on the first such name, \
 which leaves the foundation target on disk and nothing after it, so this example carries no \
 generated tree to lay down and `make sushi` has nothing it can compile. \
-Read it at examples/fhir/igs/refused-names/README.md.\
+Read it at examples/igs/refused-names/README.md.\
 """

@@ -10,7 +10,7 @@ whatever the previous step produced, one expression reaches from the Bundle down
 resources it selected - which is how a count of vaccinated children ends up as a single line.
 
 Usage:
-    uv run python examples/fhir/engine/fhirpath_over_bundle.py
+    uv run python examples/engine/fhirpath_over_bundle.py
 
 Needs no DHIS2, no server, and no project: the Bundle is inline.
 """

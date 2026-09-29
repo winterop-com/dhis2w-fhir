@@ -18,7 +18,7 @@ The DHIS2 numbers are recomputed in Python first and asserted against the engine
 example fails loudly if the mapping and the measure ever disagree.
 
 Usage:
-    uv run python examples/fhir/engine/e2e_measure_from_dhis2.py
+    uv run python examples/engine/e2e_measure_from_dhis2.py
 
 Reads `DHIS2_URL`, `DHIS2_USERNAME`, and `DHIS2_PASSWORD` from the environment, defaulting to the
 local stack at `http://localhost:8080` as `admin` / `district`.

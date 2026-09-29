@@ -52,7 +52,7 @@ the extra examples and the extra terminology.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/aggregate-disaggregated
+cd examples/igs/aggregate-disaggregated
 
 uv run --project ../../../.. d2w fhir generate
 make setup      # the SUSHI + IG publisher docker image, once per machine

@@ -39,7 +39,7 @@ publishes that nomination nowhere: `D2TEA_CS` states what an attribute is called
 values are, and no artifact states what one *means*. So the nominations are read from the project
 here and checked against the vocabulary while the server starts - a nomination whose published value
 type cannot fill the element it was nominated for refuses the run, naming the key and the type it
-found (`docs/fhir/design/ips.md` section 4, "Value-shape validation"). The map from a sex value onto
+found (`docs/design/ips.md` section 4, "Value-shape validation"). The map from a sex value onto
 `administrative-gender` is published as a ConceptMap by `d2w fhir generate`, so a consumer audits the
 translation without holding this file, but what the server performs it reads from the file - the
 nominations the map depends on are not published, and half a dial read from an artifact and half

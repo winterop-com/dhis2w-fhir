@@ -631,7 +631,7 @@ as the FHIR resources the published map produces, in `projection/`.
 **The projection changes what a search can find, not who may see the answer.**
 Every match is read back from the instance under the caller's own credentials,
 so DHIS2 applies its own rules per person per request; a person-level read by id
-is answered live in every posture. `docs/fhir/design/projection.md` is the design
+is answered live in every posture. `docs/design/projection.md` is the design
 and section 6 is the reasoning.
 
 ### Capture

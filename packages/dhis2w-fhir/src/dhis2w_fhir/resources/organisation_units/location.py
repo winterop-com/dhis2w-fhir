@@ -127,7 +127,7 @@ def _boundary_extensions(organisation_unit: OrganisationUnitIn) -> list[Extensio
     terminology server: an offline build (`-tx n/a`) reports one unvalidatable-code error per unit
     carrying geometry and completes anyway. Dropping the field trades those for one `att-1`
     violation per unit, on every build rather than only the offline ones - which is why the field
-    stays. `docs/fhir/201-troubleshooting.md` carries the measurement.
+    stays. `docs/201-troubleshooting.md` carries the measurement.
     """
     if organisation_unit.boundary_geojson is None:
         return []

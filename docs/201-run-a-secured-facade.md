@@ -68,7 +68,7 @@ $ DHIS2_PASSWORD=... uv run d2w profile add ministry --auth basic --username rep
 connecting in step 4.
 
 **Depth:** [Point it at a DHIS2 instance](201-set-up-a-project.md#point-it-at-a-dhis2-instance),
-and [Connect to DHIS2](../guides/connecting-to-dhis2.md) for the other auth kinds.
+and [Connect to DHIS2](https://winterop-com.github.io/dhis2w/guides/connecting-to-dhis2/) for the other auth kinds.
 
 ## Step 4: grade the metadata
 

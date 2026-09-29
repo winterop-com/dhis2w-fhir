@@ -1,0 +1,125 @@
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+dhis2w-fhir = { workspace = true }
+dhis2w-fhir-engine = { workspace = true }
+dhis2w-fhir-serve = { workspace = true }
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+select = ["E", "W", "F", "I", "D", "SIM", "UP", "B", "TID251"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"httpx".msg = "Import httpx2. The original httpx is allowed only in tests, for the Response and Request objects respx consumes."
+"httpcore".msg = "Import httpcore2."
+"urllib.request".msg = "Use httpx2."
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["D", "TID251"]
+"tests/**/*.py" = ["D", "TID251"]
+"**/__init__.py" = ["D104"]
+"**/src/**/*.py" = ["D102", "D105", "D107"]
+"scripts/**/*.py" = ["D"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+norecursedirs = ["examples", ".git", ".venv", ".hypothesis", "__pycache__", "site", "build", "dist", "scripts", "node_modules", "frontend"]
+filterwarnings = [
+  # DHIS2 wire payloads carry plenty of fields not declared on the generated
+  # models (which use `extra="allow"`). pydantic-core re-emits these as a
+  # `PydanticSerializationUnexpectedValue` UserWarning during model_dump.
+  # Pin the message regex to that class name so genuine `Pydantic serializer
+  # warnings:` text from other sources still surfaces.
+  "ignore:.*PydanticSerializationUnexpectedValue.*:UserWarning",
+]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "contract: live-schema contract tests against play.im.dhis2.org (network, opt-in)",
+  "upstream_bug: tests paired with a BUGS.md entry - bug-still-present + workaround halves",
+]
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+source = ["packages"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:"]
+precision = 2
+show_missing = true
+skip_covered = true
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_unused_ignores = true
+strict_equality = true
+exclude = "^packages/[^/]+/tests/conftest\\.py$"
+# Examples and scripts resolve their sibling helpers (`_runner.py`, `_fixture.py`, `_bundle.py`) by
+# their own directory being on sys.path at runtime; mypy and pyright get the same directories.
+mypy_path = ["scripts", "examples/client", "examples/engine"]
+
+[tool.pyright]
+include = ["packages", "scripts", "examples", "tests"]
+exclude = ["**/.venv", "**/site", "**/build", "**/dist", "**/node_modules"]
+# Sibling-module scripts (`_runner.py`, `_fixture.py`, `_bundle.py`) are not a package: every
+# script resolves them by its own directory being on sys.path at runtime. Mirror that to pyright.
+extraPaths = ["examples/client", "examples/engine", "scripts"]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+reportPrivateUsage = false
+reportUnusedFunction = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportMissingTypeArgument = false
+reportMissingTypeStubs = false
+reportUnknownLambdaType = false
+reportMissingImports = "warning"
+reportMissingModuleSource = false
+reportDeprecated = "error"
+
+[dependency-groups]
+dev = [
+    "coverage[toml]>=7.16.0",
+    "dhis2w-cli==1.29.0",
+    "dhis2w-core[testing]==1.29.0",
+    "httpx2>=2.12.0",
+    "hypothesis>=6.168.0",
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.7.7",
+    "mkdocstrings[python]>=1.0.6",
+    "mypy>=2.3.1",
+    "pyright>=1.1.413",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4",
+    "pytest-cov>=7",
+    "pytest-httpx2>=1.0.0",
+    "pytest-xdist>=3.8.0",
+    "pyyaml>=6.0.3",
+    "respx>=0.23",
+    "ruff>=0.16.3",
+    "types-pyyaml>=6.0.12.20260906",
+]

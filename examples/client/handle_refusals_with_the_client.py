@@ -18,7 +18,7 @@ Three properties are the whole surface:
 through untouched, because a server that did not answer stated no outcome to carry.
 
 Usage:
-    uv run python examples/fhir/client/handle_refusals_with_the_client.py [BASE_URL]
+    uv run python examples/client/handle_refusals_with_the_client.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

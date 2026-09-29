@@ -20,7 +20,7 @@ carrying the line and column the parser stopped on, so `evaluate` returns an out
 raising. `FacadeError` is reserved for a request the facade cannot serve at all.
 
 Usage:
-    uv run python examples/fhir/client/evaluate_with_the_client.py [BASE_URL]
+    uv run python examples/client/evaluate_with_the_client.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

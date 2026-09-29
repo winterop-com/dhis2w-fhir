@@ -19,7 +19,7 @@ naming a data element alone marks the whole question, one also naming a category
 marks that single cell.
 
 Usage:
-    uv run python examples/fhir/client/read_form_questions.py
+    uv run python examples/client/read_form_questions.py
 
 Reads the aggregate form the example fixture publishes, from the facade the fixture serves.
 """

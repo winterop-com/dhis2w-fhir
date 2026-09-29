@@ -152,15 +152,15 @@ logic against a served project or a seeded instance, and says so.
 
 ## Reference
 
-- [Runnable examples](https://github.com/winterop-com/dhis2w/tree/main/examples/fhir) -
-  `examples/fhir/`, the whole surface as scripts you can run: `cli/` for the
+- [Runnable examples](https://github.com/winterop-com/dhis2w-fhir/tree/main/examples) -
+  `examples/`, the whole surface as scripts you can run: `cli/` for the
   commands each 201 page describes, `client/` for the Python library path
   (generate a guide, consume a facade, drain a spool), and `engine/` for the
   expression languages the 501 pages teach. One copy, runs on v41, v42 and v43
   alike.
-- [Feature catalog: FHIR IG Toolchain](../project/features.md#fhir-ig-toolchain) -
+- [Feature catalog: FHIR IG Toolchain](https://winterop-com.github.io/dhis2w/project/features/#fhir-ig-toolchain) -
   every capability of the toolchain in one inventory, surface by surface.
-- [CLI reference](../cli-reference.md) - every `d2w fhir` command and flag.
+- [CLI reference](https://winterop-com.github.io/dhis2w/cli-reference/) - every `d2w fhir` command and flag.
 - [`dhis2w_fhir` API reference](api-dhis2w-fhir.md) - the importable surface.
 - [`dhis2w_fhir_serve` API reference](api-dhis2w-fhir-serve.md) - the facade
   package.
@@ -187,7 +187,7 @@ not here. Read them when you want the *why* rather than the *how*:
 - [The IPS document](design/ips.md) - what an International
   Patient Summary requires, which sections a DHIS2 tracker instance could
   feed, and the prototype that makes the reserved decisions concrete
-  (`examples/fhir/client/ips_document.py`).
+  (`examples/client/ips_document.py`).
 - [FHIR enrollment resource](design/enrollment-resource.md) - why
   the read side models an enrollment as it does.
 - [The library surface](design/library.md) - what the FHIR toolchain is

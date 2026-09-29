@@ -26,7 +26,7 @@ that maps several types and the same loop prints several registers, with no line
 the whole point of writing it this way.
 
 Usage:
-    uv run python examples/fhir/client/register_any_type.py
+    uv run python examples/client/register_any_type.py
 
 With no facade named in `D2W_FHIR_EXAMPLE_FACADE`, the shared fixture starts a live one and stops it
 at exit.

@@ -40,7 +40,7 @@ The registration example is the one worth opening. It mints two DHIS2 UIDs
 client-side, one for the tracked entity and one for the enrollment, and carries
 both back on the response - so a caller that never reaches DHIS2 still knows
 what it created, and a retry names the same objects rather than making a second
-person. `examples/fhir/client/build_registration_response.py` builds that same
+person. `examples/client/build_registration_response.py` builds that same
 shape in typed Python.
 
 SUSHI compiles the FSH into 88 resources.
@@ -49,7 +49,7 @@ SUSHI compiles the FSH into 88 resources.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/tracker-registration
+cd examples/igs/tracker-registration
 
 uv run --project ../../../.. d2w fhir generate
 make setup      # the SUSHI + IG publisher docker image, once per machine

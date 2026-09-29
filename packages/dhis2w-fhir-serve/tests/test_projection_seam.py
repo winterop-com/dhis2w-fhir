@@ -3,7 +3,7 @@
 Mocked (respx); no live stack, and no application - the index is a value, so it is tested as one.
 
 What is asserted here is the seam rather than a feature, because step 1 of
-`docs/fhir/design/projection.md` improves nothing on purpose. Three claims carry it. The backend
+`docs/design/projection.md` improves nothing on purpose. Three claims carry it. The backend
 satisfies the Protocol at runtime, so the register can hold any implementation of it. `find` puts
 exactly the query section 2 of that paper measured on the wire - `filter=<attribute>:eq:<value>`,
 `orgUnitMode=ACCESSIBLE`, one query per key per tracked entity type - so this backend is exactly as weak

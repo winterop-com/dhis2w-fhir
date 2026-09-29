@@ -4,7 +4,7 @@ WHAT IT IMPROVES OVER THE `dhis2` BACKEND, STATED HONESTLY. Two things, and not 
 
 - **It answers a name.** The `dhis2` backend puts `filter=<attribute>:eq:<value>` on the wire, so it
   finds a person only from the whole of a value spelled exactly. This matches a case-insensitive
-  substring of one, which is what `docs/fhir/design/projection.md` section 3.3 measured `:like:`
+  substring of one, which is what `docs/design/projection.md` section 3.3 measured `:like:`
   doing and what that section tells any replacement not to regress: the interior substring hits, the
   bare Khmer consonant hits, and neither would survive a word-tokenising analyzer over scripts that
   are written without spaces.
@@ -71,7 +71,7 @@ class SqliteNameSearchIndex:
         The keys and the documents they find have to become true at the same instant, so they travel
         in one `ProjectionBatch` and land in one transaction. An `index` that wrote separately would
         be a second watermark with a second way of being wrong, which is the failure
-        `docs/fhir/design/projection.md` section 5.2 rule 1 exists to make impossible.
+        `docs/design/projection.md` section 5.2 rule 1 exists to make impossible.
         """
         return None
 

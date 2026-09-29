@@ -1,4 +1,4 @@
-"""Unit tests for `infra/scripts/verify_igs.py`, the example IG catalog verifier."""
+"""Unit tests for `scripts/verify_igs.py`, the example IG catalog verifier."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-_SCRIPTS = Path(__file__).resolve().parents[4] / "infra" / "scripts"
+_SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 

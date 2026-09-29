@@ -24,7 +24,7 @@ The payload itself is the generated OpenAPI model `DataValueSet` - the same clas
 plugin posts - so what is printed at the end is the literal body a forward would send.
 
 Usage:
-    uv run python examples/fhir/client/convert_aggregate_to_dhis2.py
+    uv run python examples/client/convert_aggregate_to_dhis2.py
 
 Reads the example project's guide through the shared fixture; see the README beside this file.
 """

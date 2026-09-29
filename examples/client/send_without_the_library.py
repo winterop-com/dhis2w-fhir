@@ -21,7 +21,7 @@ Everything else in the body is literal, and every value in it is one a person co
 
 Usage:
     d2w fhir serve --port 8123           # in the project directory, in another shell
-    D2W_FHIR_EXAMPLE_FACADE=http://127.0.0.1:8123 uv run python examples/fhir/client/send_without_the_library.py
+    D2W_FHIR_EXAMPLE_FACADE=http://127.0.0.1:8123 uv run python examples/client/send_without_the_library.py
 """
 
 from __future__ import annotations

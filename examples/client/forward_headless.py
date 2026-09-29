@@ -21,7 +21,7 @@ endpoint on the real instance under that endpoint's own validate-only mode - `dr
 answer while nothing is written and no receipt moves. `import_responses=True` is the committing run.
 
 Usage:
-    uv run python examples/fhir/client/forward_headless.py [PROJECT_DIRECTORY]
+    uv run python examples/client/forward_headless.py [PROJECT_DIRECTORY]
 
 With no argument it drains the shared example project's spool (see `_fixture.py`). An empty spool
 reports a run of zero, which is an answer rather than an error.

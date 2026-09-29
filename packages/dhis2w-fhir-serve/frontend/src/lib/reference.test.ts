@@ -18,7 +18,7 @@ import {
  *
  * What is NOT tested here is whether the engine implements what these lists claim - a unit test in
  * the browser cannot know that, and asserting it against a hard-coded copy would only prove the copy
- * matches itself. The pages under docs/fhir/501-* and the engine's own suites are what hold that
+ * matches itself. The pages under docs/501-* and the engine's own suites are what hold that
  * line; the docstring in lib/reference.ts names the sources each shelf was drawn from.
  */
 

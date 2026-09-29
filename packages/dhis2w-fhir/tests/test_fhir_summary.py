@@ -1,6 +1,6 @@
 """The assembled summary: what the document carries, what it states empty, and what it says about itself.
 
-`docs/fhir/design/ips.md` section 9, phase 2. The library under test is a pure function of a subject
+`docs/design/ips.md` section 9, phase 2. The library under test is a pure function of a subject
 and a list of doses, so everything here is assembled without a server, a store, or an instance -
 which is the point of `dhis2w_fhir.summary` being a library and not a route.
 """

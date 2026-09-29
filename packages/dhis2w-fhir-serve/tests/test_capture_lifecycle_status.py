@@ -8,7 +8,7 @@ What is under test is the pair of answers that follow. With the dial off the sub
 capture with a 422 naming the key, rather than spooled for a drain that would never act on it - a
 receipt accepted and never forwarded tells a client "kept" about a fact that never reaches DHIS2.
 With the dial on the submission is stored like any other receipt, its status preserved on disk, which
-is what the later slices of `docs/fhir/design/data-lifecycle.md` read.
+is what the later slices of `docs/design/data-lifecycle.md` read.
 """
 
 from __future__ import annotations
@@ -201,7 +201,7 @@ async def test_an_amended_aggregate_response_is_still_refused_by_its_own_profile
     """The dial says this project receives corrections; the aggregate contract still pins `completed`.
 
     Widening `AGGREGATE_REQUIRED_STATUS` to admit `amended` is a later slice of
-    `docs/fhir/design/data-lifecycle.md`, and until it lands the aggregate profile is what refuses -
+    `docs/design/data-lifecycle.md`, and until it lands the aggregate profile is what refuses -
     by its own rule, naming its own reason, rather than by the dial.
     """
     dialled = _dial_project(capture_project, BOTH_DIALS_ON)

@@ -27,7 +27,7 @@ is about exactly that. Child Health disaggregates all of its data elements, so e
 carries one; the envelope is what this file is about.
 
 Usage:
-    uv run python examples/fhir/client/build_aggregate_response.py
+    uv run python examples/client/build_aggregate_response.py
 
 Requires a DHIS2 profile (`d2w profile list`). The fixture scaffolds its project on first run.
 """

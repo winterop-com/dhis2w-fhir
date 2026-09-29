@@ -1,6 +1,6 @@
 """Level two of the facade ladder: the same one route, in the shape a deployment runs it in.
 
-The minimal recipe (`examples/fhir/client/minimal_facade.py`) opens a DHIS2 client per request,
+The minimal recipe (`examples/client/minimal_facade.py`) opens a DHIS2 client per request,
 resolves its profile inside the route, and says nothing about what it did. Each of those is fine for
 a demo and wrong for a process that runs for months, so this level buys back four guarantees:
 
@@ -15,13 +15,13 @@ a demo and wrong for a process that runs for months, so this level buys back fou
 **The trade:** still nothing is written down. A capture that arrives while DHIS2 is unreachable is a
 failed request, and its sender is the only one who knows it happened. `/health` will say the instance
 is unreachable, which is more than the level below says, and it is not a queue. Captures start
-surviving one level up, at `examples/fhir/client/complex_facade.py`.
+surviving one level up, at `examples/client/complex_facade.py`.
 
-The guide is [Build your own facade](../../../docs/fhir/401-build-your-own-facade.md); what a valid
-response is, is [the capture contract](../../../docs/fhir/401-capture-contract.md).
+The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:
-    uv run python examples/fhir/client/basic_facade.py
+    uv run python examples/client/basic_facade.py
 
 Requires a DHIS2 profile (`d2w profile list`). The fixture builds the translation context on first run.
 """

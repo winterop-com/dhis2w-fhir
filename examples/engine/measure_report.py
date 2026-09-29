@@ -20,7 +20,7 @@ The report that comes out is a typed model, and `to_fhir()` renders it as a FHIR
 the resource an aggregator or a dashboard expects.
 
 Usage:
-    uv run python examples/fhir/engine/measure_report.py
+    uv run python examples/engine/measure_report.py
 
 Needs no DHIS2, no server, and no project: the cohort is inline.
 """

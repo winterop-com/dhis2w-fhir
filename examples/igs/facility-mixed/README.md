@@ -30,7 +30,7 @@ programs register, so choosing Child Programme is what puts it there.
 | `[generate.option_sets]` | `OsVaccType1` Vaccine type | Only the vocabulary no form reaches; the eleven the coded questions bind arrive through the form closure |
 | `[generate.categories]` | `yY2bQYqNt0o` Project, `Qzh0MSUx4RM` Stock discarded | Both axes the aggregate form disaggregates over, so the combos decompose |
 | `[generate.examples]` | `per_target = 2` | Two example responses per form. Enough that a reader sees the shape rather than one specimen, and small enough to stay readable |
-| `[generate.organisation_units]` | root `qhqAxPSTUXp` Koinadugu, `max_level = 4` | One district: eleven chiefdoms and seventy facilities. The same district `examples/fhir/client/_fixture.py` scopes its own project to |
+| `[generate.organisation_units]` | root `qhqAxPSTUXp` Koinadugu, `max_level = 4` | One district: eleven chiefdoms and seventy facilities. The same district `examples/client/_fixture.py` scopes its own project to |
 
 ## What the compiled guide shows
 
@@ -54,7 +54,7 @@ SUSHI compiles the FSH into 94 resources.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/facility-mixed
+cd examples/igs/facility-mixed
 
 uv run --project ../../../.. d2w fhir generate
 make setup      # the SUSHI + IG publisher docker image, once per machine

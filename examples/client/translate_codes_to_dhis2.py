@@ -31,7 +31,7 @@ carries no code. That is the value in the data value, not the concept code.
 
 Usage:
     d2w fhir serve --port 8123          # optional, in the project directory, in another shell
-    uv run python examples/fhir/client/translate_codes_to_dhis2.py
+    uv run python examples/client/translate_codes_to_dhis2.py
 
 Runs whole without a facade: the `$translate` half then says so and the offline half still runs.
 """

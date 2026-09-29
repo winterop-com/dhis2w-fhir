@@ -8,7 +8,7 @@ set -euo pipefail
 # `d2w fhir serve` without ever reaching an instance.
 #
 # --list-templates names them and says where each is read from: a bundled template rides the
-# installed package, a checkout one is read from examples/fhir/igs/ of this repository and
+# installed package, a checkout one is read from examples/igs/ of this repository and
 # exists only in a clone of it. An example of that catalog is a template only when its own
 # template.toml says `scaffolds = true`; the refused-names exhibit says `scaffolds = false`
 # and states what it demonstrates instead, so it is neither listed nor scaffolded from.

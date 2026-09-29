@@ -16,7 +16,7 @@ this period". The `ToDate` is doing real work: a FHIR resource carries its dates
 `ToDate` is what turns one into a value the timing operators can place on a line.
 
 Usage:
-    uv run python examples/fhir/engine/cql_intervals.py
+    uv run python examples/engine/cql_intervals.py
 
 Needs no DHIS2, no server, and no project: every expression is self-contained.
 """

@@ -463,7 +463,7 @@ class SearchBackend(StrEnum):
     """What answers a register search - the `[serve.search] backend` key.
 
     Two values ship. `"index"` is the name reserved for the OpenSearch backend of step 6 in
-    `docs/fhir/design/projection.md`, and it is deliberately not a member here for the reason
+    `docs/design/projection.md`, and it is deliberately not a member here for the reason
     `ServeAuth` reserves `oauth2` in its own docstring: a value that parses and then has nothing to
     run on is worse than a value the file refuses by name, naming the key it refused.
     """
@@ -495,7 +495,7 @@ class SearchConfig(BaseModel):
     than one tracker query per key per tracked entity type, it answers a name the exact-match filter
     could never answer, and every answer states the cursor it is as of. What it does not do is hand
     over a record the instance has not authorized: each match is read back live under the caller's
-    own credentials, which is the R9 posture of `docs/fhir/design/projection.md` section 6 in full.
+    own credentials, which is the R9 posture of `docs/design/projection.md` section 6 in full.
 
     The table has no command-line flag. Which searches this server answers is its contract - it is
     what `/metadata` declares - rather than a property of one invocation, which is the rule
@@ -519,7 +519,7 @@ DEFAULT_PROJECTION_RELATIVE_PATH = ".serve/projection.sqlite"
 #: Five minutes. `updatedAfter` boundary semantics, clock skew between this host and the instance,
 #: and transactions in flight at the instant of a poll all drop rows at the edge, so a sync re-polls
 #: from `watermark - overlap` and relies on a write being idempotent by resource id
-#: (`docs/fhir/design/projection.md` section 5.2, rule 2). The window is a number somebody chose
+#: (`docs/design/projection.md` section 5.2, rule 2). The window is a number somebody chose
 #: rather than a constant an incident discovers.
 DEFAULT_SYNC_OVERLAP_SECONDS = 300
 
@@ -528,7 +528,7 @@ class ProjectionBackend(StrEnum):
     """Which durable store holds this project's materialized projection - `[serve.projection] store`.
 
     `"postgres"` is the name reserved for the document store of step 7 in
-    `docs/fhir/design/projection.md`, and it is deliberately not a member here for the reason
+    `docs/design/projection.md`, and it is deliberately not a member here for the reason
     `SearchBackend` reserves `"index"`: a value that parses and then has nothing to run on is worse
     than a value the file refuses by name.
     """
@@ -550,14 +550,14 @@ class ProjectionConfig(BaseModel):
     A projection is a durable copy of the mapped scope of a DHIS2 instance, held as the FHIR
     resources this project's map publishes, filled by `d2w fhir sync` and written by nothing else.
     It is derived, it is rebuildable from zero, and every answer served out of it states the instant
-    it is as of. `docs/fhir/design/projection.md` section 4 is the doctrine in seven rules, and the
+    it is as of. `docs/design/projection.md` section 4 is the doctrine in seven rules, and the
     first of them is the one this table exists under: DHIS2 stays the record for everything DHIS2
     can hold, and this holds a copy.
 
     `store` is which backend holds it, and `"none"` - the default - is no projection at all. That is
     not a degraded mode: a facade reading the instance per request is the product, it needs no
     operator, and nothing in this table may make it harder to run
-    (`docs/fhir/design/projection.md` R11).
+    (`docs/design/projection.md` R11).
 
     `path` is where a SQLite projection's one file lives, relative to the project root unless it is
     absolute - the same rule `[serve] spool_dir` follows, because the two are the same kind of
@@ -614,7 +614,7 @@ class ServeAuth(StrEnum):
     deliberately not a value here: DHIS2 2.43.1's own authorization server 500s for any client the
     API creates (BUGS.md 96), so a project could state it and nothing would answer. A posture that
     parses and then refuses is worse than one that is not offered, so the reservation lives in this
-    docstring and in `docs/fhir/301-serving.md` rather than in the enum. A deployment that wants
+    docstring and in `docs/301-serving.md` rather than in the enum. A deployment that wants
     tokens from an authorization server today states `jwt` and names the one it already runs.
     """
 
@@ -884,7 +884,7 @@ class WithdrawalPosture(StrEnum):
 
     #: A forwarded receipt can be retracted, which deletes the object it landed in DHIS2 and files
     #: the receipt under `withdrawn/`. Terminal: DHIS2 burns the UID, so the receipt never forwards
-    #: again - see `docs/fhir/design/data-lifecycle.md`.
+    #: again - see `docs/design/data-lifecycle.md`.
     RETRACT = "retract"
 
 
@@ -955,7 +955,7 @@ class IpsConfig(BaseModel):
     `[ips.identity]` nominates the tracked entity attribute carrying a person's name, birth date, and
     sex, and maps that sex attribute's values onto R4's `administrative-gender` codes. DHIS2 holds no
     field that means any of those, so the nomination is the instance's own statement or there is
-    nothing to publish - `docs/fhir/design/ips.md` section 4 is the argument, and section 9's phase 1
+    nothing to publish - `docs/design/ips.md` section 4 is the argument, and section 9's phase 1
     is what the nomination reaches: the register's own `Patient`.
 
     `[ips.sections]` nominates which recorded values belong in which section of a patient summary,

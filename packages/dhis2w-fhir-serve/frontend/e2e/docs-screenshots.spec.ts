@@ -3,10 +3,10 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 import { VIEWPORT, shoot } from './docs-shots.ts'
 
 /**
- * The screenshot producer for `docs/fhir/201-capture-ui.md` - NOT a test.
+ * The screenshot producer for `docs/201-capture-ui.md` - NOT a test.
  *
  * SKIPPED BY DEFAULT. This file asserts nothing the other specs do not already
- * prove; its whole output is the PNGs under `docs/img/fhir/`, and CI has no
+ * prove; its whole output is the PNGs under `docs/img/`, and CI has no
  * business rewriting documentation images on every run. `make screenshot` runs
  * it the way it has to be run; by hand that is:
  *

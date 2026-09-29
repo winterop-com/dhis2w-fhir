@@ -53,7 +53,7 @@ test('sends a reader to a published page rather than to a path in a source tree'
         'href',
         /^https:\/\/.+\/fhir\/501-fhirpath\/$/,
     )
-    expect(await reference.innerText()).not.toContain('docs/fhir/')
+    expect(await reference.innerText()).not.toContain('docs/')
 
     // ELM has no page of its own, and says nothing rather than pointing at one about something else.
     await page.getByRole('tab', { name: 'ELM' }).click()

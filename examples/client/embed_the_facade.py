@@ -25,7 +25,7 @@ assembling the groups by hand chooses where the second one goes, which is what
 `embed_in_fastapi.py` shows.
 
 Usage:
-    uv run python examples/fhir/client/embed_the_facade.py [PROJECT_DIRECTORY]
+    uv run python examples/client/embed_the_facade.py [PROJECT_DIRECTORY]
 
 With no argument it embeds the shared example project (see `_fixture.py`).
 """

@@ -1,7 +1,7 @@
 """Which backend a projection is held in and a register search runs through, chosen from `fhir.toml`.
 
 Two `match` statements over two config enums, rather than a registry, for the reason
-`docs/fhir/design/projection.md` section 7 gives for following `AuthProvider`: a backend a deployment
+`docs/design/projection.md` section 7 gives for following `AuthProvider`: a backend a deployment
 has not installed should be a refusal the operator reads at the config key that asked for it, not an
 import error from inside a request.
 

@@ -4,7 +4,7 @@
 # Needs the serve extra for the serve/capture/forward phases:
 # `pip install 'dhis2w-cli[serve]'` or `uv add dhis2w-fhir-serve`.
 # Doctor's compile phase runs the dockerized SUSHI build, which is minutes on a cold image, so
-# `make verify-examples` skips it: `infra/scripts/verify_examples.py` lists it under "slow
+# `make verify-examples` skips it: `scripts/verify_examples.py` lists it under "slow
 # server-side jobs". It never writes to the instance - the forward phase runs validate-only.
 set -euo pipefail
 
@@ -15,7 +15,7 @@ set -euo pipefail
 #
 # The default probe is small and representative: the first data set, the first event program,
 # the first tracker program, and the organisation-unit subtree those forms are assigned inside.
-# examples/fhir/cli/doctor_all_targets.sh is the same run over every data set and every program.
+# examples/cli/doctor_all_targets.sh is the same run over every data set and every program.
 #
 # The instance is named three ways, the command's own flag first, then the root flag, then the
 # environment - so one run is always about one stated instance whichever the shell wrote:
@@ -31,5 +31,5 @@ cd "${workspace}"
 
 # The drift phase is the one phase whose subject is a project rather than the throwaway
 # workspace, so from a directory holding no fhir.toml it is skipped with that as its reason -
-# examples/fhir/cli/doctor_drift.sh is that phase run where it has something to read.
+# examples/cli/doctor_drift.sh is that phase run where it has something to read.
 d2w fhir doctor

@@ -119,7 +119,7 @@ caller and loops `evaluate_patient`. **Cohort selection is not the engine's
 problem today, and there is nowhere in the Protocol to put it.**
 
 The one worked example proves the point by working around it.
-`examples/fhir/engine/e2e_measure_from_dhis2.py` reads one page of twelve tracked
+`examples/engine/e2e_measure_from_dhis2.py` reads one page of twelve tracked
 entities in a single `GET`, maps them into one collection `Bundle`, and evaluates
 a measure whose `"Initial Population"` is the literal `true` - because the DHIS2
 query *is* the initial population and CQL cannot express it. That example already
@@ -150,7 +150,7 @@ baseline to 800 people and 1,571 events. Three access shapes were then timed
 against that cohort. Repro:
 
 ```bash
-# Bulk: the shape examples/fhir/engine/e2e_measure_from_dhis2.py uses, paged out.
+# Bulk: the shape examples/engine/e2e_measure_from_dhis2.py uses, paged out.
 FIELDS='trackedEntity,orgUnit,attributes[attribute,value],enrollments[enrollment,program,enrolledAt,status,events[event,programStage,occurredAt,status,dataValues[dataElement,value]]]'
 time curl -s -g -u admin:district \
   "http://localhost:8080/api/tracker/trackedEntities?program=IpHINAT79UW&orgUnitMode=ACCESSIBLE&fields=$FIELDS&pageSize=200&page=1&order=createdAt:asc" \
@@ -372,7 +372,7 @@ register count now: 500        enrollments total: 500        events total: 971
 ## 4. The doctrine
 
 The repo already holds a storage position, and it is the right one. From
-[`docs/fhir/201-serve.md`](../201-serve.md), *Stored responses are receipts*:
+[`docs/201-serve.md`](../201-serve.md), *Stored responses are receipts*:
 
 > DHIS2 remains the system of record; a receipt is evidence of a submission, not a
 > view of data.
@@ -608,7 +608,7 @@ backend is a config line rather than a refactor.
 
 Implements the engine's existing `DataSource` protocol
 (`dhis2w_fhir_engine.engine.cql.context:22`), and **lives in the serve layer, never
-in the engine**. `examples/fhir/engine/e2e_measure_from_dhis2.py` ends with the
+in the engine**. `examples/engine/e2e_measure_from_dhis2.py` ends with the
 invariant that must not break:
 
 > The engine imported no DHIS2 module. Everything above the Bundle is this file's
@@ -853,9 +853,9 @@ change no behaviour at all.
    `[serve.projection] store = "sqlite"`.
 4. **`d2w fhir sync`, incremental and full, against the SQLite store.** The
    watermark, the overlap window, the per-endpoint cursors, `includeDeleted=true` as
-   a constant, `--rebuild`. Ends with a CLI example under `examples/fhir/cli/` and
+   a constant, `--rebuild`. Ends with a CLI example under `examples/cli/` and
    an entry in `docs/project/features.md`. **Shipped** -
-   `dhis2w_fhir_serve.projection.sync`, `d2w fhir sync`, `examples/fhir/cli/sync.sh`.
+   `dhis2w_fhir_serve.projection.sync`, `d2w fhir sync`, `examples/cli/sync.sh`.
 5. **Serve from the projection, cursor stated.** `GET /{RegisterType}/{uid}` and
    the listing answered from `ProjectionStore` when one is configured, each
    response carrying its cursor. The live path stays the default and stays tested.

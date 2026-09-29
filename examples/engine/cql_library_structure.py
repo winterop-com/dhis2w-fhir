@@ -17,7 +17,7 @@ definitions below are evaluated once per person rather than once over the whole 
 what a quality measure needs, so it is `measure_report.py` that shows it.
 
 Usage:
-    uv run python examples/fhir/engine/cql_library_structure.py
+    uv run python examples/engine/cql_library_structure.py
 
 Needs no DHIS2, no server, and no project: the library and its data are inline.
 """

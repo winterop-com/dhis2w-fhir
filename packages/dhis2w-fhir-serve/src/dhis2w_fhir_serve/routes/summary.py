@@ -5,7 +5,7 @@ THE OPERATION ALREADY HAD A NAME BEFORE THIS PROJECT EXISTED. The IPS publishes
 type level (`[base]/Patient/$summary`, where "the requestor SHALL provide an identifier"), and the
 IPS Server CapabilityStatement declares exactly that one operation on exactly that one resource. So
 a client that speaks IPS reaches this without learning a route this project invented, which is R6 in
-`docs/fhir/design/ips.md` section 8.
+`docs/design/ips.md` section 8.
 
 **IT IS SCOPED TO THE PEOPLE.** The register serves nine FHIR resource types over whatever tracked
 entity types a project maps onto them, and `$summary` on a `Specimen` or a `Location` is not a

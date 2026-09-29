@@ -203,7 +203,7 @@ TRANSLATE_DOCUMENTATION = (
 #: The definition is this project's own, and is defined in prose rather than emitted as an IG
 #: artifact - the same footing `JWT_ISSUER_EXTENSION_URL` below stands on, and for the same reason:
 #: it describes what this server does, not what a guide this server publishes contains.
-#: `docs/fhir/401-consume-the-fhir-api.md` is where it is defined.
+#: `docs/401-consume-the-fhir-api.md` is where it is defined.
 EVALUATE_OPERATION_NAME = "evaluate"
 EVALUATE_OPERATION_DEFINITION = "https://winterop-com.github.io/dhis2w/fhir/OperationDefinition/serve-evaluate"
 
@@ -304,7 +304,7 @@ CONTENT_SEARCH_DOCUMENTATION = (
 #: The IPS operation the facade answers over the people in its register, and the definition it
 #: conforms to. Both are the IPS's own: `OperationDefinition/summary` is published by
 #: `hl7.fhir.uv.ips` on `Patient` at instance and type level, so this server implements a named
-#: operation rather than inventing one (`docs/fhir/design/ips.md` R6).
+#: operation rather than inventing one (`docs/design/ips.md` R6).
 SUMMARY_OPERATION_CODE = "summary"
 SUMMARY_OPERATION_DEFINITION = "http://hl7.org/fhir/uv/ips/OperationDefinition/summary"
 
@@ -427,7 +427,7 @@ DHIS2_PERSONAL_ACCESS_TOKEN_SECURITY_TEXT = "DHIS2 personal access token"
 #:
 #: R4 has no element for it: `security.service` names schemes, and an issuer is not a scheme. So it
 #: rides as an extension on `security`, which is what BackboneElement extensions are for, under a URL
-#: this project defines - `docs/fhir/301-serving.md` is where it is defined. THE ISSUER AND NOTHING
+#: this project defines - `docs/301-serving.md` is where it is defined. THE ISSUER AND NOTHING
 #: ELSE crosses: never a key, never an audience, never a claim name. The issuer is the one fact a
 #: caller needs and the one fact that was never secret - it is printed on every token it signs.
 JWT_ISSUER_EXTENSION_URL = "https://winterop-com.github.io/dhis2w/fhir/StructureDefinition/serve-jwt-issuer"

@@ -38,7 +38,7 @@ one-segment path - and they mount last so every fixed path mounted ahead of them
 after that is a route the catch-all already claimed.
 
 Usage:
-    uv run python examples/fhir/client/embed_in_fastapi.py [PROJECT_DIRECTORY]
+    uv run python examples/client/embed_in_fastapi.py [PROJECT_DIRECTORY]
 
 With no argument it embeds the shared example project (see `_fixture.py`). Nothing listens: the
 applications are driven over an ASGI transport, exactly as `embed_the_facade.py` drives its own.

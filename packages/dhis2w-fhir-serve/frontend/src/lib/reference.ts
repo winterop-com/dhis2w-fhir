@@ -6,7 +6,7 @@
  * reader would type a function from it, meet `Unknown function: foo()`, and learn that the reference
  * on the screen is not about the server on the other end of the button. So every entry below is
  * something `dhis2w-fhir-engine` implements - the function registry, the CQL visitor's builtins, the
- * ELM evaluator's dispatch table - and the pages under docs/fhir/501-* are the long form of the same
+ * ELM evaluator's dispatch table - and the pages under docs/501-* are the long form of the same
  * material.
  *
  * WHY THE REFUSALS ARE IN IT. A reference that lists only what works teaches half a language. The
@@ -19,7 +19,7 @@
  *
  * HOW THE PROSE BELOW SPELLS A FUNCTION NAME. Every sentence here is written for a screen, and a
  * function name inside one belongs in the mono face - which a string cannot carry. So the prose
- * marks its machine spellings with backticks, the way the docs pages under `docs/fhir/` do, and
+ * marks its machine spellings with backticks, the way the docs pages under `docs/` do, and
  * `proseRuns` at the foot of this file turns them into elements. The marks are markup: they are
  * never the characters a reader sees, and every one of them is closed.
  */
@@ -46,7 +46,7 @@ export interface ReferenceSection {
  * Where the long form of one language lives, for a reader who wants the whole argument.
  *
  * A PUBLISHED PAGE AND NOT A FILE PATH. This panel is read in a browser, by somebody who may never
- * have seen this repository - `docs/fhir/501-fhirpath.md` set in mono is a string such a reader
+ * have seen this repository - `docs/501-fhirpath.md` set in mono is a string such a reader
  * cannot open, cannot search for, and has no reason to recognise. The documentation site is where
  * that page actually is, so the panel names the page and links to it.
  */

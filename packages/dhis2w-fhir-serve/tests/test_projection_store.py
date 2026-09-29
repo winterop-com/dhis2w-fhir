@@ -3,7 +3,7 @@
 No DHIS2 and no application. A store is a file, so it is tested as one - opened on a `tmp_path`,
 written, read back, and asked the questions the serving path asks it.
 
-What is under test is the three correctness rules of `docs/fhir/design/projection.md` section 5.2
+What is under test is the three correctness rules of `docs/design/projection.md` section 5.2
 rather than the SQL that implements them: a watermark that never runs ahead of its rows, a write that
 is idempotent by resource id, and a tombstone that removes rather than archives. Plus the two claims
 the search surface rests on - an identifier is matched exactly and a name is matched as a fold-and-

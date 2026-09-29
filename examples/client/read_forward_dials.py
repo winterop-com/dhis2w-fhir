@@ -15,7 +15,7 @@ the posture every surface of that project resolves, and nothing here needs a DHI
 it: this whole example is a config file and the models that read it.
 
 Usage:
-    uv run python examples/fhir/client/read_forward_dials.py
+    uv run python examples/client/read_forward_dials.py
 """
 
 from __future__ import annotations

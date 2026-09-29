@@ -5,7 +5,7 @@ a `tmp_path`, filled by hand with the resources a sync would have written. Filli
 than by running a sync is the point: this file is about what the SERVING path does with a filled
 projection, and `test_projection_sync.py` is about how one gets filled.
 
-Four claims carry it, and every one is a line of `docs/fhir/design/projection.md` section 6 or R3.
+Four claims carry it, and every one is a line of `docs/design/projection.md` section 6 or R3.
 
 - **The projection decides who is on the page, and DHIS2 decides who may see them.** Every entry is a
   live read under the credentials of whoever asked, so a person the projection holds and the instance

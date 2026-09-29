@@ -74,6 +74,6 @@ echo
 # query instead of one tracker query per key per type, `_content` for a search across every value a
 # person holds, and an `X-DHIS2W-Projection-As-Of` on every answer. What it does NOT change is who
 # may see whom: each match is read back from the instance under the caller's own credentials.
-# See examples/fhir/cli/serve.sh for the server, and docs/fhir/201-serve.md for the posture.
+# See examples/cli/serve.sh for the server, and docs/201-serve.md for the posture.
 
 cd .. && rm -rf sync-demo

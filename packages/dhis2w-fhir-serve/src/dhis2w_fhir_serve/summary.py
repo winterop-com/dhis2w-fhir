@@ -3,7 +3,7 @@
 THE DOSES COME OUT OF THE RECORD PROJECTION AND NOT OUT OF A SECOND READ. `GET
 /tracked-entities/{uid}/events` answers one entity's events as the `QuestionnaireResponse` each
 stage's published form describes, and a summary is a projection of that record rather than a rival
-reading of the instance (`docs/fhir/design/ips.md` section 2, and R3: every read behind a summary is
+reading of the instance (`docs/design/ips.md` section 2, and R3: every read behind a summary is
 scoped to one tracked entity). So this module takes the very `RecordProjection` the record surface
 runs on, projects the events of the mapped stages through it, and reads the doses off the documents
 that come back. A value can therefore never be typed one way at `/facade/tracked-entities/{uid}/events` and

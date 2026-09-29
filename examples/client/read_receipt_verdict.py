@@ -16,7 +16,7 @@ record across a resource, a tag nobody publishes, and a second operation.
 
 Usage:
     d2w fhir forward --import             # in the project directory, to give the states meaning
-    uv run python examples/fhir/client/read_receipt_verdict.py
+    uv run python examples/client/read_receipt_verdict.py
 """
 
 from __future__ import annotations

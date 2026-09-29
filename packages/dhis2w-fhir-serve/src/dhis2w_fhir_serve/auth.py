@@ -61,7 +61,7 @@ the same credential-free pool.
 
 `oauth2` is the posture that is not here. DHIS2 2.43.1's authorization server 500s for any client the
 API creates (BUGS.md 96), so there is nothing to build against; `dhis2w_fhir.config.ServeAuth` says
-what the name is reserved for and `docs/fhir/301-serving.md` says the same to a deployer. A deployment
+what the name is reserved for and `docs/301-serving.md` says the same to a deployer. A deployment
 that wants bearer tokens from an authorization server today runs `jwt` against the one it already has.
 """
 

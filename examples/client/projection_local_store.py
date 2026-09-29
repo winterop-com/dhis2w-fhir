@@ -27,7 +27,7 @@ from it. A project serving the same projection writes `store = "sqlite"` under `
 and `d2w fhir serve` opens it at startup.
 
 Usage:
-    uv run python examples/fhir/client/projection_local_store.py [PROJECT_DIRECTORY]
+    uv run python examples/client/projection_local_store.py [PROJECT_DIRECTORY]
 
 With no argument it fills the shared example project's projection (see `_fixture.py`). The first run
 reads the whole mapped register; every run after it reads what moved, which on an unchanged instance

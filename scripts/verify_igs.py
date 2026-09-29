@@ -1,7 +1,7 @@
-"""Run every example IG project under `examples/fhir/igs/` + summarise PASS / FAIL / SKIP.
+"""Run every example IG project under `examples/igs/` + summarise PASS / FAIL / SKIP.
 
 **Every guide in the catalog is verified here.** One project directory under
-`examples/fhir/igs/` is one guide, and each is put through the same four steps,
+`examples/igs/` is one guide, and each is put through the same four steps,
 in this order:
 
 1. **refresh** - `d2w fhir init <dir> --refresh` must report nothing to write.
@@ -28,9 +28,9 @@ run` inside one would resolve that project's own environment instead of the
 workspace it is being verified from.
 
 Usage:
-    uv run python infra/scripts/verify_igs.py               # every guide
-    uv run python infra/scripts/verify_igs.py --only facility-mixed
-    uv run python infra/scripts/verify_igs.py --no-compile  # skip the docker step
+    uv run python scripts/verify_igs.py               # every guide
+    uv run python scripts/verify_igs.py --only facility-mixed
+    uv run python scripts/verify_igs.py --no-compile  # skip the docker step
 """
 
 from __future__ import annotations
@@ -48,10 +48,10 @@ from pydantic import BaseModel, ConfigDict, Field
 from rich.console import Console
 from rich.table import Table
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 #: Where the catalog lives; one sub-directory holding a `fhir.toml` is one guide.
-IGS_ROOT = REPO_ROOT / "examples" / "fhir" / "igs"
+IGS_ROOT = REPO_ROOT / "examples" / "igs"
 
 #: The guides whose `d2w fhir generate` is expected to be refused. `refused-names` is the exhibit:
 #: its selection deliberately carries DHIS2 names with '<', which abort the IG publisher's last

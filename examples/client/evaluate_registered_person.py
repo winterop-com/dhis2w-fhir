@@ -11,7 +11,7 @@ reads. DHIS2 states a person as a tracked entity type plus a bag of tracked enti
 so the projection carries the UID as an `identifier`, the type as a `meta.tag`, and every attribute
 as a `d2-tracked-entity-attribute-value` extension holding an `attributeId` and a `value`. There is
 no `Patient.name` and no `Patient.birthDate` unless a project nominates one under `[ips.identity]` -
-`examples/fhir/client/identity_nominations.py` is that feature.
+`examples/client/identity_nominations.py` is that feature.
 
 So the library here does what a chart review does: it asks who this record is, what kind of record
 it is, and what was written down about them. One CQL function does the reaching-into-an-extension
@@ -21,7 +21,7 @@ the vocabulary the server publishes rather than from a list somebody kept in the
 
 Usage:
     d2w fhir serve --live --port 8123   # in the project directory, in another shell
-    uv run python examples/fhir/client/evaluate_registered_person.py [BASE_URL]
+    uv run python examples/client/evaluate_registered_person.py [BASE_URL]
 
 BASE_URL defaults to $FHIR_SERVE_URL. With neither, the shared fixture starts a facade on the
 example project and stops it at exit - which is what lets this run unattended.

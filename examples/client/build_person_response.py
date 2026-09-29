@@ -27,7 +27,7 @@ The client still mints the tracked entity UID, for the same reason: nothing on t
 until this response is imported.
 
 Usage:
-    uv run python examples/fhir/client/build_person_response.py
+    uv run python examples/client/build_person_response.py
 
 Requires a DHIS2 profile (`d2w profile list`). The UID is minted on every run.
 """

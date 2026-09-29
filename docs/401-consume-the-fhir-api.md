@@ -24,10 +24,10 @@ what a valid capture is ([The capture contract](401-capture-contract.md)).
   `/facade/openapi.json`
 
 **The runnable version of this page** is
-[`examples/fhir/client/consume_facade.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/consume_facade.py) -
+[`examples/client/consume_facade.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/consume_facade.py) -
 plain httpx2 against a served project, walking discovery, search, `$generate`, a
 capture, the receipt, and `/facade/spool` end to end. Point it at your own facade with
-`uv run python examples/fhir/client/consume_facade.py http://localhost:8123`.
+`uv run python examples/client/consume_facade.py http://localhost:8123`.
 The rest of that directory is the library path: `generate_ig.py` builds a guide
 from Python and `forward_spool.py` drains one. In Python, `FacadeClient` from
 `dhis2w_fhir` is the typed path over the parts of this page a capture client
@@ -35,16 +35,16 @@ lives in: `/metadata`, the reads and the searches, `$generate`, the post and its
 receipt, and an evaluation. `$translate`, `$summary`, the tracked-entity
 endpoints, `/facade/spool`, and `/facade/uiconfig` are addresses a caller asks
 for itself.
-[`examples/fhir/client/send_with_the_client.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/send_with_the_client.py)
+[`examples/client/send_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/send_with_the_client.py)
 is the same submit-and-read-back loop with no request built by hand, and four
 files beside it take the rest of that client one at a time:
-[`search_with_the_client.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/search_with_the_client.py)
+[`search_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/search_with_the_client.py)
 for discovery, search, and canonical resolution,
-[`evaluate_with_the_client.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/evaluate_with_the_client.py)
+[`evaluate_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/evaluate_with_the_client.py)
 for the two evaluation contexts,
-[`authenticate_with_the_client.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/authenticate_with_the_client.py)
+[`authenticate_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/authenticate_with_the_client.py)
 for the credential a guarded facade takes, and
-[`handle_refusals_with_the_client.py`](https://github.com/winterop-com/dhis2w/blob/main/examples/fhir/client/handle_refusals_with_the_client.py)
+[`handle_refusals_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/handle_refusals_with_the_client.py)
 for reading a refusal off `FacadeError` rather than out of a parsed body.
 
 **Every endpoint on this page answers the same way with no server running.**

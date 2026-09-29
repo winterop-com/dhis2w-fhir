@@ -121,7 +121,7 @@ from that, and neither is the scaffold's fault:
   own, so no guide here has ever been `uv sync`ed. A per-guide lock would pin the
   same commit nine times and go stale nine times. A real project you scaffold
   from these does commit its lock - [Set up an IG
-  project](../../../docs/fhir/201-set-up-a-project.md#install-the-pinned-toolchain)
+  project](../../../docs/201-set-up-a-project.md#install-the-pinned-toolchain)
   says why.
 
 ## The refresh doctrine
@@ -134,7 +134,7 @@ line - a new `path-resource` glob, a new `.gitignore` entry, a new menu item -
 one command brings all nine up to date:
 
 ```bash
-for guide in examples/fhir/igs/*/; do uv run d2w fhir init "$guide" --refresh; done
+for guide in examples/igs/*/; do uv run d2w fhir init "$guide" --refresh; done
 ```
 
 `make verify-igs` asserts there is nothing to bring: its first step per guide is
@@ -181,7 +181,7 @@ Per guide, in order:
    `aliases.fsh` and the foundation target under `ig/input/fsh/`, nothing after
    them, and no compile beside them.
 
-The runner is [`infra/scripts/verify_igs.py`](../../../infra/scripts/verify_igs.py).
+The runner is [`scripts/verify_igs.py`](../../../scripts/verify_igs.py).
 It is an on-demand target: it needs a reachable DHIS2 instance and docker, so it
 is not part of `make test` and not part of the default CI run. `--only <guide>`
 narrows it to one, and `--no-compile` drops the docker step.
@@ -220,7 +220,7 @@ sweep it before reading anything under a guide as what the catalog ships.
 
 ```bash
 export DHIS2_PROFILE=local_basic
-cd examples/fhir/igs/facility-mixed
+cd examples/igs/facility-mixed
 
 uv run --project ../../../.. d2w fhir validate    # what the instance costs this guide
 uv run --project ../../../.. d2w fhir generate    # the IG source, from the instance

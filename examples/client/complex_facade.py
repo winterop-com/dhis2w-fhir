@@ -18,17 +18,17 @@ forward` drains, through the same published primitives:
 
 **The trade:** this level posts aggregate reports and no tracker payload, holds no dial on coded
 answers, names no value an earlier receipt already sent, and states its surface nowhere - a client
-is told the two routes out of band. That is `examples/fhir/client/advanced_facade.py`, which is also
+is told the two routes out of band. That is `examples/client/advanced_facade.py`, which is also
 the level where the honest answer becomes `d2w fhir serve`.
 
 Note what has already happened here: half the imports are the served facade's own. Writing receipts
 durably is not a thing worth having a second version of, so this level uses the one that exists.
 
-The guide is [Build your own facade](../../../docs/fhir/401-build-your-own-facade.md); what a valid
-response is, is [the capture contract](../../../docs/fhir/401-capture-contract.md).
+The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:
-    uv run python examples/fhir/client/complex_facade.py
+    uv run python examples/client/complex_facade.py
 
 Requires a DHIS2 profile (`d2w profile list`). The demo imports two values for real and deletes them
 again at the end, so the instance is left exactly as it was found.
@@ -203,7 +203,7 @@ def build_facade(settings: FacadeSettings, context: ConversionContext) -> FastAP
                 content={
                     "detail": (
                         "this facade takes aggregate reports; the tracker routing is "
-                        "examples/fhir/client/advanced_facade.py, and `d2w fhir serve` takes all five form kinds"
+                        "examples/client/advanced_facade.py, and `d2w fhir serve` takes all five form kinds"
                     )
                 },
             )

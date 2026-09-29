@@ -746,7 +746,7 @@ Ordered by how much of the design leans on the answer.
   ratified by merge.
 - [The FHIR conversion layer](conversion.md) - where `importStrategy` is chosen and the
   payloads this page corrects are built.
-- [Upstream DHIS2 quirks](../../project/upstream-quirks.md) - `BUGS.md` rendered, including entries #2,
+- [Upstream DHIS2 quirks](https://winterop-com.github.io/dhis2w/project/upstream-quirks/) - `BUGS.md` rendered, including entries #2,
   #84, #85, #86, #87, #88, #89, #90, and #91, all of which this page cites.
 - [Forward captures into DHIS2](../201-forward.md) - the operator-facing
   version of the drain this page decides the semantics of.

@@ -2,7 +2,7 @@
 
 The table under test is posture by scope. For each cell the questions are the same three - which
 addresses answer without a credential, which refuse, and what a credential that is accepted then
-establishes - and the answers are what `docs/fhir/301-serving.md` states to a deployer.
+establishes - and the answers are what `docs/301-serving.md` states to a deployer.
 
 Two things are checked here that are not about one request at all. The startup refusals live in
 `ServeSettings.resolve`, so a posture a run could not honour is a line before the socket opens rather

@@ -1,6 +1,6 @@
 """How a projection-served answer states the instant it is as of, which every one of them does.
 
-D4 and R3 of `docs/fhir/design/projection.md` are one requirement written twice: **a projection answer
+D4 and R3 of `docs/design/projection.md` are one requirement written twice: **a projection answer
 is always "as of `<instant>`", never "now"**, and the instant is carried in the response rather than
 inferred from a header nobody reads. Section 11 reserves HOW, listing five candidates. This is the
 answer, and it is two things rather than one because the two audiences are different.

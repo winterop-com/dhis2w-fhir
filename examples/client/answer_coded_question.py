@@ -22,12 +22,12 @@ code, which the translator resolves the concept back to. So the answer travels a
 and lands as a DHIS2 option code, and this example prints both ends of that.
 
 Usage:
-    uv run python examples/fhir/client/answer_coded_question.py
+    uv run python examples/client/answer_coded_question.py
 
 Reads whichever coded question the example fixture's forms publish first.
 
 How a consumer gets DHIS2 identifiers back from a concept is at
-docs/fhir/401-terminology-and-conceptmaps.md.
+docs/401-terminology-and-conceptmaps.md.
 """
 
 from __future__ import annotations

@@ -667,7 +667,7 @@ Four consequences the design accepts:
 ## 4. Upstream DHIS2 and tooling quirks that shape the code
 
 Three DHIS2 quirks are catalogued in the repository-root `BUGS.md`, rendered on
-the [upstream quirks page](../../project/upstream-quirks.md). Two more are tooling, not DHIS2,
+the [upstream quirks page](https://winterop-com.github.io/dhis2w/project/upstream-quirks/). Two more are tooling, not DHIS2,
 so they are not in `BUGS.md` at all - they are recorded here because the code
 carries workarounds for them.
 
@@ -1156,7 +1156,7 @@ sit one level down in `r4/primitives.py` - `FHIR_DATE_PATTERN`,
 them - which is what lets the capture path check a received value against exactly
 what the emitter would have written.
 
-*The prose contract.* `docs/fhir/401-capture-contract.md` and the
+*The prose contract.* `docs/401-capture-contract.md` and the
 generated `capture.md` behind
 `resources/pages/__init__.py`'s `_capture_page`.
 
@@ -1293,7 +1293,7 @@ called by the service), `clean_generated_files`, `option_set_fsh_name`,
 `option_set_code_fallback`, `max_slug_length`, `domain_code`, `is_multi_valued`,
 `answer_element`, `zoned_date_time`, `SyntheticBuild`, `FshBuild`,
 `NamingSystemDeclaration`, `ResponseProfileDeclaration`. Some are genuinely
-public API for `docs/fhir/api-dhis2w-fhir.md`; some may be re-exports of internals. Note
+public API for `docs/api-dhis2w-fhir.md`; some may be re-exports of internals. Note
 also that `build_naming_system_declarations` is imported by
 `resources/pages/__init__.py` and re-exported from the package but is **not** in
 `foundation/__init__.py`'s own `__all__`.
@@ -1737,7 +1737,7 @@ described, and the git history is where it was built. What is left:
   FHIR-version-neutral, with the release reaching them as a `FhirVersionBinding`
   value out of `dhis2w_fhir_engine.r4`. The four
   [501 guides](../501-cql.md) teach it and
-  [`examples/fhir/engine/`](https://github.com/winterop-com/dhis2w/tree/main/examples/fhir/engine)
+  [`examples/engine/`](https://github.com/winterop-com/dhis2w-fhir/tree/main/examples/engine)
   runs it, including an end-to-end example that maps a seeded Child Programme
   cohort into FHIR and scores a measure over it.
 
@@ -1905,6 +1905,6 @@ what order.
 - [Corrections and withdrawals](data-lifecycle.md) - what happens after a
   receipt is forwarded, and the ten decisions that shape it.
 - [`dhis2w_fhir` API reference](../api-dhis2w-fhir.md) - the importable surface.
-- [Upstream DHIS2 quirks](../../project/upstream-quirks.md) - `BUGS.md` rendered, including
+- [Upstream DHIS2 quirks](https://winterop-com.github.io/dhis2w/project/upstream-quirks/) - `BUGS.md` rendered, including
   entries #62, #63, and #64.
-- [Repository roadmap](../../roadmap.md) - everything that is not FHIR.
+- [Repository roadmap](https://winterop-com.github.io/dhis2w/roadmap/) - everything that is not FHIR.

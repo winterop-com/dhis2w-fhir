@@ -18,7 +18,7 @@ Three rows deserve reading twice.
 
 * **A question binding an option set answers `valueCoding` whatever its value type is.** The rows
   below are what a question takes when nothing constrains its answers to a published list - see
-  examples/fhir/client/answer_coded_question.py for the other case, which is most of a tracker form.
+  examples/client/answer_coded_question.py for the other case, which is most of a tracker form.
 * **`MULTI_TEXT` always binds an option set**, and it is the one DHIS2 value type whose question
   repeats: several `valueCoding` answers to one link id, which DHIS2 stores as one data value with
   the selected codes comma-joined.
@@ -32,9 +32,9 @@ reads the element the question's item type asks for and no other, so an integer 
 missing from the middle of one that imports.
 
 Usage:
-    uv run python examples/fhir/client/answer_value_types.py
+    uv run python examples/client/answer_value_types.py
 
-The serialisation table is at docs/fhir/401-capture-contract.md.
+The serialisation table is at docs/401-capture-contract.md.
 """
 
 from __future__ import annotations

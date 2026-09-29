@@ -14,7 +14,7 @@ Give it a project directory to generate that project. With no argument it scaffo
 throwaway one under a temporary directory, generates it, and removes it again.
 
 Usage:
-    uv run python examples/fhir/client/generate_ig.py [PROJECT_DIRECTORY]
+    uv run python examples/client/generate_ig.py [PROJECT_DIRECTORY]
 
 Requires a DHIS2 profile (`d2w profile list`), and a compile is NOT part of this -
 generation writes IG source, `make sushi` inside the project turns it into resources.

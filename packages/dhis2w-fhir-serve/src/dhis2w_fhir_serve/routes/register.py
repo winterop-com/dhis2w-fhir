@@ -94,7 +94,7 @@ is not. Three things stay exactly as they are, and they are the three that matte
 
 - **Every record is still read live, under the caller's own credentials.** The projection says who is
   on the page; `fetch_tracked_entity` says whether this caller may have them, per person, per request.
-  That is `docs/fhir/design/projection.md` R9 and its recommended posture (iii) in full, and it is why
+  That is `docs/design/projection.md` R9 and its recommended posture (iii) in full, and it is why
   a projection can answer the finding half without this facade taking on one line of DHIS2's
   authorization model. `GET /{resourceType}/{id}` is a person-level read and therefore stays live
   whatever the backend says.
@@ -119,7 +119,7 @@ never with records; each match is then read back through `fetch_tracked_entity` 
 this request runs as. Splitting it that way is what lets a search index sit behind the seam without
 this facade ever deciding on DHIS2's behalf who may see whom - the index says an identifier matched,
 and the instance says whether this caller may have the person behind it
-(`docs/fhir/design/projection.md` R9). `[serve.search] backend` names which index; `dhis2` is the
+(`docs/design/projection.md` R9). `[serve.search] backend` names which index; `dhis2` is the
 instance itself, and it is the default.
 
 Which attributes are keys is the surface's answer, not this module's: by default the ones DHIS2
@@ -988,7 +988,7 @@ async def _search(
     without this facade deciding on DHIS2's behalf who may see whom. The record then comes from
     `fetch_tracked_entity` under the credentials this request runs as, so DHIS2 authorizes every
     disclosure per match per caller, exactly as it does for a read of one entity by its UID
-    (`docs/fhir/design/projection.md` R9). A person the search found and the read cannot see is
+    (`docs/design/projection.md` R9). A person the search found and the read cannot see is
     carried by neither, which is that decision going to the instance rather than being made here.
 
     Under `[serve.search] backend = "dhis2"` both halves are the same live connection, so a lookup

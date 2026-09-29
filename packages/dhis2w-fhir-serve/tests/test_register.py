@@ -298,7 +298,7 @@ async def test_every_search_runs_through_the_index_whatever_is_behind_it(
     """The register asks a `NameSearchIndex` for candidates and reads each one back - never records from a search.
 
     An index that is not the instance stands in here, which is the whole claim step 1 of
-    `docs/fhir/design/projection.md` makes: the search path crosses the seam, so a later backend is a
+    `docs/design/projection.md` makes: the search path crosses the seam, so a later backend is a
     config line rather than a refactor. What the register hands it is the value, the keys the surface
     holds, and the tracked entity types the resource is served over; what comes back is a UID, and
     the record under it is read live.
@@ -795,7 +795,7 @@ async def test_resolving_a_match_is_read_as_the_caller_too(pass_through_facade: 
 
     Authorization by construction, on the wire: the read that turns a match into a record carries the
     same credential the search did, so DHIS2 decides per match per caller exactly as it does for a
-    read of one entity by its UID (`docs/fhir/design/projection.md` R9).
+    read of one entity by its UID (`docs/design/projection.md` R9).
     """
     _read_route(None, _NATIONAL_ID)
     resolution = _read_route(_entity(), _PERSON_UID)

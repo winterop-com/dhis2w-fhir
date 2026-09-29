@@ -29,7 +29,7 @@ this guide's own CodeSystem for that category combination, and under the default
 codes are the DHIS2 category option combo UIDs.
 
 Usage:
-    uv run python examples/fhir/client/build_aggregate_attribute_option_combo_response.py
+    uv run python examples/client/build_aggregate_attribute_option_combo_response.py
 
 Requires a DHIS2 profile (`d2w profile list`).
 """

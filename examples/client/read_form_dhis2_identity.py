@@ -25,7 +25,7 @@ form was generated from a data set, an event program, a tracker program, a progr
 tracked entity type.
 
 Usage:
-    uv run python examples/fhir/client/read_form_dhis2_identity.py
+    uv run python examples/client/read_form_dhis2_identity.py
 
 Reads the aggregate form and the tracker registration form the example fixture publishes - the
 first asks data elements and disaggregated cells, the second asks tracked entity attributes.
