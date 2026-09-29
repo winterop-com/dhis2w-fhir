@@ -206,7 +206,7 @@ make clean-artifacts               # sweep the regenerated trees back off disk
 ```
 
 `make dhis2-run` restores the prebuilt dump, so it is minutes rather than the
-hours a full reseed takes; [`docs/local-setup.md`](../../docs/local-setup.md)
+hours a full reseed takes; [Local setup](https://winterop-com.github.io/dhis2w/local-setup/)
 covers rebuilding that dump. Every UID a `fhir.toml` here names belongs to that
 dump, so `play.dhis2.org` is not a substitute: run the catalog against the local
 stack or not at all.
