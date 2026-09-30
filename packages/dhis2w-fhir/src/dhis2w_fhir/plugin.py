@@ -2,7 +2,7 @@
 
 The package is version-neutral: the wire client auto-detects the DHIS2 major
 on connect, and FSH emission only consumes the reduced source models, so one
-plugin serves v41/v42/v43 without per-tree copies.
+plugin serves v41/v42/v43/v44 without per-tree copies.
 """
 
 from __future__ import annotations

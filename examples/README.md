@@ -2,7 +2,7 @@
 
 `d2w fhir` turns a DHIS2 instance's metadata into a [FHIR](https://hl7.org/fhir/R4/) Implementation Guide, serves the compiled guide as a read-and-capture endpoint, and posts what that endpoint captured back into DHIS2. It has its own example group because it is its own product surface, in two shapes of caller - the commands and the Python library - plus a catalogue of complete projects those callers drive. Beside them sits the evaluation engine, which computes over FHIR data no matter where it came from.
 
-`dhis2w-fhir`, `dhis2w-fhir-serve` and `dhis2w-fhir-engine` are not per-version packages — the client detects the DHIS2 major from `/api/system/info`, and the engine talks to no DHIS2 at all — so this is one copy that runs against v41, v42, and v43 alike.
+`dhis2w-fhir`, `dhis2w-fhir-serve` and `dhis2w-fhir-engine` are not per-version packages — the client detects the DHIS2 major from `/api/system/info`, and the engine talks to no DHIS2 at all — so this is one copy that runs against v41, v42, v43, and v44 alike.
 
 The narrative these scripts sit under is the [`d2w fhir` guide series](https://winterop-com.github.io/dhis2w-fhir/); [`docs/features.md`](https://winterop-com.github.io/dhis2w-fhir/features/) is the catalog of what the packages do.
 

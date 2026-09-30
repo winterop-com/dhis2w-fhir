@@ -130,7 +130,7 @@ Worth being blunt, because the FHIR word invites assumptions:
   with documented fall-backs while you do.
 
 The plugin is version-neutral: the wire client auto-detects the DHIS2 major on
-connect, so one package serves v41, v42, and v43.
+connect, so one package serves v41, v42, v43, and v44.
 
 Next: [FHIR for DHIS2 people](101-fhir-concepts.md) - the ten-minute
 vocabulary tour.

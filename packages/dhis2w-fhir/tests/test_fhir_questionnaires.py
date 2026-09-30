@@ -2006,25 +2006,25 @@ def _generated_value_types(version: str) -> set[str]:
     return set(enums[0].__members__)
 
 
-@pytest.mark.parametrize("version", ["v41", "v42", "v43"])
+@pytest.mark.parametrize("version", ["v41", "v42", "v43", "v44"])
 def test_every_generated_value_type_has_an_explicit_item_type(version: str) -> None:
     """A codegen refresh that adds a DHIS2 value type must be a mapping decision, not a silent string.
 
-    `TRACKER_ASSOCIATE` is v41/v42 only - v43 dropped it - so the table is the union of the three.
+    `TRACKER_ASSOCIATE` is v41/v42 only - v43 dropped it - so the table is the union of every tree.
     """
     unmapped = sorted(_generated_value_types(version) - set(ITEM_TYPES_BY_VALUE_TYPE))
     assert unmapped == [], f"{version} ValueType members with no entry in ITEM_TYPES_BY_VALUE_TYPE: {unmapped}"
 
 
 def test_the_item_type_table_maps_nothing_dhis2_does_not_have() -> None:
-    """The table is exactly the union of the three trees - a stale key would document a type that is gone."""
-    known = set().union(*(_generated_value_types(version) for version in ("v41", "v42", "v43")))
+    """The table is exactly the union of every tree - a stale key would document a type that is gone."""
+    known = set().union(*(_generated_value_types(version) for version in ("v41", "v42", "v43", "v44")))
     assert set(ITEM_TYPES_BY_VALUE_TYPE) == known
 
 
 def test_every_bounded_value_type_is_a_value_type_dhis2_has() -> None:
     """A bound on a value type no generated tree knows would constrain a question that cannot exist."""
-    known = set().union(*(_generated_value_types(version) for version in ("v41", "v42", "v43")))
+    known = set().union(*(_generated_value_types(version) for version in ("v41", "v42", "v43", "v44")))
     unknown = sorted(set(BOUNDS_BY_VALUE_TYPE) - known)
     assert unknown == [], f"BOUNDS_BY_VALUE_TYPE keys no generated ValueType enum holds: {unknown}"
 
