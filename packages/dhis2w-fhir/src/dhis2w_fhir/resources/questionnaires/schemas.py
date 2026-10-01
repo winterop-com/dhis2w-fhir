@@ -56,7 +56,7 @@ MINIMUM_VALUE_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/minValue"
 MAXIMUM_VALUE_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/maxValue"
 
 #: The FHIR `Questionnaire.item.type` each DHIS2 value type answers as. Every member of the
-#: generated `ValueType` enum on v41, v42, and v43 has an entry here, and a guard test asserts
+#: generated `ValueType` enum on v41, v42, v43, and v44 has an entry here, and a guard test asserts
 #: that - so a codegen refresh introducing a new DHIS2 value type is a deliberate mapping
 #: decision rather than a silent fall-through to string. The keys stay plain strings, and
 #: `_DEFAULT_ITEM_TYPE` still catches an unknown value at runtime: an instance ahead of the
@@ -429,7 +429,7 @@ class NumericBounds(BaseModel):
 #: extensions a question carries. Only the value types whose name *is* a constraint appear:
 #: `INTEGER` and `NUMBER` are unbounded in DHIS2, so a bound on them would invent a rule the
 #: instance does not enforce. A guard test asserts every key is a member of the generated
-#: `ValueType` enum across v41, v42, and v43.
+#: `ValueType` enum across v41, v42, v43, and v44.
 BOUNDS_BY_VALUE_TYPE = {
     "INTEGER_POSITIVE": NumericBounds(minimum_value=1),
     "INTEGER_ZERO_OR_POSITIVE": NumericBounds(minimum_value=0),

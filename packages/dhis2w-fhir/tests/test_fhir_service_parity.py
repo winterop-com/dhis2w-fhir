@@ -734,7 +734,7 @@ def test_entry_point_plugin_is_discovered() -> None:
     """The `dhis2w.plugins.v1` entry point exposes the fhir plugin to the plugin host on every tree."""
     from dhis2w_core.plugin import load_plugin_host
 
-    for version_key in ("v41", "v42", "v43"):
+    for version_key in ("v41", "v42", "v43", "v44"):
         host = load_plugin_host(version_key)
         assert "fhir" in host.names
         assert host.failures == ()

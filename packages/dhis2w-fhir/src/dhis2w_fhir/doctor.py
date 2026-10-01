@@ -310,7 +310,7 @@ class DoctorReport(BaseModel):
     base_url: str
     dhis2_version: str | None = None
     version_tree: str | None = None
-    """The `v41` / `v42` / `v43` plugin tree the client bound after detecting the instance's version."""
+    """The `v41` / `v42` / `v43` / `v44` plugin tree the client bound after detecting the instance's version."""
 
     workspace: Path
     workspace_kept: bool

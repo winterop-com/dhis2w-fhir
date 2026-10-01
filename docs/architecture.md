@@ -24,7 +24,7 @@ back.
 
 The plugin mounts through the `dhis2w.plugins.v1` entry point - the same pluginkit
 mechanism third-party packs use - and is version-neutral: the wire client auto-detects
-the DHIS2 major on connect, so one package serves v41/v42/v43 with no
+the DHIS2 major on connect, so one package serves v41/v42/v43/v44 with no
 per-version trees.
 
 ## The command surface

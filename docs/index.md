@@ -159,8 +159,8 @@ logic against a served project or a seeded instance, and says so.
   `examples/`, the whole surface as scripts you can run: `cli/` for the
   commands each 201 page describes, `client/` for the Python library path
   (generate a guide, consume a facade, drain a spool), and `engine/` for the
-  expression languages the 501 pages teach. One copy, runs on v41, v42 and v43
-  alike.
+  expression languages the 501 pages teach. One copy, runs on v41, v42, v43 and
+  v44 alike.
 - [Feature catalog: FHIR IG Toolchain](https://winterop-com.github.io/dhis2w/project/features/#fhir-ig-toolchain) -
   every capability of the toolchain in one inventory, surface by surface.
 - [CLI reference](https://winterop-com.github.io/dhis2w/cli-reference/) - every `d2w fhir` command and flag.

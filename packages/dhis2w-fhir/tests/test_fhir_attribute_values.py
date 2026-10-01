@@ -38,16 +38,16 @@ _MAPPED_ATTRIBUTE_VALUES = [
 _GEOJSON_VALUE = json.dumps({"type": "Point", "coordinates": [102.6, 17.97]})
 
 #: The generated schema trees, which do not agree on how `attributeValues` is typed.
-_SCHEMA_TREES = ("v41", "v42", "v43")
+_SCHEMA_TREES = ("v41", "v42", "v43", "v44")
 
 
 @pytest.fixture(params=_SCHEMA_TREES)
 def schemas(request: pytest.FixtureRequest) -> ModuleType:
-    """One generated schema tree per DHIS2 major, so the mappers are asserted against all three shapes.
+    """One generated schema tree per DHIS2 major, so the mappers are asserted against every shape.
 
-    v41 declares `attributeValues: list[AttributeValue]` while v42 and v43 declare it `Any`, so the
-    very same wire payload reaches the mappers as typed models on one tree and as plain dicts on the
-    other two. A mapper test bound to a single tree cannot see that.
+    v41 declares `attributeValues: list[AttributeValue]` while v42, v43 and v44 declare it `Any`, so
+    the very same wire payload reaches the mappers as typed models on one tree and as plain dicts on
+    the others. A mapper test bound to a single tree cannot see that.
     """
     return importlib.import_module(f"dhis2w_client.generated.{request.param}.schemas")
 
@@ -103,6 +103,7 @@ def test_the_v41_tree_parses_attribute_values_into_models_where_the_others_leave
     assert all(isinstance(entry, BaseModel) for entry in parsed["v41"].attributeValues)
     assert all(isinstance(entry, dict) for entry in parsed["v42"].attributeValues)
     assert all(isinstance(entry, dict) for entry in parsed["v43"].attributeValues)
+    assert all(isinstance(entry, dict) for entry in parsed["v44"].attributeValues)
 
 
 def test_organisation_unit_attribute_values_reach_the_projection(schemas: ModuleType) -> None:

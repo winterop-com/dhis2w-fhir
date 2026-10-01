@@ -23,7 +23,7 @@ the greenfield voice: describe what the code does now, never how it got there.
 
 ## What lives here
 
-Three packages in one uv workspace, every one version-neutral across DHIS2 v41, v42 and v43:
+Three packages in one uv workspace, every one version-neutral across DHIS2 v41, v42, v43 and v44:
 
 - `dhis2w-fhir-engine` - FHIRPath, CQL and ELM evaluation and quality measures. The FHIR
   foundation of the pack: it owns the R4 resource models at `dhis2w_fhir_engine.r4.resources`

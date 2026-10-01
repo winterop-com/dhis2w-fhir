@@ -199,8 +199,8 @@ or per process, with `set_default_binding(R5_BINDING)`.
 
 This split is the engine's own version axis, and it sits beside the one this
 repository already runs on. `dhis2w-client` and `dhis2w-core` carry a hand-written
-tree per DHIS2 major - `v41`, `v42`, `v43` - and a behaviour-changing edit lands in
-all three. The engine carries a subpackage per FHIR release, and a new release lands
+tree per DHIS2 major - `v41`, `v42`, `v43`, `v44` - and a behaviour-changing edit lands in
+every tree. The engine carries a subpackage per FHIR release, and a new release lands
 as a new subpackage.
 
 The two axes are independent. A DHIS2 major says which wire shapes the client reads;
