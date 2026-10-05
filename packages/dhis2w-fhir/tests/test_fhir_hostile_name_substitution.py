@@ -47,6 +47,12 @@ _REWRITES: list[tuple[str, str]] = [
     ("&gt;5km", "over 5km"),
     ("Mortality > 5 years", "Mortality over 5 years"),
     ("Age &gt;= 5", "Age at least 5"),
+    (">/=2500g", "at least 2500g"),
+    ("Weight </= 1500g", "Weight at most 1500g"),
+    ("&gt;/=2500g", "at least 2500g"),
+    ("Weight &lt;/=1500g", "Weight at most 1500g"),
+    (">10 sec", "over 10 sec"),
+    ("Spontaneus abortions ( <28 weeks)", "Spontaneus abortions (under 28 weeks)"),
 ]
 
 
@@ -239,6 +245,45 @@ def test_a_comparison_in_a_code_is_reworded_and_hyphenated() -> None:
     assert screened[0].original_code == "ENTO - IRS < 6 Months"
     assert screened[0].dhis2_code == "ENTO - IRS < 6 Months"
     assert any("carries a '<'" in note.message for note in notes)
+
+
+@pytest.mark.parametrize(
+    ("code", "published"),
+    [
+        (">10 sec", "over-10-sec"),
+        (">90 min", "over-90-min"),
+        (">/=2500g", "at-least-2500g"),
+        (">= 60 min", "at-least-60-min"),
+        ("<5 sec ", "under-5-sec"),
+        ("<1500g", "under-1500g"),
+    ],
+)
+def test_both_comparisons_in_a_code_are_reworded_the_way_a_name_is(code: str, published: str) -> None:
+    """A code's `>` reads "over" exactly as its `<` reads "under", so the code and the name agree on the wording."""
+    gate = HostileNameGate(HostileNamePosture.SUBSTITUTE)
+    notes: list[GenerateNote] = []
+    option_set = OptionSetIn(
+        uid="Os1aaaaaaaa", name="Bands", options=[OptionIn(uid="Op1aaaaaaaa", name=code, code=code)]
+    )
+    screened = gate.screen([option_set], notes)
+
+    option = screened[0].options[0]
+    assert option.code == published
+    assert option.dhis2_code == code
+    assert option.name == published.replace("-", " ")
+    assert any(note.category == GenerateNoteCategory.CODE_SUBSTITUTION for note in notes)
+
+
+def test_the_note_for_a_reworded_greater_than_code_names_the_character_it_carried() -> None:
+    """A `>` code's note says it carried a '>', not a space, so the report states why the code changed."""
+    gate = HostileNameGate(HostileNamePosture.SUBSTITUTE)
+    notes: list[GenerateNote] = []
+    gate.screen([OptionSetIn(uid="Os1aaaaaaaa", name="Bands", code=">24h")], notes)
+
+    coded = [note for note in notes if note.category == GenerateNoteCategory.CODE_SUBSTITUTION]
+    assert len(coded) == 1
+    assert "carries a '>'" in coded[0].message
+    assert "'over-24h'" in coded[0].message
 
 
 def test_a_comparison_in_a_code_is_left_alone_under_refuse() -> None:

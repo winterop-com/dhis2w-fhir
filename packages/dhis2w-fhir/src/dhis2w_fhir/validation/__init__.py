@@ -135,7 +135,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import TYPE_CHECKING, Literal
 
-from dhis2w_fhir.coded import carries_spaced_code, published_codes, substituted_code
+from dhis2w_fhir.coded import carries_spaced_code, carries_substitutable_code, published_codes, substituted_code
 from dhis2w_fhir.config import HostileNamePosture
 from dhis2w_fhir.foundation.attribute_values import (
     ATTRIBUTE_CODE_SUB_EXTENSION,
@@ -259,6 +259,10 @@ _CODE_IDENTIFIER_COLLECTIONS = frozenset(
 #: publisher's strict parse of the page it just wrote fails on the malformed cell. '>' is text to an HTML
 #: parser and a bare '&' is widely tolerated, so neither is claimed to be fatal without having seen it.
 _BUILD_ABORTING_CHARACTER = "<"
+
+#: The hostile characters in a code that a substitute-posture run rewords, the set `substituted_code`
+#: consumes. A bare '&' is not among them: it is published as DHIS2 states it under either posture.
+_REWORDED_CODE_CHARACTERS = frozenset({"<", ">"})
 
 #: How a finding names the DHIS2 field it read, so a reader knows which of the two spellings to
 #: change. The name is the reference spelling every vocabulary displays; the form name is the input
@@ -745,10 +749,10 @@ def _template_hostile_code_finding(
     the same code is instance hygiene, but the message keeps saying what it would do to a build
     the moment the object were selected.
 
-    Under `substitute` a `<` code is rewritten before any emitter reads it - the comparison reworded
-    as a name's is, every space hyphenated, the DHIS2 code stated as the `dhis2-code` property - so
-    the build never meets it and the finding is informational, naming the code the guide publishes.
-    Under `refuse` it is published as DHIS2 states it and the run is refused.
+    Under `substitute` a `<` or `>` code is rewritten before any emitter reads it - the comparison
+    reworded as a name's is, every space hyphenated, the DHIS2 code stated as the `dhis2-code`
+    property - so the build never meets it and the finding is informational, naming the code the
+    guide publishes. Under `refuse` a `<` code is published as DHIS2 states it and the run is refused.
     """
     if resource_type not in _CODE_IDENTIFIER_COLLECTIONS:
         return None
@@ -771,17 +775,20 @@ def _template_hostile_code_finding(
             "so this code lands on a page surface the publisher does not escape; only '<' is confirmed to "
             "abort a build, which is why only '<' can be an error"
         )
-    if substituting and aborts:
-        consequence = "which `make build` would abort on in its last pass"
+    rewritten = substituting and carries_substitutable_code(code) and character in _REWORDED_CODE_CHARACTERS
+    if rewritten:
+        consequence = (
+            "which `make build` would abort on in its last pass"
+            if aborts
+            else "which the guide words the way it words the name"
+        )
     remedy = (
         f'published as {substituted_code(code or "")!r} (hostile_names = "substitute"), with the DHIS2 code '
         "stated beside it as the `dhis2-code` property; change the code in DHIS2 to publish it byte-true"
-        if substituting and aborts
+        if rewritten
         else "change the code in DHIS2"
     )
-    graded: Literal["error", "warning", "info"] = (
-        "info" if substituting and aborts else ("error" if aborts else "warning")
-    )
+    graded: Literal["error", "warning", "info"] = "info" if rewritten else ("error" if aborts else "warning")
     return ValidationFinding(
         severity=_degraded(graded, in_scope),
         scope=_scope_label(in_scope),

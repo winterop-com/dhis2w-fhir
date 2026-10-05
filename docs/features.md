@@ -304,26 +304,27 @@ chain in one command.
   one answer and often the wrong one: DHIS2 names carry `<` legitimately, and an
   age band called `5 to < 15 years, Female` is not a defect to be renamed in a
   production instance. `--substitute-hostile-names` publishes it as `5 to under
-  15 years, Female` (`<=` reads as `at most`); `--refuse-hostile-names` keeps
+  15 years, Female` (`<=` and `</=` read as `at most`, `>=` and `>/=` as `at least`); `--refuse-hostile-names` keeps
   today's refusal; `[generate] hostile_names = "refuse" | "substitute"` is the
   project's standing answer; and with none of them a run holding a terminal
   prints the count, up to ten `before -> after` samples, and asks, while a run
   with no terminal names the two flags and rewrites nothing rather than hanging a
   script on a prompt. A flag beats the dial, the dial beats the question. DHIS2 is
   never written to and no UID is rewritten, so the ConceptMaps still take a
-  published concept back to its DHIS2 object, and a code carrying `<` refuses the
-  run under either answer. The rewrite lands where DHIS2 metadata enters the
+  published concept back to its DHIS2 object. The rewrite lands where DHIS2 metadata enters the
   emission inputs, before a single identity, stem, or decomposition is planned off
   a name, so every target inherits one spelling - which is also how it covers the
   class no refusal reaches: a category option combo name, which becomes a cell's
   label and a data dictionary concept display (one national selection generated
   cleanly and handed the publisher 738 of them). Every rewrite is a
   `name-substitution` note, one per distinct DHIS2 name.
-- **The substitute posture rewrites every code carrying a `<`.** A code becomes an
-  identifier value the publisher writes into a table cell unescaped and then
-  strict-parses, so a `<` in it aborts the build's last pass. Under `substitute`
+- **The substitute posture rewrites every code carrying a `<` or a `>`.** A code
+  becomes an identifier value the publisher writes into a table cell unescaped and
+  then strict-parses, so a `<` in it aborts the build's last pass; a `>` is
+  reworded too, so a code and the name beside it read alike. Under `substitute`
   its comparison is reworded the way a name's is and then every space is
-  hyphenated (`ENTO - IRS < 6 Months` publishes as `ENTO---IRS-under-6-Months`),
+  hyphenated (`ENTO - IRS < 6 Months` publishes as `ENTO---IRS-under-6-Months`,
+  `>10 sec` as `over-10-sec`),
   with the DHIS2 code stated as the `dhis2-code` property exactly as for a spaced
   code. Under `refuse` the run is refused, naming the object.
 - **The substitute posture hyphenates every code carrying a space.** An R4 `code`

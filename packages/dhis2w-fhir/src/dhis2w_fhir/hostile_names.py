@@ -17,7 +17,7 @@ There are two honest answers, and this module is where a run picks one:
   `service.py` do on their own. Codes are published byte-true under this answer: a space is legal,
   so nothing about it is refused.
 - **substitute** - publish the wording `substitute_build_aborting_text` produces and the code
-  `substituted_code` produces (a code's `<` reworded as a name's is, then every space hyphenated),
+  `substituted_code` produces (a code's `<` and `>` reworded as a name's are, then every space hyphenated),
   leaving the DHIS2 instance untouched. No UID is touched, every
   rewritten concept carries its DHIS2 code as a `dhis2-code` property and its DHIS2 name as a
   `dhis2-name` property, and the ConceptMaps keep taking a published concept back to its DHIS2 UID.
@@ -297,11 +297,14 @@ def _name_note(rewrite: HostileRewrite) -> GenerateNote:
 
 def _code_note(rewrite: HostileRewrite) -> GenerateNote:
     """The note one rewritten DHIS2 code lands in the report as, saying which of the two rewrites it took."""
-    carried = (
-        "a '<', which the IG publisher writes into an identifier table cell unescaped and then strict-parses"
-        if "<" in rewrite.original
-        else "a space, which the IG publisher's anchors and every URL downstream of them handle at their own discretion"
-    )
+    if "<" in rewrite.original:
+        carried = "a '<', which the IG publisher writes into an identifier table cell unescaped and then strict-parses"
+    elif ">" in rewrite.original:
+        carried = "a '>', which the guide words the way it words the name, so the code and the name read alike"
+    else:
+        carried = (
+            "a space, which the IG publisher's anchors and every URL downstream of them handle at their own discretion"
+        )
     return generate_note(
         GenerateNoteCategory.CODE_SUBSTITUTION,
         f"the DHIS2 code {rewrite.original!r} carries {carried}; the guide publishes {rewrite.rewritten!r} "
