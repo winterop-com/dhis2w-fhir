@@ -395,6 +395,18 @@ stands for - `<` reads "under", `>` reads "over", `<=` and `</=` read "at most",
 | `>/=2500g` | `at least 2500g` |
 | `>10 sec` | `over 10 sec` |
 
+**Codes carrying a comparison are reworded the way names are, and only under
+`substitute`.** A `<` in a code opens a tag in the table cell an identifier value
+lands in, so under `refuse` the run is refused. Under `substitute` both `<` and
+`>` are reworded, so a code and the name beside it read alike, and then each space
+is hyphenated:
+
+| DHIS2 code | Published code |
+| --- | --- |
+| `<1500g` | `under-1500g` |
+| `>10 sec` | `over-10-sec` |
+| `>/=2500g` | `at-least-2500g` |
+
 **Codes carrying a space are rewritten too, and only under `substitute`.** A
 space is legal in an R4 `code`, so nothing refuses `Pre eclampsia` - and the IG
 publisher's anchor slug strips whitespace, so it and a literal `Preeclampsia`
@@ -417,9 +429,7 @@ the option-set, category, and category-option-combo vocabularies and in the
 `.../id/*-code` identifier CodeSystems alike - and the ConceptMaps keep taking a
 published concept back to its DHIS2 UID. The capture path reads that property, so
 a QuestionnaireResponse answering with a published code still writes the DHIS2
-code to DHIS2. A DHIS2 *code* carrying `<` still refuses the run whichever answer
-you give: `<` opens a tag in the table cell an identifier value lands in, and no
-rewrite of it would be an identifier anybody could join on.
+code to DHIS2.
 
 Every rewrite lands in the notes - a `name-substitution` note per distinct DHIS2
 name and a `code-substitution` note per distinct DHIS2 code, however many

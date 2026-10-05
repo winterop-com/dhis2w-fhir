@@ -781,6 +781,32 @@ def test_an_unconfirmed_hostile_character_in_a_code_is_a_warning_not_an_error() 
     assert [finding.severity for finding in _hostile_code(report)] == ["warning", "warning"]
 
 
+def test_a_comparison_in_a_code_is_informational_under_substitute_naming_the_published_code() -> None:
+    """Under `substitute` a `>` code is reworded as a `<` code is, so grading names the code the run publishes."""
+    collections = [
+        MetadataCollectionIn(
+            resource="organisationUnits",
+            items=[
+                MetadataItemIn(uid="Aa1aaaaaaaa", name="Facility", code="A&E"),
+                MetadataItemIn(uid="Bb2bbbbbbbb", name="Ward", code=">10 sec"),
+                MetadataItemIn(uid="Cc3cccccccc", name="Room", code="<1500g"),
+            ],
+        )
+    ]
+    substituting = _CODE_MODE.model_copy(update={"hostile_names": HostileNamePosture.SUBSTITUTE})
+    findings = {
+        finding.code: finding for finding in _hostile_code(build_code_validation([], collections, substituting))
+    }
+
+    assert {code: finding.severity for code, finding in findings.items()} == {
+        "A&E": "warning",
+        ">10 sec": "info",
+        "<1500g": "info",
+    }
+    assert "published as 'over-10-sec'" in findings[">10 sec"].message
+    assert "published as 'under-1500g'" in findings["<1500g"].message
+
+
 def test_a_clean_code_and_an_absent_code_raise_no_template_finding() -> None:
     """The check reads a code when there is one and is silent otherwise."""
     report = _validate(

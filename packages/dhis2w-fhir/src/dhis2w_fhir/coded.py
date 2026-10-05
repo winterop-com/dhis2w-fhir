@@ -120,10 +120,18 @@ def original_spelling_extensions(urls: OriginalSpellingExtensionUrls, projection
     return [Extension(url=url, valueString=value) for url, value in stated if value is not None]
 
 
-#: The one character a code cannot carry into the IG publisher's build: identifier values are written
-#: into a table cell unescaped and strict-parsed afterwards, and `<` opens a tag. The same character
-#: `dhis2w_fhir.validation.build_aborting_code` grades.
-_BUILD_ABORTING_CODE_CHARACTER = "<"
+#: The comparison characters a substitute-posture run rewords in a code. Only `<` aborts the IG
+#: publisher's build (identifier values are written into a table cell unescaped and strict-parsed
+#: afterwards, and `<` opens a tag - the character `dhis2w_fhir.validation.build_aborting_code`
+#: grades), but both are reworded, for the reason `dhis2w_fhir.validation.substitution` gives for
+#: names: a guide whose bands read "under-1500g" and ">10-sec" states one fact in two vocabularies,
+#: and the code would disagree with the name the same run publishes beside it.
+_REWORDED_CODE_CHARACTERS = "<>"
+
+
+def _carries_comparison(code: str) -> bool:
+    """Whether one code carries a `<` or a `>`, which a substitute-posture run rewords."""
+    return any(character in code for character in _REWORDED_CODE_CHARACTERS)
 
 
 def carries_spaced_code(value: str | None) -> bool:
@@ -132,22 +140,23 @@ def carries_spaced_code(value: str | None) -> bool:
 
 
 def carries_substitutable_code(value: str | None) -> bool:
-    """Whether one code carries a space or a `<`, which is what the substitute posture rewrites."""
-    return value is not None and (" " in value or _BUILD_ABORTING_CODE_CHARACTER in value)
+    """Whether one code carries a space, a `<` or a `>`, which is what the substitute posture rewrites."""
+    return value is not None and (" " in value or _carries_comparison(value))
 
 
 def substituted_code(code: str) -> str:
     """One code as the substitute posture publishes it, before any de-collision the run has to apply.
 
-    A comparison is reworded the way a name's is (`< 6 Months` reads `under 6 Months`), which
-    consumes every `<`, and then every space is hyphenated, so `ENTO - IRS < 6 Months` publishes as
-    `ENTO---IRS-under-6-Months`. The DHIS2 code rides beside it as the `dhis2-code` property either way.
+    A comparison is reworded the way a name's is (`< 6 Months` reads `under 6 Months`, `>10 sec`
+    reads `over 10 sec`), which consumes every `<` and `>`, and then every space is hyphenated, so
+    `ENTO - IRS < 6 Months` publishes as `ENTO---IRS-under-6-Months` and `>10 sec` as `over-10-sec`.
+    The DHIS2 code rides beside it as the `dhis2-code` property either way.
     """
     # Imported here rather than at the top: the validation package imports this module, and a
     # module-level import of its `substitution` submodule would run that package's `__init__` first.
     from dhis2w_fhir.validation.substitution import substitute_build_aborting_text
 
-    reworded = substitute_build_aborting_text(code) if _BUILD_ABORTING_CODE_CHARACTER in code else code
+    reworded = substitute_build_aborting_text(code) if _carries_comparison(code) else code
     return reworded.replace(" ", CODE_SUBSTITUTION_SEPARATOR)
 
 
@@ -176,7 +185,7 @@ def code_substitutions(models: Iterable[BaseModel]) -> CodeSubstitutions:
 
 
 class CodeSubstituter:
-    """The published code every space- or `<`-carrying DHIS2 code of one run takes, assigned once and held.
+    """The published code every DHIS2 code of one run carrying a space, `<` or `>` takes, assigned once and held.
 
     Assignment is deterministic and independent of the order the projections are walked in: every
     code the run has observed is registered first, then the space-carrying ones are assigned in
@@ -202,7 +211,7 @@ class CodeSubstituter:
         self._register(code)
 
     def published_for(self, code: str) -> str:
-        """The code the guide publishes in one DHIS2 code's place, byte-true unless it carries a space or a `<`."""
+        """The code the guide publishes in one DHIS2 code's place, byte-true unless it carries a space, `<` or `>`."""
         if not carries_substitutable_code(code):
             return code
         self._register(code)
