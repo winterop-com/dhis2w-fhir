@@ -383,14 +383,17 @@ terminal to ask on - a script, a CI job - the run never hangs on a prompt: it
 prints the same block, names the two flags, and leaves every name and code as
 DHIS2 states it.
 
-The name rewrite is wording, not escaping. `<` becomes the word it stands for, so
-a reader of the guide reads a sentence:
+The name rewrite is wording, not escaping. A comparison becomes the words it
+stands for - `<` reads "under", `>` reads "over", `<=` and `</=` read "at most",
+`>=` and `>/=` read "at least" - so a reader of the guide reads a sentence:
 
 | DHIS2 name | Published name |
 | --- | --- |
 | `5 to < 15 years, Female` | `5 to under 15 years, Female` |
 | `Male, <15y` | `Male, under 15y` |
 | `Age <= 5` | `Age at most 5` |
+| `>/=2500g` | `at least 2500g` |
+| `>10 sec` | `over 10 sec` |
 
 **Codes carrying a space are rewritten too, and only under `substitute`.** A
 space is legal in an R4 `code`, so nothing refuses `Pre eclampsia` - and the IG

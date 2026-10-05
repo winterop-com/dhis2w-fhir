@@ -16,7 +16,7 @@ The two comparisons are rewritten symmetrically, and that symmetry is the point.
 build, so `>` could have been left alone - but a registry whose distance bands read "under 1km" and
 "&gt;5km" states one fact in two vocabularies, and the second one reads as markup to everybody
 outside the toolchain. Both directions are wording here: `<` reads "under", `>` reads "over",
-`<=` reads "at most", `>=` reads "at least".
+`<=` and `</=` read "at most", `>=` and `>/=` read "at least".
 
 Both spellings of each comparison are rewritten: the character itself, and the HTML entity a DHIS2
 instance stores when a name was typed into a rich-text field. An instance really holds
@@ -49,14 +49,20 @@ __all__ = [
     "substitute_build_aborting_text",
 ]
 
-#: What each rewritten spelling reads as. Order is match order: every digraph is listed before the
-#: single comparison it starts with, so `<=` reads as the comparison it is rather than as a `<`
-#: with a stray `=` behind it, and each entity spelling is listed before the character spelling for
-#: the same reason - `&lt;=` has to be consumed whole.
+#: What each rewritten spelling reads as. Order is match order: every compound comparison is listed
+#: before the single comparison it starts with, so `<=` reads as the comparison it is rather than as
+#: a `<` with a stray `=` behind it, and each entity spelling is listed before the character spelling
+#: for the same reason - `&lt;=` has to be consumed whole. The slashed forms `>/=` and `</=` are how
+#: a typist without a greater-than-or-equal key writes one (">/=2500g" is a birth-weight band an instance holds),
+#: so they come first of all and read as "at least" and "at most".
 #:
 #: A bare `&` is absent because nothing stands in its place: it is the character it looks like,
 #: widely tolerated in the pages the publisher writes, and a name carrying one says what it means.
 BUILD_ABORTING_SUBSTITUTIONS: tuple[tuple[str, str], ...] = (
+    ("&lt;/=", "at most"),
+    ("&gt;/=", "at least"),
+    ("</=", "at most"),
+    (">/=", "at least"),
     ("&lt;=", "at most"),
     ("&gt;=", "at least"),
     ("<=", "at most"),

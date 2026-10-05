@@ -47,6 +47,12 @@ _REWRITES: list[tuple[str, str]] = [
     ("&gt;5km", "over 5km"),
     ("Mortality > 5 years", "Mortality over 5 years"),
     ("Age &gt;= 5", "Age at least 5"),
+    (">/=2500g", "at least 2500g"),
+    ("Weight </= 1500g", "Weight at most 1500g"),
+    ("&gt;/=2500g", "at least 2500g"),
+    ("Weight &lt;/=1500g", "Weight at most 1500g"),
+    (">10 sec", "over 10 sec"),
+    ("Spontaneus abortions ( <28 weeks)", "Spontaneus abortions (under 28 weeks)"),
 ]
 
 

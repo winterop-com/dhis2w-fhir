@@ -304,7 +304,7 @@ chain in one command.
   one answer and often the wrong one: DHIS2 names carry `<` legitimately, and an
   age band called `5 to < 15 years, Female` is not a defect to be renamed in a
   production instance. `--substitute-hostile-names` publishes it as `5 to under
-  15 years, Female` (`<=` reads as `at most`); `--refuse-hostile-names` keeps
+  15 years, Female` (`<=` and `</=` read as `at most`, `>=` and `>/=` as `at least`); `--refuse-hostile-names` keeps
   today's refusal; `[generate] hostile_names = "refuse" | "substitute"` is the
   project's standing answer; and with none of them a run holding a terminal
   prints the count, up to ten `before -> after` samples, and asks, while a run
