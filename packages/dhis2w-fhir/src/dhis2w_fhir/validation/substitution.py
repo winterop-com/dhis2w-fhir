@@ -29,8 +29,11 @@ whitespace around it collapses. That is exactly what the FSH path already does t
 flattens whitespace before it writes a `Title:` - so collapsing here leaves the resource element
 and the page furniture stating one spelling instead of two.
 
-Names only. A DHIS2 code is an identifier a consumer joins on, so a code carrying `<` still
-refuses the run rather than being quietly renamed into a different identifier.
+Codes take the same wording. `dhis2w_fhir.coded.substituted_code` runs a code carrying `<` or `>`
+through this rewrite and then hyphenates every space, so `>10 sec` publishes as `over-10-sec`
+beside the name `over 10 sec`. A code is an identifier a consumer joins on, so the rewritten code
+never stands alone: the concept states the DHIS2 code byte-true as its `dhis2-code` property, and
+a capture lowers the published code back to that one before anything reaches DHIS2.
 """
 
 from __future__ import annotations
