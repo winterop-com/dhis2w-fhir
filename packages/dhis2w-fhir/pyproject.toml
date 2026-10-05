@@ -1,6 +1,6 @@
 [project]
 name = "dhis2w-fhir"
-version = "1.31.0"
+version = "1.31.1"
 description = "FHIR Implementation Guide generation from DHIS2 metadata — SUSHI project scaffolding, FSH emission, and FHIR-safety validation, mounted as the `d2w fhir` plugin."
 readme = "README.md"
 authors = [{ name = "Morten Hansen", email = "morten@winterop.com" }]
@@ -15,9 +15,9 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "dhis2w-client==1.31.0",
-    "dhis2w-core==1.31.0",
-    "dhis2w-fhir-engine>=1.31.0,<2.0",
+    "dhis2w-client==1.31.1",
+    "dhis2w-core==1.31.1",
+    "dhis2w-fhir-engine>=1.31.1,<2.0",
     "fpdf2>=2.8.7",
     "jinja2>=3.1.6",
     "pydantic>=2.13.4",
