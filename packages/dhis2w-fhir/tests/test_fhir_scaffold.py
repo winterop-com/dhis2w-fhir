@@ -706,12 +706,12 @@ _COMBINED_PACKAGE_LINE = (
 
 @pytest.mark.skipif(shutil.which("make") is None, reason="make runs the Makefile under test")
 def test_a_successful_build_says_what_the_combined_package_error_is(tmp_path: Path) -> None:
-    """The publisher logs an `Error` on every successful build; the build says it is not one (BUGS.md #132)."""
+    """The publisher logs an `Error` on every good build; the build says it is not one (IG_PUBLISHER_ISSUES.md #132)."""
     completed = _report_run(tmp_path, status=0, log=f"Generating combined package\n{_COMBINED_PACKAGE_LINE}")
 
     assert completed.returncode == 0, completed.stderr
     assert '"Error generating combined package" above is the IG publisher, not this build' in completed.stdout
-    assert "BUGS.md #132" in completed.stdout
+    assert "IG_PUBLISHER_ISSUES.md #132" in completed.stdout
 
 
 @pytest.mark.skipif(shutil.which("make") is None, reason="make runs the Makefile under test")

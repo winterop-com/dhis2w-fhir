@@ -391,7 +391,7 @@ class TrackedEntityIndex(BaseModel):
 
         A sync's enrollment poll needs these because `/api/tracker/enrollments` will be scoped by
         program and by nothing else - it answers `E1003 "Program is mandatory"` to a query naming a
-        tracked entity type (BUGS.md 102). So the programs the guide published are the scope an
+        tracked entity type (DHIS2_ISSUES.md 102). So the programs the guide published are the scope an
         enrollment poll walks, where every other register read walks the types the register serves.
         """
         return tuple(self.program_names)

@@ -28,7 +28,7 @@
  * WHAT THE CREDENTIAL IS. Under the DHIS2 posture, `Basic <base64 of user:password>` - the password
  * in a form anything can decode, which is what HTTP Basic is, and the reason a page load is the
  * longest this app keeps one. The alternative is a token exchange the DHIS2 instance behind this
- * facade cannot yet offer (BUGS.md 96).
+ * facade cannot yet offer (DHIS2_ISSUES.md 96).
  *
  * NOTHING IS HELD UNTIL THE SERVER HAS NAMED THE CALLER. The panel asks `GET /facade/whoami` with what
  * was typed, and only an answer naming somebody reaches `signIn`. Holding first and finding out

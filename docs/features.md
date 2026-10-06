@@ -334,7 +334,7 @@ chain in one command.
 - **The substitute posture hyphenates every code carrying a space.** An R4 `code`
   admits single internal spaces, so `Pre eclampsia` is legal FHIR and nothing
   refuses it - and the publisher's anchor slug strips the whitespace, so it and a
-  literal `Preeclampsia` render one anchor id (BUGS.md 107), while every URL, CQL
+  literal `Preeclampsia` render one anchor id (IG_PUBLISHER_ISSUES.md 107), while every URL, CQL
   quotation, and terminology server below the guide handles the space at its own
   discretion. Under `substitute` each space becomes a hyphen, everywhere the guide
   publishes a DHIS2 code: the option-set, category, and category-option-combo
@@ -706,7 +706,7 @@ NamingSystems declaring them, plus these extensions:
   `d2w fhir forward` imports that as a top-level `enrollments` array naming
   that tracked entity under plain `CREATE` rather than a `trackedEntities`
   wrapper whose `CREATE_AND_UPDATE` would rewrite the person's owning
-  organisation unit (BUGS.md 73), carries the program's own attributes on the
+  organisation unit (DHIS2_ISSUES.md 73), carries the program's own attributes on the
   enrollment because DHIS2 answers `E1018` when they ride nothing, and refuses
   the whole response with `entity-level-answer-on-existing-subject` where it
   answers a question of the person's own record - an enrollment-only import has
@@ -1165,7 +1165,7 @@ registration form become `Questionnaire` instances.
 - **`authored` and every `DATETIME` answer** get the offset R4 requires and
   DHIS2 omits: the offset the `[generate] timezone` IANA zone stood at on that
   very timestamp, DST included, or `Z` when the project names no zone
-  (BUGS.md #62).
+  (DHIS2_ISSUES.md #62).
 - **A target holding no data is one aggregate note, never a failure.**
 
 #### Organisation unit registry
@@ -1714,7 +1714,7 @@ bound to loopback by default that loads the project once at startup.
   `[serve.jwt] username_claim` becomes the request identity. `oauth2` is the name
   reserved for an authorization server this facade would run itself and is
   deliberately not accepted: DHIS2 2.43.1's authorization server 500s for any
-  client its API creates (BUGS.md 96) - a deployment wanting bearer tokens today
+  client its API creates (DHIS2_ISSUES.md 96) - a deployment wanting bearer tokens today
   states `jwt` and names the issuer it already has.
 - **The `jwt` posture is `[serve.jwt]`, verified locally against the issuer's
   published keys.** `issuer` names the OpenID Connect issuer identifier and is
@@ -1961,7 +1961,7 @@ reads that table.
 - **A token under `{base}/tracked-entity-attribute/<uid>`** filters
   `GET /api/tracker/trackedEntities?trackedEntityType=<published TET>&filter=<uid>:eq:<value>&orgUnitMode=ACCESSIBLE`.
   `ACCESSIBLE` always, because a unique attribute gets no organisation-unit
-  scope exemption on the tracker endpoint (BUGS.md 74), so a capture-unit scope
+  scope exemption on the tracker endpoint (DHIS2_ISSUES.md 74), so a capture-unit scope
   would miss exactly the people identifier search exists to find.
 - **A bare value** tries every key at once and folds the results deduplicated
   by tracked entity UID.
@@ -1998,7 +1998,7 @@ reads that table.
   because a DHIS2 attribute value may contain one. **It answers equality and
   nothing else** - no prefix, no substring, no range, no `:missing` - forgiving
   case alone, because DHIS2's own `eq` on a tracked entity attribute is
-  case-insensitive (BUGS.md 109) and one operator must not mean two things across
+  case-insensitive (DHIS2_ISSUES.md 109) and one operator must not mean two things across
   the backends. It narrows the listing, the identifier search, `_content`, and the
   `_count=0` count alike, and rides every `next` and `previous` link. Under
   `backend = "dhis2"` it becomes a `filter=<uid>:eq:<value>` on the tracker query,
@@ -2087,9 +2087,9 @@ reads that table.
   still an open decision. It lists enrollment uid, program uid and the name the
   guide publishes it under, status, `active`, `enrolledAt`, and the
   organisation unit uid and registry name - read entity-scoped and never by
-  program (BUGS.md 72: a program the person is not enrolled in answers 404
+  program (DHIS2_ISSUES.md 72: a program the person is not enrolled in answers 404
   claiming the person does not exist), with a COMPLETED enrollment listed and
-  marked rather than hidden (BUGS.md 70: DHIS2 takes events into one without a
+  marked rather than hidden (DHIS2_ISSUES.md 70: DHIS2 takes events into one without a
   word).
 - **`GET /facade/tracked-entities/{uid}/events`** is the record: every event of that
   entity's enrollments, newest first, each served as the `QuestionnaireResponse`
@@ -2101,7 +2101,7 @@ reads that table.
   the guide publishes. The shape is the capture contract's own, so what a client
   may post is what it reads back, and no clinical resource is invented for data
   DHIS2 states no mapping for. One read of the tracked entity per request,
-  entity-scoped throughout (BUGS.md 72 and 91: `/api/tracker/events` demands a
+  entity-scoped throughout (DHIS2_ISSUES.md 72 and 91: `/api/tracker/events` demands a
   program on v43, and naming one an entity is not enrolled in answers 404), and
   ordered here because DHIS2 nests the events unordered. `_count` and `page`
   walk it on the register's own dials, `_count=0` answers how long the record is,
@@ -2422,7 +2422,7 @@ no operator, no second command, and no schedule, and that stays the product.
   not error. A tombstone removes the row rather than archiving a last state,
   because DHIS2 answers 404 to a read of a deleted entity, so there is no final
   state to archive. DHIS2 2.42.6 refuses the type-scoped read that carries the
-  flag (BUGS.md #116); the poll then reads without it, the report says
+  flag (DHIS2_ISSUES.md #116); the poll then reads without it, the report says
   `tombstones_visible: false`, and `d2w fhir sync` prints a note.
 - **The watermark is the instance's own clock and is per collection.** Tracked
   entities and enrollments carry one each - a person's `lastUpdated` does not move
@@ -2432,7 +2432,7 @@ no operator, no second command, and no schedule, and that stays the product.
   path. Events are not polled: the projected resource carries no data value, so an
   event that moved is not a change to anything held. The enrollment poll is scoped
   by programme because `/api/tracker/enrollments` accepts no other scope
-  (BUGS.md 102).
+  (DHIS2_ISSUES.md 102).
 - **A watermark never runs ahead of its rows.** The store writes a batch and its
   cursor in one transaction, and a walk advances its watermark only once every row
   it read is durable - so a walk that failed halfway advances nothing and the next
@@ -3150,7 +3150,7 @@ an identifier search and a paged listing on one page, with a detail route at
   uid only once, and drops the badge beneath when no unique value names the
   record. A total is shown only where DHIS2 stated one. The record carries the
   subject's identifiers, attribute values in the same proportional face the
-  listing sets them in, its enrollments with a completed one warned (BUGS.md
+  listing sets them in, its enrollments with a completed one warned (DHIS2_ISSUES.md
   70), and what it has been through: `GET /facade/tracked-entities/{uid}/events` read
   as one row per DHIS2 event, named by the published title of the stage form it
   answered, with the date DHIS2 dates it - and the register's own words for an
@@ -3632,14 +3632,14 @@ Each response goes through `dhis2w_fhir.conversion` all-or-nothing.
   the four keys, because a registration has no UID to look it up by.
 - **The envelope's own `completeDate` is deliberately never written**, since on
   2.42 it registers completeness even when every value was refused and even
-  under `dryRun=true` (BUGS.md 76, 77).
+  under `dryRun=true` (DHIS2_ISSUES.md 76, 77).
 
 #### Values a previous submission already sent
 
 - **A drain names every aggregate value it sends that a forwarded receipt
   already sent**, with the receipt that sent it and when that receipt arrived.
   DHIS2 replaces such a value in place and counts the write exactly as it
-  counts a first entry (BUGS.md 85), so no import summary can separate a
+  counts a first entry (DHIS2_ISSUES.md 85), so no import summary can separate a
   correction from a first entry - the spool answers what the wire cannot.
 - **The record is the sidecar.** A forwarded receipt's `<id>.report.json`
   carries the identity of every value its payload landed on - data element,

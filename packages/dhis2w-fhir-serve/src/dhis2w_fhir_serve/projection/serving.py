@@ -20,7 +20,7 @@ second statement of one fact and never the only statement of it, which is what R
 from a header nobody reads" rules out.
 
 **An instant with no zone, because that is what the instance said.** DHIS2 2.43 answers `updatedAt` as
-a zone-less wall-clock reading in its own zone (BUGS.md 62), and the cursor is that reading carried
+a zone-less wall-clock reading in its own zone (DHIS2_ISSUES.md 62), and the cursor is that reading carried
 through unchanged. Attaching this host's offset would make the statement a claim about a clock nobody
 consulted, so the text says the reading and says whose reading it is.
 """

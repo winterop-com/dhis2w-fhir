@@ -103,7 +103,7 @@ def test_the_calendar_check_reads_a_date_at_whatever_precision_it_carries(value:
     ],
 )
 def test_a_zoneless_dhis2_timestamp_gains_the_utc_zone_fhir_requires(stored: str, expected: str) -> None:
-    """DHIS2 serves zone-less local timestamps; an R4 dateTime carrying a time must carry a zone (BUGS.md #62)."""
+    """DHIS2 serves zone-less local timestamps; an R4 dateTime with a time must carry a zone (DHIS2_ISSUES.md #62)."""
     assert zoned_date_time(stored) == expected
 
 

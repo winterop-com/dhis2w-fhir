@@ -334,7 +334,7 @@ def _value_holders(query: ProjectionQuery) -> list[Any]:
     """One selection of tracked entity UIDs per value filter - whoever holds that value under that attribute.
 
     Matched on the folded column, because DHIS2's own `eq` matches a tracked entity attribute value
-    without regard to case (BUGS.md 109) and an equality that meant one thing live and another here
+    without regard to case (DHIS2_ISSUES.md 109) and an equality that meant one thing live and another here
     would be two operators wearing one name. The folded column is already indexed - `_content` needed
     it first - so the filter costs an index read rather than a scan.
     """

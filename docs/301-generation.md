@@ -137,7 +137,7 @@ then strict-parses - `ENTO - IRS < 6 Months` on an option set is enough.
 A **code carrying a space** builds fine and hurts afterwards. An R4 `code` admits
 single internal spaces, so `Pre eclampsia` is legal FHIR; the publisher's anchor
 slug then strips the whitespace, so `Pre eclampsia` and `Preeclampsia` render one
-anchor id and its QA pass reports a duplicate (BUGS.md #107). Below the guide,
+anchor id and its QA pass reports a duplicate (IG_PUBLISHER_ISSUES.md #107). Below the guide,
 every URL has to escape the space, every CQL reference has to quote it, and each
 terminology server round-trips it at its own discretion.
 

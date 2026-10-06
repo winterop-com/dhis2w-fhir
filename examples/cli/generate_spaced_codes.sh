@@ -29,7 +29,7 @@ d2w fhir generate --substitute-hostile-names option-sets
 grep -A 8 '"code": "IPT-1"' ig/input/resources/terminology/CodeSystem-d2-os-nH8Y04zS7UV-cs.json
 
 # The identifier namespace the ConceptMaps target carries the same pair, which is the one
-# BUGS.md 107's duplicate anchor ids collide in.
+# IG_PUBLISHER_ISSUES.md 107's duplicate anchor ids collide in.
 grep -B 1 -A 6 '"code": "On-CTX"' ig/input/resources/terminology/CodeSystem-d2-option-code-id-cs.json
 
 cd .. && rm -rf demo-spaced-codes

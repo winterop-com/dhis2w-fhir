@@ -614,7 +614,7 @@ and taking the one in the destination form's program. The second is what a clien
 without DHIS2 knowledge needs and it is only unambiguous when the entity holds exactly
 one enrollment in that program. Zero and two are both refusals, and section 4 words
 them. **The resolution is entity-scoped** - one read of the tracked entity, never with
-`program=`, per BUGS.md 72 and the discipline the register and the history surface both
+`program=`, per DHIS2_ISSUES.md 72 and the discipline the register and the history surface both
 hold.
 
 ## 4. Refusals, and what a Bundle means
@@ -1013,7 +1013,7 @@ stops having to be told.
 **Phase 4 - `Patient` registration.** Last, for four reasons that compound:
 [`[ips.identity]`](../301-what-goes-in.md#ips-identity) has to be read inward as well
 as outward; the existing-versus-new subject question has no native spelling; a
-registration for a person the instance already holds carries the BUGS.md 73 hazard,
+registration for a person the instance already holds carries the DHIS2_ISSUES.md 73 hazard,
 where the wrong wrapper silently rewrites the person's owning organisation unit; and
 `Patient` alone has no `entered-in-error`, so a withdrawal has to be refused rather
 than mapped.

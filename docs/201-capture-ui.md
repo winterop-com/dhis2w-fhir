@@ -585,7 +585,7 @@ Their existing enrollments are listed underneath, read from the instance -
 program name where this project's guide publishes one, the enrollment's state
 in words, when it began, and where. A completed enrollment carries a warning,
 because DHIS2 accepts new events into one with no error and no warning at all
-(BUGS.md 70), so this is the only place anyone is told.
+(DHIS2_ISSUES.md 70), so this is the only place anyone is told.
 
 A tracker *stage* form asks instead of showing: **Answering for** is the
 enrollment this event reports against, and it is the one piece of envelope
@@ -891,7 +891,7 @@ that.
 
 !!! warning "A completed enrollment is listed, and said to be completed"
     DHIS2 accepts a new event into a completed enrollment with no error and no
-    warning at all (BUGS.md 70). So a completed enrollment is shown rather than
+    warning at all (DHIS2_ISSUES.md 70). So a completed enrollment is shown rather than
     hidden - it is a fact about the person, and hiding it would leave somebody
     wondering where a programme went - and it carries the warning it earns,
     because capturing into a closed episode should be a decision somebody made

@@ -9,7 +9,7 @@ import { formatInstant } from '@/lib/spool'
 /**
  * What a completed enrollment means for anything filed against it.
  *
- * DHIS2 accepts an event into a completed enrollment with no error and no warning (BUGS.md 70), so
+ * DHIS2 accepts an event into a completed enrollment with no error and no warning (DHIS2_ISSUES.md 70), so
  * nothing downstream will ever tell a person that what they captured went into a closed episode.
  * This sentence is the only place it is said, which is why it is one exported string rather than
  * two paraphrases in two components.

@@ -295,7 +295,7 @@ def build_project_context(
 
     Every name comes from `fhir.toml` - the IG canonical the extensions are pinned to and the
     `[generate]` naming tokens and identifier base - and the project timezone is what a zoned R4
-    timestamp is read back through into the wall clock DHIS2 stores (BUGS.md #62).
+    timestamp is read back through into the wall clock DHIS2 stores (DHIS2_ISSUES.md #62).
     """
     generate = project.config.generate
     naming = ConversionNaming.from_config(generate, project.config.ig.canonical)

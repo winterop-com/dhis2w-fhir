@@ -1412,7 +1412,7 @@ def example_tracker_context(
     A registration response is graded on one fact more than a stage response: the enrollment it
     creates has to say when it began, which is what DHIS2 requires of every enrollment. Both of
     its dates go through the very normalisation `authored` goes through, because DHIS2 writes an
-    enrollment date in the same zone-less spelling it writes an event's occurrence in (BUGS.md #62).
+    enrollment date in the same zone-less spelling it writes an event's occurrence in (DHIS2_ISSUES.md #62).
 
     A person-only response is graded on one fact less than either: it names the person it creates
     and no enrollment, because the form it answers enrols nobody in anything.
@@ -1615,7 +1615,7 @@ def _example_date_time(
 ) -> str | None:
     """One DHIS2 timestamp as an R4 dateTime, dropped and tallied when it is not one.
 
-    DHIS2 writes every timestamp in the same zone-less spelling (BUGS.md #62), so a response's
+    DHIS2 writes every timestamp in the same zone-less spelling (DHIS2_ISSUES.md #62), so a response's
     `authored` and the two dates its enrollment carries are read against the configured zone the
     same way, and one that will not read is dropped rather than emitted as an invalid primitive.
     """

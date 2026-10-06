@@ -1,23 +1,23 @@
 """The DHIS2 read behind one entity's record: the events, off the entity, in one request.
 
 FOUR FACTS DECIDE THE SHAPE OF THIS READ, and three of them are recorded in the repository's
-`BUGS.md`:
+`DHIS2_ISSUES.md`:
 
 1. **The events come off the tracked entity, never off a program.** `/api/tracker/events` demands a
-   `program` unconditionally on 2.43 and answers a Tomcat HTML page when it is missing (BUGS.md 91),
+   `program` unconditionally on 2.43 and answers a Tomcat HTML page when it is missing (DHIS2_ISSUES.md 91),
    and its singular `enrollment=` filter is accepted and silently dropped on every major. Naming a
    program here would also mean naming one the entity might not be enrolled in, which answers 404
-   claiming the entity does not exist (BUGS.md 72). The tracked entity read takes neither risk: the
+   claiming the entity does not exist (DHIS2_ISSUES.md 72). The tracked entity read takes neither risk: the
    enrollments are a projection of the entity, and the events are a projection of those.
 2. **No events listing is scoped by organisation unit.** `?orgUnit=` on the events collection filters
-   by the enrollment owner's unit rather than the event's own (BUGS.md 69), so an event recorded away
+   by the enrollment owner's unit rather than the event's own (DHIS2_ISSUES.md 69), so an event recorded away
    from the owning facility is invisible under the unit its payload names. An entity-scoped read
    serves every event whatever unit each was recorded at, which is the whole record and the only
    honest answer to "what happened to this person".
 3. **The default projection carries none of this.** The tracked entity endpoint omits the enrollments
    entirely unless `fields` names them, so the projection is spelled out in full here - down to the
    data values, without which the record would be a list of dates.
-4. **The order DHIS2 answers in is not an order** (BUGS.md 108). The nested events arrive sorted by
+4. **The order DHIS2 answers in is not an order** (DHIS2_ISSUES.md 108). The nested events arrive sorted by
    neither their own date nor their creation - a seeded fridge answers 07:00, 06:00, 08:00 - and the
    `order=` the same request accepts does not reach them. So the record is ordered here, newest
    first, by the instant the event occurred and then by its UID. The tie-break is what makes two
@@ -83,7 +83,7 @@ class RecordedEvent(BaseModel):
     """The DHIS2 event status verbatim - `ACTIVE`, `COMPLETED`, `SCHEDULE`, `SKIPPED`, or `VISITED`."""
 
     occurred_at: str | None = None
-    """When the event occurred, as DHIS2 dated it, in the instance's own zone-less spelling (BUGS.md 62)."""
+    """When the event occurred, as DHIS2 dated it, in the instance's own zone-less spelling (DHIS2_ISSUES.md 62)."""
 
     organisation_unit_uid: str | None = None
     values: tuple[RecordedValue, ...] = ()

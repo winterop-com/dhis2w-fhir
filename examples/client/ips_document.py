@@ -183,7 +183,7 @@ def attribute_value(entity: TrackerTrackedEntity, attribute_uid: str | None) -> 
 
 
 def event_date_time(occurred_at: datetime | int | None) -> str | None:
-    """An event date as an R4 dateTime - DHIS2 sends the wall clock with no zone (BUGS.md #62)."""
+    """An event date as an R4 dateTime - DHIS2 sends the wall clock with no zone (DHIS2_ISSUES.md #62)."""
     return zoned_date_time(occurred_at.isoformat()) if isinstance(occurred_at, datetime) else None
 
 

@@ -1,18 +1,18 @@
 """The DHIS2 reads behind a register lookup, and the contract `/api/tracker/trackedEntities` actually holds to.
 
 Five facts decide every request here, the first four established against a running instance and
-recorded in the repository's `BUGS.md`:
+recorded in the repository's `DHIS2_ISSUES.md`:
 
 1. **A search names a tracked entity type or a program, or it is refused** with `E1003`. The type
    comes from the published forms (`dhis2w_fhir_serve.register.index`); a program is never named,
    for the reason in point 3.
-2. **A unique attribute gets no org-unit-scope exemption** (BUGS.md 74). The legacy documentation
+2. **A unique attribute gets no org-unit-scope exemption** (DHIS2_ISSUES.md 74). The legacy documentation
    describes a unique value as an instance-wide key; the tracker endpoint scopes it like any other
    filter, so a lookup scoped to the capture unit misses exactly the entities identifier search
    exists to find. Every search here therefore sends `orgUnitMode=ACCESSIBLE`: as wide as the requesting
    user may see, and no wider.
 3. **An entity-scoped read with a program the entity is not enrolled in answers 404 `E1005`,
-   claiming the tracked entity does not exist** (BUGS.md 72). So nothing here ever probes by
+   claiming the tracked entity does not exist** (DHIS2_ISSUES.md 72). So nothing here ever probes by
    program. The enrollments are read off the entity itself, without `program=`, and inspected here.
 4. **The default projection omits the enrollments entirely**, and folds no program-level attribute
    value into the entity's own `attributes`. Both are field-selection defaults rather than
@@ -56,7 +56,7 @@ TRACKED_ENTITIES_PATH = "/api/tracker/trackedEntities"
 #: told - and a search value that is plainly not a UID is never read as one.
 _DHIS2_UID_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9]{10}$")
 
-#: The org-unit scope every search runs under - as wide as the requesting user may see (BUGS.md 74).
+#: The org-unit scope every search runs under - as wide as the requesting user may see (DHIS2_ISSUES.md 74).
 SEARCH_ORG_UNIT_MODE = "ACCESSIBLE"
 
 #: How many rows one identifier lookup will carry back. An identifier is meant to name one entity;
@@ -113,7 +113,7 @@ class TrackedEntitiesPage(BaseModel):
     pager: TrackedEntitiesPager | None = None
     tombstones_visible: bool = True
     """False when the instance refused the read with `includeDeleted=true` and the page was read
-    without it (DHIS2 2.42.6, BUGS.md #116): a deleted entity is then absent from this page rather
+    without it (DHIS2 2.42.6, DHIS2_ISSUES.md #116): a deleted entity is then absent from this page rather
     than present as a tombstone."""
 
 
@@ -149,7 +149,7 @@ def _is_tombstone_read_syntax_refusal(error: Dhis2ApiError) -> bool:
 
     DHIS2 2.42.6 and 2.42.7-SNAPSHOT answer `409 Query failed because of a syntax error` with the
     detail `trailing junk after numeric literal at or near "<id>ORDER"` to
-    `/api/tracker/trackedEntities?trackedEntityType=<uid>&includeDeleted=true` (BUGS.md #116). The
+    `/api/tracker/trackedEntities?trackedEntityType=<uid>&includeDeleted=true` (DHIS2_ISSUES.md #116). The
     program-scoped read with the same flag, and every other major, answer 200.
     """
     if error.status_code != 409:
@@ -191,7 +191,7 @@ async def list_tracked_entities(
     selected: a page narrowed after DHIS2 counted it would be a short page beside a total describing
     everybody.
 
-    `orgUnitMode=ACCESSIBLE` for the same reason every search here sends it (BUGS.md 74) - the register a
+    `orgUnitMode=ACCESSIBLE` for the same reason every search here sends it (DHIS2_ISSUES.md 74) - the register a
     user may see is the register they are shown, and a listing scoped to the capture unit would
     answer a fraction of it without saying so. A type the instance does not hold answers an empty
     page, not a refusal.
@@ -343,7 +343,7 @@ POLL_ORDER = "createdAt:asc"
 #:
 #: `enrolledAt` rather than `createdAt`: DHIS2 2.41.9.x and 2.42.6 answer `409 column reference
 #: "created" is ambiguous` to `/api/tracker/enrollments` ordered by `createdAt` or `updatedAt`
-#: (BUGS.md #115), and the enrollment UID is not an order field. `enrolledAt` is the field every
+#: (DHIS2_ISSUES.md #115), and the enrollment UID is not an order field. `enrolledAt` is the field every
 #: release accepts; it is set once at registration and moves only when a user edits the date.
 ENROLLMENT_POLL_ORDER = "enrolledAt:asc"
 
@@ -420,7 +420,7 @@ async def poll_tracked_entities(
             return TrackedEntitiesPage()
         if not _is_tombstone_read_syntax_refusal(error):
             raise
-        # BUGS.md #116: the instance cannot read a type with its tombstones. Read the page without
+        # DHIS2_ISSUES.md #116: the instance cannot read a type with its tombstones. Read the page without
         # them and say so on the page, so the run reports that removals were not learned.
         without_tombstones = {key: value for key, value in params.items() if key != INCLUDE_DELETED_PARAMETER}
         raw = await reader.get_raw(TRACKED_ENTITIES_PATH, params=without_tombstones)
@@ -441,7 +441,7 @@ async def poll_enrollments(
     SCOPED BY PROGRAM BECAUSE THE ENDPOINT ADMITS NOTHING ELSE. `/api/tracker/enrollments` answers
     `E1003 "Program is mandatory"` to a query naming a tracked entity type, or naming nothing at all,
     so an enrollment poll walks the programs the guide publishes rather than the types the register
-    serves. Recorded as BUGS.md 102 alongside its sibling's refusal, which is not even JSON.
+    serves. Recorded as DHIS2_ISSUES.md 102 alongside its sibling's refusal, which is not even JSON.
 
     Only three fields are asked for. This poll never maps anything: what it answers is a list of
     tracked entities whose projection is stale, and each of them is re-read through the tracked
@@ -493,7 +493,7 @@ def as_instant(value: datetime | int | None) -> datetime | None:
 def dhis2_instant(value: datetime) -> str:
     """One instant spelled the way `updatedAfter` takes it - the instance's own zone-less reading.
 
-    DHIS2 2.43 answers `updatedAt` as a wall-clock reading with no offset (BUGS.md 62) and takes
+    DHIS2 2.43 answers `updatedAt` as a wall-clock reading with no offset (DHIS2_ISSUES.md 62) and takes
     `updatedAfter` in the same spelling, so a cursor read out of one answer goes back on the wire
     exactly as it arrived. Any offset this host attached would be a claim about a clock nobody
     consulted, so the value is written to seconds and the zone, if somebody attached one, is dropped.
@@ -514,7 +514,7 @@ async def fetch_tracked_entity(reader: RegisterReader, tracked_entity_uid: str) 
     IDs rather than UIDs.
 
     No `program=` parameter, ever: passing one turns "not enrolled in that program" into a 404
-    asserting the tracked entity does not exist (BUGS.md 72), which would make an unenrolled person
+    asserting the tracked entity does not exist (DHIS2_ISSUES.md 72), which would make an unenrolled person
     indistinguishable from a wrong UID.
     """
     if not is_tracked_entity_uid(tracked_entity_uid):

@@ -160,12 +160,12 @@ class SyncReport(BaseModel):
 
     programs: tuple[str, ...] = ()
     """The programs whose enrollments were polled - the ones the guide publishes, since the endpoint
-    admits no other scope (BUGS.md 102)."""
+    admits no other scope (DHIS2_ISSUES.md 102)."""
 
     pages_read: int = 0
     tombstones_visible: bool = True
     """False when the instance refused the tracked entity poll with `includeDeleted=true` and the
-    pages were read without it (DHIS2 2.42.6, BUGS.md #116): this run did not learn of an entity
+    pages were read without it (DHIS2 2.42.6, DHIS2_ISSUES.md #116): this run did not learn of an entity
     removed since the last one unless an enrollment of it moved."""
 
     counts: tuple[SyncResourceCounts, ...] = ()
@@ -229,7 +229,9 @@ async def run_sync(
 
     run = _Run(reader=reader, surface=surface, store=store, dry_run=dry_run)
     entities_mark = await run.materialize(served, since=_since(before.tracked_entities, overlap))
-    tombstones_note = "" if run.tombstones_visible else "; tombstones not visible on this instance (BUGS.md #116)"
+    tombstones_note = (
+        "" if run.tombstones_visible else "; tombstones not visible on this instance (DHIS2_ISSUES.md #116)"
+    )
     _narrate(narrator, 2, "tracked entities", run.counts_line() + tombstones_note)
     enrollments_mark = await run.refresh_from_enrollments(
         served,

@@ -106,7 +106,7 @@ class RecordProjection(BaseModel):
     store: ResourceStore
     indexes: CaptureIndexCache
     timezone: str | None = None
-    """The IANA zone the instance's zone-less timestamps are wall-clock readings in (BUGS.md 62)."""
+    """The IANA zone the instance's zone-less timestamps are wall-clock readings in (DHIS2_ISSUES.md 62)."""
 
     _resolvers: CodingResolverSet = PrivateAttr()
     _indexes_by_stage: dict[str, CaptureIndex | None] = PrivateAttr(default_factory=dict)
@@ -182,7 +182,7 @@ class RecordProjection(BaseModel):
     def _authored(self, event: RecordedEvent) -> str | None:
         """When the event occurred, as an R4 `dateTime`, or nothing when the instance stated no readable instant.
 
-        DHIS2 answers `occurredAt` as a zone-less wall-clock reading (BUGS.md 62), so it is given the
+        DHIS2 answers `occurredAt` as a zone-less wall-clock reading (DHIS2_ISSUES.md 62), so it is given the
         offset the project's own zone stood at on that reading - the same normalisation the example
         corpus applies to the same field.
         """

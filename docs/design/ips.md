@@ -163,8 +163,8 @@ the entity as `subject`, the enrollment and the reporting unit as extensions, th
 event's own instant as `authored`, and one item per data value carrying the codes this
 guide publishes. The read is entity-scoped throughout, which is what R3 asks of it -
 one read of the tracked entity per request, the events nested under the enrollments
-they belong to, no program ever named (BUGS.md 72 and 91) and no organisation-unit
-scope (BUGS.md 69). What the record does not carry is a clinical vocabulary: an item's
+they belong to, no program ever named (DHIS2_ISSUES.md 72 and 91) and no organisation-unit
+scope (DHIS2_ISSUES.md 69). What the record does not carry is a clinical vocabulary: an item's
 coding is a DHIS2 option in this guide's own CodeSystem, so a section's semantics still
 come from a mapping somebody writes. `dhis2w_fhir_serve.history` is the module; a stage
 the guide publishes no form for is counted and named rather than served as something
@@ -411,8 +411,8 @@ types, no "looks like a diagnosis". Every clinical claim in a served summary tra
 a line somebody wrote in `fhir.toml` or to a map published in the guide.
 
 **R3 - Entity-scoped reads throughout.** Every read behind a summary is scoped to one
-tracked entity, per the owner-aware discipline BUGS.md 69 forces and the program-scoped
-read BUGS.md 72 forbids. A summary is never assembled from a bulk export filtered
+tracked entity, per the owner-aware discipline DHIS2_ISSUES.md 69 forces and the program-scoped
+read DHIS2_ISSUES.md 72 forbids. A summary is never assembled from a bulk export filtered
 client-side.
 
 **R4 - Deterministic regeneration.** Two `$summary` calls against an unchanged instance

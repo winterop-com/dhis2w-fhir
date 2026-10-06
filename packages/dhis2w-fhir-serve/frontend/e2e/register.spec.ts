@@ -151,7 +151,7 @@ const SPECIMEN = {
  * What that person is enrolled in.
  *
  * The one in this stage's own program is COMPLETED on purpose: DHIS2 accepts events into a
- * completed enrollment with no error and no warning (BUGS.md 70), so the warning the UI states is
+ * completed enrollment with no error and no warning (DHIS2_ISSUES.md 70), so the warning the UI states is
  * the only place anyone is told, and a spec that only ever met ACTIVE enrollments would never see
  * it. The second is in another program, and is what proves the picker narrows.
  */

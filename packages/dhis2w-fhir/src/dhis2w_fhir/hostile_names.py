@@ -7,7 +7,7 @@ resource has already been rendered. The names are legitimate DHIS2 data: age ban
 
 A DHIS2 code carrying a space is legal FHIR - an R4 `code` admits single internal spaces - and it
 is still a liability everywhere the guide is consumed: the publisher's anchor slug strips
-whitespace, so "Pre eclampsia" and "Preeclampsia" render one anchor id (BUGS.md #107), and a URL,
+whitespace, so "Pre eclampsia" and "Preeclampsia" render one anchor id (IG_PUBLISHER_ISSUES.md #107), and a URL,
 a CQL quotation, and a terminology server each handle the space at their own discretion.
 
 There are two honest answers, and this module is where a run picks one:

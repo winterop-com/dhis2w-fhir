@@ -91,7 +91,7 @@ curl -s "${BASE}/facade/uiconfig" \
 echo "everybody:            $(curl -s "${BASE}/Patient?_count=0" | jq -r '.total')"
 echo "sex = Female:         $(curl -s "${BASE}/Patient?_count=0&d2-attribute=${GENDER}%7CFemale" | jq -r '.total')"
 
-# Case is the one thing equality forgives here, because DHIS2's own `eq` forgives it (BUGS.md 109).
+# Case is the one thing equality forgives here, because DHIS2's own `eq` forgives it (DHIS2_ISSUES.md 109).
 echo "sex = female:         $(curl -s "${BASE}/Patient?_count=0&d2-attribute=${GENDER}%7Cfemale" | jq -r '.total')"
 
 # A PREFIX FINDS NOBODY. This is equality; a filter that quietly answered a prefix would be a

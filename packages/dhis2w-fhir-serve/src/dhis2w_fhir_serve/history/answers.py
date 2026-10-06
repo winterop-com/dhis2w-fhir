@@ -154,7 +154,7 @@ def boolean_answer(text: str) -> QuestionnaireResponseAnswer:
 def temporal_answer(text: str, element: str, timezone: str | None) -> QuestionnaireResponseAnswer:
     """A stored date, dateTime, or time normalised into the R4 primitive, else the string as stored.
 
-    A DHIS2 `DATETIME` value is a zone-less wall-clock reading exactly as `occurredAt` is (BUGS.md 62),
+    A DHIS2 `DATETIME` value is a zone-less wall-clock reading exactly as `occurredAt` is (DHIS2_ISSUES.md 62),
     so it takes the offset the project's zone stood at on that reading before it is checked - which is
     what the example corpus does to the same value.
     """

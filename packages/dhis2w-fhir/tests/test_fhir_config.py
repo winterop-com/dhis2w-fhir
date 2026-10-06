@@ -135,7 +135,7 @@ def test_the_program_stage_token_is_overridable_and_validated() -> None:
 
 
 def test_no_timezone_means_the_instances_timestamps_are_read_as_utc() -> None:
-    """An absent `[generate] timezone` leaves DHIS2's zone-less timestamps read as UTC (BUGS.md #62)."""
+    """An absent `[generate] timezone` leaves DHIS2's zone-less timestamps read as UTC (DHIS2_ISSUES.md #62)."""
     assert GenerateConfig().timezone is None
 
 

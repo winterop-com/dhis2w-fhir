@@ -89,7 +89,7 @@ endef
 
 # The publisher builds `package-combined.tgz` - the package plus the terminology it expands - by
 # reading `output/package.tgz` before it has written that run's package there, so a fresh build logs
-# "Error generating combined package ... No such file or directory" and carries on (BUGS.md #132).
+# "Error generating combined package ... No such file or directory" and carries on (IG_PUBLISHER_ISSUES.md #132).
 # `package.tgz`, the package a depending guide installs, is written as usual; only the combined
 # archive, which nothing here reads, is missing.
 define REPORT_COMBINED_PACKAGE
@@ -97,7 +97,7 @@ define REPORT_COMBINED_PACKAGE
 		'' \
 		'note: "Error generating combined package" above is the IG publisher, not this build: it reads' \
 		'  output/package.tgz before writing it, so only package-combined.tgz is missing, and nothing' \
-		'  reads that. output/package.tgz is this run'"'"'s package. Upstream quirk: BUGS.md #132 in dhis2w.'
+		'  reads that. output/package.tgz is this run'"'"'s package. Upstream issue: IG_PUBLISHER_ISSUES.md #132 in dhis2w-fhir.'
 endef
 
 # What a build prints when the kernel's out-of-memory killer took the publisher. The two memory

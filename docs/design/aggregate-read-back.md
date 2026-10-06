@@ -143,7 +143,7 @@ argument for requiring them.
 
 The order is the reporting key itself - `(orgUnit, period, attributeOptionCombo)`
 ascending. An aggregate form has no instant, only a period, and a total order is
-what makes two reads of an unchanged period answer the same bytes (BUGS.md 108 is
+what makes two reads of an unchanged period answer the same bytes (DHIS2_ISSUES.md 108 is
 why an order is stated rather than passed on). The generate path's "richest group
 first" is an example-picking heuristic and stays there, on top of the shared
 grouping rather than inside it.

@@ -259,7 +259,7 @@ def attribute_combo_sources(sources: list[QuestionnaireSourceIn]) -> list[Attrib
     and a program on one combo yield one entry, which is what makes them share a published pair.
 
     The option combos arrive already ordered by name and UID (`CategoryCombo.categoryOptionCombos`
-    is a Java `Set` DHIS2 reshuffles per request, BUGS.md #64), and that order is carried across
+    is a Java `Set` DHIS2 reshuffles per request, DHIS2_ISSUES.md #64), and that order is carried across
     as the DHIS2 sort order so the emitted concepts are byte-stable across regenerates.
     """
     combos: dict[str, AttributeComboIn] = {}

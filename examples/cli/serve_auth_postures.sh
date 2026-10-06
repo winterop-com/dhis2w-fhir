@@ -155,7 +155,7 @@ forward_bearer = false
 TOML
 
 # `oauth2` is not a fifth value, and that is current rather than an oversight: DHIS2 2.43.1's own
-# authorization server answers 500 for any client its API creates (BUGS.md 96), so a project could
+# authorization server answers 500 for any client its API creates (DHIS2_ISSUES.md 96), so a project could
 # state it and nothing would answer. See docs/301-serving.md for the whole table.
 
 cd .. && rm -rf demo-serve-auth

@@ -334,7 +334,7 @@ curl -s -g -u admin:district \
    `includeDeleted=true`. So a syncer can learn *that* an entity is gone and never
    *what it was* - which is fine for a projection (delete the row) and fatal for
    anything trying to archive a final state at deletion time. Recorded as
-   **BUGS.md #99**. It compounds with the already-recorded BUGS.md #90: an
+   **DHIS2_ISSUES.md #99**. It compounds with the already-recorded DHIS2_ISSUES.md #90: an
    attribute-filtered search drops soft-deleted rows even with
    `includeDeleted=true`, so a deleted person is unfindable by name as well as
    unreadable by UID.
@@ -344,7 +344,7 @@ curl -s -g -u admin:district \
    parameter name behaves identically - and the endpoint's own `E1003` message
    names `trackedEntities`, plural. A UID-scoped read that silently becomes an
    unscoped page is a data-disclosure shape, not just a wrong answer. Recorded as
-   **BUGS.md #98**, same family as the already-recorded #91.
+   **DHIS2_ISSUES.md #98**, same family as the already-recorded #91.
 
 **The cost of staying current is negligible.** An idle incremental poll is one
 request, 56 bytes, 0.081 s. Against a national instance polling every five
@@ -821,7 +821,7 @@ decided answer to (i)-versus-(ii).
 **R10 - Deletions are synced from the tombstone poll, and `includeDeleted=true` is
 a constant.** Every incremental poll carries it; it is never a parameter and never
 a default someone can turn off, because its absence is silent (finding 2 of
-section 3.4). A tombstone is enumerable but not readable (BUGS.md #99), so a
+section 3.4). A tombstone is enumerable but not readable (DHIS2_ISSUES.md #99), so a
 deletion means "remove the row", never "archive the final state".
 
 **R11 - The live posture stays the default and stays zero-ops.** No new required
@@ -913,7 +913,7 @@ else.** `/api/tracker/enrollments` answers `E1003 "Program is mandatory"` to a
 query naming a tracked entity type or naming nothing at all, so the poll walks the
 programmes the guide publishes rather than the types the register serves. Its
 sibling `/api/tracker/events` refuses the same shape with an HTML error page
-rather than JSON. Both recorded as **BUGS.md 102**.
+rather than JSON. Both recorded as **DHIS2_ISSUES.md 102**.
 
 **The watermark advances after its walk rather than inside it.** Rule 1 says the
 batch and the watermark land in one transaction, and `ProjectionStore.write` still
@@ -984,7 +984,7 @@ rows read yesterday has those as two different instants.
   exists on the DHIS2 side, stated plainly: **there is no change-feed or webhook
   API**. `/api/routes` is an outbound proxy - DHIS2 forwarding a caller's request
   to a third-party system - not a change notification, and this repo has already
-  logged several of its quirks (BUGS.md #4e, #57). Job configurations and the
+  logged several of its quirks (DHIS2_ISSUES.md #4e, #57). Job configurations and the
   messaging surface are neither general nor a data feed. So push would mean either
   a DHIS2-side app or an upstream feature request, and the poll is not a
   compromise - it is the API's only shape. The reserved part is the interval, and
@@ -1012,5 +1012,5 @@ rows read yesterday has those as two different instants.
   findings this page's section 3.4 measures the sync-visibility half of.
 - [Serve a project](../201-serve.md) - "Stored responses are receipts", the
   storage position section 4 extends.
-- [Upstream DHIS2 quirks](https://github.com/winterop-com/dhis2w/blob/main/BUGS.md) -
+- [Upstream DHIS2 quirks](https://github.com/winterop-com/dhis2w/blob/main/DHIS2_ISSUES.md) -
   entries #90, #91, #98, and #99, all of which a syncer has to know.

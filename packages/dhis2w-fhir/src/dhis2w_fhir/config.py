@@ -194,7 +194,7 @@ class GenerateConfig(BaseModel):
     --substitute-hostile-names` and `--refuse-hostile-names` answer it for one run.
 
     `timezone` is the IANA zone the instance's zone-less timestamps are wall-clock readings in
-    (BUGS.md #62). Naming it turns every emitted `dateTime` into the numeric offset that zone
+    (DHIS2_ISSUES.md #62). Naming it turns every emitted `dateTime` into the numeric offset that zone
     was on at that very instant, DST included; leaving it unset keeps the UTC reading.
 
     `tracked_entity_types` maps a DHIS2 tracked entity type UID onto the FHIR resource type its
@@ -612,7 +612,7 @@ class ServeAuth(StrEnum):
 
     `oauth2` is the name reserved for an authorization server this facade runs itself, and is
     deliberately not a value here: DHIS2 2.43.1's own authorization server 500s for any client the
-    API creates (BUGS.md 96), so a project could state it and nothing would answer. A posture that
+    API creates (DHIS2_ISSUES.md 96), so a project could state it and nothing would answer. A posture that
     parses and then refuses is worse than one that is not offered, so the reservation lives in this
     docstring and in `docs/301-serving.md` rather than in the enum. A deployment that wants
     tokens from an authorization server today states `jwt` and names the one it already runs.

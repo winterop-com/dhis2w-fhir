@@ -10,7 +10,7 @@ compiled store plus a live client is a faithful stand-in for a live run and cost
 
 What is asserted about the wire is the empirical contract, not the code's own habits: the
 `trackedEntityType` a search is required to name, the `filter=<uid>:eq:<value>` it filters with, and
-`orgUnitMode=ACCESSIBLE` on every single search - the one BUGS.md 74 says an identifier lookup cannot do
+`orgUnitMode=ACCESSIBLE` on every single search - the one DHIS2_ISSUES.md 74 says an identifier lookup cannot do
 without.
 """
 
@@ -599,7 +599,7 @@ async def test_the_enrollment_listing_names_the_program_and_the_organisation_uni
 
 
 async def test_a_completed_enrollment_is_listed_and_marked(live_client: httpx2.AsyncClient) -> None:
-    """DHIS2 takes events into a completed enrollment without a word (BUGS.md 70); the listing says so."""
+    """DHIS2 takes events into a completed enrollment without a word (DHIS2_ISSUES.md 70); the listing says so."""
     _read_route(
         _entity(
             enrollments=[
@@ -622,7 +622,7 @@ async def test_a_completed_enrollment_is_listed_and_marked(live_client: httpx2.A
 
 
 async def test_the_enrollment_read_never_names_a_program(live_client: httpx2.AsyncClient) -> None:
-    """BUGS.md 72: a program the person is not enrolled in answers 404 claiming the person is gone."""
+    """DHIS2_ISSUES.md 72: a program the person is not enrolled in answers 404 claiming the person is gone."""
     read = _read_route(_entity())
 
     await live_client.get(f"/facade/tracked-entities/{_PERSON_UID}/enrollments")

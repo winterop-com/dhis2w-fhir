@@ -49,7 +49,7 @@ _HOST = "https://dhis2.example"
 _TRACKER_PATH = f"{_HOST}/api/tracker/trackedEntities"
 _ENROLLMENTS_PATH = f"{_HOST}/api/tracker/enrollments"
 
-#: The zone-less wall-clock reading DHIS2 answers `updatedAt` with (BUGS.md 62).
+#: The zone-less wall-clock reading DHIS2 answers `updatedAt` with (DHIS2_ISSUES.md 62).
 _READ_AT = "2026-08-20T09:00:00.123"
 
 _OVERLAP = timedelta(seconds=300)

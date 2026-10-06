@@ -401,7 +401,7 @@ Three things about that payload are load-bearing:
 
 - **No `trackedEntities` wrapper.** Nesting the enrollment inside one forces
   `importStrategy=CREATE_AND_UPDATE`, which silently rewrites the person's
-  owning organisation unit to the one on the payload (`BUGS.md` 73). The
+  owning organisation unit to the one on the payload (`DHIS2_ISSUES.md` 73). The
   person is not this response's to move, so the wrapper is never written.
 - **The enrollment UID is still the client's.** `D2TrackerEnrollment` is
   `1..1` on a linked registration exactly as it is on a creating one, so the
