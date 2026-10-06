@@ -6,7 +6,7 @@ however the components are arranged internally.
 """
 
 from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
-from dhis2w_fhir.coded import CodedProjectionIn, CodeSubstitutions
+from dhis2w_fhir.coded import CodeCollision, CodedProjectionIn, CodeSubstitutionCollisionError, CodeSubstitutions
 from dhis2w_fhir.config import (
     BASEMAP_DISABLED,
     DEFAULT_BASEMAP_NAME,
@@ -901,10 +901,12 @@ __all__ = [
     "check_publishable_artifacts",
     "clean_generated_files",
     "code_system_canonical",
+    "CodeCollision",
     "CodeCoverage",
     "CodedAnswerMode",
     "CodedProjectionIn",
     "CodeStemError",
+    "CodeSubstitutionCollisionError",
     "CodeSubstitutions",
     "collect_artifacts",
     "collect_referenced_objects",

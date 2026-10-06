@@ -200,6 +200,13 @@ DHIS2 code stated beside it as the `dhis2-code` property - so the build never
 meets the `<` and the finding is informational, naming the code the guide
 publishes. Changing the code in DHIS2 is still how it gets published byte-true.
 
+**`code-substitution-collision` is raised only under `"substitute"`.** It names
+a DHIS2 code whose rewrite lands on a code another object already publishes -
+`Pre eclampsia` beside a literal `Pre-eclampsia`, or `<5` beside `under 5` -
+with the other object in the message. It is an error when both are in scope,
+because `d2w fhir generate` refuses that run rather than publish one code for
+two objects; change one of the two codes in DHIS2.
+
 `--hostile-names substitute` and `--hostile-names refuse` read the instance
 under the other posture without touching `fhir.toml`, which answers "what
 would this project cost if we changed our mind?":

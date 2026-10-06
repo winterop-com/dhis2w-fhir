@@ -41,7 +41,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir.coded import CodedProjectionIn, CodeSubstituter
+from dhis2w_fhir.coded import CodedProjectionIn, CodeSubstituter, CodeSubstitutionCollisionError
 from dhis2w_fhir.config import HostileNamePosture
 from dhis2w_fhir.i18n import SUBSTITUTED_TRANSLATION_PROPERTIES, TranslationIn
 from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, generate_note
@@ -217,16 +217,15 @@ class HostileNameGate:
         """Settle the run's answer up front, over every projection the run is about to emit.
 
         A full generate calls this once with everything it fetched, so the question a person is
-        asked states the whole run's count rather than the first target's share of it, and so the
-        code substitution de-collides against every code the run holds rather than the first
-        target's share of them.
+        asked states the whole run's count rather than the first target's share of it, and so a code
+        collision is found among every code the run holds rather than the first target's share.
         """
         rewriter = _ProjectionRewriter(self._observed(*groups))
         for group in groups:
             for model in group:
                 rewriter.rewrite(model)
-        if rewriter.rewrites:
-            self._answer(rewriter.rewrites)
+        if rewriter.rewrites and self._answer(rewriter.rewrites):
+            self._refuse_collisions()
 
     def screen[ModelT: BaseModel](self, models: list[ModelT], notes: list[GenerateNote]) -> list[ModelT]:
         """The emission inputs this run publishes: rewritten under `substitute`, byte-true otherwise.
@@ -238,6 +237,7 @@ class HostileNameGate:
         rewritten = [rewriter.rewrite(model) for model in models]
         if not rewriter.rewrites or not self._answer(rewriter.rewrites):
             return models
+        self._refuse_collisions()
         notes.extend(_rewrite_notes(rewriter.rewrites))
         return rewritten
 
@@ -247,6 +247,12 @@ class HostileNameGate:
             for model in group:
                 self._codes.observe(model)
         return self._codes
+
+    def _refuse_collisions(self) -> None:
+        """Refuse the run when substituting would publish two different DHIS2 codes as one code."""
+        collisions = self._codes.collisions()
+        if collisions:
+            raise CodeSubstitutionCollisionError(collisions)
 
     def _answer(self, rewrites: list[HostileRewrite]) -> bool:
         """Whether this run publishes rewritten names and codes, asked once and then held for the whole run."""

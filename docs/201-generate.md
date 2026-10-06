@@ -418,10 +418,15 @@ discretion. Each space becomes a hyphen:
 | --- | --- |
 | `Pre eclampsia` | `Pre-eclampsia` |
 | `IPT 1` | `IPT-1` |
-| `Pre eclampsia`, where the instance also holds `Pre-eclampsia` | `Pre-eclampsia-2` |
 
-The ordinal is assigned in sorted order, so the same selection publishes the same
-codes on every run.
+A published code depends on its own DHIS2 code and nothing else, so adding a form
+to the selection or cleaning another code in DHIS2 never changes it. DHIS2 holds
+no duplicate codes, but a rewrite can land on one: `Pre eclampsia` beside a literal
+`Pre-eclampsia`, or `<5` beside `under 5`, which both read `under-5`. Publishing
+either under a suffix would let a published code move from one object to the
+other between runs, so the run is refused instead, naming both codes; change one
+of them in DHIS2. `d2w fhir validate` reports the same pair as a
+`code-substitution-collision` error.
 
 **DHIS2 is never written to, and nothing is lost.** No UID is touched. Every
 rewritten concept states the DHIS2 code byte-true as a `dhis2-code` property - in

@@ -158,8 +158,8 @@ the instance. Each rewritten concept states the DHIS2 code beside it as a
 combo vocabularies and in the `.../id/*-code` identifier CodeSystems alike, and
 the ConceptMaps keep taking a published concept to its DHIS2 UID. Two DHIS2 codes
 that would land on one published code - `Pre eclampsia` beside a literal
-`Pre-eclampsia` - are separated by an ordinal suffix: `Pre-eclampsia-2`. The
-capture path reads the `dhis2-code` property, so a QuestionnaireResponse
+`Pre-eclampsia` - refuse the run, naming both, so a published code never moves
+from one object to another between runs. The capture path reads the `dhis2-code` property, so a QuestionnaireResponse
 answering with a published code still writes the DHIS2 code to DHIS2.
 
 An option set's own CodeSystem and ValueSet have no concept to hang a property

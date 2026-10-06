@@ -21,6 +21,7 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import HostileNamePosture, InitOptions, OptionIn, OptionSetIn, load_project, service
+from dhis2w_fhir.coded import CodeCollision, CodeSubstitutionCollisionError
 from dhis2w_fhir.hostile_names import HostileNameGate, HostileRewrite
 from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory
@@ -312,41 +313,76 @@ def test_a_space_in_a_code_becomes_a_hyphen() -> None:
     assert screened[0].options[0].dhis2_code == "Pre eclampsia"
 
 
-def test_a_rewrite_colliding_with_a_literal_code_takes_an_ordinal() -> None:
-    """`Pre eclampsia` beside a literal `Pre-eclampsia` cannot publish one code, so the rewrite is suffixed."""
+def _conditions(*options: OptionIn) -> OptionSetIn:
+    """One option set holding the given options."""
+    return OptionSetIn(uid="Os1aaaaaaaa", name="Conditions", options=list(options))
+
+
+_PRE_ECLAMPSIA = OptionIn(uid="Op1aaaaaaaa", name="Pre eclampsia", code="Pre eclampsia")
+
+
+def test_a_rewrite_landing_on_a_literal_code_refuses_the_run() -> None:
+    """`Pre eclampsia` beside a literal `Pre-eclampsia` would publish one code for two options, so the run stops."""
     gate = HostileNameGate(HostileNamePosture.SUBSTITUTE)
-    option_set = OptionSetIn(
-        uid="Os1aaaaaaaa",
-        name="Conditions",
-        options=[
-            OptionIn(uid="Op1aaaaaaaa", name="Spaced", code="Pre eclampsia"),
-            OptionIn(uid="Op2aaaaaaaa", name="Literal", code="Pre-eclampsia"),
-        ],
+    literal = OptionIn(uid="Op2aaaaaaaa", name="Literal", code="Pre-eclampsia")
+
+    with pytest.raises(CodeSubstitutionCollisionError) as refused:
+        gate.screen([_conditions(_PRE_ECLAMPSIA, literal)], [])
+
+    assert refused.value.collisions == (
+        CodeCollision(published="Pre-eclampsia", rewritten="Pre eclampsia", holder="Pre-eclampsia"),
+    )
+    assert "'Pre eclampsia' and 'Pre-eclampsia' would both publish as 'Pre-eclampsia'" in str(refused.value)
+
+
+def test_two_rewrites_landing_on_one_code_refuse_the_run() -> None:
+    """`<5` and `under 5` both read `under-5`, so neither can be published without the other moving."""
+    gate = HostileNameGate(HostileNamePosture.SUBSTITUTE)
+    bands = _conditions(
+        OptionIn(uid="Op3aaaaaaaa", name="Under 5", code="under 5"),
+        OptionIn(uid="Op4aaaaaaaa", name="Less than 5", code="<5"),
     )
 
-    screened = gate.screen([option_set], [])
+    with pytest.raises(CodeSubstitutionCollisionError) as refused:
+        gate.screen([bands], [])
 
-    assert [option.code for option in screened[0].options] == ["Pre-eclampsia-2", "Pre-eclampsia"]
-    assert [option.dhis2_code for option in screened[0].options] == ["Pre eclampsia", "Pre-eclampsia"]
+    assert refused.value.collisions == (CodeCollision(published="under-5", rewritten="under 5", holder="<5"),)
 
 
-def test_the_assignment_does_not_depend_on_the_order_the_projections_arrive_in() -> None:
-    """Same selection, same published codes - the ordinal is assigned in sorted order, not encounter order."""
-    options = [
-        OptionIn(uid="Op1aaaaaaaa", name="A", code="Pre eclampsia"),
-        OptionIn(uid="Op2aaaaaaaa", name="B", code="Pre-eclampsia"),
-        OptionIn(uid="Op3aaaaaaaa", name="C", code="Pre  eclampsia"),
-    ]
-    forwards = HostileNameGate(HostileNamePosture.SUBSTITUTE).screen(
-        [OptionSetIn(uid="Os1aaaaaaaa", name="Conditions", options=options)], []
+def test_a_collision_is_not_refused_when_the_run_does_not_substitute() -> None:
+    """Under `refuse` every code is published as DHIS2 states it, so no two codes can meet."""
+    literal = OptionIn(uid="Op2aaaaaaaa", name="Literal", code="Pre-eclampsia")
+
+    screened = HostileNameGate(HostileNamePosture.REFUSE).screen([_conditions(_PRE_ECLAMPSIA, literal)], [])
+
+    assert [option.code for option in screened[0].options] == ["Pre eclampsia", "Pre-eclampsia"]
+
+
+def test_selecting_another_form_leaves_an_options_published_code_unchanged() -> None:
+    """One DHIS2 option publishes one code, whatever else the selection brings into the run."""
+    another_form = OptionSetIn(
+        uid="Os2aaaaaaaa",
+        name="Referral reasons",
+        options=[OptionIn(uid="Op2aaaaaaaa", name="Eclampsia", code="Eclampsia")],
     )
-    backwards = HostileNameGate(HostileNamePosture.SUBSTITUTE).screen(
-        [OptionSetIn(uid="Os1aaaaaaaa", name="Conditions", options=list(reversed(options)))], []
-    )
 
-    assert {option.uid: option.code for option in forwards[0].options} == {
-        option.uid: option.code for option in backwards[0].options
-    }
+    alone = HostileNameGate(HostileNamePosture.SUBSTITUTE).screen([_conditions(_PRE_ECLAMPSIA)], [])
+    beside = HostileNameGate(HostileNamePosture.SUBSTITUTE).screen([_conditions(_PRE_ECLAMPSIA), another_form], [])
+
+    assert alone[0].options[0].code == beside[0].options[0].code == "Pre-eclampsia"
+
+
+def test_cleaning_an_unrelated_code_in_dhis2_leaves_an_options_published_code_unchanged() -> None:
+    """Fixing one code in DHIS2 does not move the published code of a different option."""
+    age_band = OptionIn(uid="Op3aaaaaaaa", name="Under 5", code="under 5")
+
+    def published(other_code: str) -> str | None:
+        """The age band's published code beside another option holding the given DHIS2 code."""
+        other = OptionIn(uid="Op4aaaaaaaa", name="Five or more", code=other_code)
+        screened = HostileNameGate(HostileNamePosture.SUBSTITUTE).screen([_conditions(age_band, other)], [])
+        return screened[0].options[0].code
+
+    assert published(">=5") == published("GE5") == "under-5"
 
 
 def test_the_refuse_posture_leaves_every_code_byte_true() -> None:
@@ -877,11 +913,10 @@ async def test_a_named_target_rewrites_what_the_full_run_rewrites(
 
 
 def _spaced_code_instance() -> dict[str, list[dict[str, Any]]]:
-    """An instance whose option codes carry a space, beside the literal code one of them collides with.
+    """An instance whose option codes carry a space, beside a literal code no rewrite lands on.
 
     This is BUGS.md 107 as an instance: `Pre eclampsia` and `Preeclampsia` are distinct DHIS2 codes
-    that the IG publisher's anchor slug renders as one anchor id, and `Pre-eclampsia` is the literal
-    a rewrite of the first one lands on.
+    that the IG publisher's anchor slug renders as one anchor id.
     """
     return {
         "dataSets": [],
@@ -894,7 +929,7 @@ def _spaced_code_instance() -> dict[str, list[dict[str, Any]]]:
                 "code": "CONDITIONS",
                 "options": [
                     {"id": "OpSpc000001", "name": "Pre eclampsia", "code": "Pre eclampsia", "sortOrder": 1},
-                    {"id": "OpSpc000002", "name": "Pre-eclampsia", "code": "Pre-eclampsia", "sortOrder": 2},
+                    {"id": "OpSpc000002", "name": "Eclampsia", "code": "Eclampsia", "sortOrder": 2},
                     {"id": "OpSpc000003", "name": "Preeclampsia", "code": "Preeclampsia", "sortOrder": 3},
                 ],
             }
@@ -999,10 +1034,10 @@ async def test_a_code_mode_concept_publishes_the_hyphenated_code_and_states_the_
 
     concepts = _concepts_by_code(_read(directory, "CodeSystem-d2-os-OsSpc000001-cs.json"))
 
-    assert set(concepts) == {"Pre-eclampsia-2", "Pre-eclampsia", "Preeclampsia"}
-    assert _property_value(concepts["Pre-eclampsia-2"], "dhis2-code") == "Pre eclampsia"
-    assert _property_value(concepts["Pre-eclampsia-2"], "dhis2-id") == "OpSpc000001"
-    assert _property_value(concepts["Pre-eclampsia"], "dhis2-code") is None
+    assert set(concepts) == {"Pre-eclampsia", "Eclampsia", "Preeclampsia"}
+    assert _property_value(concepts["Pre-eclampsia"], "dhis2-code") == "Pre eclampsia"
+    assert _property_value(concepts["Pre-eclampsia"], "dhis2-id") == "OpSpc000001"
+    assert _property_value(concepts["Eclampsia"], "dhis2-code") is None
 
 
 @respx.mock
@@ -1024,8 +1059,8 @@ async def test_the_concept_map_states_the_published_code_and_keeps_the_uid_side_
         row["code"]: row["target"][0]["code"] for row in by_target["http://dhis2.org/fhir/id/option-code"]["element"]
     }
 
-    assert uid_rows["Pre-eclampsia-2"] == "OpSpc000001"
-    assert code_rows["Pre-eclampsia-2"] == "Pre-eclampsia-2"
+    assert uid_rows["Pre-eclampsia"] == "OpSpc000001"
+    assert code_rows["Pre-eclampsia"] == "Pre-eclampsia"
     assert " " not in "".join(code_rows.values())
 
 
@@ -1042,8 +1077,8 @@ async def test_the_identifier_code_system_enumerates_the_published_codes_with_th
     document = _read(directory, "CodeSystem-d2-option-code-id-cs.json")
     concepts = _concepts_by_code(document)
 
-    assert set(concepts) == {"Pre-eclampsia-2", "Pre-eclampsia", "Preeclampsia"}
-    assert _property_value(concepts["Pre-eclampsia-2"], "dhis2-code") == "Pre eclampsia"
+    assert set(concepts) == {"Pre-eclampsia", "Eclampsia", "Preeclampsia"}
+    assert _property_value(concepts["Pre-eclampsia"], "dhis2-code") == "Pre eclampsia"
     assert [entry["code"] for entry in document["property"]] == ["dhis2-code"]
 
 
@@ -1062,8 +1097,27 @@ async def test_an_id_mode_run_publishes_uids_and_still_hyphenates_the_code_names
 
     assert set(set_concepts) == {"OpSpc000001", "OpSpc000002", "OpSpc000003"}
     assert _property_value(set_concepts["OpSpc000001"], "dhis2-code") == "Pre eclampsia"
-    assert set(identifier_concepts) == {"Pre-eclampsia-2", "Pre-eclampsia", "Preeclampsia"}
-    assert _property_value(identifier_concepts["Pre-eclampsia-2"], "dhis2-code") == "Pre eclampsia"
+    assert set(identifier_concepts) == {"Pre-eclampsia", "Eclampsia", "Preeclampsia"}
+    assert _property_value(identifier_concepts["Pre-eclampsia"], "dhis2-code") == "Pre eclampsia"
+
+
+@respx.mock
+async def test_a_generate_run_whose_rewrite_lands_on_a_literal_code_writes_nothing(
+    probe_profile: None,  # noqa: ARG001
+    mock_system_info: Callable[..., None],
+    tmp_path: Path,
+) -> None:
+    """The collision refuses the run before any file is written, so no guide publishes one code for two options."""
+    mock_system_info("v42")
+    instance = _spaced_code_instance()
+    instance["optionSets"][0]["options"].append(
+        {"id": "OpSpc000004", "name": "Pre-eclampsia", "code": "Pre-eclampsia", "sortOrder": 4}
+    )
+
+    with pytest.raises(CodeSubstitutionCollisionError):
+        await _generate_option_sets(tmp_path, instance, code_source="code", gate=_substituting_gate())
+
+    assert not list(tmp_path.rglob("CodeSystem-d2-os-OsSpc000001-cs.json"))
 
 
 @respx.mock
@@ -1080,7 +1134,7 @@ async def test_the_refuse_posture_publishes_the_space_carrying_code_byte_true(
 
     concepts = _concepts_by_code(_read(directory, "CodeSystem-d2-os-OsSpc000001-cs.json"))
 
-    assert set(concepts) == {"Pre eclampsia", "Pre-eclampsia", "Preeclampsia"}
+    assert set(concepts) == {"Pre eclampsia", "Eclampsia", "Preeclampsia"}
     assert _property_value(concepts["Pre eclampsia"], "dhis2-code") is None
 
 
