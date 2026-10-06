@@ -318,6 +318,10 @@ chain in one command.
   label and a data dictionary concept display (one national selection generated
   cleanly and handed the publisher 738 of them). Every rewrite is a
   `name-substitution` note, one per distinct DHIS2 name.
+- **A substitute build says so on its pages.** Under `substitute` every generated
+  site page opens with a note that the guide publishes some names and codes in a
+  different spelling from the DHIS2 instance, and where the instance's spelling is
+  stated, so a substitute build never reads like a clean one.
 - **The substitute posture rewrites every code carrying a `<` or a `>`.** A code
   becomes an identifier value the publisher writes into a table cell unescaped and
   then strict-parses, so a `<` in it aborts the build's last pass; a `>` is

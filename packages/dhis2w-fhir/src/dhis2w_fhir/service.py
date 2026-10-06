@@ -3649,6 +3649,7 @@ async def generate_pages(
             organisation_unit_stems=plan_organisation_unit_stems(
                 organisation_unit_stem_subjects(organisation_units), config.naming.source
             ),
+            substituted=screening.substituting,
             notes=notes,
             progress=progress,
         )
@@ -3704,6 +3705,7 @@ async def generate_pages(
         ),
         example_placements=placements,
         attribute_option_restrictions=restrictions,
+        substituted=screening.substituting,
         notes=notes,
         progress=progress,
     )
@@ -3749,10 +3751,14 @@ def _emit_pages(
     organisation_unit_stems: StemResolution,
     example_placements: dict[str, SyntheticPlacement] | None = None,
     attribute_option_restrictions: AttributeOptionRestrictions | None = None,
+    substituted: bool = False,
     notes: list[GenerateNote],
     progress: _StepAnnouncer,
 ) -> GenerateReport:
     """Build the narrative pages off what the other targets were built from - no second read of the instance.
+
+    `substituted` is whether the run publishes under `hostile_names = "substitute"`, which every
+    site page then says.
 
     The forms are the ones the questionnaire target really writes: a form skipped for a `linkId`
     collision gets no catalog row and no intro, because the page would link an artifact the guide
@@ -3787,7 +3793,7 @@ def _emit_pages(
     pages = PagesIn(forms=_published_sources(sources), option_sets=option_sets, organisation_units=organisation_units)
     if project.config.publishes_organisation_units:
         build = build_registry_page_artifacts(
-            pages, project.config.generate, organisation_unit_stems=organisation_unit_stems
+            pages, project.config.generate, organisation_unit_stems=organisation_unit_stems, substituted=substituted
         )
     else:
         build = build_page_artifacts(
@@ -3798,6 +3804,7 @@ def _emit_pages(
             organisation_unit_stems=organisation_unit_stems,
             example_placements=example_placements,
             attribute_option_restrictions=attribute_option_restrictions,
+            substituted=substituted,
         )
     sync = sync_artifacts(project.ig_directory / PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY, build.artifacts)
     intro_count = sum(1 for artifact in build.artifacts if artifact.relative_path.endswith(INTRO_SUFFIX))
@@ -3945,6 +3952,7 @@ async def generate_full(
                 today=datetime.now(tz=UTC).date(),
             ),
             attribute_option_restrictions=inputs.attribute_option_restrictions,
+            substituted=gate is not None and gate.substituting,
             notes=[*inputs.source_notes, *inputs.option_set_notes],
             progress=progress,
         )
@@ -4006,6 +4014,7 @@ async def _generate_registry_package(
         organisation_units=organisation_units,
         stem_plan=plan_questionnaire_stems([], config.naming.source),
         organisation_unit_stems=stems,
+        substituted=screening.substituting,
         notes=[],
         progress=progress,
     )

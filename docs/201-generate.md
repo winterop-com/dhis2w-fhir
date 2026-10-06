@@ -431,6 +431,14 @@ published concept back to its DHIS2 UID. The capture path reads that property, s
 a QuestionnaireResponse answering with a published code still writes the DHIS2
 code to DHIS2.
 
+**A substitute build says so.** Every generated site page - Forms, Registry,
+Terminology, Identifiers, Periods and Capturing data - opens with a note saying
+that some names and codes are published in a different spelling from the one the
+DHIS2 instance holds, how they were rewritten, and that each rewritten concept
+states the instance's spelling as its `dhis2-name` or `dhis2-code` property. A run
+that substitutes always carries the note; a run that does not never does. The
+hand-written `index.md` is left as it is.
+
 Every rewrite lands in the notes - a `name-substitution` note per distinct DHIS2
 name and a `code-substitution` note per distinct DHIS2 code, however many
 resources carry them - so the notes report is the record of where the guide and
