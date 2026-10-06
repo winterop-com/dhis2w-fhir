@@ -135,7 +135,16 @@ from __future__ import annotations
 from collections import Counter
 from typing import TYPE_CHECKING, Literal
 
-from dhis2w_fhir.coded import carries_spaced_code, carries_substitutable_code, published_codes, substituted_code
+from pydantic import BaseModel, ConfigDict
+
+from dhis2w_fhir.coded import (
+    CodeCollision,
+    carries_spaced_code,
+    carries_substitutable_code,
+    code_collisions,
+    published_codes,
+    substituted_code,
+)
 from dhis2w_fhir.config import HostileNamePosture
 from dhis2w_fhir.foundation.attribute_values import (
     ATTRIBUTE_CODE_SUB_EXTENSION,
@@ -339,6 +348,8 @@ def build_code_validation(
             for finding in _invisible_character_option_findings(option_set, config.locales)
         )
     findings.extend(_stem_findings(collections, config, scope, substituting=substituting))
+    if substituting:
+        findings.extend(_code_collision_findings(option_sets, collections, scope))
     object_count = 0
     for collection in sorted(collections, key=lambda item: item.resource):
         object_count += len(collection.items)
@@ -358,6 +369,98 @@ def build_code_validation(
         findings=findings,
         publishes_forms=scope is None or scope.publishes_forms,
     )
+
+
+class _CodeHolder(BaseModel):
+    """One DHIS2 object that holds a code, as a code-collision finding names it."""
+
+    model_config = ConfigDict(frozen=True)
+
+    resource_type: str
+    uid: str
+    name: str
+    code: str
+    in_scope: bool
+
+
+def _code_holders(
+    option_sets: list[OptionSetIn], collections: list[MetadataCollectionIn], scope: ValidationScope | None
+) -> list[_CodeHolder]:
+    """Every object of the screening that holds a code: each option set, each option, each swept object."""
+    holders: list[_CodeHolder] = []
+    for option_set in option_sets:
+        set_in_scope = _in_scope(scope, "optionSets", option_set.uid)
+        if option_set.code is not None:
+            holders.append(
+                _CodeHolder(
+                    resource_type="optionSets",
+                    uid=option_set.uid,
+                    name=option_set.name,
+                    code=option_set.code,
+                    in_scope=set_in_scope,
+                )
+            )
+        holders.extend(
+            _CodeHolder(
+                resource_type="options", uid=option.uid, name=option.name, code=option.code, in_scope=set_in_scope
+            )
+            for option in option_set.options
+            if option.code is not None
+        )
+    for collection in collections:
+        holders.extend(
+            _CodeHolder(
+                resource_type=collection.resource,
+                uid=item.uid,
+                name=item.name or item.uid,
+                code=item.code,
+                in_scope=_in_scope(scope, collection.resource, item.uid),
+            )
+            for item in collection.items
+            if item.code is not None
+        )
+    return holders
+
+
+def _code_collision_findings(
+    option_sets: list[OptionSetIn], collections: list[MetadataCollectionIn], scope: ValidationScope | None
+) -> list[ValidationFinding]:
+    """Flag every DHIS2 code the substitute posture would publish as a code another object already publishes.
+
+    An error when both codes are on the build path, because generate refuses that run; instance
+    hygiene otherwise, because the collision refuses the run the moment both are selected. The
+    in-scope pairs are found first, so a rewrite colliding both inside and outside the selection is
+    reported against the code inside it.
+    """
+    holders = _code_holders(option_sets, collections, scope)
+    first_holder: dict[str, _CodeHolder] = {}
+    for holder in sorted(holders, key=lambda item: not item.in_scope):
+        first_holder.setdefault(holder.code, holder)
+    found: dict[str, tuple[CodeCollision, bool]] = {}
+    for collision in code_collisions([holder.code for holder in holders if holder.in_scope]):
+        found[collision.rewritten] = (collision, True)
+    for collision in code_collisions([holder.code for holder in holders]):
+        found.setdefault(collision.rewritten, (collision, False))
+    findings: list[ValidationFinding] = []
+    for collision, in_scope in found.values():
+        rewritten = first_holder[collision.rewritten]
+        other = first_holder[collision.holder]
+        findings.append(
+            ValidationFinding(
+                severity=_degraded("error", in_scope),
+                scope=_scope_label(in_scope),
+                category="code-substitution-collision",
+                resource_type=rewritten.resource_type,
+                uid=rewritten.uid,
+                name=rewritten.name,
+                code=collision.rewritten,
+                message=f"code {display_code(collision.rewritten)} would publish as {collision.published!r} "
+                f'(hostile_names = "substitute"), which {other.resource_type} {other.name!r} ({other.uid}) already '
+                f"publishes from its code {display_code(collision.holder)}; generate refuses a run that would "
+                "publish two DHIS2 codes as one, so change one of the two codes in DHIS2",
+            )
+        )
+    return findings
 
 
 def _in_scope(scope: ValidationScope | None, resource_type: str, uid: str) -> bool:
@@ -1226,8 +1329,8 @@ def _spaced_code_message(code: str, *, substituting: bool) -> str:
     """What a space in an option code costs, or what the guide publishes in its place under `substitute`.
 
     The published spelling is `substituted_code`, the very function the run's code substituter
-    assigns from, so the message and the emitted concept code can never disagree - except where two
-    codes hyphenate onto one spelling, which the run de-collides with an ordinal suffix.
+    publishes through, so the message and the emitted concept code can never disagree. Two codes
+    that would publish as one are a `code-substitution-collision` finding, and generate refuses them.
     """
     if not substituting:
         return 'code contains spaces; FHIR-valid but emitted in the quoted #"..." form'

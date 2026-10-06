@@ -292,6 +292,7 @@ the Makefiles and `fhir.example.toml` - without touching either `fhir.toml`.
 | Generate notes: a UID that selected nothing | The UID is not on this instance - often copied from another one. | Correct it in the `include_ids` table, or drop it. |
 | Far more forms than you listed | A form table without `include_ids` means every form of that kind. | Add `include_ids`, or `enabled = false`. |
 | `error: ... has code '...', which carries '<'` from generate | `hostile_names` is `refuse` or unset. | Set `hostile_names = "substitute"` in `[generate]`, or change the code in DHIS2. |
+| `error: hostile_names = "substitute" would publish two DHIS2 codes as one: ...` from generate | A rewritten code lands on a code another object already publishes, such as `Pre eclampsia` beside a literal `Pre-eclampsia`. | Change one of the two codes in DHIS2. `d2w fhir validate` lists every pair as `code-substitution-collision`. |
 | `qa.html` reports `XHTML_URL_INVALID` on a `tel:` link | A phone number with an invisible character, published by a release before 1.28.0. | `make update`, then generate again. Retype the number in DHIS2 as well. |
 | `BUILD KILLED - out of memory (exit 137)` | The container ran out of memory. | Stop other containers; leave `JAVA_HEAP` unset or at `8g`; give Docker more memory. |
 | `OutOfMemoryError` with a Java stack trace | The heap is too small for this guide. | `make build JAVA_HEAP=12g`, with Docker sized for it. |

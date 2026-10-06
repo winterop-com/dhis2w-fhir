@@ -36,12 +36,15 @@ __all__ = [
     "DHIS2_CODE_PROPERTY",
     "DHIS2_ID_PROPERTY",
     "DHIS2_NAME_PROPERTY",
+    "CodeCollision",
     "CodeSubstituter",
+    "CodeSubstitutionCollisionError",
     "CodeSubstitutions",
     "CodedProjectionIn",
     "OriginalSpellingExtensionUrls",
     "carries_spaced_code",
     "carries_substitutable_code",
+    "code_collisions",
     "code_substitutions",
     "original_spelling_extensions",
     "published_codes",
@@ -184,48 +187,88 @@ def code_substitutions(models: Iterable[BaseModel]) -> CodeSubstitutions:
     return CodeSubstitutions(originals_by_published=dict(sorted(gathered.items())))
 
 
-class CodeSubstituter:
-    """The published code every DHIS2 code of one run carrying a space, `<` or `>` takes, assigned once and held.
+class CodeCollision(BaseModel):
+    """Two DHIS2 codes a substitute-posture run would publish as one code."""
 
-    Assignment is deterministic and independent of the order the projections are walked in: every
-    code the run has observed is registered first, then the space-carrying ones are assigned in
-    sorted order, each taking its hyphenated form unless another code already holds it - in which
-    case it takes an ordinal suffix (`Pre-eclampsia-2`) and the next free ordinal after that.
+    model_config = ConfigDict(frozen=True)
+
+    published: str
+    """The code both would publish as."""
+
+    rewritten: str
+    """The DHIS2 code the run rewrites onto `published`."""
+
+    holder: str
+    """The other DHIS2 code that already publishes as `published`: a literal code, or another rewrite."""
+
+
+class CodeSubstitutionCollisionError(LookupError):
+    """Raised when a substitute-posture run would publish two different DHIS2 codes as one code.
+
+    DHIS2 holds no duplicate, so every collision is one the rewrite makes: `Pre eclampsia` onto a
+    literal `Pre-eclampsia`, or `<5` and `under 5` onto one `under-5`. Publishing either one under a
+    suffix would let a published code move from one object to another between runs - the selection
+    grows, or the other code is cleaned in DHIS2 - and a system that stored it would silently point
+    at the wrong object. The run is refused instead, naming both codes, so one of them is changed in
+    DHIS2. A `LookupError` so the CLI's error funnel renders it as one message rather than a traceback.
+    """
+
+    def __init__(self, collisions: Sequence[CodeCollision]) -> None:
+        """Hold every collision the run found and state them in one message."""
+        self.collisions = tuple(collisions)
+        stated = "; ".join(
+            f"{collision.rewritten!r} and {collision.holder!r} would both publish as {collision.published!r}"
+            for collision in self.collisions
+        )
+        super().__init__(
+            f'hostile_names = "substitute" would publish two DHIS2 codes as one: {stated}. Change one code of '
+            "each pair in DHIS2, then run `d2w fhir validate` for the full report."
+        )
+
+
+class CodeSubstituter:
+    """The published code every DHIS2 code of one run carrying a space, `<` or `>` takes, and the collisions it makes.
+
+    The published code is `substituted_code` of the DHIS2 code and nothing else, so it never depends
+    on what else the run holds: adding a form to the selection or cleaning another code in DHIS2
+    leaves it as it was. Where two DHIS2 codes would publish as one, `collisions` names them, and the
+    gate refuses the run once it has decided to substitute.
     """
 
     def __init__(self) -> None:
-        """Start a run that has observed no code and assigned none."""
-        self._unassigned: set[str] = set()
-        self._published: dict[str, str] = {}
-        self._taken: set[str] = set()
+        """Start a run that has observed no code."""
+        self._observed: set[str] = set()
 
     def observe(self, model: BaseModel) -> None:
-        """Register every code one projection carries, so a later assignment can de-collide against it."""
+        """Register every code one projection carries, so `collisions` reads the run's whole pool."""
         if isinstance(model, CodedProjectionIn) and model.code is not None:
-            self._register(model.code)
+            self._observed.add(model.code)
         for field_name in type(model).model_fields:
             self._observe_value(getattr(model, field_name))
 
     def observe_code(self, code: str) -> None:
-        """Register one DHIS2 code the run holds, so a later assignment de-collides against it."""
-        self._register(code)
+        """Register one DHIS2 code the run holds, so `collisions` reads it."""
+        self._observed.add(code)
 
     def published_for(self, code: str) -> str:
         """The code the guide publishes in one DHIS2 code's place, byte-true unless it carries a space, `<` or `>`."""
-        if not carries_substitutable_code(code):
-            return code
-        self._register(code)
-        if code not in self._published:
-            self._assign()
-        return self._published[code]
+        self._observed.add(code)
+        return substituted_code(code) if carries_substitutable_code(code) else code
 
-    def _register(self, code: str) -> None:
-        """Hold one observed code: a space-free one is a target nothing may be rewritten onto."""
-        if carries_substitutable_code(code):
-            if code not in self._published:
-                self._unassigned.add(code)
-        else:
-            self._taken.add(code)
+    def collisions(self) -> list[CodeCollision]:
+        """Every pair of observed DHIS2 codes that would publish as one code, in sorted order.
+
+        Literal codes hold their own spelling first; the rewrites are then placed in sorted order, so
+        the pair a collision names does not depend on the order the projections were walked in.
+        """
+        holders = {code: code for code in self._observed if not carries_substitutable_code(code)}
+        found: list[CodeCollision] = []
+        for original in sorted(code for code in self._observed if carries_substitutable_code(code)):
+            published = substituted_code(original)
+            holder = holders.setdefault(published, original)
+            if holder != original:
+                found.append(CodeCollision(published=published, rewritten=original, holder=holder))
+        return found
 
     def _observe_value(self, value: object) -> None:
         """Walk one field's value for nested projections, whatever container it arrives in."""
@@ -238,40 +281,29 @@ class CodeSubstituter:
             for member in value.values():
                 self._observe_value(member)
 
-    def _assign(self) -> None:
-        """Assign every space-carrying code still waiting, in sorted order rather than encounter order."""
-        for original in sorted(self._unassigned):
-            self._published[original] = self._free(substituted_code(original))
-        self._unassigned.clear()
-
-    def _free(self, candidate: str) -> str:
-        """The candidate itself when nothing holds it, else the first free ordinal after it."""
-        chosen = candidate
-        ordinal = 1
-        while chosen in self._taken:
-            ordinal += 1
-            chosen = f"{candidate}-{ordinal}"
-        self._taken.add(chosen)
-        return chosen
-
 
 def published_codes(codes: Sequence[str | None], *, substituting: bool) -> dict[str, str]:
-    """The code the guide publishes in each DHIS2 code's place, assigned the way one run's gate assigns them.
+    """The code the guide publishes in each DHIS2 code's place, as one run's gate publishes them.
 
     The offline reading of a screening, for a caller that grades what a generate run would publish
     without emitting anything: `d2w fhir validate` resolves an identity stem off a code, and the code
-    a stem is read off is the published one. Assignment runs over the whole pool at once, so the
-    de-collision is the run's rather than one object's - the same property a gate's own substituter
-    holds. A run that is not substituting publishes every code as DHIS2 states it, so the answer is
-    every code mapped to itself.
+    a stem is read off is the published one. A run that is not substituting publishes every code as
+    DHIS2 states it, so the answer is every code mapped to itself.
     """
     stated = [code for code in codes if code is not None]
     if not substituting:
         return {code: code for code in stated}
     substituter = CodeSubstituter()
-    for code in stated:
-        substituter.observe_code(code)
     return {code: substituter.published_for(code) for code in stated}
+
+
+def code_collisions(codes: Sequence[str | None]) -> list[CodeCollision]:
+    """Every pair of the given DHIS2 codes a substitute-posture run would publish as one code."""
+    substituter = CodeSubstituter()
+    for code in codes:
+        if code is not None:
+            substituter.observe_code(code)
+    return substituter.collisions()
 
 
 def _gather(model: BaseModel, gathered: dict[str, str]) -> None:

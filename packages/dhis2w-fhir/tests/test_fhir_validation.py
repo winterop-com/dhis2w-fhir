@@ -807,6 +807,32 @@ def test_a_comparison_in_a_code_is_informational_under_substitute_naming_the_pub
     assert "published as 'under-1500g'" in findings["<1500g"].message
 
 
+def test_two_codes_the_substitute_posture_would_publish_as_one_are_an_error() -> None:
+    """Validate names the collision generate refuses, on the code the rewrite moves, with the other object beside it."""
+    option_set = _set(
+        "Aa1aaaaaaaa",
+        "Conditions",
+        [
+            OptionIn(uid="Op1aaaaaaaa", code="Pre eclampsia", name="Spaced"),
+            OptionIn(uid="Op2aaaaaaaa", code="Pre-eclampsia", name="Literal"),
+        ],
+    )
+    substituting = _CODE_MODE.model_copy(update={"hostile_names": HostileNamePosture.SUBSTITUTE})
+
+    collisions = [
+        finding
+        for finding in build_code_validation([option_set], [], substituting).findings
+        if finding.category == "code-substitution-collision"
+    ]
+    refusing = build_code_validation([option_set], [], _CODE_MODE).findings
+
+    assert [(finding.severity, finding.uid, finding.code) for finding in collisions] == [
+        ("error", "Op1aaaaaaaa", "Pre eclampsia")
+    ]
+    assert "'Literal' (Op2aaaaaaaa)" in collisions[0].message
+    assert not any(finding.category == "code-substitution-collision" for finding in refusing)
+
+
 def test_a_clean_code_and_an_absent_code_raise_no_template_finding() -> None:
     """The check reads a code when there is one and is silent otherwise."""
     report = _validate(
