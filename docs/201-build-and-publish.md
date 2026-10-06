@@ -83,10 +83,18 @@ and the JVM heap derived into a `JAVA_HEAP` variable, and `generate` /
 thing the lines above do not: the artifact scan below, which refuses a doomed
 publisher run before it starts. [Set up an IG
 project](201-set-up-a-project.md) lists the targets. Only `refresh` does
-something no single command above does: it chains clean-all, upgrade,
+something no single command above does: it chains clean, upgrade,
 generate, validate, and build, tolerating validate's exit 1 so a full rebuild
 still produces fresh reports, and it deliberately skips SUSHI because the
 publisher runs its own over the same FSH.
+
+`setup` and `upgrade` download `publisher.jar`, a few hundred megabytes, from
+HL7's GitHub releases, and `upgrade` downloads it again every time. On a slow or
+unreliable connection the download resumes rather than restarting: each of eight
+attempts continues the partial file, an attempt stalled below 1 KB/s for a
+minute is abandoned for the next one, and the build fails only when all eight
+have. A failed `upgrade` leaves the previous image in place, so `make generate`
+and `make build` still run against the publisher already installed.
 
 `d2w fhir generate` and `d2w fhir validate` normally run as `uv run d2w` -
 the toolchain `uv.lock` pinned. To drive a checkout or a git ref instead,
