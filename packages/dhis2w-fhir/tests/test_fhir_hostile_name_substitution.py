@@ -745,6 +745,24 @@ async def test_the_rewritten_names_reach_the_published_files(
 
 
 @respx.mock
+async def test_a_substitute_build_says_so_on_the_pages_it_writes(
+    probe_profile: None,  # noqa: ARG001
+    mock_system_info: Callable[..., None],
+    tmp_path: Path,
+) -> None:
+    """A full substitute run writes the note into every site page, so the published guide states its posture."""
+    mock_system_info("v42")
+    await _scaffold_project(tmp_path)
+    _mock_instance(_hostile_instance())
+    project = load_project(tmp_path)
+
+    await service.generate_full(resolve_profile("probe"), project, gate=_substituting_gate())
+
+    forms = next((tmp_path / "ig" / "input").rglob("forms.md")).read_text(encoding="utf-8")
+    assert 'this build rewrote them\n> (`hostile_names = "substitute"`)' in forms
+
+
+@respx.mock
 async def test_the_run_notes_every_name_the_guide_states_differently(
     probe_profile: None,  # noqa: ARG001
     mock_system_info: Callable[..., None],

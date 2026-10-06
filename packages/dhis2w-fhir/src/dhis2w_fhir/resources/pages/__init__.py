@@ -195,8 +195,12 @@ def build_page_artifacts(
     organisation_unit_stems: StemResolution | None = None,
     example_placements: dict[str, SyntheticPlacement] | None = None,
     attribute_option_restrictions: AttributeOptionRestrictions | None = None,
+    substituted: bool = False,
 ) -> FshBuild:
     """Build the six site pages plus every per-artifact intro the fetched metadata earns.
+
+    `substituted` says the run published under `hostile_names = "substitute"`, and every site page
+    then opens with the note saying so - a substitute build otherwise reads exactly like a clean one.
 
     `stem_plan` and `organisation_unit_stems` are the identity resolutions the artifact links,
     the intro file names, and the worked `Location/...` references follow; left None they resolve
@@ -225,12 +229,12 @@ def build_page_artifacts(
         _form_row(source, plan.targets.stem_for(source.uid))
         for source in sorted(pages.forms, key=lambda item: (item.name, item.uid))
     ]
-    build.artifacts.append(_forms_page(forms))
-    build.artifacts.append(_registry_page(pages.organisation_units, config, unit_stems))
-    build.artifacts.append(_terminology_page(pages, config))
-    build.artifacts.append(_identifiers_page(config))
-    build.artifacts.append(_periods_page(config))
-    build.artifacts.append(
+    site_pages = [
+        _forms_page(forms),
+        _registry_page(pages.organisation_units, config, unit_stems),
+        _terminology_page(pages, config),
+        _identifiers_page(config),
+        _periods_page(config),
         _capture_page(
             pages,
             config,
@@ -239,12 +243,22 @@ def build_page_artifacts(
             unit_stems,
             example_placements or {},
             attribute_option_restrictions or AttributeOptionRestrictions(),
-        )
-    )
+        ),
+    ]
+    build.artifacts.extend(_with_substitution_note(page) if substituted else page for page in site_pages)
     build.artifacts.extend(_questionnaire_intros(forms))
     build.artifacts.extend(_code_system_intros(pages, config))
     build.artifacts.extend(_organization_intros(pages.organisation_units, unit_stems))
     return build
+
+
+def _with_substitution_note(page: FshArtifact) -> FshArtifact:
+    """One site page with the substitute-build note placed under its title."""
+    note = _ENVIRONMENT.get_template("substitution-banner.md.jinja").render()
+    lines = page.content.splitlines(keepends=True)
+    title = next(index for index, line in enumerate(lines) if line.startswith("# "))
+    content = "".join([*lines[: title + 1], "\n", note, *lines[title + 1 :]])
+    return page.model_copy(update={"content": content})
 
 
 def _page(filename: str, template_name: str, **values: object) -> FshArtifact:
@@ -330,12 +344,17 @@ def _tracker_program_groups(forms: list[FormRow]) -> list[TrackerProgramGroup]:
 
 
 def build_registry_page_artifacts(
-    pages: PagesIn, config: GenerateConfig, *, organisation_unit_stems: StemResolution | None = None
+    pages: PagesIn,
+    config: GenerateConfig,
+    *,
+    organisation_unit_stems: StemResolution | None = None,
+    substituted: bool = False,
 ) -> FshBuild:
     """Build the pages of a registry package: its Registry page plus one intro per published unit.
 
     A registry package publishes organisation units and nothing else, so its site has no form
-    catalog, terminology, identifier or capture page to narrate.
+    catalog, terminology, identifier or capture page to narrate. `substituted` opens the Registry
+    page with the substitute-build note, as `build_page_artifacts` does for every site page.
     """
     build = FshBuild()
     if organisation_unit_stems is not None:
@@ -344,7 +363,8 @@ def build_registry_page_artifacts(
         unit_stems = plan_organisation_unit_stems(
             organisation_unit_stem_subjects(pages.organisation_units), config.naming.source
         )
-    build.artifacts.append(_registry_page(pages.organisation_units, config, unit_stems))
+    registry_page = _registry_page(pages.organisation_units, config, unit_stems)
+    build.artifacts.append(_with_substitution_note(registry_page) if substituted else registry_page)
     build.artifacts.extend(_organization_intros(pages.organisation_units, unit_stems))
     return build
 

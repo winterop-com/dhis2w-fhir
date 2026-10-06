@@ -213,6 +213,11 @@ class HostileNameGate:
         self._substituting: bool | None = None if posture is None else posture is HostileNamePosture.SUBSTITUTE
         self._codes = CodeSubstituter()
 
+    @property
+    def substituting(self) -> bool:
+        """Whether this run publishes rewritten names and codes: answered yes, by a posture or a person."""
+        return self._substituting is True
+
     def decide(self, *groups: Sequence[BaseModel]) -> None:
         """Settle the run's answer up front, over every projection the run is about to emit.
 

@@ -211,6 +211,29 @@ def test_every_site_page_is_emitted_once() -> None:
     assert {artifact.kind for artifact in build.artifacts} == {"page"}
 
 
+#: The opening words of the note a substitute-posture build carries on every site page.
+_SUBSTITUTION_NOTE = "> **Note:** Some names and codes in this guide are published in a different spelling"
+
+
+def test_a_substitute_build_says_so_under_the_title_of_every_site_page() -> None:
+    """A substitute build otherwise reads exactly like a clean one, so each site page opens with the note."""
+    build = build_page_artifacts(_pages_input(), GenerateConfig(), _CANONICAL, substituted=True)
+
+    for artifact in build.artifacts:
+        lines = artifact.content.splitlines()
+        if artifact.relative_path.endswith(INTRO_SUFFIX):
+            assert _SUBSTITUTION_NOTE not in artifact.content
+            continue
+        title = next(index for index, line in enumerate(lines) if line.startswith("# "))
+        assert lines[title + 1] == ""
+        assert lines[title + 2].startswith(_SUBSTITUTION_NOTE), artifact.relative_path
+
+
+def test_a_clean_build_carries_no_substitution_note() -> None:
+    """A build that rewrote nothing publishes every page without the note."""
+    assert not any(_SUBSTITUTION_NOTE in content for content in _pages().values())
+
+
 def test_forms_page_catalogs_both_form_kinds() -> None:
     """forms.md holds a Data sets and an Event programs section, each with one linked catalog row."""
     forms = _pages()["forms.md"]
