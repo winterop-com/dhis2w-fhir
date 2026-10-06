@@ -297,7 +297,7 @@ discloses nothing.
 
 `oauth2` is the name reserved for an authorization server this facade would run
 itself. It is deliberately not a value `[serve] auth` accepts: DHIS2 2.43.1's
-authorization server returns a 500 for any client its API creates (BUGS.md 96),
+authorization server returns a 500 for any client its API creates (DHIS2_ISSUES.md 96),
 so a project could state it and nothing would answer. **A deployment that wants
 bearer tokens today states `jwt` and names the issuer it already has** - which is
 the case that reservation was ever really about.

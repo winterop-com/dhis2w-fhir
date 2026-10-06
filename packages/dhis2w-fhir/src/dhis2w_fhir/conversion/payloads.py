@@ -394,7 +394,7 @@ def translate_tracker_registration_response(
     `enrollments` array naming that existing tracked entity, posted under the same plain
     `importStrategy=CREATE` every other payload goes under. No `trackedEntities` wrapper goes round
     it: an enrollment that rides inside one has to be posted `CREATE_AND_UPDATE`, which silently
-    rewrites the person's owning organisation unit (BUGS.md 73), and the person is not this
+    rewrites the person's owning organisation unit (DHIS2_ISSUES.md 73), and the person is not this
     response's to move. The program's own attributes ride the enrollment, because DHIS2 answers
     `E1018` to a mandatory program attribute that arrives on nothing.
     """
@@ -568,7 +568,7 @@ def _existing_subject_refusals(translated: TranslatedAnswers, form: FormSpec) ->
     An enrollment-only import carries the program's attributes and nothing else, so an entity-level
     answer generally has nowhere on the payload to go. The alternative - wrapping the enrollment in
     a `trackedEntities` entry so the attribute has a home - rewrites the owning organisation unit of
-    a person this response did not create (BUGS.md 73). Dropping the answer silently is the third
+    a person this response did not create (DHIS2_ISSUES.md 73). Dropping the answer silently is the third
     option and the worst: a captured value that reaches no instance is data loss nobody is told
     about. So an optional entity-level answer is refused, named, and the fix stated.
 
@@ -1002,7 +1002,7 @@ def _enrollment_date(
     *,
     required: bool,
 ) -> datetime.datetime | None:
-    """One date the enrollment carries, as the zone-less wall clock DHIS2 stores it in (BUGS.md #62).
+    """One date the enrollment carries, as the zone-less wall clock DHIS2 stores it in (DHIS2_ISSUES.md #62).
 
     `enrolledAt` is required because DHIS2 requires every enrollment to say when it began;
     `occurredAt` - the incident date - is written only where the response states one, because the
@@ -1040,7 +1040,7 @@ def _occurred_at(
     notes: list[ConversionNote],
     refusals: list[ConversionRefusal],
 ) -> datetime.datetime | None:
-    """The moment an event occurred, as the zone-less wall clock DHIS2 stores (BUGS.md #62).
+    """The moment an event occurred, as the zone-less wall clock DHIS2 stores (DHIS2_ISSUES.md #62).
 
     `TrackerEvent.occurredAt` is typed `Instant`, which the generated model reads as a `datetime`
     - and a zone-less `datetime` is exactly what DHIS2 both serves and accepts on that field, so

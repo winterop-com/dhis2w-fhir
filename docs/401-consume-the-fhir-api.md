@@ -431,7 +431,7 @@ curl -s -G localhost:8391/Patient --data-urlencode 'd2-attribute=cejWyOfXge6|Fem
 
 **It answers equality and nothing else** - no prefix, no substring, no range, no
 `:missing`, no ordering. Case is the one thing it ignores, because DHIS2's own
-`eq` ignores it (BUGS.md 109), so the two search backends agree
+`eq` ignores it (DHIS2_ISSUES.md 109), so the two search backends agree
 on every value in the register rather than on the ones typed the way they were
 stored. A caller who wants "starts with" wants `_content` below.
 

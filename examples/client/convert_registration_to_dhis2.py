@@ -30,7 +30,7 @@ holds, and then the same form produces a different payload under a different `/a
 
 That is not a formatting preference. An enrollment nested in a `trackedEntities` wrapper has to
 be posted `importStrategy=CREATE_AND_UPDATE`, and DHIS2 then silently rewrites the person's
-owning organisation unit to the one on the payload (BUGS.md 73). A person this response did not
+owning organisation unit to the one on the payload (DHIS2_ISSUES.md 73). A person this response did not
 create is not this response's to move, so the wrapper is never written - and the programme's own
 attributes ride the enrollment, because DHIS2 answers `E1018` to a mandatory programme attribute
 that arrives on nothing.

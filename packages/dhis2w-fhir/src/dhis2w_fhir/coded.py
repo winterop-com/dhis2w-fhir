@@ -2,7 +2,7 @@
 
 An R4 `code` admits single internal spaces, so `Pre eclampsia` reaches a guide as a legal concept
 code. It is still a liability everywhere downstream: the IG publisher's anchor slug strips
-whitespace, so `Pre eclampsia` and `Preeclampsia` render one anchor id (BUGS.md #107); a URL has to
+whitespace, so `Pre eclampsia` and `Preeclampsia` render one anchor id (IG_PUBLISHER_ISSUES.md #107); a URL has to
 escape it; CQL has to quote it; a terminology server round-trips it at its own discretion. A
 production deployment would clean the code in DHIS2, so the substitute posture publishes it clean
 without touching DHIS2: every space becomes a hyphen.

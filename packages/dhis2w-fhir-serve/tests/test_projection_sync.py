@@ -46,7 +46,7 @@ _PERSON_UID = "PLoWmEuLJl2"
 _OTHER_PERSON_UID = "QaTbMxTeS01"
 _NATIONAL_ID = "SCEN-A-0001"
 
-#: The zone-less wall-clock readings DHIS2 2.43 answers `updatedAt` with (BUGS.md 62).
+#: The zone-less wall-clock readings DHIS2 2.43 answers `updatedAt` with (DHIS2_ISSUES.md 62).
 _FIRST_READ = "2026-08-20T09:00:00.123"
 _SECOND_READ = "2026-08-21T09:00:00.456"
 
@@ -182,7 +182,7 @@ async def test_every_poll_carries_include_deleted_and_a_stable_order(
         await _sync(capture_project, store, reader)
 
     # Enrollments page by `enrolledAt`: 2.41.9.x and 2.42.6 answer 409 to `order=createdAt` on that
-    # read (BUGS.md #115). Tracked entities keep creation order.
+    # read (DHIS2_ISSUES.md #115). Tracked entities keep creation order.
     for route, order in ((entities, "createdAt:asc"), (enrollments, "enrolledAt:asc")):
         assert route.calls
         for call in route.calls:
@@ -193,7 +193,7 @@ async def test_every_poll_carries_include_deleted_and_a_stable_order(
 async def test_a_refused_tombstone_read_is_retried_without_the_flag_and_reported(
     capture_project: FhirProject, store: SqliteProjectionStore, reader: _Reader
 ) -> None:
-    """BUGS.md #116 - 2.42.6 refuses the type-scoped read with `includeDeleted=true`; the poll retries and says so."""
+    """DHIS2_ISSUES.md #116 - 2.42.6 refuses the type-scoped `includeDeleted=true` read; the poll retries, says so."""
 
     def answer(request: httpx.Request) -> httpx.Response:
         if request.url.params.get("includeDeleted") == "true":
@@ -224,7 +224,7 @@ async def test_a_refused_tombstone_read_is_retried_without_the_flag_and_reported
 async def test_the_enrollment_poll_is_scoped_by_program_because_the_endpoint_admits_nothing_else(
     capture_project: FhirProject, store: SqliteProjectionStore, reader: _Reader
 ) -> None:
-    """`/api/tracker/enrollments` answers `E1003 "Program is mandatory"` to any other scope (BUGS.md 102)."""
+    """`/api/tracker/enrollments` answers `E1003 "Program is mandatory"` to any other scope (DHIS2_ISSUES.md 102)."""
     with respx.mock:
         respx.get(_TRACKER_PATH).mock(return_value=httpx.Response(200, json=_page(_entity())))
         enrollments = respx.get(_ENROLLMENTS_PATH).mock(return_value=httpx.Response(200, json=_enrollment_page()))

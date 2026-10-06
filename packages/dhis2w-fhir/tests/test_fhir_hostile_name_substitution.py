@@ -933,7 +933,7 @@ async def test_a_named_target_rewrites_what_the_full_run_rewrites(
 def _spaced_code_instance() -> dict[str, list[dict[str, Any]]]:
     """An instance whose option codes carry a space, beside a literal code no rewrite lands on.
 
-    This is BUGS.md 107 as an instance: `Pre eclampsia` and `Preeclampsia` are distinct DHIS2 codes
+    This is IG_PUBLISHER_ISSUES.md 107 as an instance: `Pre eclampsia` and `Preeclampsia` are distinct DHIS2 codes
     that the IG publisher's anchor slug renders as one anchor id.
     """
     return {
@@ -1088,7 +1088,7 @@ async def test_the_identifier_code_system_enumerates_the_published_codes_with_th
     mock_system_info: Callable[..., None],
     tmp_path: Path,
 ) -> None:
-    """`d2-option-code-id-cs` is the namespace BUGS.md 107 collides in, and it now carries no space."""
+    """`d2-option-code-id-cs` is the namespace IG_PUBLISHER_ISSUES.md 107 collides in, and it now carries no space."""
     mock_system_info("v42")
     directory = await _generate_spaced_codes(tmp_path, code_source="code", gate=_substituting_gate())
 

@@ -3,7 +3,7 @@
 DHIS2 cannot answer this question, so the spool does. `/api/dataValueSets` applies its own
 `CREATE_AND_UPDATE` to an envelope that names no strategy, so a second send of one cell replaces the
 first in place; and the import summary counts `updated: 1` for a genuinely first write and for a
-replacement alike (BUGS.md 85), so nothing DHIS2 answers separates the two. What separates them here
+replacement alike (DHIS2_ISSUES.md 85), so nothing DHIS2 answers separates the two. What separates them here
 is the record every drained receipt leaves: a forwarded receipt's `<id>.report.json` names the cells
 its payload put in the instance, and the next drain reads those records back before it sends anything.
 

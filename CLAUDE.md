@@ -80,11 +80,18 @@ removes or renames a command, a `fhir.toml` key, an endpoint, an engine function
 user-visible capability updates `docs/features.md` in the same PR. A stale feature list is worse
 than no feature list.
 
-## Upstream DHIS2 quirks
+## Upstream issues
 
-DHIS2 behaviour that surprises is logged in the host's
-[BUGS.md](https://github.com/winterop-com/dhis2w/blob/main/BUGS.md), with the version, a curl
-repro, expected against actual, and the workaround's file path here.
+Issues are logged where they can be reported, in groups: one group is one upstream report, with a
+summary written as the ticket description, the versions it affects, whether it has been reported, and
+its member issues. An issue goes into the group it belongs to; a new group is only for a new root cause;
+the status table at the top of the file stays in step.
+
+- DHIS2 behaviour goes in the host's
+  [DHIS2_ISSUES.md](https://github.com/winterop-com/dhis2w/blob/main/DHIS2_ISSUES.md), with the version,
+  a curl repro, expected against actual, and the workaround's file path here.
+- HL7 IG Publisher and template behaviour goes in this repository's `IG_PUBLISHER_ISSUES.md`, in the
+  same shape.
 
 ## Before a PR
 

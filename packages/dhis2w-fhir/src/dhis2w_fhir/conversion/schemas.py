@@ -210,7 +210,7 @@ class ConversionNoteCategory(StrEnum):
     #: The response status maps onto a DHIS2 event status that several statuses map forward onto.
     STATUS_COLLAPSED = "status-collapsed"
 
-    #: A zoned R4 timestamp read back to the zone-less wall clock DHIS2 stores (BUGS.md #62).
+    #: A zoned R4 timestamp read back to the zone-less wall clock DHIS2 stores (DHIS2_ISSUES.md #62).
     WALL_CLOCK_DERIVED = "wall-clock-derived"
 
     #: A timestamp carrying no offset, taken as already being the wall clock DHIS2 stores.
@@ -670,7 +670,7 @@ class ConversionResult(BaseModel):
 
     Set instead of `tracked_entity`, and posted as a top-level `enrollments` array: an enrollment
     that rides inside a `trackedEntities` wrapper rewrites the person's owning organisation unit
-    (BUGS.md 73), and a person this response did not create is not this response's to move.
+    (DHIS2_ISSUES.md 73), and a person this response did not create is not this response's to move.
     """
 
     completeness: CompleteDataSetRegistration | None = None

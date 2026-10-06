@@ -362,7 +362,7 @@ stated, and the reason a registration was refused or never attempted.
 The forwarder never writes `/api/dataValueSets`' own `completeDate`, even
 though that field registers completeness too. On 2.42 it registers even when
 every value in the envelope was refused, and even under `dryRun=true`
-(`BUGS.md` 76, 77) - so the claim is made in a call of its own, after the
+(`DHIS2_ISSUES.md` 76, 77) - so the claim is made in a call of its own, after the
 values are known to have landed.
 
 ## The four states a receipt can end in
@@ -988,7 +988,7 @@ A registration whose response states `D2SubjectExists` becomes a **top-level
 `trackedEntity` naming the person the instance already holds, and no
 `trackedEntities` wrapper at all. The wrapper would force
 `importStrategy=CREATE_AND_UPDATE`, which silently rewrites that person's
-owning organisation unit (`BUGS.md` 73), so the enrollment goes on its own
+owning organisation unit (`DHIS2_ISSUES.md` 73), so the enrollment goes on its own
 under plain `CREATE`. The program's own attributes ride the enrollment,
 because DHIS2 answers `E1018` to a mandatory program attribute that arrives on
 nothing - and an answer belonging to the person's own record (`D2EntityLevel`

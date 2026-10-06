@@ -267,7 +267,7 @@ def _harvested_absent_enrollment_409(wire_version: str) -> httpx.Response:
     `EvAaBbCcDd1` of stage `A03MvHHogjR` naming enrollment `EnAaBbCcDd1`, which no instance holds.
 
     `E1313` states the enrollment references no tracked entity and `E1079` asserts a program mismatch
-    against that same absent enrollment (BUGS.md 68). Under `importMode=VALIDATE` the pair is what every
+    against that same absent enrollment (DHIS2_ISSUES.md 68). Under `importMode=VALIDATE` the pair is what every
     stage event of a registration validated in the same run earns, because a dry run creates no enrollment.
     """
     return _harvested_409("tracker-absent-enrollment", wire_version)
@@ -330,7 +330,7 @@ _AGGREGATE_VALUE_TYPE_FACTS = {
 }
 
 #: What each major answers the stage event naming an enrollment nobody has with. The two codes are the
-#: same three times over and the two sentences are three different pairs of prose (BUGS.md 68).
+#: same three times over and the two sentences are three different pairs of prose (DHIS2_ISSUES.md 68).
 _ABSENT_ENROLLMENT_FACTS = {
     "v41": _TrackerRejectionFacts(
         error_codes=("E1313", "E1079"),
@@ -363,7 +363,7 @@ _ABSENT_ENROLLMENT_FACTS = {
 }
 
 #: What each major answers the coordinate that is not one with. `E1302` names the value type - or, on
-#: 2.41, nothing at all - where the data element identifier belongs (BUGS.md 75).
+#: 2.41, nothing at all - where the data element identifier belongs (DHIS2_ISSUES.md 75).
 _TRACKER_VALUE_TYPE_FACTS = {
     "v41": _TrackerRejectionFacts(
         error_codes=("E1302",),
@@ -1853,7 +1853,7 @@ async def test_enrolling_a_person_the_instance_holds_posts_a_top_level_enrollmen
 
 @respx.mock
 async def test_an_enrollment_only_import_goes_under_plain_create(linked_forward_project: Path) -> None:
-    """`CREATE_AND_UPDATE` rewrites the person's owning organisation unit (BUGS.md 73), so CREATE it is."""
+    """`CREATE_AND_UPDATE` rewrites the person's owning organisation unit (DHIS2_ISSUES.md 73), so CREATE it is."""
     tracker = _mock_tracker_instance()
 
     await _forward(linked_forward_project, import_responses=True)
@@ -2006,7 +2006,7 @@ async def test_the_registration_claims_the_day_the_response_records_itself_autho
 
 @respx.mock
 async def test_the_data_value_set_never_carries_a_complete_date(forward_project: Path) -> None:
-    """`completeDate` registers completeness before DHIS2 has taken anything (BUGS.md 76, 77), so it is unsent."""
+    """`completeDate` registers completeness before DHIS2 has taken anything (DHIS2_ISSUES.md 76, 77): unsent."""
     routes = _mock_instance()
     await _forward(forward_project, import_responses=True)
     assert "completeDate" not in json.loads(routes["aggregate"].calls.last.request.content)
@@ -2363,7 +2363,7 @@ async def test_the_harvested_rejections_roll_up_under_the_codes_each_major_named
 
 
 def test_the_majors_word_one_tracker_rule_three_ways_and_only_its_code_holds_still() -> None:
-    """BUGS.md 68's drift, pinned against the wire: the sentences differ, the codes do not.
+    """DHIS2_ISSUES.md 68's drift, pinned against the wire: the sentences differ, the codes do not.
 
     Rolling rejections up on the sentence would report one rule as two causes of a run that met two
     majors, which is the reason `rejection_reasons` keys on the code and never on the prose.

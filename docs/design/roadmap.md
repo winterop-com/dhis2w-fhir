@@ -380,7 +380,7 @@ itself additionally calls `/api/system/info` on connect to bind the version tree
 | `/api/metadata` | `validate` | `get_raw` with `fields=id,name,code` and `defaults=EXCLUDE`. |
 | `/api/dataValueSets` | `generate examples` with `source = "instance"` | `get_raw` with `dataSet`, `orgUnit`, `children=true`, `period`, walking `recent_periods(periodType, 6, today)` newest-first. |
 | `/api/dataValueSets` | `GET /facade/data-sets/{uid}/responses` on a `--live` run | `RegisterReader.get_raw` with `dataSet`, `orgUnit`, and the request's own repeated `period` - no `children`, no date range, and bounded by `[serve.data_sets] period_limit`. The answer is grouped by `dhis2w_fhir.group_data_values`, the same helper the examples row above reads. |
-| `/api/tracker/events` | `generate examples` with `source = "instance"` | `get_raw` with `pageSize`, `order=occurredAt:desc`, and either `program` + `_EXAMPLE_EVENT_FIELDS` for an event program or `program` + `programStage` + `_EXAMPLE_TRACKER_EVENT_FIELDS` for a tracker stage. DHIS2 demands the program beside the stage (BUGS.md #67). |
+| `/api/tracker/events` | `generate examples` with `source = "instance"` | `get_raw` with `pageSize`, `order=occurredAt:desc`, and either `program` + `_EXAMPLE_EVENT_FIELDS` for an event program or `program` + `programStage` + `_EXAMPLE_TRACKER_EVENT_FIELDS` for a tracker stage. DHIS2 demands the program beside the stage (DHIS2_ISSUES.md #67). |
 
 Note the shape of the named targets: each opens and closes a client of its own,
 `/api/optionSets` is fetched by four of the seven, and `/api/attributes` by four.
@@ -666,12 +666,12 @@ Four consequences the design accepts:
 
 ## 4. Upstream DHIS2 and tooling quirks that shape the code
 
-Three DHIS2 quirks are catalogued in the repository-root `BUGS.md`, rendered on
-the [upstream quirks page](https://winterop-com.github.io/dhis2w/project/upstream-quirks/). Two more are tooling, not DHIS2,
-so they are not in `BUGS.md` at all - they are recorded here because the code
+Three DHIS2 quirks are catalogued in the repository-root `DHIS2_ISSUES.md`, rendered on
+the [upstream issues page](https://winterop-com.github.io/dhis2w/project/upstream-issues/). Two more are tooling, not DHIS2,
+so they are not in `DHIS2_ISSUES.md` at all - they are recorded here because the code
 carries workarounds for them.
 
-### 4.1 BUGS.md #62 - zone-less timestamps under fields typed `Instant`
+### 4.1 DHIS2_ISSUES.md #62 - zone-less timestamps under fields typed `Instant`
 
 DHIS2 serves `TrackerEvent.occurredAt` and the `DATETIME` data values beside it
 as `2025-12-30T00:00:00.000` - a wall-clock string with no `Z` and no offset -
@@ -691,7 +691,7 @@ value that does not match the R4 primitive after normalising is answered as a
 string (or, for `authored`, dropped) with an aggregate note, so a run never emits
 an invalid literal.
 
-### 4.2 BUGS.md #63 - `DataSet.dataSetElements` shuffles on every request
+### 4.2 DHIS2_ISSUES.md #63 - `DataSet.dataSetElements` shuffles on every request
 
 It is a Java `Set` with no sort-order column, so the serialised order is hash
 iteration order and changes per request even against an unchanged data set.
@@ -705,7 +705,7 @@ that: a regenerate of an unchanged data set produces an unchanged file, and the
 example responses - fetched by a separate request - answer the questionnaire's
 items in the questionnaire's own order, which the FHIR validator requires.
 
-### 4.3 BUGS.md #64 - `CategoryCombo.categoryOptionCombos` shuffles on every request
+### 4.3 DHIS2_ISSUES.md #64 - `CategoryCombo.categoryOptionCombos` shuffles on every request
 
 The same Java `Set` shape one level deeper in the projection, and worse for a
 disaggregated form: the option combos **are** the columns of a data-entry grid.
@@ -720,7 +720,7 @@ rejected every disaggregated example with
 
 ### 4.4 Tooling: `fhir2.base.template` pastes page titles into breadcrumbs unescaped
 
-Not a DHIS2 bug, so not in `BUGS.md`. The IG template writes a resource's page
+Not a DHIS2 bug, so not in `DHIS2_ISSUES.md`. The IG template writes a resource's page
 title straight into HTML, and the publisher's `AIProcessor` then strict-parses
 the result. A resource whose FSH `Title:` holds a `<` aborts the build with
 `Unable to Parse HTML - node 'b' has unexpected content`.
@@ -967,7 +967,7 @@ The write is a second call to `/api/completeDataSetRegistrations`, made **only
 after DHIS2 has taken the values**, and the reason it is not the `completeDate`
 field `/api/dataValueSets` already carries is empirical: on 2.42 that field
 registers completeness even when every value in the envelope was refused, and
-even under `dryRun=true` (BUGS.md 76, 77). So the field is never written, and
+even under `dryRun=true` (DHIS2_ISSUES.md 76, 77). So the field is never written, and
 the claim is made in a call of its own once the values are known to have
 landed. A refused registration does not un-import the values - they stay
 imported, the response stays `accepted`, and forwarding the same tuple again is
@@ -1055,7 +1055,7 @@ each branch reports.
 (`_TRANSLATION_FIELDS`, `_OPTION_SET_FIELDS`, `_OPTION_SET_IDENTITY_FIELDS`,
 `_ORGANISATION_UNIT_FIELDS`, `_QUESTIONNAIRE_DATA_ELEMENT_FIELDS`,
 `_DATA_SET_FIELDS`, `_EVENT_PROGRAM_FIELDS`, `_EXAMPLE_EVENT_FIELDS`), the
-ordering helpers `_data_set_source` and `_option_combo_inputs` (the BUGS #63 and
+ordering helpers `_data_set_source` and `_option_combo_inputs` (the DHIS2_ISSUES.md #63 and
 #64 workarounds), and `_fetch_organisation_units`' 500-per-page `path:asc` loop.
 
 *The identity and assignment single-sources.* `option_set_identities`,
@@ -1870,7 +1870,7 @@ what order.
 - **The repository requires signed commits.** The workspace git config carries
   `gpg.format=ssh` and `commit.gpgsign=true`. An unsigned commit is rejected at
   merge.
-- **`BUGS.md` is a live document, not an archive.** An entry verified fixed on
+- **`DHIS2_ISSUES.md` is a live document, not an archive.** An entry verified fixed on
   all three majors is **deleted** outright in the same PR, along with its live
   verifier test and any dangling references. A partially or possibly resolved
   entry stays live with the evidence folded into it. Numbering keeps its gaps
@@ -1905,6 +1905,6 @@ what order.
 - [Corrections and withdrawals](data-lifecycle.md) - what happens after a
   receipt is forwarded, and the ten decisions that shape it.
 - [`dhis2w_fhir` API reference](../api-dhis2w-fhir.md) - the importable surface.
-- [Upstream DHIS2 quirks](https://winterop-com.github.io/dhis2w/project/upstream-quirks/) - `BUGS.md` rendered, including
+- [Upstream DHIS2 issues](https://winterop-com.github.io/dhis2w/project/upstream-issues/) - `DHIS2_ISSUES.md` rendered, including
   entries #62, #63, and #64.
 - [Repository roadmap](https://winterop-com.github.io/dhis2w/roadmap/) - everything that is not FHIR.

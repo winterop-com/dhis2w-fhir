@@ -14,7 +14,7 @@ Five claims carry the file, and they are the five a filter has to hold to before
   narrows to one person, `_count=0` counts the filtered register, and the paging links carry the
   filter forward so a walk stays inside it.
 - **EQUALITY IS ALL IT ANSWERS, AND CASE IS ALL IT FORGIVES.** A prefix matches nobody. `female`
-  finds the people stored as `Female`, because DHIS2's own `eq` does (BUGS.md 109) and two backends
+  finds the people stored as `Female`, because DHIS2's own `eq` does (DHIS2_ISSUES.md 109) and two backends
   called equality must not mean two things.
 - **An attribute this register does not filter on is refused, by name.** Empty would read as "nobody
   holds that", which is a different and false statement.
@@ -390,7 +390,7 @@ async def test_the_filter_rides_the_paging_links_and_the_count(live_facade: http
 async def test_the_filter_matches_a_whole_value_and_forgives_only_its_case(
     synced_facade: httpx2.AsyncClient,
 ) -> None:
-    """Equality is all it answers - a prefix finds nobody - and case is all it forgives (BUGS.md 109)."""
+    """Equality is all it answers - a prefix finds nobody - and case is all it forgives (DHIS2_ISSUES.md 109)."""
     _read_route(_WOMAN)
     _read_route(_MAN)
 

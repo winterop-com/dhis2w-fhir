@@ -41,7 +41,7 @@ no cursor and no offset - its `limit` truncates silently - so the bounded select
 answer and this server pages the ordered result. `Bundle.total` is therefore every document this
 caller may see, counted under their own credentials. The order is the reporting key itself,
 `(orgUnit, period, attributeOptionCombo)` ascending, so two reads of an unchanged period answer the
-same bytes (BUGS.md 108 is why an order is stated rather than passed on).
+same bytes (DHIS2_ISSUES.md 108 is why an order is stated rather than passed on).
 
 **Every entry names the URL its document is really served at.** One form is read at
 `GET /facade/data-sets/{uid}/responses/{responseId}`, where the response id is the three reporting

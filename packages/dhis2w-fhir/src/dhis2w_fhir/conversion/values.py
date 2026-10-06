@@ -10,7 +10,7 @@ per `WireValueKind` so the two directions can be read side by side:
     MULTI_TEXT         every selected option's DHIS2 code, joined by the separator DHIS2 splits on.
     option-coded       the resolved option's DHIS2 code, falling back to its UID.
     DATE / TIME        the R4 primitive verbatim; both are already what DHIS2 stores.
-    DATETIME           the zone-less wall clock behind the zoned R4 instant (BUGS.md #62).
+    DATETIME           the zone-less wall clock behind the zoned R4 instant (DHIS2_ISSUES.md #62).
     URL / text         the string verbatim, which is where `COORDINATE` lands too.
     ORGANISATION_UNIT  the DHIS2 UID behind the answered Location reference.
     attachment         refused - DHIS2's file-resource wire is a separate upload, not a data value.
@@ -205,7 +205,7 @@ def wall_clock_reading(value: str, timezone: str | None) -> WallClockReading:
     """Read one R4 timestamp back to the zone-less wall clock DHIS2 stores - the inverse of `zoned_date_time`.
 
     DHIS2 serves and accepts `occurredAt` and `DATETIME` data values as zone-less local timestamps
-    under fields its OpenAPI types as `Instant` (BUGS.md #62), so the offset an R4 `dateTime`
+    under fields its OpenAPI types as `Instant` (DHIS2_ISSUES.md #62), so the offset an R4 `dateTime`
     requires is exactly what has to come back off. `timezone` is the IANA zone those wall-clock
     readings are taken in, which the project states as `[generate] timezone`; naming none reads
     the clock in UTC, which is the same guess the forward direction makes.

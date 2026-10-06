@@ -12,7 +12,7 @@ Two things the compiled IG deliberately does not publish are threaded in by the 
 `value_types_by_data_element` and the translator writes `TRUE_ONLY` values the way DHIS2 stores
 them. Without it a boolean question is read as `BOOLEAN` and the response carries a note saying so.
 The other is the project **timezone**, which is what a zoned R4 timestamp is read back through
-(BUGS.md #62).
+(DHIS2_ISSUES.md #62).
 
 A tracker registration form's questions are the program's tracked entity attributes, and they are
 read through the very same walk: an attribute has the DHIS2 value types a data element has, binds

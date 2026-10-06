@@ -98,7 +98,7 @@ class AggregateProjection(BaseModel):
     store: ResourceStore
     indexes: CaptureIndexCache
     timezone: str | None = None
-    """The IANA zone the instance's zone-less timestamps are wall-clock readings in (BUGS.md 62)."""
+    """The IANA zone the instance's zone-less timestamps are wall-clock readings in (DHIS2_ISSUES.md 62)."""
 
     _resolvers: CodingResolverSet = PrivateAttr()
     _indexes_by_data_set: dict[str, CaptureIndex | None] = PrivateAttr(default_factory=dict)

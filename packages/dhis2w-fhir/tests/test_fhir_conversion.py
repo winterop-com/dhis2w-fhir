@@ -841,7 +841,7 @@ def test_a_completed_aggregate_response_claims_the_tuple_its_values_ride_under()
 
 
 def test_the_data_value_set_never_carries_a_complete_date_of_its_own() -> None:
-    """`completeDate` registers completeness ungated - on a dry run and on a refused import (BUGS.md 76, 77).
+    """`completeDate` registers completeness ungated - on a dry run and on a refused import (DHIS2_ISSUES.md 76, 77).
 
     The forwarder states the claim through `/api/completeDataSetRegistrations` after the values land, so
     the field DHIS2 acts on before it has taken anything is never written.

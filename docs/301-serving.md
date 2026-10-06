@@ -241,7 +241,7 @@ serve.auth
 
 `"oauth2"` is among the values it will tell you it does not accept, and that is
 current rather than an oversight: DHIS2 2.43.1's own authorization server
-returns a 500 for any client its API creates (BUGS.md 96), so a project could
+returns a 500 for any client its API creates (DHIS2_ISSUES.md 96), so a project could
 state it and nothing would answer. The name is reserved for an authorization
 server this facade would run itself; to take bearer tokens from one you already
 run, state `jwt` and name it.

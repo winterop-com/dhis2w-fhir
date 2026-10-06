@@ -325,7 +325,7 @@ _ORGANISATION_UNIT_LEVEL_FIELDS = f"id,level,name,{_TRANSLATION_FIELDS}"
 #: The UIDs alone - every name and every concept code the decomposition emits is joined from the
 #: category projection the same run reads, so a combo says which options it is and nothing more.
 #: Both arrays are ordered lists on the wire, unlike the `categoryOptionCombos` set beside them
-#: (BUGS.md #63, #64): 25 consecutive reads of the local stack and 12 of play answered the same
+#: (DHIS2_ISSUES.md #63, #64): 25 consecutive reads of the local stack and 12 of play answered the same
 #: order, and the order is not alphabetical. That is the order the DHIS2 data-entry app renders a
 #: disaggregated section in, so `ordered_option_combos` lays the generated cells out by it.
 _CATEGORY_COMBO_DECOMPOSITION_FIELDS = (
@@ -2961,7 +2961,7 @@ async def _fetch_event_responses(
 
     Both kinds are events of `/api/tracker/events`: an event program selects them by `program`,
     and a tracker program stage by `program` plus `programStage` - DHIS2 requires the program
-    beside the stage even though the stage pins it (BUGS.md #67). A stage's events also carry the
+    beside the stage even though the stage pins it (DHIS2_ISSUES.md #67). A stage's events also carry the
     enrollment and the tracked entity, and an event the instance answered either of them for
     travels on with the UID it has - the emitter states which of them is missing rather than
     dropping the example.
@@ -4776,7 +4776,7 @@ def _data_set_source(model: DataSet, notes: list[GenerateNote]) -> Questionnaire
     """Map a generated DataSet into the Questionnaire projection, joining sections to their data elements.
 
     `dataSetElements` is a Java `Set` with no sort order, and DHIS2 serialises it in a different
-    order on every request (BUGS.md #63), so the members are ordered here by name and UID. Two
+    order on every request (DHIS2_ISSUES.md #63), so the members are ordered here by name and UID. Two
     things depend on that: a regenerate of an unchanged data set produces an unchanged file, and
     the example responses - fetched by a separate request - answer the questionnaire's items in
     the questionnaire's own order, which the FHIR validator requires. Section membership is
@@ -5526,7 +5526,7 @@ def _option_combo_inputs(raw_combos: object) -> list[CategoryOptionComboIn]:
     """Map one category combo's wire option combos into the projection, ordered by name and UID.
 
     `CategoryCombo.categoryOptionCombos` is a Java `Set` with no sort order, and DHIS2
-    serialises it in a different order on every request (BUGS.md #64), so the wire order is
+    serialises it in a different order on every request (DHIS2_ISSUES.md #64), so the wire order is
     thrown away here. `_category_combo_input` then lays the cells out in the declared axis
     order its categories state, and this ordering is what remains as the tie-break between two
     cells the declared arrays cannot separate. Every consumer reads the result - the
@@ -5882,7 +5882,7 @@ _TRACKER_PATH = "/api/tracker"
 #: registration creates with its enrollment nested inside it, or - for a registration enrolling a
 #: person the instance already holds - that enrollment on its own at the top level. The third key
 #: is what keeps the person untouched: an enrollment nested in a `trackedEntities` entry needs
-#: `CREATE_AND_UPDATE`, and that rewrites the person's owning organisation unit (BUGS.md 73).
+#: `CREATE_AND_UPDATE`, and that rewrites the person's owning organisation unit (DHIS2_ISSUES.md 73).
 _TRACKER_EVENTS_KEY = "events"
 _TRACKER_TRACKED_ENTITIES_KEY = "trackedEntities"
 _TRACKER_ENROLLMENTS_KEY = "enrollments"
@@ -5972,7 +5972,7 @@ _UNAUTHORIZED_STATUS = 401
 
 #: The two codes DHIS2 answers a tracker event whose enrollment it cannot find with: `E1313` for the
 #: enrollment nobody has, and the `E1079` program mismatch it asserts against that same absent
-#: enrollment (BUGS.md 68). A rejection carrying only these is the whole shape a dry run cannot check.
+#: enrollment (DHIS2_ISSUES.md 68). A rejection carrying only these is the whole shape a dry run cannot check.
 _ABSENT_ENROLLMENT_ERROR_CODES = frozenset({"E1079", "E1313"})
 
 #: What a dry run can and cannot say about a completeness registration it did not make. The endpoint
@@ -7512,7 +7512,7 @@ async def _register_completeness(
     only registered when its own import answer says DHIS2 took the values. A response the instance
     rejected registers nothing, because completeness is a claim about data that landed - and DHIS2
     itself is looser than that, registering off `/api/dataValueSets`' own `completeDate` even when
-    every value in the envelope was refused and even under `dryRun=true` (BUGS.md 78, 79), which is
+    every value in the envelope was refused and even under `dryRun=true` (DHIS2_ISSUES.md 78, 79), which is
     exactly why the forwarder never writes that field and states the claim here instead.
 
     A dry run posts nothing. The endpoint has a `dryRun` of its own, but a dry run wrote no values for
@@ -7816,7 +7816,7 @@ def _report_model[T: BaseModel](model: type[T], report_body: dict[str, Any] | No
 
     A report the generated model cannot read costs its own detail and nothing else: the run still records
     the rejection, and the endpoint said something this client's schema does not describe, which is a note
-    for `BUGS.md` rather than a reason to lose the other two hundred outcomes.
+    for `DHIS2_ISSUES.md` rather than a reason to lose the other two hundred outcomes.
     """
     if not report_body:
         return None
@@ -8008,7 +8008,7 @@ def _is_unverifiable(
     """Whether a rejection is only DHIS2 saying the enrollment this event names does not exist yet.
 
     Three things have to hold together. The payload is a tracker event; every row DHIS2 named against
-    it is one of the pair it answers an absent enrollment with (BUGS.md 68); and the enrollment the
+    it is one of the pair it answers an absent enrollment with (DHIS2_ISSUES.md 68); and the enrollment the
     event names is one a registration of the same run mints. An event naming an enrollment nobody in
     the run creates fails the last test and stays a rejection, which is the orphan the run must state.
     """
@@ -8227,7 +8227,7 @@ _TRACKER_DELETE_PARAMS = {"importStrategy": "DELETE", "async": "false"}
 #: The form kinds whose receipt lands as the single `/api/tracker` event a withdrawal retracts. An
 #: aggregate receipt lands a set of cells and has to be read before it is deleted, because deleting
 #: an aggregate tuple that was never written materialises a tombstone that blocks the parent data
-#: element for ever (BUGS.md 87); a registration lands a person and an enrollment whose deletion
+#: element for ever (DHIS2_ISSUES.md 87); a registration lands a person and an enrollment whose deletion
 #: cascades into events other receipts named. Both are designed and neither is built - see
 #: `docs/design/data-lifecycle.md`.
 _WITHDRAWABLE_FORM_KINDS = frozenset({"event", "tracker-event"})

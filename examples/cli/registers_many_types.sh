@@ -105,7 +105,7 @@ JSON
 # create in one post is not a bundle it can delete in one post. `importStrategy=DELETE` sorts the
 # objects the way it sorts a create - referenced first - so a bundle holding a tracked entity type
 # AND the attribute that type collects tries to delete the attribute while the type still
-# references it, and answers a raw Postgres foreign-key violation (BUGS.md 104). So the types come
+# references it, and answers a raw Postgres foreign-key violation (DHIS2_ISSUES.md 104). So the types come
 # off in one post and the attribute in the next.
 cat >delete-types.json <<JSON
 {"trackedEntityTypes": [{"id": "${FRIDGE_TYPE}"}, {"id": "${VEHICLE_TYPE}"}, {"id": "${SAMPLE_TYPE}"}]}
@@ -133,7 +133,7 @@ cleanup() {
     # A tracker delete is a SOFT delete, and a soft-deleted tracked entity still holds its type
     # down: the metadata delete answers E4030 "associated with another object: TrackedEntity",
     # and no `/api/tracker/trackedEntities` query will show the row that is holding it, not even
-    # with `includeDeleted=true` (BUGS.md 105). The purge is what removes it for real.
+    # with `includeDeleted=true` (DHIS2_ISSUES.md 105). The purge is what removes it for real.
     d2w maintenance cleanup tracked-entities --yes >/dev/null 2>&1
     if [ -f "${DELETE_PROGRAMMES}" ]; then
         d2w metadata import "${DELETE_PROGRAMMES}" --strategy DELETE >/dev/null 2>&1 \
@@ -160,7 +160,7 @@ d2w data tracker type | tail -8
 # scoped to the organisation unit the capture reports at. The programme is not decoration:
 # `GET /api/tracker/trackedEntities?trackedEntityType=<uid>` answers an EMPTY page - not a
 # refusal - for a type no accessible programme tracks, whatever the type's sharing says and
-# however many entities of it the instance holds (BUGS.md 106). So a type nothing enrols is a type
+# however many entities of it the instance holds (DHIS2_ISSUES.md 106). So a type nothing enrols is a type
 # nothing can read back, and a register over it would be honest about the guide and silent about
 # the instance.
 # The root unit, because `--org-unit-max-level 2` publishes it and `$generate` reports at a unit the guide

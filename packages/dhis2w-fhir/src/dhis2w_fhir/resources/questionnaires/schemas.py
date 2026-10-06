@@ -457,7 +457,7 @@ class CategoryOptionComboIn(CodedProjectionIn):
 class CategoryAxisIn(BaseModel):
     """One category a combo splits over, with the category options DHIS2 declares it in order.
 
-    Both lists DHIS2 answers here are ordered lists rather than the unordered sets BUGS.md #63 and
+    Both lists DHIS2 answers here are ordered lists rather than the unordered sets DHIS2_ISSUES.md #63 and
     #64 record: `categoryCombo.categories` and `category.categoryOptions` came back identical over
     25 consecutive reads of the local stack and 12 of play, in an order that is not alphabetical -
     "Location Fixed/Outreach" before "EPI/nutrition age", "Provide access to primary health care"

@@ -315,7 +315,7 @@ async def read_seeded_cohort(base_url: str, username: str, password: str) -> See
                 "orgUnitMode": "ACCESSIBLE",
                 "pageSize": TRACKED_ENTITY_PAGE_SIZE,
                 # `createdAt`, not `trackedEntity`: ordering by the identifier answers 409 E7145 on
-                # 2.43.1 with an ambiguous column reference. See BUGS.md #97.
+                # 2.43.1 with an ambiguous column reference. See DHIS2_ISSUES.md #97.
                 "order": "createdAt:asc",
                 "totalPages": "false",
                 "fields": TRACKED_ENTITY_FIELDS,

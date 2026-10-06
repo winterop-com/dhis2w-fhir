@@ -1881,7 +1881,7 @@ async def test_a_data_sets_unsectioned_elements_are_ordered_independently_of_the
     mock_organisation_unit_levels: Callable[..., None],
     tmp_path: Path,
 ) -> None:
-    """DHIS2 shuffles `dataSetElements` per request (BUGS.md #63), so the emitter orders them itself."""
+    """DHIS2 shuffles `dataSetElements` per request (DHIS2_ISSUES.md #63), so the emitter orders them itself."""
     mock_system_info("v42")
     mock_attributes()
     mock_organisation_unit_levels()
@@ -1958,7 +1958,7 @@ async def test_category_option_combos_are_ordered_independently_of_the_wire(
     mock_organisation_unit_levels: Callable[..., None],
     tmp_path: Path,
 ) -> None:
-    """DHIS2 shuffles `categoryOptionCombos` per request (BUGS.md #64), so the emitter orders them itself."""
+    """DHIS2 shuffles `categoryOptionCombos` per request (DHIS2_ISSUES.md #64), so the emitter orders them itself."""
     mock_system_info("v42")
     mock_attributes()
     mock_organisation_unit_levels()

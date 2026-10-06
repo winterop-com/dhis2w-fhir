@@ -271,7 +271,7 @@ not only a demonstration of it.
 One detail in that example is a workaround rather than a design: the tracker read
 orders by `createdAt`, not by `trackedEntity`, because ordering by the identifier
 answers `409 E7145` with an ambiguous column reference on 2.43.1. See
-[`BUGS.md`](https://github.com/winterop-com/dhis2w/blob/main/BUGS.md) entry
+[`DHIS2_ISSUES.md`](https://github.com/winterop-com/dhis2w/blob/main/DHIS2_ISSUES.md) entry
 97.
 
 ## The DHIS2 payoff: indicators as computable measures

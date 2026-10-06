@@ -13,7 +13,7 @@ states - parse just enough to index, pass the rest through untouched - and it is
 projection hold a resource this toolkit gains a model for tomorrow without a schema change today.
 
 THE INSTANTS ARE THE INSTANCE'S OWN CLOCK, AND THEY ARE NAIVE ON PURPOSE. DHIS2 2.43 answers
-`updatedAt` as a zone-less wall-clock reading in the instance's own zone (BUGS.md 62), and a sync's
+`updatedAt` as a zone-less wall-clock reading in the instance's own zone (DHIS2_ISSUES.md 62), and a sync's
 watermark is compared against, and sent back as, exactly that reading. Stamping it with this host's
 zone would make the cursor a claim about a clock nobody consulted, and the first `updatedAfter` built
 from it would silently skip or re-read hours of rows. So the columns are naive, the values come from

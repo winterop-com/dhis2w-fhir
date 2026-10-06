@@ -410,7 +410,7 @@ is hyphenated:
 **Codes carrying a space are rewritten too, and only under `substitute`.** A
 space is legal in an R4 `code`, so nothing refuses `Pre eclampsia` - and the IG
 publisher's anchor slug strips whitespace, so it and a literal `Preeclampsia`
-render one anchor id (BUGS.md 107), while every URL, CQL quotation, and
+render one anchor id (IG_PUBLISHER_ISSUES.md 107), while every URL, CQL quotation, and
 terminology server below the guide escapes or quotes the space at its own
 discretion. Each space becomes a hyphen:
 

@@ -77,10 +77,10 @@ Four facts fall out, and three of them are load bearing later.
    silently, with no marker of any kind on the wire.
 2. **`importStrategy=CREATE` is not enforced here.** A4 overwrote a live value under CREATE.
    The aggregate endpoint offers no collision protection at all, which is the opposite of
-   what the tracker endpoint does with the same parameter (BUGS.md #84).
+   what the tracker endpoint does with the same parameter (DHIS2_ISSUES.md #84).
 3. **`importCount` never reports `imported`.** A genuinely first write on a virgin tuple
    reports `updated:1`, verified twice including on an untouched period. The import summary
-   cannot distinguish a create from a correction from a clobber (BUGS.md #85).
+   cannot distinguish a create from a correction from a clobber (DHIS2_ISSUES.md #85).
 4. **Blanking is not deletion on 2.43.** `""`, `null`, and an omitted key are all `E8120`
    refusals. This is version-sensitive and is called out again in section 6.
 
@@ -105,10 +105,10 @@ a value that *is* touched, omitted fields are replaced - the comment vanished in
 Aggregate deletion is the friendly case in one respect and the hostile case in another. The
 tuple identity is never burned: delete, re-import, delete, re-import all succeed. But the
 row never leaves, and its presence permanently blocks deletion of the parent data element -
-BUGS.md #2, reproduced verbatim on 2.43.1 and now tagged **[STILL]**.
+DHIS2_ISSUES.md #2, reproduced verbatim on 2.43.1 and now tagged **[STILL]**.
 
 Worse than #2: deleting a tuple that never existed does not no-op. It writes a fresh row
-carrying the payload's own value, flagged deleted (BUGS.md #87):
+carrying the payload's own value, flagged deleted (DHIS2_ISSUES.md #87):
 
 ```
 POST /api/dataValueSets?importStrategy=DELETE
@@ -161,7 +161,7 @@ means a correcting payload would only *need* to carry what changed.
 
 Two smaller facts from the same run: data values on a `COMPLETED` event were editable with
 no reopen step, and blank values mean opposite things on the two surfaces - `""` erases a
-tracker data value and is refused `E8120` on the aggregate one (BUGS.md #86).
+tracker data value and is refused `E8120` on the aggregate one (DHIS2_ISSUES.md #86).
 
 ### 1.4 Tracker deletion: the UID is burned, permanently
 
@@ -208,7 +208,7 @@ ACTIVE    -> COMPLETED   ok
 
 Nothing on the wire prevents a correcting submission from reopening a closed enrollment, and
 `CANCELLED` stamps `completedAt` as if it were a completion. Whatever discipline exists here
-has to be ours. This sits beside BUGS.md #70, where an event imports into a `COMPLETED`
+has to be ours. This sits beside DHIS2_ISSUES.md #70, where an event imports into a `COMPLETED`
 enrollment with no error and no warning.
 
 ### 1.6 The audit trail is a deployment dial, not a platform guarantee
@@ -239,7 +239,7 @@ changelog.tracker = off
 
 DHIS2 keeps an audit trail by default. It is also a `dhis.conf` key that deployments turn
 off for exactly the reason our own comment gives, and it is not readable through any API
-(BUGS.md #53), so a client cannot even tell whether the instance it is talking to keeps one.
+(DHIS2_ISSUES.md #53), so a client cannot even tell whether the instance it is talking to keeps one.
 
 **The conclusion is sharper than "DHIS2 has an audit trail": the toolkit cannot rely on it.**
 That is what makes section 3's spool promise a promise rather than a convenience.
@@ -475,7 +475,7 @@ stable across any number of amendments.
 
 Registrations are the exception: tracked-entity and enrollment UIDs are the client's and
 travel as sent, so a correcting registration simply reuses them. That needs
-`CREATE_AND_UPDATE` and carries the BUGS.md #73 hazard, where enrolling an existing entity
+`CREATE_AND_UPDATE` and carries the DHIS2_ISSUES.md #73 hazard, where enrolling an existing entity
 silently rewrites its owning organisation unit - which is why registrations come late in the
 plan and use the top-level `enrollments` key that exists for exactly this reason.
 
@@ -642,7 +642,7 @@ event leg does not. Registrations come after both, and the cascade comes last.
 | 8 | **Aggregate corrections.** Widen `AGGREGATE_REQUIRED_STATUS` to admit `amended`. The forward path needs no change at all, beyond a marked correction passing an `overwrites = "refuse"` drain that an unmarked one does not. | 2a, 5 | The cheapest real capability, because DHIS2 already does the work - but it needs slice 2's visibility and slice 2a's posture first. |
 | 9 | **Aggregate withdrawals.** With the read-before-delete guard that events do not need. | 4, 8 | Deliberately after events despite being technically easier, because of the phantom-tombstone hazard. |
 | 10 | **Capture UI: amend and withdraw from a receipt.** A control on `ResponseDetail` that prefills a new form from the receipt and submits it with the right status and `basedOn`. | 6, 7 | Pure frontend once the server legs exist. |
-| 11 | **Registration corrections.** Tracked entity and enrollment through the top-level `enrollments` key, minding BUGS.md #73. | 6 | Client-minted UIDs, `CREATE_AND_UPDATE`, and a known hazard - late for good reason. |
+| 11 | **Registration corrections.** Tracked entity and enrollment through the top-level `enrollments` key, minding DHIS2_ISSUES.md #73. | 6 | Client-minted UIDs, `CREATE_AND_UPDATE`, and a known hazard - late for good reason. |
 | 12 | **Enrollment and tracked-entity withdrawals.** Last, and possibly never. | 9, 11 | See below. |
 
 **Why slice 12 may never ship.** Section 1.4 measured a full two-level cascade: withdrawing
@@ -717,9 +717,9 @@ Ordered by how much of the design leans on the answer.
 2. **2.42 blank-value semantics on `/api/dataValueSets`.** On 2.43.1, `""` and `null` are
    `E8120` refusals. Historically an empty value on this endpoint was treated as a delete.
    If 2.42 still deletes, then a correcting aggregate payload that clears a cell means
-   different things on different majors, and BUGS.md #86 needs a per-version table.
-3. **Whether `importStrategy=CREATE` is unenforced on 2.41 and 2.42 as well** (BUGS.md #84),
-   and whether `importCount` reports `imported` on those majors (BUGS.md #85). Slice 2's
+   different things on different majors, and DHIS2_ISSUES.md #86 needs a per-version table.
+3. **Whether `importStrategy=CREATE` is unenforced on 2.41 and 2.42 as well** (DHIS2_ISSUES.md #84),
+   and whether `importCount` reports `imported` on those majors (DHIS2_ISSUES.md #85). Slice 2's
    overwrite detection is only necessary where the import summary cannot answer the question.
 4. **Whether the tracker UID burn holds on 2.41 and 2.42** (`E1082` / `E1113`). D3 is the
    most consequential claim in this page and it rests on one major.
@@ -746,7 +746,7 @@ Ordered by how much of the design leans on the answer.
   ratified by merge.
 - [The FHIR conversion layer](conversion.md) - where `importStrategy` is chosen and the
   payloads this page corrects are built.
-- [Upstream DHIS2 quirks](https://winterop-com.github.io/dhis2w/project/upstream-quirks/) - `BUGS.md` rendered, including entries #2,
+- [Upstream DHIS2 issues](https://winterop-com.github.io/dhis2w/project/upstream-issues/) - `DHIS2_ISSUES.md` rendered, including entries #2,
   #84, #85, #86, #87, #88, #89, #90, and #91, all of which this page cites.
 - [Forward captures into DHIS2](../201-forward.md) - the operator-facing
   version of the drain this page decides the semantics of.

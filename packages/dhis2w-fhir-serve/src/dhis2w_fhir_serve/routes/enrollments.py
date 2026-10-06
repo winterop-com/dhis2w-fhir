@@ -22,14 +22,14 @@ type the published map takes onto something other than `Patient`. The listing is
 tracked entity UID and serves every one of them, whichever FHIR resource its type is registered as.
 
 A COMPLETED ENROLLMENT IS LISTED, AND SAID TO BE COMPLETED. DHIS2 accepts an event into a completed
-enrollment with no error and no warning (BUGS.md 70), so nothing downstream will tell a user that
+enrollment with no error and no warning (DHIS2_ISSUES.md 70), so nothing downstream will tell a user that
 what they just captured went into a closed episode. This server does not enforce the rule - the
 instance is the authority on what it accepts, and a facade that hid a completed enrollment would be
 hiding data the instance is perfectly willing to be given - it states the status, and `active` is
 the one field a picker needs to grade it on.
 
 The read is entity-scoped and never names a program, because naming one the entity is not enrolled
-in answers 404 asserting the entity does not exist (BUGS.md 72). The enrollments come off the
+in answers 404 asserting the entity does not exist (DHIS2_ISSUES.md 72). The enrollments come off the
 entity.
 
 This listing is part of the register, so `[serve.tracked_entities] enabled = false` refuses it along
@@ -94,7 +94,7 @@ class TrackedEntityEnrollment(BaseModel):
     """The DHIS2 enrollment status verbatim - `ACTIVE`, `COMPLETED`, or `CANCELLED`."""
 
     active: bool
-    """False for a completed or cancelled enrollment. DHIS2 still accepts events into one (BUGS.md 70)."""
+    """False for a completed or cancelled enrollment. DHIS2 still accepts events into one (DHIS2_ISSUES.md 70)."""
 
     enrolled_at: str | None = None
     """When the enrollment began, as DHIS2 dated it, in ISO 8601."""

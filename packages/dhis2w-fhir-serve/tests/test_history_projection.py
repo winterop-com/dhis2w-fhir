@@ -226,7 +226,7 @@ def test_the_items_mirror_the_form_and_carry_nothing_it_does_not_ask(projection:
 
 
 def test_a_zone_less_timestamp_takes_the_offset_the_project_states(projection: RecordProjection) -> None:
-    """DHIS2 writes a DATETIME with no zone (BUGS.md 62), and an R4 dateTime carrying a time needs one."""
+    """DHIS2 writes a DATETIME with no zone (DHIS2_ISSUES.md 62), and an R4 dateTime carrying a time needs one."""
     projected = projection.project_event(_record(), _event((TAKEN_AT, "2026-08-22T06:30:00.000")))
 
     assert projected.response is not None

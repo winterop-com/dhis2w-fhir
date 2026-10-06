@@ -586,7 +586,7 @@ def _referral_build(
 
 
 def test_a_zoneless_timestamp_is_read_as_utc_when_the_project_names_no_zone() -> None:
-    """The default keeps BUGS.md #62's UTC assumption, which is what every committed golden was emitted under."""
+    """The default keeps DHIS2_ISSUES.md #62's UTC assumption, which every committed golden was emitted under."""
     content, notes = _referral_build(
         _referral_response(
             [ExampleAnswerIn(data_element_uid="Deb1aaaaaaa", value="2026-07-15T08:30:00.000")],
@@ -1253,7 +1253,7 @@ async def test_instance_mode_reads_a_stages_events_by_program_stage(
     mock_system_info: Callable[..., None],
     tmp_path: Path,
 ) -> None:
-    """A stage's events are selected by `program` plus `programStage` - DHIS2 requires both (BUGS.md #67)."""
+    """A stage's events are selected by `program` plus `programStage` - DHIS2 requires both (DHIS2_ISSUES.md #67)."""
     mock_system_info("v42")
     await _scaffold_tracker_project(tmp_path, examples='per_target = 1\nsource = "instance"')
     _mock_tracker_metadata()
@@ -1799,7 +1799,7 @@ async def test_example_answers_follow_the_questionnaires_option_combo_order(
     mock_system_info: Callable[..., None],
     tmp_path: Path,
 ) -> None:
-    """DHIS2 shuffles `categoryOptionCombos` per request (BUGS.md #64), so both fetches read one order."""
+    """DHIS2 shuffles `categoryOptionCombos` per request (DHIS2_ISSUES.md #64), so both fetches read one order."""
     mock_system_info("v42")
     await _scaffold_project(tmp_path)
     respx.get(f"{_HOST}/api/programs").mock(return_value=httpx.Response(200, json={"programs": []}))

@@ -86,7 +86,7 @@ Four facts about that list shape the rest of this page.
 3. **The subject is not necessarily a person.** Herds, buildings, water points, and
    specimens are real tracked entity types, and each of them can be enrolled in a program.
 4. **`COMPLETED` is not closed.** DHIS2 accepts an event into a completed enrollment with
-   no error and no warning (BUGS.md 70). Whatever resource is published has to state a
+   no error and no warning (DHIS2_ISSUES.md 70). Whatever resource is published has to state a
    status that is descriptive, not enforced.
 
 ## 3. The requirement set
@@ -349,7 +349,7 @@ the argument OpenMRS reached. `CarePlan` handles it too, but invites `replaces` 
 absence means nothing. Status quo handles it - the listing already returns every
 enrollment in DHIS2's own order.
 
-**A `COMPLETED` enrollment that keeps accepting events (BUGS.md 70).** The resource must
+**A `COMPLETED` enrollment that keeps accepting events (DHIS2_ISSUES.md 70).** The resource must
 describe, never enforce. `EpisodeOfCare` publishes `finished` and lets an `Encounter`
 reference it anyway - anomalous in FHIR too, which is the correct outcome: the anomaly is
 DHIS2's and should be visible rather than smoothed away. `CarePlan` publishes `completed`
@@ -362,7 +362,7 @@ DHIS2 said.
 **The enrollment-only forward target.** A registration whose response states
 `D2SubjectExists` produces an enrollment alone - a top-level `enrollments` array naming an
 existing tracked entity, posted that way because riding it inside a `trackedEntities` entry
-silently rewrites the person's owning organisation unit (BUGS.md 73). This is a capture-leg
+silently rewrites the person's owning organisation unit (DHIS2_ISSUES.md 73). This is a capture-leg
 mechanism and is untouched by all three options. Worth noting only because it is the place
 where "the enrollment is a thing in its own right" is already true in this codebase's
 import path - which is a small point in `EpisodeOfCare`'s favour, since that is a resource
@@ -389,7 +389,7 @@ this decision low-risk.
 | Owning organisation unit | `D2OrganisationUnit` extension (`managingOrganization` wants `Organization`; this guide publishes `Location`) | same problem, same answer | plain field |
 | Non-`Patient` subjects | R4/R5 no, R6 adds `Group` | `Group` only | all nine |
 | Repeat enrollments | native | native, with unanswerable `replaces` | native |
-| Completed-but-open (BUGS.md 70) | describes it | describes it | describes it |
+| Completed-but-open (DHIS2_ISSUES.md 70) | describes it | describes it | describes it |
 | Empty-shell risk | low - it is a tracking resource and DHIS2 has the tracking facts | high - a plan with no plan | n/a |
 | Forecloses `PlanDefinition` / `$apply` | no; they coexist, as in the WHO ANC guide | yes, by occupying the resource `$apply` mints | no |
 | Effort for the first slice | one R4 model, one projection, two routes | same, plus decisions nobody can source | zero |
@@ -454,7 +454,7 @@ Small, and entirely on the read side.
 3. **Two routes in live mode** - `GET /EpisodeOfCare/{uid}` and
    `GET /EpisodeOfCare?patient=<tracked-entity-uid>` returning a searchset `Bundle`, both
    read from the same entity-scoped tracker read the listing already uses (never with
-   `program=`, per BUGS.md 72), both gated by `[serve.tracked_entities] enabled` and by whether the
+   `program=`, per DHIS2_ISSUES.md 72), both gated by `[serve.tracked_entities] enabled` and by whether the
    project publishes a `Patient`-subject tracked entity type, refusing with the existing
    `RegisterDisabledError` / `NoPublishedSubjectTypeError`.
 4. **`CapabilityStatement` gains the resource**, so a client discovers it rather than

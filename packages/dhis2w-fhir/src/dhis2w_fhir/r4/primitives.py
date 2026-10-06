@@ -34,7 +34,7 @@ _LAST_MONTH = 12
 _EARLIEST_UTC_OFFSET = datetime.timedelta(hours=-12)
 _LATEST_UTC_OFFSET = datetime.timedelta(hours=14)
 
-#: The zone FHIR requires on a dateTime that carries a time, and DHIS2 leaves off (BUGS.md #62).
+#: The zone FHIR requires on a dateTime that carries a time, and DHIS2 leaves off (DHIS2_ISSUES.md #62).
 #: This is the reading a project that names no zone gets: the wall clock read as UTC.
 _ASSUMED_ZONE = "Z"
 
@@ -100,7 +100,7 @@ def zoned_date_time(value: str, timezone: str | None = None) -> str:
 
     DHIS2 serves `occurredAt` and `DATETIME` data values as zone-less local timestamps
     (`2025-12-30T00:00:00.000`) under fields its OpenAPI types as `Instant`, and an R4
-    `dateTime` carrying a time must carry an offset. See BUGS.md #62.
+    `dateTime` carrying a time must carry an offset. See DHIS2_ISSUES.md #62.
 
     `timezone` is the IANA zone those wall-clock readings are taken in, which the project states
     as `[generate] timezone`. The offset is resolved against the timestamp itself, so a zone that

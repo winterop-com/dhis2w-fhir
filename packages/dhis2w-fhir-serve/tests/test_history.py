@@ -7,7 +7,7 @@ opened against a mocked host and put on `app.state.live_client` - the same stand
 
 What is asserted about the wire is the discipline the record read is built on: one request, to the
 tracked entity's own address, with the events nested in `fields` and no `program` anywhere near it
-(BUGS.md 72 and 91).
+(DHIS2_ISSUES.md 72 and 91).
 """
 
 from __future__ import annotations
@@ -181,8 +181,8 @@ def _matches(bundle: dict[str, Any]) -> list[dict[str, Any]]:
 async def test_the_record_is_one_entity_scoped_read_naming_no_program(record_client: httpx2.AsyncClient) -> None:
     """The events come off the tracked entity, with the events named in `fields` and no `program` sent.
 
-    Both halves are the contract: `/api/tracker/events` demands a `program` on 2.43 (BUGS.md 91) and
-    an entity-scoped read naming one the entity is not enrolled in answers 404 (BUGS.md 72), so the
+    Both halves are the contract: `/api/tracker/events` demands a `program` on 2.43 (DHIS2_ISSUES.md 91) and
+    an entity-scoped read naming one the entity is not enrolled in answers 404 (DHIS2_ISSUES.md 72), so the
     record is read where neither can happen.
     """
     read = _record_route(_event("EvAncVis001"))

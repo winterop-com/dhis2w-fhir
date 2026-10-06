@@ -3686,7 +3686,7 @@ def _render_sync_report(report: SyncReport, generation: GenerationProfile) -> No
         _hint(
             "note",
             "this DHIS2 instance refuses the tracked entity read that includes deleted entities "
-            "(BUGS.md #116); a person removed since the last run stays in the projection until an "
+            "(DHIS2_ISSUES.md #116); a person removed since the last run stays in the projection until an "
             "enrollment of theirs moves or the projection is rebuilt",
         )
     if report.cursor.updated_at is None:

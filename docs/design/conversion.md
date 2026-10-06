@@ -32,7 +32,7 @@ in Python alone, or in machine-readable artifacts the IG itself publishes.
 The mapping lives in code - frozen models, explicit tables, exhaustive tests, golden
 fixtures compiled by SUSHI. This is what the DHIS2->QR direction already is.
 
-- For: fastest to ship; debuggable; handles every DHIS2 quirk (BUGS.md #62/#67, COC
+- For: fastest to ship; debuggable; handles every DHIS2 quirk (DHIS2_ISSUES.md #62/#67, COC
   grids, code fallbacks) without fighting a mapping language's expressiveness; the test
   suite is the conformance statement.
 - Against: the mapping is invisible to the IG's consumers - a third party building their
@@ -331,7 +331,7 @@ in prose beside it:
   to the wall clock. `dhis2w_fhir.conversion.values` is the reference implementation of it.
 
 `completeDate` carries a fifth note: the substring is the structural claim, and the zone
-arithmetic behind it (BUGS.md #62) is not.
+arithmetic behind it (DHIS2_ISSUES.md #62) is not.
 
 ### The CI gate
 

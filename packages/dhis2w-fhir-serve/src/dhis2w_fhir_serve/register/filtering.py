@@ -19,7 +19,7 @@ guide says it in prose. A caller wanting "starts with" wants `_content`, which i
 search a projection-served register answers.
 
 **EQUALITY IGNORES CASE, BECAUSE DHIS2'S OWN `eq` DOES.** `filter=<uid>:eq:Female` and
-`filter=<uid>:eq:female` answer the same 243 people on a 2.43 instance (BUGS.md 109), so an operator
+`filter=<uid>:eq:female` answer the same 243 people on a 2.43 instance (DHIS2_ISSUES.md 109), so an operator
 this server called equality would otherwise mean two different things depending on which backend
 answered it. The projection matches the folded value for that reason - the column is already indexed
 folded, because `_content` needed it first - and the two backends agree on every value in the
