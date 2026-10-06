@@ -545,6 +545,37 @@ def test_the_reader_finds_every_published_object_it_compares(published_project: 
     assert guide.program_stage_uids == frozenset({"PsAAAAAAAA1"})
 
 
+def test_a_substituted_code_mode_concept_is_read_back_as_the_option_it_stands_for(
+    published_project: Path,
+) -> None:
+    """A concept published as `Pre-eclampsia` is keyed by its `dhis2-id`, so it matches the option `Pre eclampsia`."""
+    concept = {
+        "code": "Pre-eclampsia",
+        "display": "Pre eclampsia",
+        "property": [
+            {"code": "dhis2-id", "valueCode": "OptAAAAAAA3"},
+            {"code": "dhis2-code", "valueString": "Pre eclampsia"},
+        ],
+    }
+    document = _code_system("OsAAAAAAAA2", "Conditions", {})
+    document["concept"] = [concept]
+    _write(published_project / "ig/input/resources/terminology/CodeSystem-d2-os-OsAAAAAAAA2-cs.json", document)
+
+    published = next(
+        option_set
+        for option_set in read_published_guide(load_project(published_project)).option_sets
+        if option_set.uid == "OsAAAAAAAA2"
+    )
+    instance = InstanceOptionSet(
+        uid="OsAAAAAAAA2",
+        name="Conditions",
+        options=(InstanceOption(uid="OptAAAAAAA3", code="Pre eclampsia", name="Pre eclampsia"),),
+    )
+
+    assert [option.uid for option in published.options] == ["OptAAAAAAA3"]
+    assert compare_option_set(published, instance) == []
+
+
 def test_a_worked_example_is_not_an_organisation_unit_the_guide_publishes(published_project: Path) -> None:
     """The exemplar the guide compiled beside its profiles is held out of what the report reads.
 
