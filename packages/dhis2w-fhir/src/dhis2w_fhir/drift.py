@@ -65,6 +65,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict
 
+from dhis2w_fhir.coded import DHIS2_ID_PROPERTY
 from dhis2w_fhir.conversion.artifacts import load_compiled_artifacts
 from dhis2w_fhir.implementation_guide import load_declared_examples
 from dhis2w_fhir.names import flatten_whitespace
@@ -76,7 +77,14 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from dhis2w_client import Dhis2Client
-    from dhis2w_fhir_engine.r4.resources import CodeSystem, Identifier, Location, Questionnaire, QuestionnaireItem
+    from dhis2w_fhir_engine.r4.resources import (
+        CodeSystem,
+        CodeSystemConcept,
+        Identifier,
+        Location,
+        Questionnaire,
+        QuestionnaireItem,
+    )
 
     from dhis2w_fhir.config import FhirProject, GenerateConfig
 
@@ -229,7 +237,7 @@ class PublishedOptionSet(BaseModel):
     uid: str
     title: str | None = None
     options: tuple[PublishedObject, ...] = ()
-    """One entry per concept, keyed by the concept code - the option UID, or its code in code mode."""
+    """One entry per concept, keyed by the option UID: its `dhis2-id` property, or the concept code that is the UID."""
 
 
 class PublishedForm(BaseModel):
@@ -573,8 +581,22 @@ def _published_organisation_units(locations: Sequence[Location], identifier_base
     return tuple(units[uid] for uid in sorted(units))
 
 
+def _concept_option_uid(concept: CodeSystemConcept) -> str | None:
+    """The option UID one concept states as its `dhis2-id` property, or None when it states none."""
+    for carried in concept.property or []:
+        if carried.code == DHIS2_ID_PROPERTY and carried.valueCode:
+            return carried.valueCode
+    return None
+
+
 def _published_option_sets(code_systems: Sequence[CodeSystem], identifier_base: str) -> tuple[PublishedOptionSet, ...]:
     """Every option set the guide publishes a CodeSystem for, with the concepts that CodeSystem carries.
+
+    A concept is keyed by the option UID its `dhis2-id` property states, which every concept keyed
+    by a code carries, and by its concept code otherwise - a UID under `concept_code_source = "id"`.
+    The published code is not the key under `concept_code_source = "code"`: a substitute-posture run
+    publishes `Pre eclampsia` as `Pre-eclampsia`, which no instance option holds, so keying on it
+    would report the option removed and then added.
 
     A support vocabulary - the data dictionary's `D2DE_CS`, `D2TEA_CS`, `D2COC_CS`, the form-type
     terminology - carries no DHIS2 identifier at all, so keying on the option-set system is what
@@ -591,7 +613,7 @@ def _published_option_sets(code_systems: Sequence[CodeSystem], identifier_base: 
                 uid=uid,
                 title=code_system.title,
                 options=tuple(
-                    PublishedObject(uid=concept.code, name=concept.display)
+                    PublishedObject(uid=_concept_option_uid(concept) or concept.code, name=concept.display)
                     for concept in code_system.concept or []
                     if concept.code
                 ),
