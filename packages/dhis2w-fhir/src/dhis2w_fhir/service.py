@@ -8114,6 +8114,88 @@ class RequeueReport(BaseModel):
         return f"{len(self.requeued):,} receipt(s) moved back to received/"
 
 
+#: What the sidecar of a receipt an operator discarded states in place of a DHIS2 answer. DHIS2 was
+#: never asked, so the status is the operator's act, as `REFUSED` is the forwarder's.
+DISCARDED_STATUS = "DISCARDED"
+
+
+class DiscardedReceipt(BaseModel):
+    """One queued receipt an operator filed out of the queue, and where its file now sits."""
+
+    model_config = ConfigDict(frozen=True)
+
+    response_id: str
+    spool_path: str
+    """Where the receipt sits now, relative to the project root."""
+
+
+class DiscardReport(BaseModel):
+    """What one `d2w fhir discard` filed out of the queue, in the order the ids were given."""
+
+    model_config = ConfigDict(frozen=True)
+
+    project_root: Path
+    reason: str
+    discarded: tuple[DiscardedReceipt, ...] = ()
+
+    @property
+    def counts_line(self) -> str:
+        """What the run amounted to, which is the one line a summary states."""
+        return f"{len(self.discarded):,} receipt(s) filed to rejected/"
+
+
+def discard_received_responses(project: FhirProject, response_ids: Sequence[str], *, reason: str) -> DiscardReport:
+    """File queued receipts into `rejected/`, so no drain translates or posts them again.
+
+    The operator's counterpart of a terminal refusal: a receipt the translator keeps refusing whose
+    fix will never come - a code nobody will add to the guide, an organisation unit the instance will
+    never hold - leaves the queue the way a refusal nothing can fix does. The sidecar beside it says
+    an operator discarded it, gives the reason they stated, and carries the last refusal a drain
+    recorded, so `rejected/` explains the file to someone reading it cold; `d2w fhir requeue` puts it
+    back in the queue.
+
+    Only a queued receipt can be discarded: a forwarded one is in DHIS2, which `d2w fhir withdraw`
+    retracts, and a rejected one is already out of the queue. An id that is not queued is refused by
+    name before anything moves, as `requeue_rejected_responses` does.
+    """
+    stated = reason.strip()
+    if not stated:
+        raise SpoolReadError("a discard states why; pass --reason with the reason this response is not sent")
+    layout = spool_layout(project)
+    queued = {response.response_id: response for response in read_received_responses(layout).responses}
+    unknown = [response_id for response_id in response_ids if response_id not in queued]
+    if unknown:
+        named = ", ".join(f"`{response_id}`" for response_id in unknown)
+        raise SpoolReadError(
+            f"{named} is not in {layout.directory_for(SpoolState.RECEIVED)}; "
+            "`d2w fhir spool --details` lists what is queued"
+        )
+    refusals = {
+        receipt.response_id: receipt.refusal
+        for receipt in read_spooled_receipts(layout).in_state(SpoolState.RECEIVED)
+        if receipt.refusal is not None
+    }
+    discarded: list[DiscardedReceipt] = []
+    for response_id in dict.fromkeys(response_ids):
+        refusal = refusals.get(response_id)
+        record = ForwardImportRecord(
+            status=DISCARDED_STATUS,
+            message=(
+                f"An operator discarded this response from the queue: {stated}. No drain translates or posts it "
+                "again. `d2w fhir requeue` puts it back in the queue."
+            ),
+            issues=tuple(
+                ForwardImportIssue(error_code=item.category, subject=item.element, message=item.reason)
+                for item in (refusal.reasons if refusal is not None else ())
+            ),
+        )
+        destination = move_to_rejected(queued[response_id], record)
+        discarded.append(
+            DiscardedReceipt(response_id=response_id, spool_path=_relative_path(destination, project.project_root))
+        )
+    return DiscardReport(project_root=project.project_root, reason=stated, discarded=tuple(discarded))
+
+
 def read_spool_state(project: FhirProject) -> SpoolStateReport:
     """State what one project's capture spool holds, from the directory alone.
 

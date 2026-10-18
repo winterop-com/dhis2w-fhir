@@ -3879,6 +3879,40 @@ def requeue_command(
         _hint("note", "`d2w fhir forward --import` posts them again")
 
 
+@app.command("discard")
+def discard_command(
+    response_ids: Annotated[list[str], typer.Argument(help="Ids of the queued receipts to take out of the queue.")],
+    reason: Annotated[
+        str, typer.Option("--reason", help="Why these responses are not sent; written beside each receipt.")
+    ],
+    directory: Annotated[
+        Path, typer.Option("--directory", file_okay=False, help="Project directory (default: current directory).")
+    ] = Path("."),
+) -> None:
+    """Take queued receipts out of the queue for good, filing them to rejected/ with the reason stated.
+
+    For a receipt the forward keeps refusing whose fix will never come - a code nobody will add to the
+    guide, an organisation unit the instance will never hold. Every drain retries a queued receipt, so
+    without this it stays in received/ and is refused again on every run. The record beside it in
+    rejected/ names the discard, the reason, and the last refusal a drain recorded.
+
+    Only a queued receipt can be discarded. `d2w fhir requeue` puts one back in the queue. Needs no
+    DHIS2 connection and no profile - it is a rename inside the project directory.
+    """
+    from dhis2w_fhir import service
+
+    project = load_project(directory)
+    report = service.discard_received_responses(project, response_ids, reason=reason)
+    if is_json_output():
+        typer.echo(report.model_dump_json(indent=2))
+        return
+    for receipt in report.discarded:
+        _line(f"{receipt.response_id} -> {receipt.spool_path}")
+    _hint("ok", report.counts_line)
+    if report.discarded:
+        _hint("note", "`d2w fhir requeue` puts them back in the queue")
+
+
 #: What a withdrawal's dry run closes with, once, under the counts it explains. The delete reaches
 #: the real tracker endpoint under that endpoint's own validate-only mode, which for a terminal act
 #: is the one rehearsal worth having.
