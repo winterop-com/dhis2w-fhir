@@ -328,6 +328,43 @@ async def test_a_data_set_on_a_non_default_category_combo_answers_one_document_p
     assert all(response["meta"]["profile"] == [_AGGREGATE_PROFILE] for response in responses)
 
 
+#: A question the non-default-combo form asks with no disaggregation, and the UID DHIS2 exports the
+#: values of such a question under: the default category option combo's own.
+_PLAIN_ELEMENT = "p1MDHOT6ENy"
+_DEFAULT_CATEGORY_OPTION_COMBO = "HllvX50cXC0"
+
+
+async def test_a_value_on_the_default_category_option_combo_answers_the_plain_question(
+    data_set_client: httpx2.AsyncClient,
+) -> None:
+    """DHIS2 names the default combo on an undisaggregated value; the form asks that cell as its plain question."""
+    _export(
+        _value(
+            _PLAIN_ELEMENT,
+            _DEFAULT_CATEGORY_OPTION_COMBO,
+            "14",
+            org_unit=_ORG_UNIT_UID,
+            period=_PERIOD,
+            attribute_option_combo=_EDUCATION_COMBO,
+        ),
+        _value(
+            _COMBO_ELEMENT,
+            _COMBO_CATEGORY_OPTION_COMBO,
+            "76.8",
+            org_unit=_ORG_UNIT_UID,
+            period=_PERIOD,
+            attribute_option_combo=_EDUCATION_COMBO,
+        ),
+    )
+
+    [response] = _matches((await data_set_client.get(_responses_url(_COMBO_DATA_SET_UID))).json())
+
+    assert _answers(response) == {
+        _PLAIN_ELEMENT: [{"valueDecimal": 14}],
+        f"{_COMBO_ELEMENT}.{_COMBO_CATEGORY_OPTION_COMBO}": [{"valueDecimal": 76.8}],
+    }
+
+
 async def test_one_combo_can_be_asked_for_on_its_own(data_set_client: httpx2.AsyncClient) -> None:
     """`attributeOptionCombo` narrows the answer to the values filed under one of them."""
     _export(

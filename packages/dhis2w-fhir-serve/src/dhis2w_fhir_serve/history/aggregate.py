@@ -188,6 +188,11 @@ class AggregateProjection(BaseModel):
         this project's guide never published, and a client validating it against the form would be
         told so. The form's own tree is what the answers hang in, so a value stays inside the section
         and the disaggregation group its question was asked in.
+
+        A question the form asks with no disaggregation is keyed by its data element alone, while DHIS2
+        exports its value under the default category option combo's UID. A value whose exact cell the
+        form does not ask therefore answers the data element's plain question when the form asks one:
+        a disaggregated data element has no plain question, so no cell can land on the wrong question.
         """
         questions_by_cell = {
             (question.data_element_uid, question.category_option_combo_uid): question
@@ -195,7 +200,9 @@ class AggregateProjection(BaseModel):
         }
         answers: dict[str, list[QuestionnaireResponseAnswer]] = {}
         for value in form.values:
-            question = questions_by_cell.get((value.data_element_uid, value.category_option_combo_uid))
+            question = questions_by_cell.get(
+                (value.data_element_uid, value.category_option_combo_uid)
+            ) or questions_by_cell.get((value.data_element_uid, None))
             if question is None:
                 continue
             answers[question.link_id] = question_answers(
