@@ -1,4 +1,4 @@
-"""CliRunner tests for `d2w fhir spool` and `d2w fhir requeue` - the two operator verbs over the queue.
+"""CliRunner tests for `d2w fhir spool`, `d2w fhir requeue` and `d2w fhir discard` - the operator verbs over the queue.
 
 Nothing is mocked here and no profile is configured, which is the point: both commands are directory
 work, and an operator asking what is queued or putting a refused receipt back has to be able to do it
@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 from dhis2w_cli.main import build_app
-from dhis2w_fhir.service import OVERWRITE_REFUSAL_CATEGORY, ForwardImportRecord
+from dhis2w_fhir.service import DISCARDED_STATUS, OVERWRITE_REFUSAL_CATEGORY, ForwardImportRecord
 from dhis2w_fhir.spool import (
     IMPORT_REPORT_SUFFIX,
     MALFORMED_RESPONSES_RELATIVE_PATH,
@@ -222,6 +222,72 @@ def test_requeue_all_rejected_moves_everything_dhis2_refused(spooled_project: Pa
 
     assert result.exit_code == 0, result.output
     assert (spooled_project / RECEIVED_RESPONSES_RELATIVE_PATH / "refused-1.json").is_file()
+
+
+def _refuse_queued(project: Path) -> None:
+    """Leave the refusal record a committing drain writes beside the queued receipt it would not send."""
+    record = ForwardRefusalRecord(
+        refused_at="2026-08-09T08:00:00Z",
+        attempt_count=4,
+        reasons=(RefusalReason(category="unknown-code", element="Option", reason="code 'XYZ' is not in the guide"),),
+    )
+    (project / RECEIVED_RESPONSES_RELATIVE_PATH / f"queued-1{REFUSAL_RECORD_SUFFIX}").write_text(
+        record.model_dump_json(indent=2), encoding="utf-8"
+    )
+
+
+def test_discard_files_a_queued_receipt_to_rejected_with_the_reason_and_the_last_refusal(
+    spooled_project: Path,
+) -> None:
+    """The receipt leaves the queue for good, and the file beside it says who took it out and why."""
+    _refuse_queued(spooled_project)
+
+    result = _runner.invoke(build_app(), ["fhir", "discard", "queued-1", "--reason", "the code will never be added"])
+
+    assert result.exit_code == 0, result.output
+    assert "queued-1" in result.output
+    rejected = spooled_project / REJECTED_RESPONSES_RELATIVE_PATH
+    assert (rejected / "queued-1.json").is_file()
+    assert not (spooled_project / RECEIVED_RESPONSES_RELATIVE_PATH / "queued-1.json").exists()
+    assert not (spooled_project / RECEIVED_RESPONSES_RELATIVE_PATH / f"queued-1{REFUSAL_RECORD_SUFFIX}").exists()
+    record = ForwardImportRecord.model_validate_json(
+        (rejected / f"queued-1{IMPORT_REPORT_SUFFIX}").read_text(encoding="utf-8")
+    )
+    assert record.status == DISCARDED_STATUS
+    assert "the code will never be added" in (record.message or "")
+    assert [(issue.error_code, issue.message) for issue in record.issues] == [
+        ("unknown-code", "code 'XYZ' is not in the guide")
+    ]
+
+
+def test_a_discarded_receipt_is_requeued_like_any_rejected_one(spooled_project: Path) -> None:
+    """Discard is undone by the one reverse move the spool already has."""
+    _runner.invoke(build_app(), ["fhir", "discard", "queued-1", "--reason", "sent by mistake"])
+
+    result = _runner.invoke(build_app(), ["fhir", "requeue", "queued-1"])
+
+    assert result.exit_code == 0, result.output
+    assert (spooled_project / RECEIVED_RESPONSES_RELATIVE_PATH / "queued-1.json").is_file()
+
+
+def test_discard_states_why(spooled_project: Path) -> None:
+    """A discard without a reason is refused by the command line before anything is read."""
+    result = _runner.invoke(build_app(), ["fhir", "discard", "queued-1"])
+
+    assert result.exit_code == 2
+    assert (spooled_project / RECEIVED_RESPONSES_RELATIVE_PATH / "queued-1.json").is_file()
+
+
+def test_discarding_an_id_that_is_not_queued_refuses_before_anything_moves(
+    spooled_project: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A rejected receipt is already out of the queue, so naming it beside a queued one moves neither."""
+    stderr = _through_the_funnel(
+        ["fhir", "discard", "queued-1", "refused-1", "--reason", "not wanted"], monkeypatch, capsys
+    )
+
+    assert "`refused-1` is not in" in stderr
+    assert (spooled_project / RECEIVED_RESPONSES_RELATIVE_PATH / "queued-1.json").is_file()
 
 
 def _through_the_funnel(

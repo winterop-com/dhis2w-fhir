@@ -504,6 +504,29 @@ last time that payload was posted, which is still true of that post and is the
 only record of what the receipt was requeued from. The next drain writes a
 fresh report wherever the receipt lands.
 
+## Taking a refused receipt out of the queue
+
+A receipt the translator refuses stays in `received/`, because most refusals
+have a fix in the guide or in the data, and the next drain is the retry. One
+whose fix will never come - a code nobody will add to the guide, an
+organisation unit the instance will never hold - would be refused by every
+drain. `d2w fhir discard` takes it out:
+
+```console
+$ d2w fhir discard 0c81a28f79ba4226b8d4d348f2b96de1 --reason "sent to the wrong form"
+0c81a28f79ba4226b8d4d348f2b96de1 -> .serve/responses/rejected/0c81a28f79ba4226b8d4d348f2b96de1.json
+ok: 1 receipt(s) filed to rejected/
+note: `d2w fhir requeue` puts them back in the queue
+```
+
+The receipt goes to `rejected/`, where a refusal nothing can fix also goes. The
+record beside it has the status `DISCARDED`, the reason you gave, and the last
+refusal a drain recorded, so the file explains itself to someone reading it
+later. `--reason` is required. Only a queued receipt can be discarded: a
+forwarded one is already in DHIS2, which `d2w fhir withdraw` retracts. An id
+that is not queued is refused by name before anything moves, and
+`d2w fhir requeue` puts a discarded receipt back in the queue.
+
 A requeued receipt reads as one no drain has refused. Requeueing is the one way
 a receipt enters the queue from another state, so any `<id>.refusal.json` still
 sitting in `received/` under its name is a leftover - a drain killed between

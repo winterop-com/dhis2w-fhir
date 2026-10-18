@@ -229,7 +229,7 @@ class FHIRPathEvaluatorVisitor(fhirpathVisitor):
         if not result:
             return []
 
-        value = result[0]
+        value = _underlying_value(result[0])
         # Exclude bool since it's a subclass of int in Python but shouldn't be negated
         if (
             _node_text(ctx.getChild(0)) == "-"
@@ -247,8 +247,9 @@ class FHIRPathEvaluatorVisitor(fhirpathVisitor):
         if not left or not right:
             return []
 
-        left_val = left[0]
-        right_val = right[0]
+        # A value navigated out of a resource is a wrapped primitive; arithmetic acts on what it holds.
+        left_val = _underlying_value(left[0])
+        right_val = _underlying_value(right[0])
         op = _node_text(ctx.getChild(1))
 
         # Handle Quantity arithmetic
@@ -360,15 +361,16 @@ class FHIRPathEvaluatorVisitor(fhirpathVisitor):
 
         # String concatenation with &
         if op == "&":
-            left_str = str(left[0]) if left else ""
-            right_str = str(right[0]) if right else ""
+            left_str = str(_underlying_value(left[0])) if left else ""
+            right_str = str(_underlying_value(right[0])) if right else ""
             return [left_str + right_str]
 
         if not left or not right:
             return []
 
-        left_val = left[0]
-        right_val = right[0]
+        # A value navigated out of a resource is a wrapped primitive; arithmetic acts on what it holds.
+        left_val = _underlying_value(left[0])
+        right_val = _underlying_value(right[0])
 
         # Handle Quantity arithmetic
         if isinstance(left_val, Quantity) and isinstance(right_val, Quantity):

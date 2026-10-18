@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# FHIR spool operators — read the capture queue, and put a receipt DHIS2 refused back in it.
-# Both commands are directory work: no DHIS2 connection, no profile, no network. That is the
+# FHIR spool operators — read the capture queue, take a receipt out of it for good, and put a
+# refused one back. All three are directory work: no DHIS2 connection, no profile, no network. That is the
 # point of them — an operator asks what is queued exactly when the instance is down.
 set -euo pipefail
 
@@ -87,6 +87,13 @@ ls .serve/responses/rejected
 # moves, so a run of five never leaves you working out which three it got to.
 d2w fhir requeue --all-rejected || true
 d2w fhir requeue queued-1 || true
+
+# A receipt the forward keeps refusing whose fix will never come - a code nobody will add to the
+# guide, an organisation unit the instance will never hold - is retried by every drain while it
+# stays queued. `discard` files it to rejected/ instead, with the reason written beside it; the
+# record names the discard and the last refusal a drain recorded, and `requeue` undoes it.
+d2w fhir discard queued-1 --reason "sent to the wrong form"
+cat .serve/responses/rejected/queued-1.report.json
 
 # From here, `d2w fhir forward --import` posts the requeued receipts again - see
 # examples/cli/forward_import.sh for the drain itself.

@@ -3771,7 +3771,7 @@ receipt landed, and files the receipt under the spool's fourth state.
 
 ### Inspect and requeue the spool
 
-Two operator verbs sit beside the drain and touch no instance at all.
+Three operator verbs sit beside the drain and touch no instance at all.
 
 - **`d2w fhir spool`** states how many receipts wait in each state and how many
   files are in the holding pen. `--details` adds a row per receipt with the
@@ -3784,6 +3784,11 @@ Two operator verbs sit beside the drain and touch no instance at all.
   receipt reads as one no drain has refused, and refusing an id that is not
   there before anything moves - so a run of five never leaves an operator
   working out which three it reached.
+- **`d2w fhir discard <id>... --reason "..."`** files queued receipts to
+  `rejected/` for a refusal whose fix will never come, so no drain retries them.
+  The record beside each one has the status `DISCARDED`, the stated reason and
+  the last refusal a drain recorded; an id that is not queued is refused before
+  anything moves, and `requeue` undoes it.
 - **`d2w fhir spool` states four states**, `withdrawn/` beside the three the
   drain files into.
 - **`--details` degrades at 80 columns rather than folding.** The form's UID and
@@ -3792,8 +3797,8 @@ Two operator verbs sit beside the drain and touch no instance at all.
   when the terminal is too narrow for them - both are on the receipt's own file
   and in `--json`, and what is left is the id `requeue` and `withdraw` take, the
   state, the form, and the reason. 80 columns is what a non-TTY pipe gets.
-- **Neither opens a client nor needs a profile**, because every fact either
-  states is in the project directory, which is what makes them answerable while
+- **None of them opens a client or needs a profile**, because every fact they
+  state or change is in the project directory, which is what makes them answerable while
   the instance is down.
 
 ### Check an instance
