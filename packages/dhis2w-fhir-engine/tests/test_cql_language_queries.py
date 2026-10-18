@@ -325,6 +325,36 @@ class TestQuerySources:
         result = evaluator.evaluate_expression("({1, 2}) N return (({10, 20}) M return M + N)")
         assert result == [[11, 21], [12, 22]]
 
+    def test_a_path_from_an_alias_is_a_source_without_parentheses(self, evaluator: CQLEvaluator) -> None:
+        """`R.item I where ...` reads the same list `(R.item) I where ...` does."""
+        evaluator.compile("""
+            library Paths version '1.0'
+            define Report: Tuple { item: { Tuple { linkId: 'a', v: 3 }, Tuple { linkId: 'b', v: 4 } } }
+            define Reports: { Report }
+            define Bare: Reports R return (R.item I where I.linkId = 'a' return I.v)
+            define Parenthesised: Reports R return ((R.item) I where I.linkId = 'a' return I.v)
+            define FromDefinition: Report.item I where I.linkId = 'b' return I.v
+        """)
+        assert evaluator.evaluate_definition("Bare") == [[3]]
+        assert evaluator.evaluate_definition("Bare") == evaluator.evaluate_definition("Parenthesised")
+        assert evaluator.evaluate_definition("FromDefinition") == [4]
+
+    def test_a_path_into_a_resource_is_a_source_without_parentheses(self, evaluator: CQLEvaluator) -> None:
+        """A list element of a FHIR resource answers its items, as a QuestionnaireResponse's `item` does."""
+        response = {
+            "resourceType": "QuestionnaireResponse",
+            "item": [
+                {"linkId": "households", "answer": [{"valueInteger": 61}]},
+                {"linkId": "villages", "answer": [{"valueInteger": 2}]},
+            ],
+        }
+        evaluator.compile("""
+            library Resource version '1.0'
+            parameter Response Any
+            define Households: Response.item I where I.linkId = 'households' return I.linkId
+        """)
+        assert evaluator.evaluate_definition("Households", parameters={"Response": response}) == ["households"]
+
 
 class TestLetClause:
     """`let` binds an extra name per row."""
