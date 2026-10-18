@@ -1088,8 +1088,10 @@ class CQLEvaluatorVisitor(cqlVisitor):
 
     def visitMemberInvocation(self, ctx: cqlParser.MemberInvocationContext) -> Any:
         """Visit member invocation (identifier access)."""
-        name = self._get_identifier_text(ctx.referentialIdentifier())
+        return self._resolve_name(self._get_identifier_text(ctx.referentialIdentifier()))
 
+    def _resolve_name(self, name: str) -> Any:
+        """What one bare name refers to: the context resource, an alias, a parameter, a definition, or a library."""
         # Check if it's the current context type (e.g., "Patient" in Patient context)
         if self._library and name == self._library.current_context:
             return self.context.resource
@@ -1143,44 +1145,7 @@ class CQLEvaluatorVisitor(cqlVisitor):
 
         if isinstance(invocation, cqlParser.QualifiedMemberInvocationContext):
             # Property access on target
-            name = self._get_identifier_text(invocation.referentialIdentifier())
-
-            # Handle included library expression references
-            if isinstance(target, CQLLibrary):
-                return self._evaluate_library_definition(target, name)
-
-            if isinstance(target, dict):
-                return _member_of(target, name)
-            elif isinstance(target, CQLTuple):
-                return target.elements.get(name)
-            elif isinstance(target, CQLInterval):
-                # Handle interval property access: .low, .high, .lowClosed, .highClosed
-                interval_properties: dict[str, Any] = {
-                    "low": target.low,
-                    "high": target.high,
-                    "lowClosed": target.low_closed,
-                    "highClosed": target.high_closed,
-                }
-                return interval_properties.get(name)
-            elif isinstance(target, list):
-                # Flatten property access on list, recursively handling nested lists
-                results = []
-                for item in target:
-                    if isinstance(item, dict):
-                        results.append(_member_of(item, name))
-                    elif isinstance(item, list):
-                        # Recursively access property on nested list items
-                        for nested in item:
-                            if isinstance(nested, dict):
-                                results.append(_member_of(nested, name))
-                            elif isinstance(nested, list):
-                                # Deep nesting - flatten further
-                                for deep in nested:
-                                    if isinstance(deep, dict):
-                                        results.append(_member_of(deep, name))
-                    else:
-                        results.append(getattr(item, name, None))
-                return results
+            return self._member_access(target, self._get_identifier_text(invocation.referentialIdentifier()))
         elif isinstance(invocation, cqlParser.QualifiedFunctionInvocationContext):
             # Method call on target
             func_ctx = invocation.qualifiedFunction()
@@ -1204,6 +1169,50 @@ class CQLEvaluatorVisitor(cqlVisitor):
 
             return self._call_function(name, args)
 
+        return target
+
+    def _member_access(self, target: Any, name: str) -> Any:
+        """One member of a value: a library's definition, a resource's or tuple's element, an interval's bound.
+
+        A list answers the member of every item it holds, flattened, which is how a path walks a
+        repeating element. A value of any other kind answers itself.
+        """
+        # Handle included library expression references
+        if isinstance(target, CQLLibrary):
+            return self._evaluate_library_definition(target, name)
+
+        if isinstance(target, dict):
+            return _member_of(target, name)
+        elif isinstance(target, CQLTuple):
+            return target.elements.get(name)
+        elif isinstance(target, CQLInterval):
+            # Handle interval property access: .low, .high, .lowClosed, .highClosed
+            interval_properties: dict[str, Any] = {
+                "low": target.low,
+                "high": target.high,
+                "lowClosed": target.low_closed,
+                "highClosed": target.high_closed,
+            }
+            return interval_properties.get(name)
+        elif isinstance(target, list):
+            # Flatten property access on list, recursively handling nested lists
+            results = []
+            for item in target:
+                if isinstance(item, dict):
+                    results.append(_member_of(item, name))
+                elif isinstance(item, list):
+                    # Recursively access property on nested list items
+                    for nested in item:
+                        if isinstance(nested, dict):
+                            results.append(_member_of(nested, name))
+                        elif isinstance(nested, list):
+                            # Deep nesting - flatten further
+                            for deep in nested:
+                                if isinstance(deep, dict):
+                                    results.append(_member_of(deep, name))
+                else:
+                    results.append(getattr(item, name, None))
+            return results
         return target
 
     def visitThisInvocation(self, ctx: cqlParser.ThisInvocationContext) -> Any:
@@ -1428,13 +1437,23 @@ class CQLEvaluatorVisitor(cqlVisitor):
         if expr:
             return self.visit(expr)
 
-        # Check if it's a qualified identifier expression (reference to definition)
+        # A qualified identifier: a definition or an alias, or a path from one - `R.item`, `Lib.Def`
         qual_id = ctx.qualifiedIdentifierExpression()
         if qual_id:
-            name = self._get_identifier_text(qual_id)
-            if self._library and name in self._library.definitions:
-                return self._evaluate_definition(name)
-            return self.context.get_alias(name)
+            qualifiers = [
+                self._get_identifier_text(qualifier.referentialIdentifier())
+                for qualifier in _rule_contexts(qual_id.qualifierExpression())
+            ]
+            name = self._get_identifier_text(qual_id.referentialIdentifier())
+            if not qualifiers:
+                if self._library and name in self._library.definitions:
+                    return self._evaluate_definition(name)
+                return self.context.get_alias(name)
+            # A path is read the way the same path in parentheses is: resolve its head, then walk it.
+            target = self._resolve_name(qualifiers[0])
+            for member in [*qualifiers[1:], name]:
+                target = self._member_access(target, member)
+            return target
 
         return None
 
