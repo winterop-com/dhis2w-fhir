@@ -336,8 +336,9 @@ stores it under (`lo`, `fr`), followed by the text:
   on its section table, and a table of its translated questions - each question
   under the text the form asks, its form name where DHIS2 gives it one, and
   that text's translations;
-- a **code list's page** lists the translations of its name and a table of its
-  translated options;
+- a **code list's page** lists the translations of its name; its options'
+  translations are in the IG Publisher's own concept table on the same page,
+  one column per language;
 - an **organisation unit's page** lists the translations of its name.
 
 A translation equal to the name it translates (an `en` translation repeating

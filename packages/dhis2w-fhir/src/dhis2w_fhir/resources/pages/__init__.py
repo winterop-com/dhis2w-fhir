@@ -50,7 +50,7 @@ from dhis2w_fhir.resources.examples import (
     example_attribute_combo_assignments,
 )
 from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
-from dhis2w_fhir.resources.option_sets import concept_assignments, option_set_code_fallback, option_set_identities
+from dhis2w_fhir.resources.option_sets import option_set_code_fallback, option_set_identities
 from dhis2w_fhir.resources.option_sets.schemas import ConceptAssignmentPlan
 from dhis2w_fhir.resources.organisation_units import organisation_unit_stem_subjects, plan_organisation_unit_stems
 from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming, location_profile_reference
@@ -62,7 +62,6 @@ from dhis2w_fhir.resources.pages.schemas import (
     CapturePeriodExample,
     CaptureView,
     CodeSystemIntroView,
-    ConceptTranslationRow,
     EventStatusRow,
     FormRow,
     FormSectionRow,
@@ -99,7 +98,6 @@ from dhis2w_fhir.writer import FshArtifact, FshBuild
 
 if TYPE_CHECKING:
     from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.option_sets.schemas import OptionSetIn
     from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
 
 __all__ = [
@@ -999,15 +997,18 @@ def _questionnaire_intros(forms: list[FormRow]) -> list[FshArtifact]:
 
 
 def _code_system_intros(pages: PagesIn, config: GenerateConfig) -> list[FshArtifact]:
-    """Build a `CodeSystem-<id>-intro.md` for every option set carrying a DHIS2 description or a listed translation."""
+    """Build a `CodeSystem-<id>-intro.md` for every option set with a DHIS2 description or a listed name translation.
+
+    The concepts' translations are not listed here: the publisher's own concept table on the same page
+    carries a column per language, read from the designations every concept states.
+    """
     by_uid = {option_set.uid: option_set for option_set in pages.option_sets}
     artifacts: list[FshArtifact] = []
     for identity in option_set_identities(pages.option_sets, config).identities:
         option_set = by_uid[identity.uid]
         description = (option_set.description or "").strip()
         translations = _listed_translations(config, option_set.translations, NAME_PROPERTY, option_set.name)
-        concepts = _concept_translation_rows(option_set, config)
-        if not description and not translations and not concepts:
+        if not description and not translations:
             continue
         artifacts.append(
             _page(
@@ -1019,32 +1020,10 @@ def _code_system_intros(pages: PagesIn, config: GenerateConfig) -> list[FshArtif
                     name=markdown_text(identity.name),
                     description=markdown_text(description),
                     translations=translations,
-                    concepts=concepts,
                 ),
             )
         )
     return artifacts
-
-
-def _concept_translation_rows(option_set: OptionSetIn, config: GenerateConfig) -> list[ConceptTranslationRow]:
-    """Every concept of one option set whose name holds a translation, in emission order, by its published code."""
-    if not config.translations_on_pages:
-        return []
-    rows: list[ConceptTranslationRow] = []
-    for assignment in concept_assignments(option_set, config).assignments:
-        if assignment.code is None:
-            continue
-        option = assignment.option
-        translations = _listed_translations(config, option.translations, NAME_PROPERTY, option.name)
-        if translations:
-            rows.append(
-                ConceptTranslationRow(
-                    code=assignment.code,
-                    display=markdown_text(option.name, table_cell=True),
-                    translations=translations,
-                )
-            )
-    return rows
 
 
 def _organization_intros(

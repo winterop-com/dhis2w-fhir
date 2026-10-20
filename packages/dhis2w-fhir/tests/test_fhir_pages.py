@@ -998,15 +998,15 @@ def test_a_translated_value_is_escaped_for_its_table_cell() -> None:
     assert "`en`: Weight" not in intro
 
 
-def test_a_translated_option_set_earns_an_intro_listing_its_translated_concepts() -> None:
-    """An option set with no description still gets an intro when its name or a concept is translated."""
+def test_a_translated_option_set_earns_an_intro_listing_its_name_translations() -> None:
+    """An option set with no description gets an intro for its translated name; its concepts are the publisher's."""
     pages = render_pages(translated_pages_input(), GenerateConfig())
     intro = pages[f"CodeSystem-d2-os-Os1aaaaaaaa-cs{INTRO_SUFFIX}"]
 
     assert intro.startswith("Generated from the DHIS2 option set Sex (Os1aaaaaaaa).\n")
     assert "- `lo`: ເພດ\n" in intro
-    assert "| `Op1aaaaaaaa` | Female | `lo`: ຍິງ |\n" in intro
-    assert "Male" not in intro
+    assert "ຍິງ" not in intro
+    assert "Female" not in intro
     assert "[Sex](CodeSystem-d2-os-Os1aaaaaaaa-cs.html) | 2 | no | `lo`: ເພດ |" in pages["terminology.md"]
 
 

@@ -11,13 +11,3 @@ Translations of the name, as this DHIS2 instance holds them:
 - `{{ translation.locale }}`: {{ translation.value }}
 {% endfor %}
 {% endif %}
-{% if intro.concepts %}
-
-Translations of the concepts, as this DHIS2 instance holds them:
-
-| Code | Name | Translations |
-| --- | --- | --- |
-{% for concept in intro.concepts %}
-| `{{ concept.code }}` | {{ concept.display }} | {{ concept.translations | translation_cell }} |
-{% endfor %}
-{% endif %}

@@ -68,16 +68,6 @@ class QuestionTranslationRow(BaseModel):
     translations: list[TranslatedText] = Field(default_factory=list)
 
 
-class ConceptTranslationRow(BaseModel):
-    """One translated concept of a code system's intro: its code, its DHIS2 name, and that name's translations."""
-
-    model_config = ConfigDict(frozen=True)
-
-    code: str
-    display: str
-    translations: list[TranslatedText] = Field(default_factory=list)
-
-
 class FormRow(BaseModel):
     """One data set, event program, or tracker program stage as the forms page catalogs it, every string escaped.
 
@@ -149,8 +139,6 @@ class CodeSystemIntroView(BaseModel):
     name: str
     description: str
     translations: list[TranslatedText] = Field(default_factory=list)
-    concepts: list[ConceptTranslationRow] = Field(default_factory=list)
-    """The concepts whose name holds a translation - the rest are left out."""
 
 
 class OrganizationIntroView(BaseModel):
