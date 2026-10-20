@@ -4176,7 +4176,10 @@ async def fetch_live_ig_inputs(
     categories = screening.screen(categories, category_notes)
     organisation_units = screening.screen(organisation_units, geometry_notes)
     organisation_unit_levels = OrganisationUnitLevelNames(levels=screening.screen(level_rows, geometry_notes))
-    option_set_plan = _option_set_identity_plan(screening.screen(fetched_option_sets, []), config, sources)
+    # The plan reads the selection the run publishes, already screened: screening the whole catalogue
+    # would register every unpublished option's code with the run's collision check, and refuse a run
+    # over two codes no guide of this run carries.
+    option_set_plan = _option_set_identity_plan(option_sets, config, sources)
     steps.tick("reading the attribute-code join")
     attribute_codes = await resolve_attribute_code_index(client)
     steps.tick("reading the organisation-unit assignments")
@@ -4401,12 +4404,13 @@ async def _fetch_option_set_identity_plan(
 def _option_set_identity_plan(
     option_sets: list[OptionSetIn], config: GenerateConfig, sources: list[QuestionnaireSourceIn]
 ) -> OptionSetIdentityPlan:
-    """Assign the option-set identities off an unfiltered list already read in the terminology projection.
+    """Assign the option-set identities off option sets already read and screened in the terminology projection.
 
     The plan `_fetch_option_set_identity_plan` reads a second, narrower request for, without the
     request: a slug is decided by the UID, the code and the name, so the wider projection is
-    narrowed to those three here and planned over the identical selection. The selection notes
-    belong to the terminology target's report and are not raised a second time.
+    narrowed to those three here and planned over the identical selection - selecting again is a
+    no-op on a list that is already the selection. The selection notes belong to the terminology
+    target's report and are not raised a second time.
     """
     inputs = [OptionSetIn(uid=option_set.uid, code=option_set.code, name=option_set.name) for option_set in option_sets]
     return option_set_identities(_selected_option_sets(inputs, sources, config, []), config)
