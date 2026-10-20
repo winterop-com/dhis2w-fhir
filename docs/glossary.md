@@ -55,7 +55,8 @@ Questionnaire.
 They travel onto the R4 translation extension on the element they translate, so
 a form served to a French-speaking user reads in French without a second fetch.
 `[generate] locales` narrows which ones are emitted; empty means every locale
-the instance holds.
+the instance holds. The guide's own pages list them beside each name unless
+`[generate] translations_on_pages = false`.
 
 **sharing**
 : DHIS2's per-object read/write access model. It is **not** carried into the

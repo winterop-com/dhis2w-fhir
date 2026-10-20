@@ -211,6 +211,7 @@ the file refuses.
 | `[generate]` | [`hostile_names`](301-generation.md#hostile_names) | unset (the run asks) | whether a DHIS2 name carrying `<` refuses the run or is published in rewritten wording, and whether a DHIS2 code carrying a space is published hyphenated |
 | `[generate]` | [`identifier_system_base`](301-generation.md#identifier_system_base) | `"http://dhis2.org/fhir"` | the web-address stem the DHIS2 identifier labels are built from |
 | `[generate]` | [`locales`](301-generation.md#locales) | every language found | which languages the guide publishes translations in |
+| `[generate]` | [`translations_on_pages`](301-generation.md#translations_on_pages) | `true` | whether the guide's pages list each name's translations beside it |
 | `[generate]` | [`timezone`](301-generation.md#timezone) | unset (read as UTC) | the zone DHIS2's clock times are wall-clock readings in |
 | `[generate.naming]` | [`attribute_option_combo`](301-generation.md#attribute_option_combo) | `"AOC"` | name piece for a data set's extra reporting dimension |
 | `[generate.naming]` | [`category`](301-generation.md#category) | `"CAT"` | name piece for categories |

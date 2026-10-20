@@ -269,8 +269,10 @@ question ids are the same in every language, so a response captured in Lao and
 one captured in English are the same response.
 
 The person the guide is *written* for benefits too. A reviewer reading the
-published data dictionary sees the local-language name beside each entry, which
-is how they check the guide describes the thing they think it describes.
+guide's own pages sees each name's translations listed beside it - the forms,
+the code lists, the organisation units - which is how they check the guide
+describes the thing they think it describes.
+[`translations_on_pages`](#translations_on_pages) says how, and turns it off.
 
 **When you would change it.** Your instance holds translations in five
 languages but the guide is for a two-language audience: list those two and the
@@ -317,6 +319,48 @@ Two consequences worth knowing before you look for missing words:
   name.** If the data element has a form name and only its `NAME` is
   translated, the question keeps its English label - the guide will not put a
   translation of one piece of text under another.
+
+### `translations_on_pages`
+
+**In plain words.** Whether the guide's own pages list each name's
+translations beside it. The guide is published in one language: every page
+shows a form, a code list or an organisation unit under its DHIS2 name, and
+with this on, the translations DHIS2 holds for that name are listed next to it.
+
+**What a reader sees.** Each translation is listed under the locale code DHIS2
+stores it under (`lo`, `fr`), followed by the text:
+
+- the **Forms**, **Terminology** and **Registry** pages gain a Translations
+  column on the form, option set and level tables;
+- a **form's page** lists the translations of its name, a Translations column
+  on its section table, and a table of its translated questions - each question
+  under the text the form asks, its form name where DHIS2 gives it one, and
+  that text's translations;
+- a **code list's page** lists the translations of its name and a table of its
+  translated options;
+- an **organisation unit's page** lists the translations of its name.
+
+A translation equal to the name it translates (an `en` translation repeating
+the English name) is left out, and an object with no translation shows nothing
+extra: a guide over untranslated metadata reads exactly the same with this on
+or off. [`locales`](#locales) narrows which languages are listed. Category
+option combinations hold no translation in DHIS2, so none is listed for them.
+
+**When you would change it.** The pages are for an audience that reads the
+DHIS2 names alone, or the listings make the form pages longer than you want:
+turn it off. The translations still travel inside the published resources.
+
+**Example.**
+
+```toml
+[generate]
+translations_on_pages = false
+```
+
+The pages show each DHIS2 name alone.
+
+**Default:** `true` - **If you leave it out:** every translation DHIS2 holds,
+narrowed by `locales`, is listed on the pages.
 
 ## The `[generate.naming]` section { #naming }
 
