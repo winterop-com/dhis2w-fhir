@@ -92,6 +92,27 @@ def property_translations(
     return [selected[locale] for locale in sorted(selected)]
 
 
+def stored_property_translations(
+    translations: list[TranslationIn], locales: list[str], property_name: str
+) -> list[TranslationIn]:
+    """One property's translations under the locale code DHIS2 stores, filtered to `locales`, sorted by that code.
+
+    The narrative pages list a translation the way the instance holds it, so the tag is not
+    rewritten: `locales` still matches through `normalize_locale`, which is how a project names a
+    language once whichever spelling the instance uses. Two entries the instance stores under one
+    code are one translation, and the first one wins.
+    """
+    wanted = {normalize_locale(locale) for locale in locales}
+    selected: dict[str, TranslationIn] = {}
+    for translation in translations:
+        if translation.property != property_name or translation.locale in selected:
+            continue
+        if wanted and normalize_locale(translation.locale) not in wanted:
+            continue
+        selected[translation.locale] = translation
+    return [selected[locale] for locale in sorted(selected)]
+
+
 def name_translations(translations: list[TranslationIn], locales: list[str]) -> list[TranslationIn]:
     """The NAME translations - the display name of every DHIS2 object the guide publishes."""
     return property_translations(translations, locales, NAME_PROPERTY)

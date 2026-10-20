@@ -3637,14 +3637,17 @@ async def generate_pages(
         progress.step(_FETCH_LABEL, "fetching organisation units")
         async with _instance_connection(profile, client) as client:
             organisation_units = await _fetch_organisation_units(client, config, tally, today, progress)
-        screening.decide(organisation_units)
+            level_rows = await _fetch_organisation_unit_levels(client) if config.translations_on_pages else []
+        screening.decide(organisation_units, level_rows)
         organisation_units = screening.screen(organisation_units, notes)
+        level_names = OrganisationUnitLevelNames(levels=screening.screen(level_rows, notes))
         progress.complete(f"{len(organisation_units):,} organisation unit(s)")
         return _emit_pages(
             project,
             sources=[],
             option_sets=[],
             organisation_units=organisation_units,
+            organisation_unit_levels=level_names,
             stem_plan=plan_questionnaire_stems([], config.naming.source),
             organisation_unit_stems=plan_organisation_unit_stems(
                 organisation_unit_stem_subjects(organisation_units), config.naming.source
@@ -3663,18 +3666,23 @@ async def generate_pages(
             paging=False,
         )
         published = await _fetch_published_organisation_units(client, config)
+        level_rows = []
         if registry is None:
             organisation_units = await _fetch_organisation_units(client, config, tally, today, progress)
             published_stems: StemResolution | None = None
+            if config.translations_on_pages:
+                # The level names are read only to list their translations on the registry page.
+                level_rows = await _fetch_organisation_unit_levels(client)
         else:
             # The units are another package's; the guide reads the stems its references follow.
             organisation_units = []
             published_stems = published.stems
         option_sets = _selected_option_sets([_option_set_input(model) for model in models], sources, config, notes)
-        screening.decide(sources, option_sets, organisation_units)
+        screening.decide(sources, option_sets, organisation_units, level_rows)
         sources = screening.screen(sources, notes)
         option_sets = screening.screen(option_sets, notes)
         organisation_units = screening.screen(organisation_units, notes)
+        level_names = OrganisationUnitLevelNames(levels=screening.screen(level_rows, notes))
         # The capture page works its steps against the organisation unit the examples target places
         # each form at, so the page reads the same two facts that target reads: the form's own DHIS2
         # assignment, and which attribute option combos each admitted unit may file a capture under.
@@ -3697,6 +3705,7 @@ async def generate_pages(
         sources=sources,
         option_sets=option_sets,
         organisation_units=organisation_units,
+        organisation_unit_levels=level_names,
         stem_plan=plan_questionnaire_stems(sources, config.naming.source),
         organisation_unit_stems=(
             published_stems
@@ -3747,6 +3756,7 @@ def _emit_pages(
     sources: list[QuestionnaireSourceIn],
     option_sets: list[OptionSetIn],
     organisation_units: list[OrganisationUnitIn],
+    organisation_unit_levels: OrganisationUnitLevelNames | None = None,
     stem_plan: QuestionnaireStemPlan,
     organisation_unit_stems: StemResolution,
     example_placements: dict[str, SyntheticPlacement] | None = None,
@@ -3771,6 +3781,9 @@ def _emit_pages(
     other half of that capture - the organisation units and the calendar window DHIS2 scopes each
     attribute category option to - so the page quotes an attribute option combination the instance
     takes at the unit and for the period the page itself worked.
+
+    `organisation_unit_levels` is what the instance calls each depth, which the registry page's
+    level table names where a level carries a translation to list beside it.
     """
     progress.step("pages", f"writing ig/{PAGES_BASE_SUBDIRECTORY}/{PAGES_DIRECTORY}")
     _refuse_build_aborting_form_objects(sources)
@@ -3790,7 +3803,12 @@ def _emit_pages(
         ]
     )
     _refuse_build_aborting_member_names(option_sets)
-    pages = PagesIn(forms=_published_sources(sources), option_sets=option_sets, organisation_units=organisation_units)
+    pages = PagesIn(
+        forms=_published_sources(sources),
+        option_sets=option_sets,
+        organisation_units=organisation_units,
+        organisation_unit_levels=organisation_unit_levels or OrganisationUnitLevelNames(),
+    )
     if project.config.publishes_organisation_units:
         build = build_registry_page_artifacts(
             pages, project.config.generate, organisation_unit_stems=organisation_unit_stems, substituted=substituted
@@ -3940,6 +3958,7 @@ async def generate_full(
             sources=inputs.sources,
             option_sets=inputs.option_sets,
             organisation_units=inputs.organisation_units,
+            organisation_unit_levels=inputs.organisation_unit_levels,
             stem_plan=inputs.questionnaire_stems,
             organisation_unit_stems=inputs.organisation_unit_stems,
             example_placements=await _capture_page_placements(
@@ -4012,6 +4031,7 @@ async def _generate_registry_package(
         sources=[],
         option_sets=[],
         organisation_units=organisation_units,
+        organisation_unit_levels=level_names,
         stem_plan=plan_questionnaire_stems([], config.naming.source),
         organisation_unit_stems=stems,
         substituted=screening.substituting,

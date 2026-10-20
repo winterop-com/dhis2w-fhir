@@ -9,7 +9,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from dhis2w_fhir.foundation.schemas import NamingSystemDeclaration
 from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIn
-from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitGeometry, OrganisationUnitIn
+from dhis2w_fhir.resources.organisation_units.schemas import (
+    OrganisationUnitGeometry,
+    OrganisationUnitIn,
+    OrganisationUnitLevelNames,
+)
 from dhis2w_fhir.resources.questionnaires.schemas import FormKind, QuestionnaireSourceIn
 
 #: The day the period examples on `periods.md` are resolved against. A fixed date rather than
@@ -31,6 +35,17 @@ class PagesIn(BaseModel):
     forms: list[QuestionnaireSourceIn] = Field(default_factory=list)
     option_sets: list[OptionSetIn] = Field(default_factory=list)
     organisation_units: list[OrganisationUnitIn] = Field(default_factory=list)
+    organisation_unit_levels: OrganisationUnitLevelNames = Field(default_factory=OrganisationUnitLevelNames)
+    """What the instance calls each depth of its hierarchy, which the registry page's level table names."""
+
+
+class TranslatedText(BaseModel):
+    """One translation a page lists beside a DHIS2 name: the locale code DHIS2 stores and the escaped text."""
+
+    model_config = ConfigDict(frozen=True)
+
+    locale: str
+    value: str
 
 
 class FormSectionRow(BaseModel):
@@ -40,6 +55,27 @@ class FormSectionRow(BaseModel):
 
     name: str
     question_count: int
+    translations: list[TranslatedText] = Field(default_factory=list)
+
+
+class QuestionTranslationRow(BaseModel):
+    """One translated question of a form's intro: its section, the DHIS2 text it asks, and that text's translations."""
+
+    model_config = ConfigDict(frozen=True)
+
+    section: str
+    question: str
+    translations: list[TranslatedText] = Field(default_factory=list)
+
+
+class ConceptTranslationRow(BaseModel):
+    """One translated concept of a code system's intro: its code, its DHIS2 name, and that name's translations."""
+
+    model_config = ConfigDict(frozen=True)
+
+    code: str
+    display: str
+    translations: list[TranslatedText] = Field(default_factory=list)
 
 
 class FormRow(BaseModel):
@@ -67,6 +103,9 @@ class FormRow(BaseModel):
     question_count: int
     unsectioned_question_count: int
     sections: list[FormSectionRow] = Field(default_factory=list)
+    translations: list[TranslatedText] = Field(default_factory=list)
+    questions: list[QuestionTranslationRow] = Field(default_factory=list)
+    """The questions holding a translation of the text they ask - the rest are left out."""
 
     @property
     def page_link(self) -> str:
@@ -101,7 +140,7 @@ class QuestionnaireIntroView(BaseModel):
 
 
 class CodeSystemIntroView(BaseModel):
-    """One option-set CodeSystem's intro page - emitted only for a set carrying a DHIS2 description."""
+    """One option-set CodeSystem's intro page - emitted for a set carrying a DHIS2 description or a translation."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -109,10 +148,13 @@ class CodeSystemIntroView(BaseModel):
     uid: str
     name: str
     description: str
+    translations: list[TranslatedText] = Field(default_factory=list)
+    concepts: list[ConceptTranslationRow] = Field(default_factory=list)
+    """The concepts whose name holds a translation - the rest are left out."""
 
 
 class OrganizationIntroView(BaseModel):
-    """One organisation unit's intro page - emitted only for a unit carrying a DHIS2 description.
+    """One organisation unit's intro page - emitted for a unit carrying a DHIS2 description or a translation.
 
     `stem` is the unit's identity stem - the id of the Organization page the intro lands on -
     while `uid` stays the DHIS2 id the intro cites as data.
@@ -125,6 +167,7 @@ class OrganizationIntroView(BaseModel):
     name: str
     level: int
     description: str
+    translations: list[TranslatedText] = Field(default_factory=list)
 
 
 class LevelRow(BaseModel):
@@ -134,6 +177,8 @@ class LevelRow(BaseModel):
 
     level: int
     unit_count: int
+    name: str = ""
+    translations: list[TranslatedText] = Field(default_factory=list)
 
 
 class RegistryView(BaseModel):
@@ -167,6 +212,7 @@ class OptionSetRow(BaseModel):
     code_system_id: str
     concept_count: int
     code_fallback: bool
+    translations: list[TranslatedText] = Field(default_factory=list)
 
     @property
     def page_link(self) -> str:

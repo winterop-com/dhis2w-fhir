@@ -20,6 +20,7 @@ from dhis2w_fhir import (
 )
 from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS
+from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.names import markdown_text
 from dhis2w_fhir.period.schemas import PERIOD_TYPE_DEFINITIONS
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
@@ -42,6 +43,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSectionIn,
     QuestionnaireSourceIn,
 )
+from translated_pages import baseline_pages, render_pages, translated_pages_input
 
 _CANONICAL = "http://example.org/fhir"
 
@@ -928,3 +930,113 @@ def test_the_walkthrough_is_worked_against_a_form_dhis2_takes_a_capture_for() ->
     assert "`Cop3aaaaaaa`" in capture
     assert "Clean water" not in capture
     assert "takes no capture for" not in capture
+
+
+def _without_translations(pages: PagesIn) -> PagesIn:
+    """The same input with every DHIS2 translation removed, as an instance holding none answers it."""
+
+    def strip(value: object) -> object:
+        """Drop every `translations` list, recursively."""
+        if isinstance(value, dict):
+            return {key: strip(item) for key, item in value.items() if key != "translations"}
+        if isinstance(value, list):
+            return [strip(item) for item in value]
+        return value
+
+    return PagesIn.model_validate(strip(pages.model_dump()))
+
+
+def test_translations_turned_off_render_the_baseline_pages_byte_for_byte() -> None:
+    """`translations_on_pages = false` renders exactly the pages a guide rendered before they listed translations."""
+    rendered = render_pages(translated_pages_input(), GenerateConfig(translations_on_pages=False))
+
+    assert rendered == baseline_pages()
+
+
+def test_an_instance_holding_no_translations_renders_the_baseline_pages_by_default() -> None:
+    """With the default setting, metadata carrying no translation adds no column, line, or intro to any page."""
+    rendered = render_pages(_without_translations(translated_pages_input()), GenerateConfig())
+
+    assert rendered == baseline_pages()
+
+
+def test_the_forms_catalog_lists_each_forms_name_translations() -> None:
+    """A Translations column lists every locale DHIS2 holds, escaped, and drops a translation equal to the name."""
+    forms = render_pages(translated_pages_input(), GenerateConfig())["forms.md"]
+
+    assert "| Sections | Questions | Translations |" in forms
+    assert "`fr`: Mortalité &lt; 5 ans<br/>`lo`: ອັດຕາການຕາຍ &lt; 5 ປີ |" in forms
+    assert "`en`: Mortality" not in forms
+    assert "| `lo`: ການເກີດ |" in forms
+
+
+def test_a_form_intro_lists_its_name_section_and_question_translations() -> None:
+    """The intro lists the name's translations, a section column, and a table of the translated questions."""
+    intro = render_pages(translated_pages_input(), GenerateConfig())[f"Questionnaire-YFTk3VdO9av{INTRO_SUFFIX}"]
+
+    assert "Translations of the name, as this DHIS2 instance holds them:\n\n- `fr`: Mortalité &lt; 5 ans\n" in intro
+    assert "| Section | Questions | Translations |\n" in intro
+    assert "| Deaths \\| reported | 2 | `lo`: ການເສຍຊີວິດ |\n" in intro
+    assert "| Outside any section | 1 |  |\n" in intro
+    assert "| Section | Question | Translations |\n" in intro
+    assert "| Comment |" not in intro
+
+
+def test_a_form_named_question_lists_its_form_name_translation() -> None:
+    """A question asked under its form name lists the FORM_NAME translation, never the NAME one."""
+    intro = render_pages(translated_pages_input(), GenerateConfig())[f"Questionnaire-YFTk3VdO9av{INTRO_SUFFIX}"]
+
+    assert "| Deaths \\| reported | Deaths | `lo`: ການເສຍຊີວິດ |\n" in intro
+    assert "ການເສຍຊີວິດທັງໝົດ" not in intro
+
+
+def test_a_translated_value_is_escaped_for_its_table_cell() -> None:
+    """A translation holding `<` and `|` reaches the page escaped and stays inside its cell."""
+    intro = render_pages(translated_pages_input(), GenerateConfig())[f"Questionnaire-YFTk3VdO9av{INTRO_SUFFIX}"]
+
+    assert "| Deaths \\| reported | Weight | `lo`: ນ້ຳໜັກ &lt; 2.5 \\| kg |\n" in intro
+    assert "`en`: Weight" not in intro
+
+
+def test_a_translated_option_set_earns_an_intro_listing_its_translated_concepts() -> None:
+    """An option set with no description still gets an intro when its name or a concept is translated."""
+    pages = render_pages(translated_pages_input(), GenerateConfig())
+    intro = pages[f"CodeSystem-d2-os-Os1aaaaaaaa-cs{INTRO_SUFFIX}"]
+
+    assert intro.startswith("Generated from the DHIS2 option set Sex (Os1aaaaaaaa).\n")
+    assert "- `lo`: ເພດ\n" in intro
+    assert "| `Op1aaaaaaaa` | Female | `lo`: ຍິງ |\n" in intro
+    assert "Male" not in intro
+    assert "[Sex](CodeSystem-d2-os-Os1aaaaaaaa-cs.html) | 2 | no | `lo`: ເພດ |" in pages["terminology.md"]
+
+
+def test_organisation_units_and_levels_list_their_name_translations() -> None:
+    """A translated unit earns an intro, and the registry's level table names each level beside its translations."""
+    pages = render_pages(translated_pages_input(), GenerateConfig())
+
+    assert "- `lo`: ນະຄອນຫຼວງວຽງຈັນ\n" in pages[f"Organization-O6uvpzGd5pu{INTRO_SUFFIX}"]
+    assert "| 1 | Country | 1 | `lo`: ປະເທດ |\n" in pages["registry.md"]
+    assert "| 2 | Province | 1 |  |\n" in pages["registry.md"]
+
+
+def test_locales_narrow_the_translations_the_pages_list() -> None:
+    """`[generate] locales` narrows the listing, and an object left with none adds nothing."""
+    pages = render_pages(translated_pages_input(), GenerateConfig(locales=["fr"]))
+
+    assert "`fr`: Mortalité &lt; 5 ans |" in pages["forms.md"]
+    assert "`lo`" not in pages["forms.md"]
+    assert f"Organization-O6uvpzGd5pu{INTRO_SUFFIX}" not in pages
+
+
+def test_a_translation_is_listed_under_the_locale_code_dhis2_stores() -> None:
+    """The locale code is shown as DHIS2 stores it, and `locales` still matches it in BCP-47 form."""
+    unit = OrganisationUnitIn(
+        uid="O6uvpzGd5pu",
+        name="Bo",
+        level=1,
+        path="/O6uvpzGd5pu",
+        translations=[TranslationIn(locale="pt_BR", property="NAME", value="Bô")],
+    )
+    pages = render_pages(PagesIn(organisation_units=[unit]), GenerateConfig(locales=["pt-BR"]))
+
+    assert "- `pt_BR`: Bô\n" in pages[f"Organization-O6uvpzGd5pu{INTRO_SUFFIX}"]

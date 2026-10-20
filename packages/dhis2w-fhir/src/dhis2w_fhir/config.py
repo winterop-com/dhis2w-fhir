@@ -197,6 +197,12 @@ class GenerateConfig(BaseModel):
     (DHIS2_ISSUES.md #62). Naming it turns every emitted `dateTime` into the numeric offset that zone
     was on at that very instant, DST included; leaving it unset keeps the UTC reading.
 
+    `translations_on_pages` lists, on the generated narrative pages, every translation DHIS2 holds
+    for the names they show - beside each name, under the locale code DHIS2 stores it under, and
+    narrowed by `locales`. A translation equal to the name it translates is left out, and an object
+    with none shows nothing extra, so a guide over untranslated metadata reads the same either way.
+    `false` lists none.
+
     `tracked_entity_types` maps a DHIS2 tracked entity type UID onto the FHIR resource type its
     registrations are about. A DHIS2 tracked entity is not always a person - a project tracks
     households, buildings, herds, and equipment as readily as patients - so the type says what it
@@ -212,6 +218,7 @@ class GenerateConfig(BaseModel):
     hostile_names: HostileNamePosture | None = None
     timezone: str | None = None
     locales: list[str] = Field(default_factory=list)
+    translations_on_pages: bool = True
     naming: NamingConfig = Field(default_factory=NamingConfig)
     option_sets: OptionSetSelection = Field(default_factory=OptionSetSelection)
     categories: CategorySelection = Field(default_factory=CategorySelection)

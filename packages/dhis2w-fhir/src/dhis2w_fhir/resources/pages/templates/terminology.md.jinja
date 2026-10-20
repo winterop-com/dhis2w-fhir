@@ -8,10 +8,14 @@ other DHIS2 identifier rides along on every concept as a property.
 ## Option sets
 
 {% if terminology.option_sets %}
-| Option set | Concepts | Code fallback |
-| --- | ---: | --- |
+{% set translated = terminology.option_sets | selectattr("translations") | list %}
+| Option set | Concepts | Code fallback |{% if translated %} Translations |{% endif %}
+
+| --- | ---: | --- |{% if translated %} --- |{% endif %}
+
 {% for option_set in terminology.option_sets %}
-| [{{ option_set.cell_name }}]({{ option_set.page_link }}) | {{ option_set.concept_count }} | {{ "yes" if option_set.code_fallback else "no" }} |
+| [{{ option_set.cell_name }}]({{ option_set.page_link }}) | {{ option_set.concept_count }} | {{ "yes" if option_set.code_fallback else "no" }} |{% if translated %} {{ option_set.translations | translation_cell }} |{% endif %}
+
 {% endfor %}
 
 A "yes" in the fallback column means at least one option in that set has no usable DHIS2

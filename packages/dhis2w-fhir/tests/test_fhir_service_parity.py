@@ -652,12 +652,14 @@ async def test_generate_pages_across_majors(
     wire_version: str,
     probe_profile: None,  # noqa: ARG001
     mock_system_info: Callable[..., None],
+    mock_organisation_unit_levels: Callable[..., None],
     tmp_path: Path,
 ) -> None:
     """`generate_pages` writes the site pages and the Questionnaire intros into pagecontent on every major."""
     mock_system_info(wire_version)
     await _scaffold_project(tmp_path)
     _mock_page_endpoints()
+    mock_organisation_unit_levels()
 
     report = await service.generate_pages(resolve_profile("probe"), load_project(tmp_path))
 
@@ -676,12 +678,14 @@ async def test_generate_pages_across_majors(
 async def test_generate_pages_spares_the_hand_authored_index(
     probe_profile: None,  # noqa: ARG001
     mock_system_info: Callable[..., None],
+    mock_organisation_unit_levels: Callable[..., None],
     tmp_path: Path,
 ) -> None:
     """The scaffolded index.md survives a clean-and-regenerate cycle, and a second run writes nothing."""
     mock_system_info("v42")
     await _scaffold_project(tmp_path)
     _mock_page_endpoints()
+    mock_organisation_unit_levels()
     index = tmp_path / "ig" / "input" / "pagecontent" / "index.md"
     scaffolded = index.read_text(encoding="utf-8")
 

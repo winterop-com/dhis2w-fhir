@@ -1,8 +1,12 @@
 {% macro catalog(forms, period_column) %}
-| Form | DHIS2 id | DHIS2 code |{% if period_column %} Period type |{% endif %} Sections | Questions |
-| --- | --- | --- |{% if period_column %} --- |{% endif %} ---: | ---: |
+{% set translated = forms | selectattr("translations") | list %}
+| Form | DHIS2 id | DHIS2 code |{% if period_column %} Period type |{% endif %} Sections | Questions |{% if translated %} Translations |{% endif %}
+
+| --- | --- | --- |{% if period_column %} --- |{% endif %} ---: | ---: |{% if translated %} --- |{% endif %}
+
 {% for form in forms %}
-| [{{ form.cell_name }}]({{ form.page_link }}) | `{{ form.uid }}` | `{{ form.code }}` |{% if period_column %} {{ form.period_type }} |{% endif %} {{ form.section_count }} | {{ form.question_count }} |
+| [{{ form.cell_name }}]({{ form.page_link }}) | `{{ form.uid }}` | `{{ form.code }}` |{% if period_column %} {{ form.period_type }} |{% endif %} {{ form.section_count }} | {{ form.question_count }} |{% if translated %} {{ form.translations | translation_cell }} |{% endif %}
+
 {% endfor %}
 {% endmacro %}
 {% macro breakdown(forms) %}

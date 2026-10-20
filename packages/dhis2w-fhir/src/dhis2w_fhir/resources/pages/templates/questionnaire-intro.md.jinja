@@ -1,5 +1,13 @@
 Generated from the DHIS2 {{ intro.kind_label }} {{ intro.form.name }} ({{ intro.form.uid }}).
 
+{% if intro.form.translations %}
+Translations of the name, as this DHIS2 instance holds them:
+
+{% for translation in intro.form.translations %}
+- `{{ translation.locale }}`: {{ translation.value }}
+{% endfor %}
+
+{% endif %}
 {% if intro.form.description %}
 {{ intro.form.description }}
 
@@ -18,14 +26,29 @@ Generated from the DHIS2 {{ intro.kind_label }} {{ intro.form.name }} ({{ intro.
 | Questions | {{ intro.form.question_count }} |
 
 {% if intro.form.sections or intro.form.unsectioned_question_count %}
-| Section | Questions |
-| --- | ---: |
+{% set translated = intro.form.sections | selectattr("translations") | list %}
+| Section | Questions |{% if translated %} Translations |{% endif %}
+
+| --- | ---: |{% if translated %} --- |{% endif %}
+
 {% for section in intro.form.sections %}
-| {{ section.name }} | {{ section.question_count }} |
+| {{ section.name }} | {{ section.question_count }} |{% if translated %} {{ section.translations | translation_cell }} |{% endif %}
+
 {% endfor %}
 {% if intro.form.unsectioned_question_count %}
-| Outside any section | {{ intro.form.unsectioned_question_count }} |
+| Outside any section | {{ intro.form.unsectioned_question_count }} |{% if translated %}  |{% endif %}
+
 {% endif %}
 {% else %}
 This form asks no questions.
+{% endif %}
+{% if intro.form.questions %}
+
+Translations of the questions, as this DHIS2 instance holds them:
+
+| Section | Question | Translations |
+| --- | --- | --- |
+{% for question in intro.form.questions %}
+| {{ question.section }} | {{ question.question }} | {{ question.translations | translation_cell }} |
+{% endfor %}
 {% endif %}

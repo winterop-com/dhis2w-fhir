@@ -29,11 +29,20 @@ The root of the published tree is **{{ registry.root_name }}** (`{{ registry.roo
 
 {% endif %}
 {% if registry.levels %}
+{% set translated = registry.levels | selectattr("translations") | list %}
+{% if translated %}
+| Level | Name | Units | Translations |
+| ---: | --- | ---: | --- |
+{% for level in registry.levels %}
+| {{ level.level }} | {{ level.name }} | {{ level.unit_count }} | {{ level.translations | translation_cell }} |
+{% endfor %}
+{% else %}
 | Level | Units |
 | ---: | ---: |
 {% for level in registry.levels %}
 | {{ level.level }} | {{ level.unit_count }} |
 {% endfor %}
+{% endif %}
 
 {% else %}
 No organisation units matched the configured selection.

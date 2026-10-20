@@ -1,3 +1,23 @@
+{% if intro.description %}
 {{ intro.description }}
 
+{% endif %}
 Generated from the DHIS2 option set {{ intro.name }} ({{ intro.uid }}).
+{% if intro.translations %}
+
+Translations of the name, as this DHIS2 instance holds them:
+
+{% for translation in intro.translations %}
+- `{{ translation.locale }}`: {{ translation.value }}
+{% endfor %}
+{% endif %}
+{% if intro.concepts %}
+
+Translations of the concepts, as this DHIS2 instance holds them:
+
+| Code | Name | Translations |
+| --- | --- | --- |
+{% for concept in intro.concepts %}
+| `{{ concept.code }}` | {{ concept.display }} | {{ concept.translations | translation_cell }} |
+{% endfor %}
+{% endif %}
