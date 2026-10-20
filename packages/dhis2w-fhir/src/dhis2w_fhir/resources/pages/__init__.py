@@ -30,7 +30,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation import build_naming_system_declarations
 from dhis2w_fhir.foundation.schemas import FoundationNaming
-from dhis2w_fhir.names import StemResolution, code_or_uid, markdown_text
+from dhis2w_fhir.i18n import FORM_NAME_PROPERTY, NAME_PROPERTY, TranslationIn, stored_property_translations
+from dhis2w_fhir.names import StemResolution, code_or_uid, flatten_whitespace, markdown_text
 from dhis2w_fhir.period.parser import parse_period
 from dhis2w_fhir.period.recent import recent_periods
 from dhis2w_fhir.period.schemas import PERIOD_TYPE_DEFINITIONS
@@ -72,10 +73,12 @@ from dhis2w_fhir.resources.pages.schemas import (
     PeriodsView,
     PeriodTypeRow,
     QuestionnaireIntroView,
+    QuestionTranslationRow,
     RegistryView,
     SupportCodeSystemRow,
     TerminologyView,
     TrackerProgramGroup,
+    TranslatedText,
     ValueLiteralRow,
 )
 from dhis2w_fhir.resources.questionnaires import ITEM_TYPES_BY_VALUE_TYPE
@@ -95,7 +98,7 @@ from dhis2w_fhir.writer import FshArtifact, FshBuild
 
 if TYPE_CHECKING:
     from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn
+    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
 
 __all__ = [
     "INTRO_SUFFIX",
@@ -172,6 +175,9 @@ _ANSWER_ELEMENTS_BY_ITEM_TYPE = {"attachment": "valueAttachment"}
 #: How many worked `linkId` rows the capture page shows per form - enough to state both grammars.
 _CAPTURE_LINK_ROWS = 4
 
+#: What a section cell of a form intro's question table says for a question asked outside any section.
+_UNSECTIONED_LABEL = "Outside any section"
+
 #: The two `linkId` grammars a capture client answers on.
 _PLAIN_LINK_GRAMMAR = "<dataElementId>"
 _DISAGGREGATED_LINK_GRAMMAR = "<dataElementId>.<categoryOptionComboId>"
@@ -184,6 +190,34 @@ _ENVIRONMENT = Environment(
     trim_blocks=True,
     lstrip_blocks=True,
 )
+
+
+def _translation_cell(translations: list[TranslatedText]) -> str:
+    """One table cell listing translations, one `` `locale`: text `` line each; empty for none."""
+    return "<br/>".join(f"`{translation.locale}`: {translation.value}" for translation in translations)
+
+
+_ENVIRONMENT.filters["translation_cell"] = _translation_cell
+
+
+def _listed_translations(
+    config: GenerateConfig, translations: list[TranslationIn], property_name: str, text: str
+) -> list[TranslatedText]:
+    """The translations a page lists beside one DHIS2 text, escaped for a table cell; none when the setting is off.
+
+    A translation is listed under the locale code DHIS2 stores it under, narrowed by
+    `[generate] locales`, and only where it says something the DHIS2 text does not: an empty value,
+    or one equal to the text it translates (an `en` translation repeating the name), adds nothing.
+    """
+    if not config.translations_on_pages:
+        return []
+    stated = flatten_whitespace(text)
+    listed: list[TranslatedText] = []
+    for translation in stored_property_translations(translations, config.locales, property_name):
+        value = flatten_whitespace(translation.value)
+        if value and value != stated:
+            listed.append(TranslatedText(locale=translation.locale, value=markdown_text(value, table_cell=True)))
+    return listed
 
 
 def build_page_artifacts(
@@ -226,12 +260,12 @@ def build_page_artifacts(
             subjects, config.naming.source, registry=config.organisation_units.registry
         )
     forms = [
-        _form_row(source, plan.targets.stem_for(source.uid))
+        _form_row(source, plan.targets.stem_for(source.uid), config)
         for source in sorted(pages.forms, key=lambda item: (item.name, item.uid))
     ]
     site_pages = [
         _forms_page(forms),
-        _registry_page(pages.organisation_units, config, unit_stems),
+        _registry_page(pages.organisation_units, config, unit_stems, pages.organisation_unit_levels),
         _terminology_page(pages, config),
         _identifiers_page(config),
         _periods_page(config),
@@ -248,7 +282,7 @@ def build_page_artifacts(
     build.artifacts.extend(_with_substitution_note(page) if substituted else page for page in site_pages)
     build.artifacts.extend(_questionnaire_intros(forms))
     build.artifacts.extend(_code_system_intros(pages, config))
-    build.artifacts.extend(_organization_intros(pages.organisation_units, unit_stems))
+    build.artifacts.extend(_organization_intros(pages.organisation_units, unit_stems, config))
     return build
 
 
@@ -276,7 +310,7 @@ def _source_items(source: QuestionnaireSourceIn) -> list[QuestionnaireItemIn]:
     return [item for section in source.sections for item in section.items] + list(source.flat_items)
 
 
-def _form_row(source: QuestionnaireSourceIn, stem: str) -> FormRow:
+def _form_row(source: QuestionnaireSourceIn, stem: str, config: GenerateConfig) -> FormRow:
     """Project one form onto the catalog row, escaping every DHIS2-derived string for markdown."""
     return FormRow(
         uid=source.uid,
@@ -296,10 +330,44 @@ def _form_row(source: QuestionnaireSourceIn, stem: str) -> FormRow:
         question_count=len(_source_items(source)),
         unsectioned_question_count=len(source.flat_items),
         sections=[
-            FormSectionRow(name=markdown_text(section.name, table_cell=True), question_count=len(section.items))
+            FormSectionRow(
+                name=markdown_text(section.name, table_cell=True),
+                question_count=len(section.items),
+                translations=_listed_translations(config, section.translations, NAME_PROPERTY, section.name),
+            )
             for section in source.sections
         ],
+        translations=_listed_translations(config, source.translations, NAME_PROPERTY, source.name),
+        questions=_question_translation_rows(source, config),
     )
+
+
+def _question_translation_rows(source: QuestionnaireSourceIn, config: GenerateConfig) -> list[QuestionTranslationRow]:
+    """Every question of one form holding a translation of the text it asks, in form order.
+
+    A question asks its DHIS2 form name where the object carries one and its name otherwise, so
+    the translations listed are of that same property: a translated name beside a form-named
+    question would translate words the form does not show.
+    """
+    if not config.translations_on_pages:
+        return []
+    asked = [(section.name, item) for section in source.sections for item in section.items]
+    asked.extend((_UNSECTIONED_LABEL, item) for item in source.flat_items)
+    rows: list[QuestionTranslationRow] = []
+    for section_name, item in asked:
+        form_named = item.form_name is not None
+        text = item.form_name if item.form_name is not None else item.name
+        property_name = FORM_NAME_PROPERTY if form_named else NAME_PROPERTY
+        translations = _listed_translations(config, item.translations, property_name, text)
+        if translations:
+            rows.append(
+                QuestionTranslationRow(
+                    section=markdown_text(section_name, table_cell=True),
+                    question=markdown_text(text, table_cell=True),
+                    translations=translations,
+                )
+            )
+    return rows
 
 
 def _forms_page(forms: list[FormRow]) -> FshArtifact:
@@ -363,14 +431,17 @@ def build_registry_page_artifacts(
         unit_stems = plan_organisation_unit_stems(
             organisation_unit_stem_subjects(pages.organisation_units), config.naming.source
         )
-    registry_page = _registry_page(pages.organisation_units, config, unit_stems)
+    registry_page = _registry_page(pages.organisation_units, config, unit_stems, pages.organisation_unit_levels)
     build.artifacts.append(_with_substitution_note(registry_page) if substituted else registry_page)
-    build.artifacts.extend(_organization_intros(pages.organisation_units, unit_stems))
+    build.artifacts.extend(_organization_intros(pages.organisation_units, unit_stems, config))
     return build
 
 
 def _registry_page(
-    organisation_units: list[OrganisationUnitIn], config: GenerateConfig, organisation_unit_stems: StemResolution
+    organisation_units: list[OrganisationUnitIn],
+    config: GenerateConfig,
+    organisation_unit_stems: StemResolution,
+    level_names: OrganisationUnitLevelNames,
 ) -> FshArtifact:
     """Build `registry.md`: the organisation-unit totals, the level table, and the profile pointers.
 
@@ -402,9 +473,25 @@ def _registry_page(
         geometry=config.organisation_units.geometry,
         organization_profile=names.organization_profile,
         location_profile=names.location_profile,
-        levels=[LevelRow(level=level, unit_count=levels[level]) for level in sorted(levels)],
+        levels=[_level_row(level, levels[level], config, level_names) for level in sorted(levels)],
     )
     return _page("registry.md", "registry.md.jinja", registry=view)
+
+
+def _level_row(
+    level: int, unit_count: int, config: GenerateConfig, level_names: OrganisationUnitLevelNames
+) -> LevelRow:
+    """One level of the registry table: its depth, its unit count, its name, and that name's translations."""
+    named = next((row for row in level_names.levels if row.level == level), None)
+    display = level_names.display(level)
+    return LevelRow(
+        level=level,
+        unit_count=unit_count,
+        name=markdown_text(display, table_cell=True),
+        translations=(
+            _listed_translations(config, named.translations, NAME_PROPERTY, display) if named is not None else []
+        ),
+    )
 
 
 def _terminology_page(pages: PagesIn, config: GenerateConfig) -> FshArtifact:
@@ -417,6 +504,9 @@ def _terminology_page(pages: PagesIn, config: GenerateConfig) -> FshArtifact:
             code_system_id=identity.code_system_id,
             concept_count=len(by_uid[identity.uid].options),
             code_fallback=option_set_code_fallback(by_uid[identity.uid], config),
+            translations=_listed_translations(
+                config, by_uid[identity.uid].translations, NAME_PROPERTY, by_uid[identity.uid].name
+            ),
         )
         for identity in option_set_identities(pages.option_sets, config).identities
     ]
@@ -907,12 +997,18 @@ def _questionnaire_intros(forms: list[FormRow]) -> list[FshArtifact]:
 
 
 def _code_system_intros(pages: PagesIn, config: GenerateConfig) -> list[FshArtifact]:
-    """Build a `CodeSystem-<id>-intro.md` for every option set carrying a DHIS2 description, and no others."""
+    """Build a `CodeSystem-<id>-intro.md` for every option set with a DHIS2 description or a listed name translation.
+
+    The concepts' translations are not listed here: the publisher's own concept table on the same page
+    carries a column per language, read from the designations every concept states.
+    """
     by_uid = {option_set.uid: option_set for option_set in pages.option_sets}
     artifacts: list[FshArtifact] = []
     for identity in option_set_identities(pages.option_sets, config).identities:
-        description = (by_uid[identity.uid].description or "").strip()
-        if not description:
+        option_set = by_uid[identity.uid]
+        description = (option_set.description or "").strip()
+        translations = _listed_translations(config, option_set.translations, NAME_PROPERTY, option_set.name)
+        if not description and not translations:
             continue
         artifacts.append(
             _page(
@@ -923,6 +1019,7 @@ def _code_system_intros(pages: PagesIn, config: GenerateConfig) -> list[FshArtif
                     uid=identity.uid,
                     name=markdown_text(identity.name),
                     description=markdown_text(description),
+                    translations=translations,
                 ),
             )
         )
@@ -930,13 +1027,16 @@ def _code_system_intros(pages: PagesIn, config: GenerateConfig) -> list[FshArtif
 
 
 def _organization_intros(
-    organisation_units: list[OrganisationUnitIn], organisation_unit_stems: StemResolution
+    organisation_units: list[OrganisationUnitIn], organisation_unit_stems: StemResolution, config: GenerateConfig
 ) -> list[FshArtifact]:
-    """Build an `Organization-<stem>-intro.md` for every organisation unit carrying a DHIS2 description."""
+    """Build an `Organization-<stem>-intro.md` for every organisation unit with a DHIS2 description or translation."""
     artifacts: list[FshArtifact] = []
     for organisation_unit in sorted(organisation_units, key=lambda item: (item.path, item.uid)):
         description = (organisation_unit.description or "").strip()
-        if not description:
+        translations = _listed_translations(
+            config, organisation_unit.translations, NAME_PROPERTY, organisation_unit.name
+        )
+        if not description and not translations:
             continue
         artifacts.append(
             _page(
@@ -948,6 +1048,7 @@ def _organization_intros(
                     name=markdown_text(organisation_unit.name),
                     level=organisation_unit.level,
                     description=markdown_text(description),
+                    translations=translations,
                 ),
             )
         )

@@ -1359,7 +1359,7 @@ registration form become `Questionnaire` instances.
   on an aggregate response and `E1029` on a tracker one.
 - **`<Type>-<id>-intro.md` intros** that the IG publisher injects into the
   matching artifact pages - one per Questionnaire, and one per option set or
-  organisation unit carrying a DHIS2 description.
+  organisation unit carrying a DHIS2 description or a listed translation.
 - **Sync-managed by a markdown generated header**, so the hand-authored
   `index.md` survives every regenerate, with every metadata-derived string
   escaped for the publisher's strict HTML parse and for markdown table cells.
@@ -1386,6 +1386,15 @@ DHIS2 translations are carried through across the whole surface, filtered by
   so a regenerate of unchanged metadata is byte-identical.
 - **`[generate] locales`** narrows which languages travel; absent means every
   language the instance holds.
+- **The generated pages list the translations** beside each name
+  (`[generate] translations_on_pages`, default `true`): a Translations column on
+  the forms, option set and level tables, the name's translations on every form,
+  code system and organisation unit intro, and tables of a form's translated
+  questions (its `FORM_NAME` translation where DHIS2 gives it a form name). A
+  code system's concepts are left to the publisher's concept table, which shows
+  one column per language from the designations. Each is listed under the locale code DHIS2
+  stores, a translation equal to the name is left out, and an object with none
+  adds nothing; `false` renders the pages without any listing.
 
 #### Artifact naming
 

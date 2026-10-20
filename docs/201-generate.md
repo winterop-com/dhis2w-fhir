@@ -287,6 +287,9 @@ as given). Points worth knowing:
   to narrow. `NAME` translations become concept designations and title/name
   translation extensions; a question DHIS2 gives a form name to takes its
   label translation from `FORM_NAME`. Nothing else is emitted.
+- **Translations on the pages**: `[generate] translations_on_pages` (default
+  `true`) lists each name's translations beside it on the generated pages and
+  intros, under the locale code DHIS2 stores; `false` lists none.
 
 ## Know which spelling a surface speaks
 
@@ -651,7 +654,7 @@ it and puts the per-target file lists and counts on stdout as JSON.
 `capture.md` - the scaffolded site menu - plus per-artifact intros the
 publisher injects into matching artifact pages (`Questionnaire-<stem>-intro.md`
 always; CodeSystem and Organization intros only when the DHIS2 object
-carries a description). `index.md` is scaffolded once and is yours. Every
+carries a description or a translation the page lists). `index.md` is scaffolded once and is yours. Every
 DHIS2 name and description on these pages is escaped on the way in, so a
 data set called "Mortality < 5 years by gender" renders as text rather than
 aborting the publisher's HTML parse.

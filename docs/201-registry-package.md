@@ -76,7 +76,8 @@ and holds the organisation-unit registry and nothing else: the
 `D2Organization` and `D2Location` profiles, the level extension and its
 CodeSystem and ValueSet, the organisation-unit NamingSystems, the attribute-value
 extension a unit's DHIS2 attributes ride on, the registry examples, and the
-Registry page with a per-unit intro where DHIS2 holds a description. Its site is
+Registry page with a per-unit intro where DHIS2 holds a description or a
+translation of the unit's name. Its site is
 Home, Registry, Artifacts.
 
 The registry examples are the one published pair that is not an organisation

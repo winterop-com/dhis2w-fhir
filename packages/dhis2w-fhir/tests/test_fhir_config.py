@@ -199,6 +199,18 @@ def test_locales_are_normalized_to_bcp47() -> None:
     assert GenerateConfig(locales=["pt_BR", "LO", "km"]).locales == ["pt-BR", "lo", "km"]
 
 
+def test_translations_on_pages_default_to_listing_every_translation() -> None:
+    """An absent `[generate] translations_on_pages` lists every translation DHIS2 holds on the pages."""
+    assert GenerateConfig().translations_on_pages is True
+
+
+def test_translations_on_pages_turn_off_in_fhir_toml(tmp_path: Path) -> None:
+    """`translations_on_pages = false` in the `[generate]` table loads as the setting that lists none."""
+    path = _write(tmp_path, after="\n[generate]\ntranslations_on_pages = false\n")
+
+    assert load_fhir_config(path).generate.translations_on_pages is False
+
+
 _IDENTITY_TOML = """
 [ig]
 id = "dhis2.fhir.example"
