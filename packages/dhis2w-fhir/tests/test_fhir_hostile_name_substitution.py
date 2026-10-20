@@ -1139,6 +1139,43 @@ async def test_a_generate_run_whose_rewrite_lands_on_a_literal_code_writes_nothi
 
 
 @respx.mock
+async def test_a_collision_in_an_option_set_the_run_does_not_publish_refuses_nothing(
+    probe_profile: None,  # noqa: ARG001
+    mock_system_info: Callable[..., None],
+    tmp_path: Path,
+) -> None:
+    """Only what the guide publishes can collide: a run selecting one option set ignores the codes of another."""
+    mock_system_info("v42")
+    instance = _spaced_code_instance()
+    instance["organisationUnitLevels"] = [{"id": "OlSpc000001", "level": 1, "name": "National"}]
+    instance["optionSets"].append(
+        {
+            "id": "OsUnsel0001",
+            "name": "Villages",
+            "code": "VILLAGES",
+            "options": [
+                {"id": "OpUnsel0001", "name": "Huei Oh", "code": "Huei Oh", "sortOrder": 1},
+                {"id": "OpUnsel0002", "name": "Huei-Oh", "code": "Huei-Oh", "sortOrder": 2},
+            ],
+        }
+    )
+    await _scaffold_project(tmp_path)
+    config_path = tmp_path / "fhir.toml"
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8").replace("[generate]\n", '[generate]\nconcept_code_source = "code"\n', 1)
+        + '\n[generate.option_sets]\ninclude_ids = ["OsSpc000001"]\n',
+        encoding="utf-8",
+    )
+    _mock_instance(instance)
+    project = load_project(tmp_path)
+
+    await service.generate_full(resolve_profile("probe"), project, gate=_substituting_gate())
+
+    assert list(tmp_path.rglob("CodeSystem-d2-os-OsSpc000001-cs.json"))
+    assert not list(tmp_path.rglob("CodeSystem-d2-os-OsUnsel0001-cs.json"))
+
+
+@respx.mock
 async def test_the_refuse_posture_publishes_the_space_carrying_code_byte_true(
     probe_profile: None,  # noqa: ARG001
     mock_system_info: Callable[..., None],

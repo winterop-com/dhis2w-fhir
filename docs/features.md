@@ -345,7 +345,8 @@ chain in one command.
   alone, so a wider selection or a cleaned neighbour never changes it, and two
   codes that would land on one published code (`Pre eclampsia` beside a literal
   `Pre-eclampsia`) refuse the run, naming both; `d2w fhir validate` reports the
-  pair as a `code-substitution-collision` error. Every rewritten
+  pair as a `code-substitution-collision` error. Only the codes a run publishes
+  are compared, so an option set outside the selection never refuses it. Every rewritten
   concept states the DHIS2 code byte-true as a `dhis2-code` property, which is
   what the capture path reads: a QuestionnaireResponse answering with the
   published code lowers to the DHIS2 code on the import payload. Under `refuse`
