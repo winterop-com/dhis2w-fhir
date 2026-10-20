@@ -426,7 +426,9 @@ no duplicate codes, but a rewrite can land on one: `Pre eclampsia` beside a lite
 either under a suffix would let a published code move from one object to the
 other between runs, so the run is refused instead, naming both codes; change one
 of them in DHIS2. `d2w fhir validate` reports the same pair as a
-`code-substitution-collision` error.
+`code-substitution-collision` error. Only the codes the run publishes are
+compared: an option set outside the selection can hold `Huei Oh` beside
+`Huei-Oh` without stopping a run that never publishes it.
 
 **DHIS2 is never written to, and nothing is lost.** No UID is touched. Every
 rewritten concept states the DHIS2 code byte-true as a `dhis2-code` property - in
