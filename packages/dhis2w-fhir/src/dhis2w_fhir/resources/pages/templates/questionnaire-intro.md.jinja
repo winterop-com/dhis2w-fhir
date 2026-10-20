@@ -46,9 +46,17 @@ This form asks no questions.
 
 Translations of the questions, as this DHIS2 instance holds them:
 
+{% if intro.form.sections %}
 | Section | Question | Translations |
 | --- | --- | --- |
 {% for question in intro.form.questions %}
 | {{ question.section }} | {{ question.question }} | {{ question.translations | translation_cell }} |
 {% endfor %}
+{% else %}
+| Question | Translations |
+| --- | --- |
+{% for question in intro.form.questions %}
+| {{ question.question }} | {{ question.translations | translation_cell }} |
+{% endfor %}
+{% endif %}
 {% endif %}

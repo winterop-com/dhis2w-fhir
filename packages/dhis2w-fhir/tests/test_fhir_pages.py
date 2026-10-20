@@ -1040,3 +1040,10 @@ def test_a_translation_is_listed_under_the_locale_code_dhis2_stores() -> None:
     pages = render_pages(PagesIn(organisation_units=[unit]), GenerateConfig(locales=["pt-BR"]))
 
     assert "- `pt_BR`: Bô\n" in pages[f"Organization-O6uvpzGd5pu{INTRO_SUFFIX}"]
+
+
+def test_a_form_without_sections_tabulates_its_translated_questions_without_a_section_column() -> None:
+    """A form asking every question outside a section lists each translated question without a section cell."""
+    intro = render_pages(translated_pages_input(), GenerateConfig())[f"Questionnaire-A03MvHHogjR{INTRO_SUFFIX}"]
+
+    assert "| Question | Translations |\n| --- | --- |\n| Apgar Score | `lo`: ຄະແນນ Apgar |\n" in intro
