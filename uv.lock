@@ -16,8 +16,8 @@ members = [
 [manifest.dependency-groups]
 dev = [
     { name = "coverage", extras = ["toml"], specifier = ">=7.16.0" },
-    { name = "dhis2w-cli", specifier = "==1.32.2" },
-    { name = "dhis2w-core", extras = ["testing"], specifier = "==1.32.2" },
+    { name = "dhis2w-cli", specifier = "==1.33.0" },
+    { name = "dhis2w-core", extras = ["testing"], specifier = "==1.33.0" },
     { name = "httpx2", specifier = ">=2.12.0" },
     { name = "hypothesis", specifier = ">=6.168.0" },
     { name = "mkdocs", specifier = ">=1.6" },
@@ -610,35 +610,35 @@ wheels = [
 
 [[package]]
 name = "dhis2w-cli"
-version = "1.32.2"
+version = "1.33.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dhis2w-core" },
     { name = "rich" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1d/22/cc16c5f0f427569e38fdead5957489402bc3c6ba82ab736f270eb5df205c/dhis2w_cli-1.32.2.tar.gz", hash = "sha256:5de3ff42f284aa11079d551431d40a2c0c4f3023ca981c82d62eb3c468402f28", size = 7575, upload-time = "2026-10-20T14:16:33.583Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/17/4f/a1f66591ffeec5d0b37e2b5912c62dd5fb4adb5d71557e9c7fe7d368d203/dhis2w_cli-1.33.0.tar.gz", hash = "sha256:faba3c6b8bb8612f096d42cbcdd99d8e78310b62bbe763d0e53b168e9c243b0a", size = 7578, upload-time = "2026-10-24T07:28:57.003Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/21/90cfdbaad5e3522289d4465f83ca11a35bae9344ca476e26cfbc3ac2f08d/dhis2w_cli-1.32.2-py3-none-any.whl", hash = "sha256:86ba658f78e2773e650bc9b281acf50a032d02afe23e78a1738bf92b0c4c343d", size = 8788, upload-time = "2026-10-20T14:16:28.503Z" },
+    { url = "https://files.pythonhosted.org/packages/32/e8/0b77ccf8176a51b3932b404305776e04537a7c24b582359c24084baa7504/dhis2w_cli-1.33.0-py3-none-any.whl", hash = "sha256:b04bb3651913dcbab28501fe7d7c336db1a60f418d09735d77bbe6a0594d506c", size = 8788, upload-time = "2026-10-24T07:28:51.561Z" },
 ]
 
 [[package]]
 name = "dhis2w-client"
-version = "1.32.2"
+version = "1.33.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "geojson-pydantic" },
     { name = "httpx2" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8e/46/a64f345addff852ded539389c9f320c498259a00cc52ad4dc7ed21290509/dhis2w_client-1.32.2.tar.gz", hash = "sha256:63fd59b4fd04f41f36f415868fc17b05e47bf113360582f778c0622058f58d97", size = 2951591, upload-time = "2026-10-20T14:16:34.491Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/cd/e82b03a956c34b1942c6210bb205472bea038c6fd850f6088612a241f8a0/dhis2w_client-1.33.0.tar.gz", hash = "sha256:7717b15e631bdc7d8e0bf40ac95eccd508c92f5520ee989efbb1b537d051d499", size = 2953633, upload-time = "2026-10-24T07:28:58.484Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/ac/3523142b82bda12190d1c9a595ee87390465748b0e55f6e58f3121c1c391/dhis2w_client-1.32.2-py3-none-any.whl", hash = "sha256:5441064683ba67b6059d17577b6c65e83df74cd97e64ffac16782e6723ccb048", size = 4656781, upload-time = "2026-10-20T14:16:29.827Z" },
+    { url = "https://files.pythonhosted.org/packages/86/a1/65a2192c6b859705ebdc9ce6e9c10bbe5dfcb076d069273568f0c5c762f2/dhis2w_client-1.33.0-py3-none-any.whl", hash = "sha256:58410940be98dee70570f4749abb31174b85f1113aa35b7af4290f44b9e46b23", size = 4658892, upload-time = "2026-10-24T07:28:53.544Z" },
 ]
 
 [[package]]
 name = "dhis2w-core"
-version = "1.32.2"
+version = "1.33.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite" },
@@ -653,9 +653,9 @@ dependencies = [
     { name = "tomli-w" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1b/c1/be2e82378ddeffafa02aef619812baa4d23b7e10a7137bcf76dd3977a95f/dhis2w_core-1.32.2.tar.gz", hash = "sha256:c9ad65f22f6baecb8efa4068467783f95b3f4588ef515c74c48a6bf93dff258b", size = 781474, upload-time = "2026-10-20T14:16:36.083Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d6/fa/5002073cbacab397f808e28a3dd504ae2c5b8a317fe3837337b84daaf72a/dhis2w_core-1.33.0.tar.gz", hash = "sha256:6367ee3e742d16cc1d4e4538a7b59ce49d2c9e56d13fe42589602357dbaf151a", size = 782555, upload-time = "2026-10-24T07:29:00.518Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/b7/029cd38efbd8620a2afcb50f76d09d39a624f71639cbca83548ab52560c5/dhis2w_core-1.32.2-py3-none-any.whl", hash = "sha256:0bc94508ed30cccf436127e5d423ff9ededb4905f983181863d9830bfe56ad18", size = 940907, upload-time = "2026-10-20T14:16:31.757Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/7a/66171bf9e9ff094d2236824ef110a3d23bedb5310c0367c10c55cc12ff52/dhis2w_core-1.33.0-py3-none-any.whl", hash = "sha256:fecf9f548730234a45544547930f6562a6d5bab3339ea1aeb0f34577fa3a6b10", size = 941866, upload-time = "2026-10-24T07:28:55.547Z" },
 ]
 
 [package.optional-dependencies]
@@ -668,7 +668,7 @@ testing = [
 
 [[package]]
 name = "dhis2w-fhir"
-version = "1.32.2"
+version = "1.33.0"
 source = { editable = "packages/dhis2w-fhir" }
 dependencies = [
     { name = "dhis2w-client" },
@@ -684,8 +684,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dhis2w-client", specifier = "==1.32.2" },
-    { name = "dhis2w-core", specifier = "==1.32.2" },
+    { name = "dhis2w-client", specifier = "==1.33.0" },
+    { name = "dhis2w-core", specifier = "==1.33.0" },
     { name = "dhis2w-fhir-engine", editable = "packages/dhis2w-fhir-engine" },
     { name = "fpdf2", specifier = ">=2.8.7" },
     { name = "jinja2", specifier = ">=3.1.6" },
@@ -697,7 +697,7 @@ requires-dist = [
 
 [[package]]
 name = "dhis2w-fhir-engine"
-version = "1.32.2"
+version = "1.33.0"
 source = { editable = "packages/dhis2w-fhir-engine" }
 dependencies = [
     { name = "antlr4-python3-runtime" },
@@ -722,11 +722,11 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "dhis2w-client", specifier = "==1.32.2" }]
+dev = [{ name = "dhis2w-client", specifier = "==1.33.0" }]
 
 [[package]]
 name = "dhis2w-fhir-serve"
-version = "1.32.2"
+version = "1.33.0"
 source = { editable = "packages/dhis2w-fhir-serve" }
 dependencies = [
     { name = "aiosqlite" },
@@ -743,8 +743,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aiosqlite", specifier = ">=0.22" },
-    { name = "dhis2w-client", specifier = "==1.32.2" },
-    { name = "dhis2w-core", specifier = "==1.32.2" },
+    { name = "dhis2w-client", specifier = "==1.33.0" },
+    { name = "dhis2w-core", specifier = "==1.33.0" },
     { name = "dhis2w-fhir", editable = "packages/dhis2w-fhir" },
     { name = "dhis2w-fhir-engine", editable = "packages/dhis2w-fhir-engine" },
     { name = "fastapi", specifier = ">=0.141.1" },
