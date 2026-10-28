@@ -4,6 +4,7 @@ This module provides the TerminologyService protocol and implementations
 for validating codes against value sets and performing terminology operations.
 """
 
+import contextlib
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -138,11 +139,10 @@ class InMemoryTerminologyService(TerminologyService):
         count = 0
         if directory.exists() and directory.is_dir():
             for file_path in directory.glob("*.json"):
-                try:
+                # Skip invalid files.
+                with contextlib.suppress(Exception):
                     self.load_value_set_file(file_path)
                     count += 1
-                except Exception:
-                    pass  # Skip invalid files
         return count
 
     def get_value_set(self, url: str, version: str | None = None) -> ValueSet | None:

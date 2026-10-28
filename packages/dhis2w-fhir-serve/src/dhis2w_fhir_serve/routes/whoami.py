@@ -49,7 +49,7 @@ WHOAMI_PATH = "/whoami"
 WHOAMI_TAG = "Caller"
 
 #: What the `token` posture calls its caller, having been handed a deployment's secret and not a person.
-TOKEN_CALLER_NAME = "the bearer of one of this deployment's tokens"
+TOKEN_CALLER_NAME = "the bearer of one of this deployment's tokens"  # noqa: S105 - not a credential
 
 router = APIRouter()
 refusal_router = APIRouter()

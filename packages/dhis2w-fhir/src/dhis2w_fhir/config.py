@@ -629,7 +629,7 @@ class ServeAuth(StrEnum):
     NONE = "none"
 
     #: A static bearer token out of `D2W_FHIR_SERVE_TOKENS`, compared in constant time.
-    TOKEN = "token"
+    TOKEN = "token"  # noqa: S105 - not a credential
 
     #: The caller's own DHIS2 credentials, checked against the instance this run reads.
     DHIS2 = "dhis2"

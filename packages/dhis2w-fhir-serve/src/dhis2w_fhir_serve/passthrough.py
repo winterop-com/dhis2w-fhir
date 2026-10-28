@@ -88,7 +88,7 @@ if TYPE_CHECKING:
 FACADE_PROVENANCE_HEADER = "X-DHIS2W-Facade"
 
 #: What a pass-through read asks the instance for, and how long it waits to be answered.
-PASS_THROUGH_ACCEPT = "application/json"
+PASS_THROUGH_ACCEPT = "application/json"  # noqa: S105 - not a credential
 PASS_THROUGH_TIMEOUT_SECONDS = 30.0
 
 #: The two DHIS2 verdicts a caller is told verbatim rather than as a facade failure. Every other

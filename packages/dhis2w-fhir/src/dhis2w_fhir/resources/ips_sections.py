@@ -58,7 +58,7 @@ _MAP_EQUIVALENCE: Literal["equal"] = "equal"
 #: The naming token this one map takes, fixed rather than configurable: it names a section of a
 #: clinical document and not a DHIS2 object kind, so there is no DHIS2 vocabulary whose token it
 #: should follow.
-_MAP_TOKEN = "Section"
+_MAP_TOKEN = "Section"  # noqa: S105 - not a credential
 
 #: The identifier-system segments the two groups map out of, which are the two kinds of object a
 #: section mapping nominates: the stages whose events carry the content, and the elements inside them.
