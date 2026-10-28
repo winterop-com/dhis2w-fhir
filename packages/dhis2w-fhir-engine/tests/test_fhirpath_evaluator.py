@@ -1,6 +1,5 @@
 """Comprehensive tests for FHIRPath evaluator."""
 
-import contextlib
 import json
 from datetime import UTC
 from decimal import Decimal
@@ -1383,20 +1382,17 @@ class TestBooleanLogicFunctions:
         assert result == []
 
     def test_iif_true_condition(self, evaluator: Any) -> None:
-        # iif may not be implemented in visitor - skip if not supported
-        with contextlib.suppress(Exception):
-            result = evaluator.evaluate("iif(true, 'yes', 'no')", None)
-            assert result == ["yes"] or "yes" in result
+        result = evaluator.evaluate("iif(true, 'yes', 'no')", None)
+        assert result == ["yes"]
 
     def test_iif_false_condition(self, evaluator: Any) -> None:
-        with contextlib.suppress(Exception):
-            result = evaluator.evaluate("iif(false, 'yes', 'no')", None)
-            assert result == ["no"] or "no" in result
+        result = evaluator.evaluate("iif(false, 'yes', 'no')", None)
+        assert result == ["no"]
 
     def test_iif_empty_condition(self, evaluator: Any) -> None:
-        with contextlib.suppress(Exception):
-            result = evaluator.evaluate("iif({}, 'yes', 'no')", None)
-            assert result == ["no"] or "no" in result or result == []
+        # An empty criterion is not true, so iif takes the otherwise-result.
+        result = evaluator.evaluate("iif({}, 'yes', 'no')", None)
+        assert result == ["no"]
 
     def test_trace(self, evaluator: Any) -> None:
         result = evaluator.evaluate("(1 | 2 | 3).trace('test')", None)
