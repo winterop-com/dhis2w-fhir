@@ -89,7 +89,7 @@ if TYPE_CHECKING:
 #: The request header every posture reads, and the two schemes the DHIS2 posture replays.
 AUTHORIZATION_HEADER = "authorization"
 BASIC_SCHEME = "Basic"
-DHIS2_PERSONAL_ACCESS_TOKEN_SCHEME = "ApiToken"
+DHIS2_PERSONAL_ACCESS_TOKEN_SCHEME = "ApiToken"  # noqa: S105 - not a credential
 
 #: What the DHIS2 posture's 401 names itself as, which is deliberately not the scheme it takes.
 #:

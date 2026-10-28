@@ -573,7 +573,8 @@ class CQLEvaluatorVisitor(cqlVisitor):
     def visitQuantityLiteral(self, ctx: cqlParser.QuantityLiteralContext) -> Quantity:
         """Visit a quantity literal (e.g., 10 'mg')."""
         quantity_ctx = ctx.quantity()
-        assert quantity_ctx is not None, "the grammar gives every quantity literal a quantity"
+        if quantity_ctx is None:
+            raise CQLError("the grammar gives every quantity literal a quantity")
         return self.visitQuantity(quantity_ctx)
 
     def visitQuantity(self, ctx: cqlParser.QuantityContext) -> Quantity:
@@ -591,7 +592,8 @@ class CQLEvaluatorVisitor(cqlVisitor):
     def visitRatioLiteral(self, ctx: cqlParser.RatioLiteralContext) -> CQLRatio:
         """Visit a ratio literal (e.g., 1:10)."""
         ratio_ctx = ctx.ratio()
-        assert ratio_ctx is not None, "the grammar gives every ratio literal a ratio"
+        if ratio_ctx is None:
+            raise CQLError("the grammar gives every ratio literal a ratio")
         return self.visitRatio(ratio_ctx)
 
     def visitRatio(self, ctx: cqlParser.RatioContext) -> CQLRatio:
@@ -1126,7 +1128,8 @@ class CQLEvaluatorVisitor(cqlVisitor):
     def visitFunctionInvocation(self, ctx: cqlParser.FunctionInvocationContext) -> Any:
         """Visit function invocation."""
         func_ctx = ctx.function()
-        assert func_ctx is not None, "the grammar gives every function invocation a function"
+        if func_ctx is None:
+            raise CQLError("the grammar gives every function invocation a function")
         name = self._get_identifier_text(func_ctx.referentialIdentifier())
 
         # Evaluate arguments
@@ -1149,7 +1152,8 @@ class CQLEvaluatorVisitor(cqlVisitor):
         elif isinstance(invocation, cqlParser.QualifiedFunctionInvocationContext):
             # Method call on target
             func_ctx = invocation.qualifiedFunction()
-            assert func_ctx is not None, "the grammar gives every qualified function invocation a function"
+            if func_ctx is None:
+                raise CQLError("the grammar gives every qualified function invocation a function")
             name = self._get_identifier_text(func_ctx.identifierOrFunctionIdentifier())
 
             # Handle included library function calls
@@ -1352,7 +1356,8 @@ class CQLEvaluatorVisitor(cqlVisitor):
         """
         # Get source clause
         source_clause = ctx.sourceClause()
-        assert source_clause is not None, "the grammar gives every query a source clause"
+        if source_clause is None:
+            raise CQLError("the grammar gives every query a source clause")
         results = self._process_query_sources(source_clause)
 
         # Apply let clauses
@@ -1645,11 +1650,14 @@ class CQLEvaluatorVisitor(cqlVisitor):
         """Apply with clause - include rows that have matching related data."""
         # Get the aliased query source
         aliased_source = ctx.aliasedQuerySource()
-        assert aliased_source is not None, "the grammar gives every with clause an aliased query source"
+        if aliased_source is None:
+            raise CQLError("the grammar gives every with clause an aliased query source")
         source = aliased_source.querySource()
-        assert source is not None, "the grammar gives every aliased query source a source"
+        if source is None:
+            raise CQLError("the grammar gives every aliased query source a source")
         alias_ctx = aliased_source.alias()
-        assert alias_ctx is not None, "the grammar gives every aliased query source an alias"
+        if alias_ctx is None:
+            raise CQLError("the grammar gives every aliased query source an alias")
         alias = self._get_identifier_text(alias_ctx.identifier())
 
         # Get the 'such that' condition expression
@@ -1690,11 +1698,14 @@ class CQLEvaluatorVisitor(cqlVisitor):
         """Apply without clause - include rows that have NO matching related data."""
         # Get the aliased query source
         aliased_source = ctx.aliasedQuerySource()
-        assert aliased_source is not None, "the grammar gives every without clause an aliased query source"
+        if aliased_source is None:
+            raise CQLError("the grammar gives every without clause an aliased query source")
         source = aliased_source.querySource()
-        assert source is not None, "the grammar gives every aliased query source a source"
+        if source is None:
+            raise CQLError("the grammar gives every aliased query source a source")
         alias_ctx = aliased_source.alias()
-        assert alias_ctx is not None, "the grammar gives every aliased query source an alias"
+        if alias_ctx is None:
+            raise CQLError("the grammar gives every aliased query source an alias")
         alias = self._get_identifier_text(alias_ctx.identifier())
 
         # Get the 'such that' condition expression
@@ -3282,10 +3293,8 @@ class CQLEvaluatorVisitor(cqlVisitor):
                     if tz_str == "Z":
                         return Decimal("0")
                     # Handle numeric offset from DateTime() constructor
-                    try:
+                    with contextlib.suppress(InvalidOperation):
                         return Decimal(str(tz_str))
-                    except Exception:
-                        pass
                     # Handle string offset format like "+01:00"
                     if tz_str.startswith(("+", "-")):
                         sign = 1 if tz_str[0] == "+" else -1

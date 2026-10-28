@@ -108,7 +108,7 @@ BEARER_SCHEME = "Bearer"
 BASIC_SCHEME = "Basic"
 
 #: The scheme the `dhis2` posture takes for a DHIS2 personal access token, which is DHIS2's own spelling.
-DHIS2_PERSONAL_ACCESS_TOKEN_SCHEME = "ApiToken"
+DHIS2_PERSONAL_ACCESS_TOKEN_SCHEME = "ApiToken"  # noqa: S105 - not a credential
 
 #: The resource type a capture is submitted as and a receipt is read back from.
 _QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE = "QuestionnaireResponse"

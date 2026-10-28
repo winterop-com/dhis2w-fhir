@@ -61,7 +61,7 @@ _MAP_EQUIVALENCE: Literal["equal"] = "equal"
 
 #: The naming token this one map takes, fixed rather than configurable: it names a demographic fact
 #: and not a DHIS2 object kind, so there is no DHIS2 vocabulary whose token it should follow.
-_MAP_TOKEN = "Sex"
+_MAP_TOKEN = "Sex"  # noqa: S105 - not a credential
 
 ADMINISTRATIVE_GENDER_MAP_TITLE = "DHIS2 sex values as FHIR administrative gender codes"
 

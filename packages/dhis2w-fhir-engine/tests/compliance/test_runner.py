@@ -319,13 +319,13 @@ def parse_test_file(file_path: Path) -> ComplianceTestSuite:
     content = _fix_xml_content(content)
 
     try:
-        root = ET.fromstring(content)
+        root = ET.fromstring(content)  # noqa: S314 - bundled spec fixture
     except ET.ParseError:
         # Try one more fix - add missing XML declaration
         if not content.strip().startswith("<?xml"):
             content = '<?xml version="1.0" encoding="utf-8"?>\n' + content
             content = _fix_xml_content(content)
-            root = ET.fromstring(content)
+            root = ET.fromstring(content)  # noqa: S314 - bundled spec fixture
         else:
             raise
 
@@ -490,7 +490,7 @@ def _convert_fhir_value(value: str, tag: str = "") -> Any:
 def _parse_fhir_xml(xml_path: Path) -> dict[str, Any]:
     """Parse FHIR XML to a simplified dict structure."""
     # This is a simplified parser - for full compliance would need proper FHIR XML parsing
-    tree = ET.parse(xml_path)
+    tree = ET.parse(xml_path)  # noqa: S314 - bundled spec fixture
     root = tree.getroot()
 
     # Remove namespace prefix for simpler handling

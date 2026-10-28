@@ -419,9 +419,9 @@ SECURITY_SERVICE_SYSTEM = "http://terminology.hl7.org/CodeSystem/restful-securit
 #: scheme the value set has no code for, so it is stated as text, which an extensible binding is for.
 BASIC_SECURITY_CODE = "Basic"
 OAUTH_SECURITY_CODE = "OAuth"
-BEARER_TOKEN_SECURITY_TEXT = "Bearer token"
-JWT_BEARER_TOKEN_SECURITY_TEXT = "JWT bearer token"
-DHIS2_PERSONAL_ACCESS_TOKEN_SECURITY_TEXT = "DHIS2 personal access token"
+BEARER_TOKEN_SECURITY_TEXT = "Bearer token"  # noqa: S105 - not a credential
+JWT_BEARER_TOKEN_SECURITY_TEXT = "JWT bearer token"  # noqa: S105 - not a credential
+DHIS2_PERSONAL_ACCESS_TOKEN_SECURITY_TEXT = "DHIS2 personal access token"  # noqa: S105 - not a credential
 
 #: Where the `jwt` posture states WHICH issuer it takes tokens from.
 #:
@@ -438,7 +438,7 @@ NO_AUTHENTICATION_DESCRIPTION = (
     "it serves states [serve] auth in its fhir.toml."
 )
 TOKEN_AUTHENTICATION_DESCRIPTION = (
-    "Send `Authorization: Bearer <token>`, with one of the tokens this deployment holds in the "
+    "Send `Authorization: Bearer <token>`, with one of the tokens this deployment holds in the "  # noqa: S105 - not a credential
     "environment variable D2W_FHIR_SERVE_TOKENS. The tokens name no person: a receipt captured under "
     "this posture records no submitter."
 )

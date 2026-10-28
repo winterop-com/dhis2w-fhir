@@ -154,7 +154,7 @@ REGISTERED_ENROLLMENT_STATUS = EnrollmentStatus.ACTIVE
 
 #: What the event-identity material names itself, so the UID a receipt's event is imported under
 #: cannot collide with any other identity minted off the same receipt id.
-_EVENT_IDENTITY_TOKEN = "event"
+_EVENT_IDENTITY_TOKEN = "event"  # noqa: S105 - not a credential
 
 #: The ordinal slot of the event-identity material. A receipt reports exactly one event, so the
 #: discriminator a receipt naming several would move stays at the first.

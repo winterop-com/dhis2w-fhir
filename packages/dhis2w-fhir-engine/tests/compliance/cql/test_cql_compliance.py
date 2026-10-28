@@ -7,6 +7,7 @@ Tests are parametrized from the XML test files.
 
 from __future__ import annotations
 
+import contextlib
 import decimal
 import re
 from decimal import Decimal
@@ -217,7 +218,7 @@ def evaluate_arithmetic_expression(result: Any) -> Any | None:
         # Convert numbers to Decimal strings
         expr = re.sub(r"(\d+(?:\.\d+)?)", r"Decimal('\1')", result)
         expr = expr.replace("^", "**")
-        evaluated = eval(expr, {"__builtins__": {}, "Decimal": Decimal})
+        evaluated = eval(expr, {"__builtins__": {}, "Decimal": Decimal})  # noqa: S307 - spec fixture, no builtins
         return evaluated
     except Exception:
         return None  # Not an expression, treat as string
@@ -387,20 +388,16 @@ def compare_interval_bounds(actual: str, expected: str) -> bool:
     actual_qty = re.match(quantity_pattern, actual)
     expected_qty = re.match(quantity_pattern, expected)
     if actual_qty and expected_qty:
-        try:
+        with contextlib.suppress(Exception):
             actual_val = Decimal(actual_qty.group(1))
             expected_val = Decimal(expected_qty.group(1))
             return actual_val == expected_val and actual_qty.group(2) == expected_qty.group(2)
-        except Exception:
-            pass
 
     # Handle decimal bounds
-    try:
+    with contextlib.suppress(Exception):
         actual_num = Decimal(actual)
         expected_num = Decimal(expected)
         return actual_num == expected_num
-    except Exception:
-        pass
 
     # String comparison
     return actual == expected
