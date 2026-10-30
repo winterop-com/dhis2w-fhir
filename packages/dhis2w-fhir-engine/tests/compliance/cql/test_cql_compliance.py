@@ -562,6 +562,29 @@ def compare_datetime_strings(actual: str, expected: str) -> bool:
     return True
 
 
+#: The expected output that is a second read of the clock, so it lands however long the machine took after the result.
+CLOCK_READ_OUTPUT = "TimeOfDay()"
+
+#: How far apart two reads of the clock may land on a busy machine.
+CLOCK_READ_TOLERANCE_MILLISECONDS = 5_000
+
+MILLISECONDS_IN_A_DAY = 86_400_000
+
+
+def _milliseconds_into_the_day(time: FHIRTime) -> int:
+    """One time of day as a single number, so two reads either side of a second compare as the neighbours they are."""
+    seconds = time.hour * 3_600 + (time.minute or 0) * 60 + (time.second or 0)
+    return seconds * 1_000 + (time.millisecond or 0)
+
+
+def clock_reads_agree(actual: Any, expected: Any) -> bool:
+    """Whether two reads of the clock are the same moment, give or take the time between them, midnight included."""
+    if not isinstance(actual, FHIRTime) or not isinstance(expected, FHIRTime):
+        return False
+    apart = abs(_milliseconds_into_the_day(actual) - _milliseconds_into_the_day(expected))
+    return min(apart, MILLISECONDS_IN_A_DAY - apart) <= CLOCK_READ_TOLERANCE_MILLISECONDS
+
+
 def compare_results(actual: Any, expected: Any) -> bool:
     """Compare actual and expected results with type coercion."""
     actual = normalize_result(actual)
@@ -747,6 +770,9 @@ def test_cql_compliance(test_case: ComplianceTestCase) -> None:
         # Skip tests with TODO placeholder outputs
         if expected == "TODO":
             pytest.skip("Test has TODO placeholder output")
+        if test_case.outputs[0].value == CLOCK_READ_OUTPUT:
+            assert clock_reads_agree(result, expected), f"Clock reads too far apart: {result} and {expected}"
+            return
         assert compare_results(result, expected), (
             f"Result mismatch:\n"
             f"  Expression: {test_case.expression}\n"
