@@ -41,20 +41,20 @@ import shutil
 import tempfile
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import httpx2
 from _fixture import aggregate_form_id, conversion_context, event_form_id, form_canonical
 from _runner import run_example
-from dhis2w_client import Dhis2ApiError, Dhis2Client, Dhis2ClientError, Profile
-from dhis2w_client.generated.v43.oas import ImportSummary, TrackerImportReport
+from dhis2w_client import Dhis2Client, Dhis2ClientError, Profile
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve
 from dhis2w_fhir_engine.facade import response_spool as spool_writer
 from dhis2w_fhir_engine.facade import spool as spool_queue
 from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode, ConversionContext, ConversionResult
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
-from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome, ForwardImportRecord
+from dhis2w_fhir_engine.facade.forward import post_translation
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome, ForwardImportRecord
 from dhis2w_fhir_engine.facade.overwrite import (
     ForwardedCellIndex,
     ForwardedSubmission,
@@ -356,81 +356,20 @@ def _name_overwrites(index: ForwardedCellIndex, result: ConversionResult, respon
 
 
 async def post_payload(client: Dhis2Client, result: ConversionResult, *, received_at: str) -> ForwardImportRecord:
-    """Post one translated payload to the endpoint its own shape names, and project DHIS2's answer.
+    """Post one translated payload through the engine, and file what DHIS2 said beside the receipt.
 
-    An aggregate envelope is an `/api/dataValueSets` body whole; a person, an enrollment, and an
-    event each ride one key of an `/api/tracker` one. `target_kind` alone cannot decide it - a
-    registration produces a tracked entity for a person DHIS2 does not hold yet and an enrollment
-    alone for one it does - so the branch is on which field the translation actually filled.
+    `post_translation` picks the endpoint from the payload's shape and reads whichever report that endpoint
+    answers with, so a refused import is a verdict here and a 5xx raises with the receipt still queued.
     """
-    payload = result.payload
-    assert payload is not None  # a translated result carries a payload; only a refused one does not
-    wire = payload.model_dump(by_alias=True, exclude_none=True, mode="json")
-    if result.data_value_set is not None:
-        answer = await _post(client, "/api/dataValueSets", wire, {})
-        return _aggregate_record(answer, result, received_at)
-    params = {"importStrategy": "CREATE", "async": "false"}
-    if result.tracked_entity is not None:
-        body: dict[str, Any] = {"trackedEntities": [wire]}
-    elif result.enrollment is not None:
-        body = {"enrollments": [wire]}
-    else:
-        body = {"events": [wire]}
-    return _tracker_record(await _post(client, "/api/tracker", body, params), result, received_at)
-
-
-async def _post(client: Dhis2Client, path: str, body: dict[str, Any], params: dict[str, str]) -> dict[str, Any]:
-    """POST one payload and answer with DHIS2's own report, whether it took the payload or refused it."""
-    try:
-        return await client.post_raw(path, body, params=params)
-    except Dhis2ApiError as error:
-        # A refused import carries the endpoint's own report, and that is a verdict to file. A 5xx
-        # is the instance failing rather than answering, so it raises and the receipt stays queued.
-        if error.status_code >= SERVER_ERROR_STATUS or not isinstance(error.body, dict):
-            raise
-        return error.body
-
-
-def _aggregate_record(answer: dict[str, Any], result: ConversionResult, received_at: str) -> ForwardImportRecord:
-    """Project an `/api/dataValueSets` answer into the sidecar filed beside the receipt."""
-    summary = ImportSummary.model_validate(answer.get("response") or answer)
-    counts = summary.importCount
+    outcome = await post_translation(client, result, dry_run=False)
     envelope = result.data_value_set
     return ForwardImportRecord(
-        status=summary.status.value if summary.status is not None else None,
-        message=summary.description,
-        created=(counts.imported or 0) if counts is not None else 0,
-        updated=(counts.updated or 0) if counts is not None else 0,
-        ignored=(counts.ignored or 0) if counts is not None else 0,
-        issues=tuple(
-            ForwardImportIssue(error_code=conflict.errorCode, subject=conflict.object, message=conflict.value)
-            for conflict in summary.conflicts or ()
-        ),
+        **outcome.model_dump(),
         target_kind=result.target_kind,
         received_at=received_at,
         # The identity of every value this payload landed on, never the numbers: it is what lets the
         # next drain say which values an earlier receipt already sent.
         cells=aggregate_cells(envelope) if envelope is not None else (),
-    )
-
-
-def _tracker_record(answer: dict[str, Any], result: ConversionResult, received_at: str) -> ForwardImportRecord:
-    """Project an `/api/tracker` answer into the sidecar filed beside the receipt."""
-    report = TrackerImportReport.model_validate(answer.get("response") or answer)
-    stats = report.stats
-    validation = report.validationReport
-    return ForwardImportRecord(
-        status=report.status.value if report.status is not None else None,
-        message=report.message,
-        created=(stats.created or 0) if stats is not None else 0,
-        updated=(stats.updated or 0) if stats is not None else 0,
-        ignored=(stats.ignored or 0) if stats is not None else 0,
-        issues=tuple(
-            ForwardImportIssue(error_code=error.errorCode, subject=error.uid, message=error.message)
-            for error in (validation.errorReports if validation is not None else None) or ()
-        ),
-        target_kind=result.target_kind,
-        received_at=received_at,
     )
 
 

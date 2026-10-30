@@ -81,14 +81,14 @@ strict_equality = true
 exclude = "^packages/[^/]+/tests/conftest\\.py$"
 # Examples and scripts resolve their sibling helpers (`_runner.py`, `_fixture.py`, `_bundle.py`) by
 # their own directory being on sys.path at runtime; mypy and pyright get the same directories.
-mypy_path = ["scripts", "examples/client", "examples/engine"]
+mypy_path = ["scripts", "examples/client", "examples/facade", "examples/engine"]
 
 [tool.pyright]
 include = ["packages", "scripts", "examples", "tests"]
 exclude = ["**/.venv", "**/site", "**/build", "**/dist", "**/node_modules"]
 # Sibling-module scripts (`_runner.py`, `_fixture.py`, `_bundle.py`) are not a package: every
 # script resolves them by its own directory being on sys.path at runtime. Mirror that to pyright.
-extraPaths = ["examples/client", "examples/engine", "scripts"]
+extraPaths = ["examples/client", "examples/facade", "examples/engine", "scripts"]
 pythonVersion = "3.13"
 typeCheckingMode = "strict"
 useLibraryCodeForTypes = true

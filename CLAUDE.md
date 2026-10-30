@@ -63,8 +63,8 @@ Run every invocation with `BROWSER=true`.
 
 ## Examples and docs
 
-Examples live in `examples/`: `cli/` and `client/` for `d2w fhir` and the facade, `engine/` for the
-evaluation engine, and `igs/` for the committed example guides that `make verify-igs` refreshes,
+Examples live in `examples/`: `cli/` and `client/` for `d2w fhir` and the facade, `facade/` for the
+numbered path from `uv add` to a composed service, `engine/` for the evaluation engine, and `igs/` for the committed example guides that `make verify-igs` refreshes,
 generates and compiles. `make verify-examples` runs every example in `cli/`, `client/` and `engine/`
 against a DHIS2 (`--list` shows what a pass runs and skips); an example that cannot run in a batch
 pass goes in `SKIP_BY_DEFAULT` in `scripts/verify_examples.py` with its reason. `make check-examples`

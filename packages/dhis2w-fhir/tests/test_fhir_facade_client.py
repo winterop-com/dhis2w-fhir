@@ -1,4 +1,4 @@
-"""Tests for `dhis2w_fhir.facade` - the typed client for a running `d2w fhir serve` facade.
+"""Tests for `dhis2w_fhir_engine.facade.client` - the typed client for a running `d2w fhir serve` facade.
 
 Every method is driven against a mocked facade rather than a started one, so what is asserted here
 is the contract this client believes in: the paths it calls, the headers it sends, the models it
@@ -16,7 +16,7 @@ import httpx
 import httpx2
 import pytest
 import respx
-from dhis2w_fhir import (
+from dhis2w_fhir_engine.facade.client import (
     FACADE_API_PATH,
     BearerToken,
     EvaluationLanguage,

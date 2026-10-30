@@ -41,6 +41,9 @@ is that one - `create_app` over an ASGI transport, the spool and the projection
 as local storage, and the facade's routers mounted inside your own application
 behind your own authentication.
 
+[Compose a facade](401-compose-a-facade.md) is the fourth, and usually the one to start with: install the engine and
+mount the routes rather than write them.
+
 ## The ladder
 
 Between those two postures there is a ladder, and each level buys back exactly

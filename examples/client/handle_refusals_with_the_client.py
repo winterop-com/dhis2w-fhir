@@ -31,7 +31,7 @@ import sys
 
 from _fixture import aggregate_form_id, served_facade
 from _runner import run_example
-from dhis2w_fhir import FacadeClient, FacadeError
+from dhis2w_fhir_engine.facade.client import FacadeClient, FacadeError
 
 #: Makes the generated draft byte-reproducible, so the only thing wrong with it is what is spoiled here.
 SEED = 20260

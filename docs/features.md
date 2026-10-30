@@ -4104,6 +4104,21 @@ refusal text a mistake produces, captured from real misconfigured runs.
 
 ---
 
+## Compose a facade from the engine
+
+`uv add dhis2w-fhir-engine` is enough to build a FHIR-to-DHIS2 service, with no `fhir.toml`, no SUSHI, and no docker. See
+[Compose a facade](401-compose-a-facade.md).
+
+- `FacadeConfig`, `open_facade`, and `Facade` load one guide off a live instance, a compiled directory, or a published
+  `package.tgz`. `Facade` offers `forms`, `synthesize`, `validate_capture`, `capture`, `translate`, `post`, and `drain`.
+- `post_translation` posts one translated payload and answers with DHIS2's verdict; `drain_responses` drains a spool
+  through a connection the caller holds.
+- `mount_facade` mounts `/metadata`, capture, reads, operations, and the operational API by flag, behind your own
+  authentication dependency if you give one, and `/metadata` states what was mounted. `attach_facade` hands it an
+  opened facade, with an optional stated service base.
+- `examples/facade/` is the numbered path through these, and `make check-engine-install` holds the engine wheel, installed
+  alone, to loading no server, generator, or terminal.
+
 ## FHIR Evaluation Engine
 
 **Package:** `dhis2w-fhir-engine` | **Install:** `uv add dhis2w-fhir-engine`

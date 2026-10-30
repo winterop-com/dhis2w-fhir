@@ -34,7 +34,7 @@ import sys
 
 from _fixture import aggregate_form_id, served_facade
 from _runner import run_example
-from dhis2w_fhir import FacadeClient, FacadeError
+from dhis2w_fhir_engine.facade.client import FacadeClient, FacadeError
 
 #: Makes the generated draft byte-reproducible, so two runs submit the same answers.
 SEED = 20260
