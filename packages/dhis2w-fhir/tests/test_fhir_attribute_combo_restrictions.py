@@ -18,13 +18,10 @@ from typing import Any
 
 from dhis2w_fhir.config import GenerateConfig
 from dhis2w_fhir.names import StemResolution
-from dhis2w_fhir.resources.attribute_combos import (
-    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
-    AttributeComboBuild,
-    AttributeOptionRestrictions,
-    build_attribute_combo_artifacts,
-)
+from dhis2w_fhir.resources.attribute_combos.builders import AttributeComboBuild, build_attribute_combo_artifacts
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
+    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
+    AttributeOptionRestrictions,
     OrganisationUnitPaths,
     restricted_category_option_uids,
 )

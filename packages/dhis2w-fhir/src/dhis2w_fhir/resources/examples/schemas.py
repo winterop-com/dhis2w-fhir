@@ -238,3 +238,7 @@ class ExampleTrackerContext(BaseModel):
     def is_entity_complete(self) -> bool:
         """Whether the person a person-only registration mints is present, which is all its profile requires."""
         return self.tracked_entity_uid is not None
+
+
+#: The separator DHIS2 joins a MULTI_TEXT value's option codes with.
+MULTI_VALUE_SEPARATOR = ","

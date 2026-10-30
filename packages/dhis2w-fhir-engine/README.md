@@ -21,7 +21,7 @@ FHIRPathEvaluator().evaluate("Patient.name.family", Patient(name=[HumanName(fami
 # ['Kamara']
 ```
 
-The package depends on `antlr4-python3-runtime`, `pydantic`, `typer`, and `rich`. It has no DHIS2
+The package depends on `antlr4-python3-runtime`, `httpx2`, and `pydantic`; the `[cli]` extra adds `typer` and `rich`. It has no DHIS2
 dependency and no web framework: it evaluates expressions over FHIR-shaped JSON and returns values.
 
 ## Install
@@ -121,7 +121,8 @@ elm_json = ELMSerializer().serialize_library_json(cql_source)  # export CQL as E
 
 ## Command line
 
-The console script `d2w-fhir-engine` mounts three sub-apps over the same engine.
+The console script `d2w-fhir-engine` mounts three sub-apps over the same engine. It needs the command line extra:
+`uv add 'dhis2w-fhir-engine[cli]'`.
 
 ```bash
 d2w-fhir-engine fhirpath eval "Patient.name.given" --resource patient.json

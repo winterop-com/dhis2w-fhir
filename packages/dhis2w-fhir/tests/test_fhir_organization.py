@@ -7,20 +7,22 @@ from typing import Any
 from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.resources.organisation_units import (
+from dhis2w_fhir.resources.organisation_units.documents import build_organisation_unit_level_terminology_documents
+from dhis2w_fhir.resources.organisation_units.organization import (
     REGISTRY_EXAMPLE_IDENTIFIER,
     REGISTRY_EXAMPLE_NAME,
     build_organisation_unit_instances,
-    build_organisation_unit_level_terminology,
-    build_organisation_unit_level_terminology_documents,
     build_organisation_unit_profiles,
-    build_organisation_unit_terminology,
     build_registry_examples,
 )
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelIn,
     OrganisationUnitLevelNames,
+)
+from dhis2w_fhir.resources.organisation_units.terminology import (
+    build_organisation_unit_level_terminology,
+    build_organisation_unit_terminology,
 )
 from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 

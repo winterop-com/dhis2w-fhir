@@ -105,6 +105,8 @@ recent_periods("Monthly", 3, datetime.date(2026, 8, 2))
 
 ::: dhis2w_fhir.config
 
+::: dhis2w_fhir.errors
+
 ### The patient summary
 
 The `[ips]` tables and the document they reach. `dhis2w_fhir.ips` holds the two
@@ -266,6 +268,8 @@ layout is duplicated rather than imported - `dhis2w-fhir` is a dependency of
 directly under the same conventions.
 
 ::: dhis2w_fhir.spool
+
+::: dhis2w_fhir.forward_records
 
 ### Values a previous submission already sent
 

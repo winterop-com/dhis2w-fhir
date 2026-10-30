@@ -6,7 +6,7 @@ import re
 import pytest
 from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
-from dhis2w_fhir.foundation import build_foundation_artifacts
+from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts
 from dhis2w_fhir.names import (
     code_or_uid,
     contact_value,
@@ -19,18 +19,18 @@ from dhis2w_fhir.names import (
     pascal,
     quote,
 )
-from dhis2w_fhir.resources.option_sets import build_option_set_artifacts
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIdentityPlan, OptionSetIn
-from dhis2w_fhir.resources.organisation_units import (
-    build_organisation_unit_level_terminology,
-    build_organisation_unit_profiles,
-    build_organisation_unit_terminology,
-)
+from dhis2w_fhir.resources.organisation_units.organization import build_organisation_unit_profiles
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,
 )
-from dhis2w_fhir.resources.questionnaires import build_questionnaire_artifacts
+from dhis2w_fhir.resources.organisation_units.terminology import (
+    build_organisation_unit_level_terminology,
+    build_organisation_unit_terminology,
+)
+from dhis2w_fhir.resources.questionnaires.builders import build_questionnaire_artifacts
 from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireItemIn, QuestionnaireSourceIn
 
 _CANONICAL = "http://example.org/fhir"

@@ -18,7 +18,7 @@ from typing import Any
 import httpx2
 import pytest
 from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir.service import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
+from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
 from dhis2w_fhir.spool import ForwardRefusalRecord, RefusalReason
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings

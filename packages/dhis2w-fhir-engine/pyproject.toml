@@ -21,20 +21,24 @@ dependencies = [
     "antlr4-python3-runtime>=4.13.2",
     "httpx2>=2.12.0",
     "pydantic>=2.13",
-    "rich>=15.0.0",
-    "typer>=0.27.0",
 ]
 
 # No dhis2w-* runtime dependency: the engine evaluates FHIRPath and CQL over FHIR-shaped JSON and
 # knows nothing about DHIS2. The DHIS2 binding lives in the tests (dev-only) and in consumers.
 
 [project.scripts]
-d2w-fhir-engine = "dhis2w_fhir_engine.cli:app"
+d2w-fhir-engine = "dhis2w_fhir_engine.entry:main"
 
 [project.urls]
 Homepage = "https://github.com/winterop-com/dhis2w-fhir"
 Documentation = "https://winterop-com.github.io/dhis2w-fhir/"
 Repository = "https://github.com/winterop-com/dhis2w-fhir"
+
+[project.optional-dependencies]
+cli = [
+    "rich>=15.0.0",
+    "typer>=0.27.0",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.12,<0.13.0"]

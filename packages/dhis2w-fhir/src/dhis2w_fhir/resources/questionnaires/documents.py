@@ -78,14 +78,15 @@ from dhis2w_fhir.r4 import (
     ValueSetInclude,
 )
 from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
-from dhis2w_fhir.resources.option_sets import (
+from dhis2w_fhir.resources.option_sets.builders import (
     code_system_canonical,
     concept_map_canonical,
     option_concept_code_index,
     option_set_identity_index,
     value_set_canonical,
 )
-from dhis2w_fhir.resources.questionnaires import (
+from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
+from dhis2w_fhir.resources.questionnaires.builders import (
     ITEM_CONTROL_CODE_SYSTEM_URL,
     ITEM_CONTROL_EXTENSION_URL,
     bound_option_set_uids,
@@ -96,14 +97,11 @@ from dhis2w_fhir.resources.questionnaires import (
     grouping_identifiers,
     is_disaggregated,
     is_multi_valued,
-    item_type,
     question_entity_level,
-    question_read_only,
     search_context_declarations,
     source_description,
     value_type_bounds,
 )
-from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
 from dhis2w_fhir.resources.questionnaires.program_rules import (
     EnableWhenCondition,
     FormProgramRules,
@@ -150,8 +148,10 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     form_period_type,
     form_repeatable,
     form_subject_type,
+    item_type,
     plan_questionnaire_stems,
     published_tracked_entity_types,
+    question_read_only,
     source_display_name,
     source_title_translations,
 )

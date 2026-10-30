@@ -12,14 +12,14 @@ from typing import Any
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.r4 import ConceptMap
-from dhis2w_fhir.resources.categories import (
+from dhis2w_fhir.resources.categories.builders import (
     build_category_concept_map_artifacts,
     build_category_concept_maps,
     category_concept_map_file_prefix,
     category_identities,
 )
 from dhis2w_fhir.resources.categories.schemas import CategoryIn
-from dhis2w_fhir.resources.option_sets import (
+from dhis2w_fhir.resources.option_sets.builders import (
     CONCEPT_MAP_DIRECTORY,
     build_option_set_concept_map_artifacts,
     build_option_set_concept_maps,

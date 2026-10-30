@@ -26,20 +26,20 @@ from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, load_project, service
 from dhis2w_fhir.config import FhirProjectConfig, GenerateConfig
 from dhis2w_fhir.conversion.values import location_id_of
-from dhis2w_fhir.foundation import build_foundation_artifacts, build_registry_foundation_artifacts
+from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts, build_registry_foundation_artifacts
 from dhis2w_fhir.names import StemResolution, StemSubject
 from dhis2w_fhir.notes import GenerateNoteCategory
 from dhis2w_fhir.registry_package import RegistryMissingError
-from dhis2w_fhir.resources.examples import location_reference
+from dhis2w_fhir.resources.examples.builders import location_reference
 from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
-from dhis2w_fhir.resources.organisation_units import plan_organisation_unit_stems
 from dhis2w_fhir.resources.organisation_units.naming import location_profile_reference
+from dhis2w_fhir.resources.organisation_units.organization import plan_organisation_unit_stems
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitSelection,
     RegistryDependency,
 )
-from dhis2w_fhir.resources.pages import PAGES_DIRECTORY, build_page_artifacts, build_registry_page_artifacts
+from dhis2w_fhir.resources.pages.builders import PAGES_DIRECTORY, build_page_artifacts, build_registry_page_artifacts
 from dhis2w_fhir.resources.pages.schemas import PagesIn
 from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireItemIn, QuestionnaireSourceIn
 from dhis2w_fhir.scaffold import build_scaffold_files

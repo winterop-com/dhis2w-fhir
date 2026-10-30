@@ -22,9 +22,9 @@ from typing import Literal, Union, get_args, get_origin
 from urllib.parse import urlsplit
 
 import tomli_w
-from dhis2w_core.cli_errors import CliUserError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from dhis2w_fhir.errors import FhirUserError
 from dhis2w_fhir.i18n import normalize_locale
 from dhis2w_fhir.ips import IdentityNominations, SectionMappings
 from dhis2w_fhir.names import NamingSource, is_dhis2_uid, strip_trailing_slash
@@ -47,11 +47,11 @@ class NoFhirProjectError(LookupError):
     """Raised when no `fhir.toml` is found walking up from the working directory."""
 
 
-class UnknownFhirConfigKeyError(CliUserError):
+class UnknownFhirConfigKeyError(FhirUserError):
     """Raised when `fhir.toml` names keys the configuration document does not declare."""
 
 
-class MalformedFhirConfigError(CliUserError):
+class MalformedFhirConfigError(FhirUserError):
     """Raised when `fhir.toml` is not valid TOML, naming the file and where the parser stopped."""
 
 

@@ -62,15 +62,9 @@ from dhis2w_fhir.doctor import (
     render_doctor_markdown,
     run_doctor,
 )
+from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome
 from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory
-from dhis2w_fhir.service import (
-    ForwardImportIssue,
-    ForwardImportOutcome,
-    ForwardOutcome,
-    ForwardOutcomeKind,
-    ForwardReport,
-    GenerationProfile,
-)
+from dhis2w_fhir.service import ForwardOutcome, ForwardOutcomeKind, ForwardReport, GenerationProfile
 from fastapi import FastAPI
 from starlette.responses import JSONResponse
 from typer.testing import CliRunner

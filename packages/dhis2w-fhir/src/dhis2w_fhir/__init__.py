@@ -205,33 +205,52 @@ from dhis2w_fhir.facade import (
     StoredResourceContext,
     UsernamePassword,
 )
-from dhis2w_fhir.foundation import (
+from dhis2w_fhir.forward_records import (
+    ForwardCompletenessKind,
+    ForwardCompletenessOutcome,
+    ForwardCompletenessRetry,
+    ForwardImportIssue,
+    ForwardImportOutcome,
+    ForwardImportRecord,
+    ForwardImportVerdict,
+    ForwardRejectionReason,
+    WithdrawalRecord,
+)
+from dhis2w_fhir.foundation.artifacts import (
+    build_foundation_artifacts,
+    build_naming_system_declarations,
+    build_registry_foundation_artifacts,
+)
+from dhis2w_fhir.foundation.attribute_values import (
     ATTRIBUTE_CODE_SUB_EXTENSION,
     ATTRIBUTE_ID_SUB_EXTENSION,
     ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
     ATTRIBUTE_VALUE_SUB_EXTENSION,
+    attribute_value_extension_url,
+    attribute_value_extensions,
+)
+from dhis2w_fhir.foundation.documents import build_foundation_terminology_documents
+from dhis2w_fhir.foundation.response_profiles import (
     CAPTURE_SERVER_READ_RESOURCE_TYPES,
+    build_captured_response_profile_declarations,
+    build_response_profile_declarations,
+)
+from dhis2w_fhir.foundation.schemas import (
     DATA_VALUE_SET_ELEMENTS,
     FORM_TYPE_DEFINITIONS,
-    TRACKED_ENTITY_ATTRIBUTE_CODE_SUB_EXTENSION,
-    TRACKED_ENTITY_ATTRIBUTE_ID_SUB_EXTENSION,
-    TRACKED_ENTITY_ATTRIBUTE_IDENTIFIER_SEGMENT,
-    TRACKED_ENTITY_ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
-    TRACKED_ENTITY_ATTRIBUTE_VALUE_SUB_EXTENSION,
     FormTypeDefinition,
     FoundationNaming,
     LogicalModelElement,
     NamingSystemDeclaration,
     ResponseProfileDeclaration,
+)
+from dhis2w_fhir.foundation.tracked_entity_attribute_values import (
+    TRACKED_ENTITY_ATTRIBUTE_CODE_SUB_EXTENSION,
+    TRACKED_ENTITY_ATTRIBUTE_ID_SUB_EXTENSION,
+    TRACKED_ENTITY_ATTRIBUTE_IDENTIFIER_SEGMENT,
+    TRACKED_ENTITY_ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
+    TRACKED_ENTITY_ATTRIBUTE_VALUE_SUB_EXTENSION,
     TrackedEntityAttributeValueIn,
-    attribute_value_extension_url,
-    attribute_value_extensions,
-    build_captured_response_profile_declarations,
-    build_foundation_artifacts,
-    build_foundation_terminology_documents,
-    build_naming_system_declarations,
-    build_registry_foundation_artifacts,
-    build_response_profile_declarations,
     tracked_entity_attribute_identifier_system,
     tracked_entity_attribute_identifiers,
     tracked_entity_attribute_value_extension_url,
@@ -309,6 +328,7 @@ from dhis2w_fhir.period import (
     parse_period,
     recent_periods,
 )
+from dhis2w_fhir.r4.primitives import zoned_date_time
 from dhis2w_fhir.resources.administrative_gender import (
     ADMINISTRATIVE_GENDER_MAP_DESCRIPTION,
     ADMINISTRATIVE_GENDER_MAP_TITLE,
@@ -318,17 +338,8 @@ from dhis2w_fhir.resources.administrative_gender import (
     build_administrative_gender_concept_map,
     build_administrative_gender_concept_map_artifacts,
 )
-from dhis2w_fhir.resources.attribute_combos import (
-    ATTRIBUTE_COMBO_DIRECTORY,
-    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
-    UNTIMELY_ATTRIBUTE_OPTION_COMBO_REMEDY,
-    UNUSABLE_ATTRIBUTE_OPTION_COMBO_REMEDY,
+from dhis2w_fhir.resources.attribute_combos.builders import (
     AttributeComboBuild,
-    AttributeOptionRestrictions,
-    CategoryOptionValidity,
-    UntimelyAttributeOptionCombosSummary,
-    UnusableAttributeOptionCombosSummary,
-    UsableAttributeOptionCombos,
     attribute_combo_concept_map_file_prefix,
     attribute_combo_fsh_name,
     attribute_combo_identities,
@@ -339,13 +350,24 @@ from dhis2w_fhir.resources.attribute_combos import (
     build_attribute_combo_identifier_artifacts,
     max_attribute_combo_slug_length,
 )
+from dhis2w_fhir.resources.attribute_combos.restrictions import (
+    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
+    UNTIMELY_ATTRIBUTE_OPTION_COMBO_REMEDY,
+    UNUSABLE_ATTRIBUTE_OPTION_COMBO_REMEDY,
+    AttributeOptionRestrictions,
+    CategoryOptionValidity,
+    UntimelyAttributeOptionCombosSummary,
+    UnusableAttributeOptionCombosSummary,
+    UsableAttributeOptionCombos,
+)
 from dhis2w_fhir.resources.attribute_combos.schemas import (
+    ATTRIBUTE_COMBO_DIRECTORY,
     AttributeComboIdentity,
     AttributeComboIdentityPlan,
     AttributeComboIn,
     AttributeComboPlan,
 )
-from dhis2w_fhir.resources.categories import (
+from dhis2w_fhir.resources.categories.builders import (
     CATEGORY_DIRECTORY,
     build_category_artifacts,
     build_category_concept_map_artifacts,
@@ -373,18 +395,14 @@ from dhis2w_fhir.resources.categories.schemas import (
     CategorySelection,
     is_default_category,
 )
-from dhis2w_fhir.resources.examples import (
+from dhis2w_fhir.resources.examples.builders import (
     EXAMPLES_DIRECTORY,
-    MULTI_VALUE_SEPARATOR,
     STATUS_BY_EVENT_STATUS,
-    UNSYNTHESIZABLE_VALUE_TYPES,
     ExampleTally,
     SyntheticBuild,
     answer_element,
     build_example_artifacts,
     build_synthetic_responses,
-    derived_seed,
-    distinct_unique_value,
     example_answers,
     example_attribute_combo_assignments,
     example_attribute_option_combo,
@@ -397,10 +415,7 @@ from dhis2w_fhir.resources.examples import (
     location_reference,
     location_stem,
     response_status_code,
-    seeded_format_constrained_value,
     synthetic_period,
-    synthetic_uid,
-    zoned_date_time,
 )
 from dhis2w_fhir.resources.examples.documents import (
     TRACKED_ENTITY_IDENTIFIER_SEGMENT,
@@ -409,6 +424,7 @@ from dhis2w_fhir.resources.examples.documents import (
     build_example_documents,
 )
 from dhis2w_fhir.resources.examples.schemas import (
+    MULTI_VALUE_SEPARATOR,
     ExampleAnswer,
     ExampleAnswerIn,
     ExampleAnswerRules,
@@ -419,6 +435,13 @@ from dhis2w_fhir.resources.examples.schemas import (
     ExampleSelection,
     ExampleTrackerContext,
 )
+from dhis2w_fhir.resources.examples.synthetic import (
+    UNSYNTHESIZABLE_VALUE_TYPES,
+    derived_seed,
+    distinct_unique_value,
+    seeded_format_constrained_value,
+    synthetic_uid,
+)
 from dhis2w_fhir.resources.ips_sections import (
     SECTION_MAP_DESCRIPTION,
     SECTION_MAP_TITLE,
@@ -428,7 +451,7 @@ from dhis2w_fhir.resources.ips_sections import (
     section_map_id,
     section_map_name,
 )
-from dhis2w_fhir.resources.option_sets import (
+from dhis2w_fhir.resources.option_sets.builders import (
     CONCEPT_MAP_DIRECTORY,
     TERMINOLOGY_DIRECTORY,
     MemberPropertySource,
@@ -462,18 +485,18 @@ from dhis2w_fhir.resources.option_sets.schemas import (
     OptionSetIn,
     OptionSetSelection,
 )
-from dhis2w_fhir.resources.organisation_units import (
+from dhis2w_fhir.resources.organisation_units.documents import (
+    build_organisation_unit_level_terminology_documents,
+    build_organisation_unit_terminology_documents,
+)
+from dhis2w_fhir.resources.organisation_units.organization import (
     ORGANISATION_UNIT_STEM_SURFACE,
     REGISTRY_DIRECTORY,
     REGISTRY_EXAMPLE_IDENTIFIER,
     REGISTRY_EXAMPLE_IDENTITY_SENTENCE,
     REGISTRY_EXAMPLE_NAME,
     build_organisation_unit_instances,
-    build_organisation_unit_level_terminology,
-    build_organisation_unit_level_terminology_documents,
     build_organisation_unit_profiles,
-    build_organisation_unit_terminology,
-    build_organisation_unit_terminology_documents,
     build_registry_examples,
     organisation_unit_stem_subjects,
     plan_organisation_unit_stems,
@@ -485,7 +508,11 @@ from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitLevelNames,
     OrganisationUnitSelection,
 )
-from dhis2w_fhir.resources.pages import (
+from dhis2w_fhir.resources.organisation_units.terminology import (
+    build_organisation_unit_level_terminology,
+    build_organisation_unit_terminology,
+)
+from dhis2w_fhir.resources.pages.builders import (
     INTRO_SUFFIX,
     PAGES_BASE_SUBDIRECTORY,
     PAGES_DIRECTORY,
@@ -493,19 +520,19 @@ from dhis2w_fhir.resources.pages import (
     build_page_artifacts,
 )
 from dhis2w_fhir.resources.pages.schemas import PagesIn
-from dhis2w_fhir.resources.questionnaires import (
-    BOUND_ELEMENTS_BY_ITEM_TYPE,
-    BOUNDS_BY_VALUE_TYPE,
+from dhis2w_fhir.resources.questionnaires.assignments import (
+    ASSIGNMENT_DIRECTORY,
+    AssignmentIndex,
+    AssignmentPlan,
+    EmptyAssignmentSummary,
+    build_assignment_artifacts,
+)
+from dhis2w_fhir.resources.questionnaires.builders import (
     ITEM_CONTROL_CODE_SYSTEM_URL,
     ITEM_CONTROL_EXTENSION_URL,
-    ITEM_TYPES_BY_VALUE_TYPE,
-    MAXIMUM_VALUE_EXTENSION_URL,
-    MINIMUM_VALUE_EXTENSION_URL,
     PROGRAM_IDENTIFIER_SEGMENT,
     REGISTRATION_FILE_STEM,
-    TRACKED_ENTITY_TYPE_IDENTIFIER_SEGMENT,
     GroupingIdentifier,
-    NumericBounds,
     bound_option_set_uids,
     build_questionnaire_artifacts,
     collect_referenced_objects,
@@ -513,21 +540,11 @@ from dhis2w_fhir.resources.questionnaires import (
     grouping_identifiers,
     is_disaggregated,
     is_multi_valued,
-    item_type,
     link_id_collisions,
     question_code_system,
     question_entity_level,
-    question_read_only,
     source_description,
     source_items,
-    source_program,
-)
-from dhis2w_fhir.resources.questionnaires.assignments import (
-    ASSIGNMENT_DIRECTORY,
-    AssignmentIndex,
-    AssignmentPlan,
-    EmptyAssignmentSummary,
-    build_assignment_artifacts,
 )
 from dhis2w_fhir.resources.questionnaires.documents import (
     DataDictionaryDocumentBuild,
@@ -537,6 +554,8 @@ from dhis2w_fhir.resources.questionnaires.documents import (
 )
 from dhis2w_fhir.resources.questionnaires.program_rules import ComputedQuestionsSummary
 from dhis2w_fhir.resources.questionnaires.schemas import (
+    BOUND_ELEMENTS_BY_ITEM_TYPE,
+    BOUNDS_BY_VALUE_TYPE,
     CAPTURED_FORM_KINDS,
     CATEGORY_OPTION_COMBO_TERMINOLOGY,
     DATA_ELEMENT_TERMINOLOGY,
@@ -546,6 +565,9 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,
     GENERATED_PROPERTY,
     GENERATED_PROPERTY_DESCRIPTION,
+    ITEM_TYPES_BY_VALUE_TYPE,
+    MAXIMUM_VALUE_EXTENSION_URL,
+    MINIMUM_VALUE_EXTENSION_URL,
     PATTERN_PROPERTY,
     PATTERN_PROPERTY_DESCRIPTION,
     QUESTIONNAIRE_STEM_SURFACE,
@@ -553,6 +575,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     RESOURCE_TYPE_CODE_SYSTEM_URL,
     RESOURCE_TYPE_VALUE_SET_URL,
     TRACKED_ENTITY_ATTRIBUTE_TERMINOLOGY,
+    TRACKED_ENTITY_TYPE_IDENTIFIER_SEGMENT,
     TRACKED_ENTITY_TYPE_RESOURCE_MAP_DESCRIPTION,
     TRACKED_ENTITY_TYPE_RESOURCE_MAP_TITLE,
     TRACKED_ENTITY_TYPE_TERMINOLOGY,
@@ -564,6 +587,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     DateLabelIn,
     FormDateLabels,
     FormKindProfile,
+    NumericBounds,
     ProgramContextIn,
     PublishedTrackedEntityType,
     QuestionnaireItemIn,
@@ -579,10 +603,13 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     form_repeatable,
     form_subject_type,
     form_tracked_entity_type_uid,
+    item_type,
     ordered_option_combos,
     plan_questionnaire_stems,
     published_tracked_entity_types,
+    question_read_only,
     source_display_name,
+    source_program,
     tracked_entity_type_subject_type,
     unmapped_tracked_entity_type_notes,
 )
@@ -610,18 +637,10 @@ from dhis2w_fhir.service import (
     VALIDATE_CODES_STEPS,
     BuildAbortingCodeError,
     BuildAbortingNameError,
-    ForwardCompletenessKind,
-    ForwardCompletenessOutcome,
-    ForwardCompletenessRetry,
     ForwardEndpointAnswer,
     ForwardFilingIssue,
-    ForwardImportIssue,
-    ForwardImportOutcome,
-    ForwardImportRecord,
-    ForwardImportVerdict,
     ForwardOutcome,
     ForwardOutcomeKind,
-    ForwardRejectionReason,
     ForwardReport,
     ForwardStop,
     ForwardUnverifiableReason,
@@ -640,7 +659,6 @@ from dhis2w_fhir.service import (
     ValidationContext,
     WithdrawalKind,
     WithdrawalNotEnabledError,
-    WithdrawalRecord,
     WithdrawalUnsupportedError,
     WithdrawnReceipt,
     WithdrawReport,

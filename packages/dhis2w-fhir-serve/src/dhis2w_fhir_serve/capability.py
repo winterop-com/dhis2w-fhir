@@ -106,12 +106,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dhis2w_fhir.config import SearchBackend, ServeAuth, ServeAuthScope
-from dhis2w_fhir.foundation import (
+from dhis2w_fhir.foundation.response_profiles import (
     CAPTURE_SERVER_READ_RESOURCE_TYPES,
-    GENERATE_OPERATION_CODE,
     build_captured_response_profile_declarations,
 )
-from dhis2w_fhir.foundation.schemas import FoundationNaming
+from dhis2w_fhir.foundation.schemas import GENERATE_OPERATION_CODE, FoundationNaming
 from dhis2w_fhir.r4 import (
     CapabilityStatement,
     CapabilityStatementImplementation,

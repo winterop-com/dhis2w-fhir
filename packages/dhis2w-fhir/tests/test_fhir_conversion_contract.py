@@ -48,7 +48,7 @@ from typing import Any
 import pytest
 from conversion_corpus import AGGREGATE_IDS, aggregate_payloads
 from dhis2w_fhir.conversion.values import ANSWER_VALUE_ELEMENTS
-from dhis2w_fhir.foundation import DATA_VALUE_SET_ELEMENTS
+from dhis2w_fhir.foundation.schemas import DATA_VALUE_SET_ELEMENTS
 from pydantic import BaseModel, ConfigDict
 
 _GOLDEN = Path(__file__).parent / "data" / "r4" / "StructureDefinition-d2-data-value-set.json"

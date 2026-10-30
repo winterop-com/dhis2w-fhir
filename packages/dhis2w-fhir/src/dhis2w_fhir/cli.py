@@ -26,6 +26,7 @@ from dhis2w_core.cli_output import ColumnSpec, DetailRow, is_json_output, render
 from dhis2w_core.progress import animated_progress, make_reporter
 from dhis2w_core.rich_console import STDERR_CONSOLE
 from pydantic import BaseModel, ConfigDict
+from typer.core import TyperGroup
 
 from dhis2w_fhir import (
     DEFAULT_LOAD_SET_PER_TARGET,
@@ -41,6 +42,7 @@ from dhis2w_fhir import (
     load_project,
 )
 from dhis2w_fhir.doctor import DEFAULT_ORACLE_SAMPLES
+from dhis2w_fhir.errors import FhirUserError
 from dhis2w_fhir.notes import GenerateNoteCategory
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     UNTIMELY_ATTRIBUTE_OPTION_COMBO_REMEDY,
@@ -76,7 +78,27 @@ if TYPE_CHECKING:
     )
     from dhis2w_fhir.validation.schemas import FhirValidationReport, ValidationFinding
 
-app = typer.Typer(help="FHIR Implementation Guide generation from DHIS2 metadata.", no_args_is_help=True)
+
+if TYPE_CHECKING:
+    from typer import _click
+
+
+class _FhirCommandGroup(TyperGroup):
+    """Render a failure the library raised the way every other `d2w` user error renders."""
+
+    def invoke(self, ctx: _click.Context) -> Any:
+        """Run the command, handing a `FhirUserError` to the host's error funnel."""
+        try:
+            return super().invoke(ctx)
+        except FhirUserError as error:
+            raise CliUserError(*error.diagnostics) from error
+
+
+app = typer.Typer(
+    cls=_FhirCommandGroup,
+    help="FHIR Implementation Guide generation from DHIS2 metadata.",
+    no_args_is_help=True,
+)
 generate_app = typer.Typer()
 app.add_typer(generate_app, name="generate")
 
@@ -2848,7 +2870,7 @@ def _completeness_cell(value: Any) -> str:
 
 def _render_completeness(report: ForwardReport) -> None:
     """State what every aggregate response of the run claimed about completeness, and what came of it."""
-    from dhis2w_fhir.service import ForwardCompletenessKind
+    from dhis2w_fhir.forward_records import ForwardCompletenessKind
 
     outcomes = report.completeness_outcomes
     if not outcomes:
@@ -2937,7 +2959,7 @@ def _render_forward_outcomes(report: ForwardReport) -> None:
 
 def _completeness_report_lines(report: ForwardReport) -> list[str]:
     """The written report's completeness section: the tuple every aggregate response claimed, and its answer."""
-    from dhis2w_fhir.service import ForwardCompletenessKind
+    from dhis2w_fhir.forward_records import ForwardCompletenessKind
 
     outcomes = report.completeness_outcomes
     if not outcomes:
@@ -3214,7 +3236,7 @@ def _render_overwrite_hints(report: ForwardReport) -> None:
 
 def _render_completeness_hints(report: ForwardReport) -> None:
     """Say what a completeness refusal means for the values, which is the one thing a reader must not guess."""
-    from dhis2w_fhir.service import ForwardCompletenessKind
+    from dhis2w_fhir.forward_records import ForwardCompletenessKind
 
     refused = report.completeness_of(ForwardCompletenessKind.REFUSED)
     if refused:

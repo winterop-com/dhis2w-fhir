@@ -32,14 +32,11 @@ from dhis2w_fhir import (
     service,
 )
 from dhis2w_fhir.period import parse_period
-from dhis2w_fhir.resources.examples import (
-    EXAMPLES_DIRECTORY,
-    response_status_code,
-    synthetic_uid,
-)
+from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY, response_status_code
 from dhis2w_fhir.resources.examples.enablement import ExampleGate, asked_question_uids
 from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
-from dhis2w_fhir.resources.option_sets import option_concept_code_index, option_set_identities
+from dhis2w_fhir.resources.examples.synthetic import synthetic_uid
+from dhis2w_fhir.resources.option_sets.builders import option_concept_code_index, option_set_identities
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIdentityPlan, OptionSetIn
 from dhis2w_fhir.resources.questionnaires.program_rules import EnableWhenCondition, ItemEnableWhen
 from dhis2w_fhir.resources.questionnaires.schemas import (

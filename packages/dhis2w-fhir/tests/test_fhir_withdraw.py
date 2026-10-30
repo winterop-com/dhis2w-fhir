@@ -25,6 +25,7 @@ from dhis2w_core.profile import resolve
 from dhis2w_fhir import load_project, service
 from dhis2w_fhir.config import WithdrawalPosture
 from dhis2w_fhir.conversion import receipt_event_uid
+from dhis2w_fhir.forward_records import WithdrawalRecord
 from dhis2w_fhir.spool import (
     FORWARDED_RESPONSES_RELATIVE_PATH,
     IMPORT_REPORT_SUFFIX,
@@ -277,7 +278,7 @@ async def test_the_receipt_moves_to_withdrawn_with_the_record_of_the_delete_besi
     assert report.receipts[0].spool_path == f"{WITHDRAWN_RESPONSES_RELATIVE_PATH}/{_EVENT_RECEIPT}.json"
     assert not (withdraw_project / FORWARDED_RESPONSES_RELATIVE_PATH / f"{_EVENT_RECEIPT}.json").exists()
     assert (withdrawn / f"{_EVENT_RECEIPT}.json").read_bytes() == before
-    record = service.WithdrawalRecord.model_validate_json(
+    record = WithdrawalRecord.model_validate_json(
         (withdrawn / f"{_EVENT_RECEIPT}{IMPORT_REPORT_SUFFIX}").read_text(encoding="utf-8")
     )
     assert record.event_uid == receipt_event_uid(_EVENT_RECEIPT)

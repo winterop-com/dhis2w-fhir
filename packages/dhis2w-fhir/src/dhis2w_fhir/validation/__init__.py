@@ -160,8 +160,8 @@ from dhis2w_fhir.names import (
     usable_code_stem,
 )
 from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
-from dhis2w_fhir.resources.categories import max_category_slug_length
-from dhis2w_fhir.resources.option_sets import max_slug_length
+from dhis2w_fhir.resources.categories.builders import max_category_slug_length
+from dhis2w_fhir.resources.option_sets.builders import max_slug_length
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir.resources.questionnaires.schemas import QUESTIONNAIRE_STEM_SURFACE, TRACKER_PROGRAM_STEM_SURFACE
 from dhis2w_fhir.validation.report import display_code, render_validation_markdown

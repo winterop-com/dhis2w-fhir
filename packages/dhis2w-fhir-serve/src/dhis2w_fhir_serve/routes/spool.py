@@ -38,8 +38,8 @@ from __future__ import annotations
 from typing import Annotated
 
 from dhis2w_fhir.conversion.values import location_id_of
+from dhis2w_fhir.forward_records import ForwardImportOutcome, WithdrawalRecord
 from dhis2w_fhir.r4 import Extension, QuestionnaireResponse, QuestionnaireResponseItem
-from dhis2w_fhir.service import ForwardImportOutcome, WithdrawalRecord
 from dhis2w_fhir.spool import ForwardRefusalRecord, QuarantinedFile
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, ConfigDict, ValidationError

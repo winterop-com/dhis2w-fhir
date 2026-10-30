@@ -13,7 +13,8 @@ from pathlib import Path
 
 import pytest
 from dhis2w_fhir.config import FHIR_CONFIG_FILENAME, ServeConfig, load_fhir_config, load_project
-from dhis2w_fhir.service import ForwardImportRecord, read_spool_state, spool_layout
+from dhis2w_fhir.forward_records import ForwardImportRecord
+from dhis2w_fhir.service import read_spool_state, spool_layout
 from dhis2w_fhir.spool import (
     REFUSAL_RECORD_SUFFIX,
     SPOOL_RELATIVE_PATH,

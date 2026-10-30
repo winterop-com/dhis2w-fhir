@@ -25,8 +25,9 @@ import tarfile
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Literal
 
-from dhis2w_core.cli_errors import CliUserError
 from pydantic import BaseModel, ConfigDict
+
+from dhis2w_fhir.errors import FhirUserError
 
 if TYPE_CHECKING:
     from dhis2w_fhir.config import FhirProject
@@ -57,7 +58,7 @@ _PACKAGE_ROOT = "package"
 REGISTRY_PACKAGE_RESOURCE_TYPES: frozenset[str] = frozenset({"Location", "Organization"})
 
 
-class RegistryMissingError(CliUserError):
+class RegistryMissingError(FhirUserError):
     """Raised when a guide declares a registry package that neither a checkout nor a package supplies."""
 
 

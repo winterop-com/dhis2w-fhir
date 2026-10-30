@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING, Literal
 
 from dhis2w_fhir.names import join_id_tokens, join_name_segments
 from dhis2w_fhir.r4 import ConceptMap, ConceptMapGroup, ConceptMapGroupElement, ConceptMapGroupElementTarget
-from dhis2w_fhir.resources.option_sets import CONCEPT_MAP_DIRECTORY, concept_map_canonical
+from dhis2w_fhir.resources.option_sets.builders import CONCEPT_MAP_DIRECTORY, concept_map_canonical
 from dhis2w_fhir.status import experimental_for_status
 from dhis2w_fhir.summary import IMMUNIZATIONS_SECTION, LOINC_SYSTEM
 from dhis2w_fhir.writer import JsonArtifact

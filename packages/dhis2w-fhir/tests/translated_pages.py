@@ -14,7 +14,7 @@ from dhis2w_fhir import GenerateConfig, OptionIn, OptionSetIn, OrganisationUnitI
 from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelIn, OrganisationUnitLevelNames
-from dhis2w_fhir.resources.pages import PAGES_DIRECTORY, build_page_artifacts
+from dhis2w_fhir.resources.pages.builders import PAGES_DIRECTORY, build_page_artifacts
 from dhis2w_fhir.resources.pages.schemas import PagesIn
 from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramContextIn,

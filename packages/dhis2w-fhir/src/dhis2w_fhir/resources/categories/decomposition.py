@@ -31,8 +31,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from dhis2w_fhir.names import flatten_whitespace
 from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note
 from dhis2w_fhir.r4 import CodeSystemConceptProperty, CodeSystemProperty, Coding
-from dhis2w_fhir.resources.categories import category_identities
-from dhis2w_fhir.resources.option_sets import code_system_canonical, concept_assignments
+from dhis2w_fhir.resources.categories.builders import category_identities
+from dhis2w_fhir.resources.option_sets.builders import code_system_canonical, concept_assignments
 
 if TYPE_CHECKING:
     from collections.abc import Collection

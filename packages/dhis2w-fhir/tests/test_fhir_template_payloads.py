@@ -25,7 +25,7 @@ import pytest
 from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import GenerateConfig
 from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.resources.organisation_units import build_organisation_unit_instances
+from dhis2w_fhir.resources.organisation_units.organization import build_organisation_unit_instances
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelIn,

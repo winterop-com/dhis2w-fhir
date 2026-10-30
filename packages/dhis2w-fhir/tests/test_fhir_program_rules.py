@@ -27,10 +27,11 @@ from dhis2w_fhir import (
 )
 from dhis2w_fhir.conversion.artifacts import CompiledArtifacts, program_rule_names
 from dhis2w_fhir.conversion.schemas import CodedAnswerMode, ConversionNaming
+from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome
 from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_ACTION_DEFINITIONS
 from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.r4 import Questionnaire
-from dhis2w_fhir.resources.option_sets import option_concept_code_index
+from dhis2w_fhir.resources.option_sets.builders import option_concept_code_index
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir.resources.questionnaires.program_rules import (
     PROGRAM_RULE_ACTION_TYPES,
@@ -42,13 +43,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramRuleIn,
     ProgramRuleVariableIn,
 )
-from dhis2w_fhir.service import (
-    ForwardImportIssue,
-    ForwardImportOutcome,
-    ForwardOutcome,
-    ForwardOutcomeKind,
-    ForwardReport,
-)
+from dhis2w_fhir.service import ForwardOutcome, ForwardOutcomeKind, ForwardReport
 
 _CANONICAL = "http://example.org/fhir"
 _PROGRAM_RULE_URL = f"{_CANONICAL}/StructureDefinition/d2-program-rule"
@@ -833,7 +828,7 @@ def test_a_computed_question_rides_the_assigns_slice_of_both_emitters() -> None:
 
 def test_the_program_rule_extension_declares_the_assigns_slice() -> None:
     """A slice nothing declares is a slice SUSHI refuses, so the foundation states it beside the other four."""
-    from dhis2w_fhir.foundation import build_foundation_artifacts
+    from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts
 
     artifacts = build_foundation_artifacts(GenerateConfig(), _CANONICAL, ig_status="draft")
 

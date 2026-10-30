@@ -24,7 +24,8 @@ import pytest
 from dhis2w_fhir.config import FhirProject, SearchBackend, SearchConfig, ServeAuth, ServeAuthScope
 from dhis2w_fhir_serve import capability as capability_module
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.errors import NotFoundError, register_error_handlers
+from dhis2w_fhir_serve.error_handlers import register_error_handlers
+from dhis2w_fhir_serve.errors import NotFoundError
 from dhis2w_fhir_serve.routes import (
     FACADE_MOUNT_PATH,
     accept_head_wherever_get_is_served,

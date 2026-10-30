@@ -10,7 +10,7 @@ from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.names import CodeStemError
 from dhis2w_fhir.notes import GenerateNote
-from dhis2w_fhir.resources.categories import build_category_artifacts, category_identities
+from dhis2w_fhir.resources.categories.builders import build_category_artifacts, category_identities
 from dhis2w_fhir.resources.categories.schemas import (
     DEFAULT_CATEGORY_NAME,
     CategoryIn,

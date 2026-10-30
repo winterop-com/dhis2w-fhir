@@ -58,6 +58,7 @@ from dhis2w_fhir_serve.capture import (
     success_outcome,
     validate_response,
 )
+from dhis2w_fhir_serve.error_handlers import outcome, register_error_handlers
 from dhis2w_fhir_serve.errors import (
     FHIR_JSON_MEDIA_TYPE,
     BadOperationError,
@@ -77,10 +78,8 @@ from dhis2w_fhir_serve.errors import (
     ServeError,
     UnknownFilterAttributeError,
     UpstreamError,
-    outcome,
     package_statement,
     package_subject,
-    register_error_handlers,
 )
 from dhis2w_fhir_serve.evaluation import (
     FHIRPATH_RESULT_NAME,
@@ -102,7 +101,7 @@ from dhis2w_fhir_serve.history.wire import (
     fetch_tracked_entity_record,
 )
 from dhis2w_fhir_serve.live import build_live_store, open_live_client
-from dhis2w_fhir_serve.log import RequestLogMiddleware, configure_logging
+from dhis2w_fhir_serve.log import configure_logging
 from dhis2w_fhir_serve.metadata import ServedMetadata, build_served_metadata
 from dhis2w_fhir_serve.oidc import (
     CLOCK_LEEWAY_SECONDS,
@@ -205,6 +204,7 @@ from dhis2w_fhir_serve.register.wire import (
     poll_tracked_entities,
     search_tracked_entities,
 )
+from dhis2w_fhir_serve.request_log import RequestLogMiddleware
 from dhis2w_fhir_serve.routes import (
     FACADE_API_TITLE,
     FACADE_DOCUMENTATION_PATH,

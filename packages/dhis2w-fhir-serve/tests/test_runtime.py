@@ -22,7 +22,7 @@ from dhis2w_client import BasicAuth, Dhis2Client
 from dhis2w_fhir.config import FhirProject, ServeAuth
 from dhis2w_fhir_serve import runtime as runtime_module
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.errors import register_error_handlers
+from dhis2w_fhir_serve.error_handlers import register_error_handlers
 from dhis2w_fhir_serve.passthrough import FACADE_PROVENANCE_HEADER
 from dhis2w_fhir_serve.routes import register_routes
 from dhis2w_fhir_serve.runtime import ServeContext, ServeRuntime, attach_serve_runtime, open_serve_runtime

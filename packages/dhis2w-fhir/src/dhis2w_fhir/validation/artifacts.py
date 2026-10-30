@@ -101,7 +101,7 @@ from dhis2w_fhir.resources.attribute_combos.restrictions import (
     CategoryOptionValidity,
 )
 from dhis2w_fhir.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
-from dhis2w_fhir.resources.pages import PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY
+from dhis2w_fhir.resources.pages.builders import PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY
 from dhis2w_fhir.resources.questionnaires.assignments import (
     ASSIGNMENT_DIRECTORY,
     ASSIGNMENT_LIST_RESOURCE_TYPE,

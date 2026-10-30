@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 from dhis2w_fhir.config import FHIR_CONFIG_FILENAME, FhirProjectConfig, HostileNamePosture, NoFhirProjectError
-from dhis2w_fhir.resources.pages import SITE_PAGE_FILENAMES
+from dhis2w_fhir.resources.pages.builders import SITE_PAGE_FILENAMES
 from dhis2w_fhir.scaffold import (
     CONFIG_EXAMPLE_RELATIVE_PATH,
     INDEX_PAGE_RELATIVE_PATH,
