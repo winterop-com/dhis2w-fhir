@@ -32,7 +32,7 @@ What this gives up, all of it deliberately:
 refused capture must survive until a person fixes it, and when the receipts are the record. Take this
 recipe when the submitting side is yours and the facade is one route in an application that exists.
 
-The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+The guide is [Write the route yourself](../../../docs/401-build-your-own-facade.md); what a valid
 response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:

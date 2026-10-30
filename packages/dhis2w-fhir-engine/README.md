@@ -1,6 +1,57 @@
 # dhis2w-fhir-engine
 
-FHIRPath, CQL, and ELM evaluation over FHIR data, with clinical quality measure evaluation.
+What a FHIR-to-DHIS2 service installs: the facade library and routes, the R4 models, and FHIRPath, CQL, and ELM evaluation
+with clinical quality measures.
+
+## Build a middleware
+
+A service of your own between another system and DHIS2, with no `fhir.toml`, no SUSHI, and no docker:
+
+```bash
+uv init myfacade && cd myfacade
+uv add dhis2w-fhir-engine uvicorn
+```
+
+```python
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from dhis2w_client import BasicAuth, Dhis2Client
+from dhis2w_fhir_engine.facade import FacadeConfig, open_facade
+from dhis2w_fhir_engine.facade.api import attach_facade, mount_facade
+from fastapi import FastAPI
+
+config = FacadeConfig(canonical="http://example.org/fhir/demo", root=Path(".facade"))
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+    auth = BasicAuth(username="admin", password="district")
+    async with Dhis2Client(base_url="http://localhost:8080", auth=auth) as client:
+        async with open_facade(config, client=client) as facade:
+            attach_facade(app, facade)
+            yield
+
+
+app = FastAPI(lifespan=lifespan)
+mount_facade(app, read_as_caller=True)
+```
+
+```bash
+uv run uvicorn main:app
+```
+
+That serves `/metadata`, read and search over the forms and the people, `$generate`, and `POST /QuestionnaireResponse`.
+`read_as_caller` has every caller present their own DHIS2 credentials, so DHIS2 applies their rights, and `admin` here is
+for a local demo instance only. **Read
+[Who can do what](https://winterop-com.github.io/dhis2w-fhir/build-who-can-do-what/) before anyone else can reach your
+service.**
+
+[Build a middleware](https://winterop-com.github.io/dhis2w-fhir/build-a-middleware/) walks all of it, and
+[`examples/facade/`](https://github.com/winterop-com/dhis2w-fhir/tree/main/examples/facade) runs it in eleven steps.
+
+## Evaluate over FHIR data
 
 The grammar, parser, AST, and evaluator layers know nothing about any particular FHIR release —
 FHIRPath is normative and CQL is 1.5, and neither names a version. Everything that does bind to a

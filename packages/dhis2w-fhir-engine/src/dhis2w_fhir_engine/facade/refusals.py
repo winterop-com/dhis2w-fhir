@@ -341,6 +341,26 @@ class UpstreamError(ServeError):
         super().__init__(diagnostics)
 
 
+class CaptureNotTranslatedError(ServeError):
+    """A capture the guide accepts and the translator cannot turn into a DHIS2 payload, so nothing was posted."""
+
+    status_code = 422
+    issue_code = "processing"
+
+    def __init__(self, reasons: tuple[str, ...]) -> None:
+        super().__init__("this capture could not be translated, and nothing was sent to DHIS2: " + "; ".join(reasons))
+
+
+class CaptureRefusedByInstanceError(ServeError):
+    """DHIS2 refused a capture posted under the caller's own credentials, so nothing was stored."""
+
+    issue_code = "processing"
+
+    def __init__(self, status_code: int, reasons: tuple[str, ...]) -> None:
+        super().__init__("DHIS2 refused this capture, and nothing was stored: " + "; ".join(reasons))
+        self.status_code = status_code
+
+
 class BadSearchError(ServeError):
     """The search parameters cannot be read as a query."""
 

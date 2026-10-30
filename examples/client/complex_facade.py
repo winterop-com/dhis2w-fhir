@@ -24,7 +24,7 @@ the level where the honest answer becomes `d2w fhir serve`.
 Note what has already happened here: half the imports are the served facade's own. Writing receipts
 durably is not a thing worth having a second version of, so this level uses the one that exists.
 
-The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+The guide is [Write the route yourself](../../../docs/401-build-your-own-facade.md); what a valid
 response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:

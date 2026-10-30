@@ -38,7 +38,8 @@ async def status() -> dict[str, str]:
     return {"service": "mine"}
 
 
-mount_facade(app, reads=False, operations=False)
+# `allow_anonymous` because this runs in-process with no port. Steps 8 and 9 are what a real service states.
+mount_facade(app, reads=False, operations=False, allow_anonymous=True)
 
 
 async def main() -> None:

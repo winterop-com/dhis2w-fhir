@@ -44,12 +44,13 @@ from typing import TYPE_CHECKING
 
 from dhis2w_client import Dhis2Client
 from dhis2w_fhir_engine.facade.api.metadata import build_served_metadata
-from dhis2w_fhir_engine.facade.api.passthrough import open_pass_through_client
-from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, facade_provenance, server_version
+from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, load_project
 from dhis2w_fhir_engine.facade.live import build_live_store
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
+from dhis2w_fhir_engine.facade.provenance import facade_provenance, server_version
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.reader import open_pass_through_client
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
 from dhis2w_fhir_engine.facade.settings import ServeSettings

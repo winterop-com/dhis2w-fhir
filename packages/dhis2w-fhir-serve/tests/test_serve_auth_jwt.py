@@ -38,13 +38,7 @@ from dhis2w_fhir_engine.facade.api.auth import (
     UnauthenticatedError,
     challenge_for,
 )
-from dhis2w_fhir_engine.facade.api.passthrough import (
-    FACADE_PROVENANCE_HEADER,
-    RegisterNotForwardableError,
-    UpstreamRefusalError,
-    open_pass_through_client,
-    register_reader,
-)
+from dhis2w_fhir_engine.facade.api.passthrough import RegisterNotForwardableError, UpstreamRefusalError, register_reader
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
 from dhis2w_fhir_engine.facade.api.routes.whoami import WHOAMI_PATH
 from dhis2w_fhir_engine.facade.capability import (
@@ -54,6 +48,7 @@ from dhis2w_fhir_engine.facade.capability import (
     build_security,
 )
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, ServeJwtConfig, load_fhir_config
+from dhis2w_fhir_engine.facade.register.reader import FACADE_PROVENANCE_HEADER, open_pass_through_client
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import settings as settings_module

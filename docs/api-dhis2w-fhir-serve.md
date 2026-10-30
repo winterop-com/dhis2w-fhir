@@ -19,10 +19,10 @@ so anything cached would be stale within seconds of a drain.
 
 ## When to reach for it
 
-- Embed the facade in another ASGI process (`create_app`, `ServeSettings`), or mount its routers
+- Serve as a library in another ASGI process (`create_app`, `ServeSettings`), or mount its routers
   beside your own routes over a runtime you opened yourself (`resolve_serve_settings`,
   `open_serve_runtime`, `attach_serve_runtime`, `serve_routers`, `register_error_handlers`) - see
-  [Embed the facade](#embed-the-facade).
+  [Serve as a library](#serve-as-a-library).
 - Get the settings `d2w fhir serve` gets for the same project and the same flags, precedence rules
   included (`resolve_serve_settings`, `ServeInvocation`).
 - Load a project's store, spool, and register surface without an HTTP server at all
@@ -85,7 +85,7 @@ store.search("Questionnaire", SearchQuery(urls=("http://example.org/fhir/demo/Qu
 # (StoreEntry(resource_type='Questionnaire', resource_id='BfMAe6Itzgt', ...),)
 ```
 
-## Embed the facade
+## Serve as a library
 
 `create_app` builds the whole server, and an application that already runs FastAPI wants the FHIR
 surface inside the process it has. That is four steps, and each one is a name:
@@ -137,7 +137,7 @@ What each step is for:
    as long as the context manager is entered. Under `auth = "dhis2"` it holds a second connection
    beside it - `ServeRuntime.caller_client`, pointed at the same instance and carrying no credential -
    which is the pool a register read forwards each caller's own `Authorization` over; see
-   [credential pass-through](#credential-pass-through). `attach_serve_runtime` puts all three things
+   [credential pass-through](api-dhis2w-fhir-engine.md#credential-pass-through). `attach_serve_runtime` puts all three things
    the handlers read onto the application, and nothing serves a request before it has been called.
 3. **The routers.** `serve_routers` states the mount requirements as data: the FHIR routers carry
    `Depends(require_json_is_acceptable)`, the facade routers do not, the read catch-alls mount after
@@ -251,7 +251,7 @@ And a facade served under a path is **mounted** rather than included under a pre
 an `include_router` prefix.
 
 A worked example of all of this is coming to the facade ladder in
-[Build your own facade](401-build-your-own-facade.md), as the level above `complex_facade.py`: an
+[Write the route yourself](401-build-your-own-facade.md), as the level above `complex_facade.py`: an
 application that mounts these routers rather than reimplementing them.
 
 ## Reference

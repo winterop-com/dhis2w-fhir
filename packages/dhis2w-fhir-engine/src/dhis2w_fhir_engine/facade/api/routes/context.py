@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from dhis2w_client import Dhis2Client
 
     from dhis2w_fhir_engine.facade.api.runtime import ServeContext
+    from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
     from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 
 #: Where the four pieces of runtime state live on the application, named here because this is what
@@ -41,6 +42,7 @@ SERVE_CONTEXT_ATTRIBUTE = "context"
 LIVE_CLIENT_ATTRIBUTE = "live_client"
 CALLER_CLIENT_ATTRIBUTE = "caller_client"
 PROJECTION_STORE_ATTRIBUTE = "projection_store"
+CONVERSION_CONTEXT_ATTRIBUTE = "conversion_context"
 
 
 def serve_context(request: Request) -> ServeContext:
@@ -59,6 +61,12 @@ def caller_client(request: Request) -> httpx2.AsyncClient | None:
     """The credential-free connection pass-through reads borrow, or None outside the `dhis2` posture."""
     connection: httpx2.AsyncClient | None = getattr(request.app.state, CALLER_CLIENT_ATTRIBUTE, None)
     return connection
+
+
+def conversion_context(request: Request) -> ConversionContext | None:
+    """What a capture is translated with where it posts at once, or None wherever captures are spooled."""
+    context: ConversionContext | None = getattr(request.app.state, CONVERSION_CONTEXT_ATTRIBUTE, None)
+    return context
 
 
 def projection_store(request: Request) -> ProjectionStore | None:

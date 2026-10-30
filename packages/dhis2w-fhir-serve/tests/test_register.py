@@ -28,13 +28,13 @@ import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
 from dhis2w_fhir_engine.facade.api.auth import challenge_for
-from dhis2w_fhir_engine.facade.api.passthrough import FACADE_PROVENANCE_HEADER, open_pass_through_client
 from dhis2w_fhir_engine.facade.api.routes import register as register_route_module
-from dhis2w_fhir_engine.facade.api.runtime import facade_provenance
 from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, TrackedEntitiesConfig
 from dhis2w_fhir_engine.facade.projection.base import IndexedName, NameMatch, NameMatches, NameQuery
+from dhis2w_fhir_engine.facade.provenance import facade_provenance
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.reader import FACADE_PROVENANCE_HEADER, open_pass_through_client
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import load_compiled_store

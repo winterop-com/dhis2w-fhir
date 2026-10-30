@@ -20,9 +20,9 @@ import httpx2
 import pytest
 from dhis2w_client import BasicAuth, Dhis2Client
 from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
-from dhis2w_fhir_engine.facade.api.passthrough import FACADE_PROVENANCE_HEADER
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth
+from dhis2w_fhir_engine.facade.register.reader import FACADE_PROVENANCE_HEADER
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
@@ -188,7 +188,7 @@ def test_a_runtime_names_what_a_facade_holds(tmp_path: Path) -> None:
     """`ServeContext` is what is served; the connections and the issuer's keys are what serves it."""
     fields = set(ServeRuntime.model_fields)
 
-    assert fields == {"context", "live_client", "caller_client", "jwt_verifier", "projection_store"}
+    assert fields == {"context", "live_client", "caller_client", "jwt_verifier", "projection_store", "conversion"}
 
 
 async def test_the_pass_through_connection_is_opened_only_for_the_dhis2_posture(

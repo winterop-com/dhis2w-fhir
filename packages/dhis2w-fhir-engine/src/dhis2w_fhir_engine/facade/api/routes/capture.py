@@ -35,6 +35,7 @@ authenticates nobody knows nobody.
 
 from __future__ import annotations
 
+from dhis2w_client.errors import Dhis2ClientError
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
@@ -42,7 +43,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from dhis2w_fhir_engine.facade.api.auth import request_identity
-from dhis2w_fhir_engine.facade.api.routes.context import serve_context
+from dhis2w_fhir_engine.facade.api.passthrough import caller_reader
+from dhis2w_fhir_engine.facade.api.routes.context import conversion_context, serve_context
 from dhis2w_fhir_engine.facade.capability import QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE
 from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
@@ -53,17 +55,25 @@ from dhis2w_fhir_engine.facade.capture.validate import (
     ValidatedCapture,
     validate_response,
 )
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
+from dhis2w_fhir_engine.facade.forward import claim_completeness, post_translation
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportRecord, ForwardImportVerdict
+from dhis2w_fhir_engine.facade.overwrite import aggregate_cells
 from dhis2w_fhir_engine.facade.refusals import (
     FHIR_JSON_MEDIA_TYPE,
     CaptureDisabledError,
+    CaptureNotTranslatedError,
+    CaptureRefusedByInstanceError,
     PackagePublishesNoFormsError,
     UnsupportedMediaTypeError,
+    UpstreamError,
 )
 from dhis2w_fhir_engine.facade.response_spool import (
     StoredResponseEnvelope,
     mint_receipt,
 )
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
+from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 
 #: Where the capture state is held on the app. It is deliberately not part of `ServeContext`: the
 #: context is everything the lifespan loaded, and this is built by the first request that needs a
@@ -147,11 +157,72 @@ async def create_questionnaire_response(request: Request) -> Response:
             content=rejection_outcome(rejection.issues).model_dump(mode="json", exclude_none=True, by_alias=True),
             media_type=FHIR_JSON_MEDIA_TYPE,
         )
+    if context.settings.capture_as_caller:
+        return await _post_as_the_caller(request, validated)
     envelope = _receipt(validated, request)
     # Off the event loop: the write is a temporary file, an fsync of it, a rename, and an fsync of
     # the directory - blocking work the facade must not do inline, since the point of the fsyncs is
     # that they wait for the device.
     await run_in_threadpool(context.spool.save, envelope)
+    return _created(request, envelope.response_id, validated.subject, validated.warnings)
+
+
+async def _post_as_the_caller(request: Request, validated: ValidatedCapture) -> Response:
+    """Post one capture at once under the caller's own credentials, so DHIS2 applies their rights and names them.
+
+    A spooled capture is posted later by whoever drains it, and this facade holds no caller's credentials to do that
+    with, so a clerk could have the service write what DHIS2 refuses the clerk. Here DHIS2 decides while the caller
+    waits. A receipt is filed only for what DHIS2 took, so a refusal, or DHIS2 being away, stores nothing and the
+    caller knows to act on it.
+    """
+    context = serve_context(request)
+    conversion = conversion_context(request)
+    if conversion is None:
+        raise UpstreamError("this facade posts captures as the caller and was attached with nothing to translate them")
+    result = translate_response(QuestionnaireResponse.model_validate(validated.response), conversion)
+    if result.is_refused:
+        raise CaptureNotTranslatedError(tuple(refusal.reason for refusal in result.refusals))
+    reader = await caller_reader(request)
+    validate_only = context.settings.capture_validate_only
+    try:
+        answer = await post_translation(reader, result, dry_run=validate_only)
+    except Dhis2ClientError as error:
+        raise UpstreamError(
+            f"DHIS2 could not take this capture, and nothing was stored: send it again ({error})"
+        ) from error
+    if answer.verdict is ForwardImportVerdict.NONE:
+        raise UpstreamError(
+            f"DHIS2 answered {answer.http_status} with no verdict, and nothing was stored: send it again"
+        )
+    if answer.verdict is ForwardImportVerdict.REJECTED:
+        reasons = tuple(issue.line for issue in answer.issues) or (answer.message or "no reason stated",)
+        raise CaptureRefusedByInstanceError(answer.http_status or 409, reasons)
+    if validate_only:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "resourceType": "OperationOutcome",
+                "issue": [
+                    {
+                        "severity": "information",
+                        "code": "informational",
+                        "diagnostics": "DHIS2 would take this capture for this caller; nothing was written or stored",
+                    }
+                ],
+            },
+            media_type=FHIR_JSON_MEDIA_TYPE,
+        )
+    envelope = _receipt(validated, request)
+    envelope_cells = aggregate_cells(result.data_value_set) if result.data_value_set is not None else ()
+    claim = result.completeness if context.project.config.forward.register_completeness else None
+    record = ForwardImportRecord(
+        **answer.model_dump(),
+        target_kind=result.target_kind,
+        received_at=envelope.received_at,
+        cells=envelope_cells,
+        completeness=None if claim is None else await claim_completeness(reader, claim),
+    )
+    await run_in_threadpool(context.spool.save_forwarded, envelope, record)
     return _created(request, envelope.response_id, validated.subject, validated.warnings)
 
 

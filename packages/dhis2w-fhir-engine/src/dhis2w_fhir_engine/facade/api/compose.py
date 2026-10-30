@@ -22,8 +22,9 @@ from dhis2w_fhir_engine.facade.api.routes.mounting import (
     facade_routers,
 )
 from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
-from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime, server_version
+from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime
 from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.provenance import server_version
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.settings import ServeSettings
@@ -34,8 +35,20 @@ if TYPE_CHECKING:
 #: What `/metadata` says where an application's own dependency guards the routes.
 OWN_AUTHENTICATION_STATEMENT = "This service decides who may call it, with a credential of its own."
 
+#: What a facade says on refusing to start, with every way to state what was meant.
+ANONYMOUS_FACADE_REFUSAL = (
+    "nothing checks who calls this facade, so anyone who can reach it could submit captures or read every person its "
+    "connection can see. Pass one of these to mount_facade: read_as_caller=True to have each caller present their own "
+    "DHIS2 credentials, authentication=<your dependency> with a connection limited to what every caller may do, or "
+    "allow_anonymous=True if this is really what you want"
+)
+
 #: Where `mount_facade` leaves what it mounted, for `attach_facade` to state at `/metadata`.
 _MOUNTED_ATTRIBUTE = "facade_mounted"
+
+
+class AnonymousFacadeError(ValueError):
+    """Raised on starting a facade that would hand people's records to callers nobody checked."""
 
 
 class MountedSurfaces(BaseModel):
@@ -49,6 +62,14 @@ class MountedSurfaces(BaseModel):
     auth: ServeAuth = ServeAuth.NONE
     auth_scope: ServeAuthScope = ServeAuthScope.WRITE
     authentication_statement: str | None = None
+    facade_api: bool = False
+    reads_as_caller: bool = False
+    allows_anonymous: bool = False
+    validate_only: bool = False
+
+    def reads_people(self) -> bool:
+        """Whether anything mounted here can answer with a person out of DHIS2."""
+        return self.reads or self.operations or self.facade_api
 
 
 def mount_facade(
@@ -62,6 +83,9 @@ def mount_facade(
     authentication: Any = None,
     auth_scope: ServeAuthScope = ServeAuthScope.ALL,
     authentication_statement: str = OWN_AUTHENTICATION_STATEMENT,
+    read_as_caller: bool = False,
+    allow_anonymous: bool = False,
+    validate_only: bool = False,
 ) -> None:
     """Mount the surfaces asked for. Declare your own routes first: the reads claim every one-segment path.
 
@@ -72,12 +96,26 @@ def mount_facade(
     `authentication_statement` says. Calling `record_caller` from it is what gives `/whoami` a name to answer with.
     With no dependency nothing is guarded.
 
-    WHOEVER GETS IN READS AS ONE ACCOUNT. A read of a person goes through the connection given to `open_facade`, so
-    DHIS2 applies that account's rights and not the caller's. `authentication` decides who may ask and nothing about
-    what an answer contains, and no check here stops this service being reached from another host. Give that
-    connection an account that may see only what every caller may, or leave `reads` and `operations` off.
+    `read_as_caller` is the safe way to answer for people: every caller presents their own DHIS2 credentials, DHIS2
+    checks them, and DHIS2 applies that caller's rights to everything done for them. A read goes out under their
+    credentials, and so does a capture, which posts at once rather than being spooled: DHIS2 names them as its author,
+    and if DHIS2 is away the capture fails and the client sends it again. It takes no `authentication`, because DHIS2
+    is the check. `validate_only` runs those posts under the endpoint's validate-only mode, for trying a service out.
+
+    WITH `authentication`, EVERYONE WHO GETS IN ACTS AS ONE ACCOUNT. A read goes through the connection given to
+    `open_facade`, and a capture is spooled and later drained through it, so DHIS2 applies that account's rights and
+    not the caller's: your check decides who may ask and nothing about what they can reach. A clerk could have the
+    service write where DHIS2 would refuse the clerk. Give that connection only what every caller may do.
+
+    WITH NEITHER, A FACADE REFUSES TO START if it can take a capture, or if it holds a client and can answer with a
+    person, because nothing else stops this service being reached from another host. `allow_anonymous` says that is
+    intended.
     """
-    posture = ServeAuth.NONE if authentication is None else ServeAuth.TOKEN
+    if read_as_caller and authentication is not None:
+        raise ValueError("read_as_caller makes DHIS2 the check, so it takes no authentication of your own: pass one")
+    if validate_only and not read_as_caller:
+        raise ValueError("validate_only applies to captures posted as the caller, so it needs read_as_caller")
+    posture = ServeAuth.DHIS2 if read_as_caller else ServeAuth.NONE if authentication is None else ServeAuth.TOKEN
     routers = facade_routers(capture=capture, auth=posture, auth_scope=auth_scope)
     check = require_authenticated if authentication is None else authentication
 
@@ -118,6 +156,10 @@ def mount_facade(
             auth=posture,
             auth_scope=auth_scope,
             authentication_statement=None if authentication is None else authentication_statement,
+            facade_api=facade_api is not None,
+            reads_as_caller=read_as_caller,
+            allows_anonymous=allow_anonymous,
+            validate_only=validate_only,
         ),
     )
 
@@ -129,14 +171,22 @@ def attach_facade(app: FastAPI, facade: Facade, *, service_base: str | None = No
     a router prefix: an ASGI mount carries its path into every link on its own.
     """
     mounted: MountedSurfaces = getattr(app.state, _MOUNTED_ATTRIBUTE, MountedSurfaces())
+    exposes_something = mounted.capture or (facade.client is not None and mounted.reads_people())
+    if exposes_something and mounted.auth is ServeAuth.NONE and not mounted.allows_anonymous:
+        raise AnonymousFacadeError(ANONYMOUS_FACADE_REFUSAL)
+    if mounted.reads_as_caller and facade.client is None:
+        raise ValueError("read_as_caller reads a DHIS2 as each caller, and this facade was opened with no client")
     project = facade.project
     serve = project.config.serve
     settings = ServeSettings(
         project_dir=project.project_root,
         live=facade.client is not None,
+        dhis2_base_url=None if facade.client is None else facade.client.base_url,
         strict_codes=facade.strict_codes,
         capture=mounted.capture,
         reads=mounted.reads,
+        capture_as_caller=mounted.reads_as_caller,
+        capture_validate_only=mounted.validate_only,
         operations=mounted.operations,
         auth=mounted.auth,
         auth_scope=mounted.auth_scope,
@@ -168,5 +218,7 @@ def attach_facade(app: FastAPI, facade: Facade, *, service_base: str | None = No
                 declared_resource_types=statement.declared_resource_types,
             ),
             live_client=facade.client,
+            caller_client=facade.caller_client if mounted.reads_as_caller else None,
+            conversion=facade.conversion if mounted.reads_as_caller else None,
         ),
     )

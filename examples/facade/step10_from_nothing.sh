@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Step 9: start from nothing: `uv init`, `uv add`, and a service against a live DHIS2.
+# Step 10: start from nothing: `uv init`, `uv add`, and a service against a live DHIS2.
 #
 # The whole of it, in a directory outside this repository: no fhir.toml, no SUSHI, no docker. This script builds the
 # engine wheel from this checkout so it verifies the code in front of it. A real project runs
 # `uv add dhis2w-fhir-engine uvicorn` instead.
 #
-# This service guards nothing and reads DHIS2 as admin, which is only fine on your own machine against a demo instance.
-# Before anyone else can reach one, read "Who can read what" in docs/401-compose-a-facade.md.
+# Every caller presents their own DHIS2 credentials, so DHIS2 applies their own rights. `validate_only` is here so this
+# writes nothing, and a real service leaves it out. The connection the service holds is admin only because this runs
+# against a local demo instance: see docs/build-who-can-do-what.md for what to give a real one.
 #
-# Usage: bash examples/facade/step9_from_nothing.sh
+# Usage: bash examples/facade/step10_from_nothing.sh
 set -euo pipefail
 
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -54,7 +55,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 
 app = FastAPI(lifespan=lifespan)
-mount_facade(app)
+mount_facade(app, read_as_caller=True, validate_only=True)
 PYTHON
 
 port=8398
@@ -65,9 +66,12 @@ for _ in $(seq 1 120); do
   sleep 1
 done
 
+caller="${DHIS2_USERNAME:-admin}:${DHIS2_PASSWORD:-district}"
+base="http://localhost:$port"
 echo "installed: $(uv pip list 2>/dev/null | tail -n +3 | wc -l | tr -d ' ') distributions"
-echo "GET /metadata -> $(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$port/metadata")"
-form="$(curl -s "http://localhost:$port/Questionnaire?_count=1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["entry"][0]["resource"]["id"])')"
-echo "GET /Questionnaire/$form -> $(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$port/Questionnaire/$form")"
-curl -s "http://localhost:$port/Questionnaire/$form/\$generate?seed=1" -o response.json
-echo "POST /QuestionnaireResponse -> $(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/fhir+json' --data @response.json "http://localhost:$port/QuestionnaireResponse")"
+echo "GET /metadata, no credential -> $(curl -s -o /dev/null -w '%{http_code}' "$base/metadata")"
+echo "GET /Patient, no credential -> $(curl -s -o /dev/null -w '%{http_code}' "$base/Patient")"
+form="$(curl -s -u "$caller" "$base/Questionnaire?_count=1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["entry"][0]["resource"]["id"])')"
+echo "GET /Questionnaire/$form, as a DHIS2 user -> $(curl -s -o /dev/null -w '%{http_code}' -u "$caller" "$base/Questionnaire/$form")"
+curl -s -u "$caller" "$base/Questionnaire/$form/\$generate?seed=1" -o response.json
+echo "POST /QuestionnaireResponse, as a DHIS2 user -> $(curl -s -o /dev/null -w '%{http_code}' -u "$caller" -X POST -H 'content-type: application/fhir+json' --data @response.json "$base/QuestionnaireResponse")"

@@ -23,7 +23,7 @@ brings the capability statement, the published guide, the register, the capture 
 path, and a drain that is a separate process from the server - and it is one command. **At this
 level, run `d2w fhir serve`.**
 
-The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+The guide is [Write the route yourself](../../../docs/401-build-your-own-facade.md); what a valid
 response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:

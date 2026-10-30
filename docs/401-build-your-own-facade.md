@@ -1,4 +1,4 @@
-# Build your own facade
+# Write the route yourself
 
 **Who this is for:** the developer who already has a FastAPI application and
 wants it to receive FHIR captures - fluent in Python, DHIS2 knowledge optional.
@@ -36,13 +36,14 @@ The two are not exclusive. A deployment often serves the guide from
 route, both built from the same published artifacts.
 
 There is a third posture between them: take the facade as a library, in your own
-process, with no port bound at all. [Embed the facade](401-embed-the-facade.md)
+process, with no port bound at all. [Serve as a library](401-embed-the-facade.md)
 is that one - `create_app` over an ASGI transport, the spool and the projection
 as local storage, and the facade's routers mounted inside your own application
 behind your own authentication.
 
-[Compose a facade](401-compose-a-facade.md) is the fourth, and usually the one to start with: install the engine and
-mount the routes rather than write them.
+[Build a middleware](build-a-middleware.md) is usually the one to start with: install the engine and mount the routes
+rather than write them. This page is for when you want one route of your own over `translate_response`, and it walks what
+each level of a facade buys.
 
 ## The ladder
 

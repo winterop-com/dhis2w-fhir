@@ -184,7 +184,7 @@ async def _summary_response(
     application these routers are mounted on, so importing it from a route module's body would close
     the cycle `dhis2w_fhir_serve.routes` already imports its routers inside a function to avoid.
     """
-    from dhis2w_fhir_engine.facade.api.runtime import server_version
+    from dhis2w_fhir_engine.facade.provenance import server_version
 
     context = serve_context(request)
     sections = context.project.config.ips.sections

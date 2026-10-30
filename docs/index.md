@@ -18,8 +18,8 @@ one page, with the command that does each and the link that owns it - read it
 first if you are new here. Everything else in this series is depth behind one of
 those steps, or one of the capabilities that sit beyond them.
 
-**Building your own service?** [Compose a facade](401-compose-a-facade.md) starts from `uv add dhis2w-fhir-engine`,
-with no project, no compile, and no docker.
+**Building a service of your own between another system and DHIS2?** [Build a middleware](build-a-middleware.md) starts
+from `uv add dhis2w-fhir-engine`, with no project, no compile, and no docker.
 
 [Features](features.md) is the catalog of every capability of the three packages
 on one page.
@@ -43,6 +43,7 @@ not a menu - the pages build on each other left to right.
 
 | Your situation | Read, in this order |
 | --- | --- |
+| **You are building a service between another system and DHIS2** | [Build a middleware](build-a-middleware.md), then [Who can do what](build-who-can-do-what.md) |
 | **You are new here and want the shape of it** | [Introduction](100-introduction.md), then whichever step you need depth on |
 | **You run a DHIS2 instance and want its forms available as FHIR** | [Introduction](100-introduction.md), [What `d2w fhir` is and why](101-what-and-why.md), [Quickstart](101-quickstart.md), then the 201 pages from [Check an instance with doctor](201-doctor.md) onward |
 | **You publish a national instance - its organisation units as a registry, its forms as a guide** | [Build a registry and a guide](201-registry-and-guide.md), start to finish, then [Publish the registry as a package](201-registry-package.md) for the reference behind it |
@@ -59,6 +60,21 @@ not a menu - the pages build on each other left to right.
 - [Introduction](100-introduction.md) - what a `d2w fhir` facade is, the three
   steps that get you one, and the command that does each. The page to read
   before any other.
+
+## Build a middleware
+
+A service of your own that takes FHIR from one side and reads and writes DHIS2 on the other.
+
+- [Build a middleware](build-a-middleware.md) - start a working service from an empty directory, and find which page
+  covers what.
+- [Who can do what](build-who-can-do-what.md) - whose rights DHIS2 applies. The one decision you cannot skip.
+- [Choose where the guide comes from](build-choose-a-guide.md) - live off the instance, compiled, or a published package.
+- [Receive captures](build-receive-captures.md) - validate, translate, post, and spool what is submitted.
+- [Read forms and people](build-read-forms-and-people.md) - the guide, its codes, and a person out of DHIS2 as FHIR.
+- [Round trip](build-round-trip.md) - FHIR into DHIS2 and back out, with FHIRPath and CQL over what came back.
+- [Mount the routes](build-mount-the-routes.md) - put it in your FastAPI application, and test it.
+- [Serve as a library](401-embed-the-facade.md) - the whole of `d2w fhir serve` from a project on disk, with no port.
+- [Write the route yourself](401-build-your-own-facade.md) - one route of your own over `translate_response`.
 
 ## 101 - Understand
 
@@ -122,9 +138,9 @@ not a menu - the pages build on each other left to right.
   submission must meet.
 - [Consume the FHIR API](401-consume-the-fhir-api.md) - reads, searches, and the
   operations a client drives.
-- [Embed the facade](401-embed-the-facade.md) - the facade as a library: no
+- [Serve as a library](401-embed-the-facade.md) - the facade as a library: no
   server, no port, no UI, and the projection as the local storage layer.
-- [Build your own facade](401-build-your-own-facade.md) - the four-level ladder
+- [Write the route yourself](401-build-your-own-facade.md) - the four-level ladder
   from one route of FastAPI to the point where `d2w fhir serve` is the answer.
 - [Identifiers and the D2 extensions](401-identifiers-and-extensions.md) -
   where the DHIS2 identity of every artifact lives.
