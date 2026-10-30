@@ -45,15 +45,18 @@ from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import Response
 
-from dhis2w_fhir_engine.facade.api.routes.evaluate import (
+from dhis2w_fhir_engine.facade.api.routes.evaluate import evaluation_subject
+from dhis2w_fhir_engine.facade.evaluation import (
+    DiagnosticKind,
     EvaluationContext,
+    EvaluationLanguage,
+    EvaluationOutcome,
     EvaluationRequest,
     InlineResourceContext,
     RegisteredEntityContext,
     StoredResourceContext,
-    evaluation_subject,
+    evaluate_source,
 )
-from dhis2w_fhir_engine.facade.evaluation import DiagnosticKind, EvaluationLanguage, EvaluationOutcome, evaluate_source
 from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE, BadOperationError, IssueCode
 from dhis2w_fhir_engine.r4.resources import (
     JsonResource,

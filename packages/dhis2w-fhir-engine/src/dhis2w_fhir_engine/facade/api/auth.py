@@ -279,6 +279,11 @@ def challenge_for(posture: ServeAuth, issuer: str | None = None) -> str:
     return f'{BEARER_SCHEME} realm="{AUTHENTICATION_REALM}"'
 
 
+def record_caller(request: Request, username: str | None = None) -> None:
+    """Say who an application's own authentication check established, for `/whoami` to name."""
+    setattr(request.state, REQUEST_IDENTITY_ATTRIBUTE, RequestIdentity(posture=ServeAuth.TOKEN, username=username))
+
+
 def request_identity(request: Request) -> RequestIdentity | None:
     """Who this request established itself as, or None where no posture established anybody.
 

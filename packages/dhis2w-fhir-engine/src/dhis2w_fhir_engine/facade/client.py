@@ -24,13 +24,6 @@ A RECEIPT IS NOT A DHIS2 WRITE. A 201 means the facade understood the submission
 the published form, and wrote it to disk durably. Nothing has reached DHIS2 - `d2w fhir forward` is
 what drains the queue into an instance, and until it runs the receipt is a promise about bytes the
 facade is holding.
-
-THE EVALUATION SHAPES ARE MIRRORED, NOT IMPORTED. `POST /facade/evaluate` is the facade's own endpoint
-and its request and response models are defined in `dhis2w_fhir_engine.facade.evaluation` and
-`dhis2w_fhir_engine.facade.api.routes.evaluate`, which this package cannot import: `dhis2w-fhir-serve` depends on
-`dhis2w-fhir`, so the arrow points one way only. `EvaluationRequest`, `EvaluationOutcome`, and the
-three context shapes below mirror those definitions field for field, and those two modules are the
-source of truth for them.
 """
 
 from __future__ import annotations
@@ -38,23 +31,27 @@ from __future__ import annotations
 import base64
 import json
 from collections.abc import Mapping
-from enum import StrEnum
 from types import TracebackType
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Self
 
 import httpx2
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from dhis2w_fhir_engine.facade.evaluation import (
+    EvaluationLanguage,
+    EvaluationOutcome,
+    EvaluationRequest,
+    InlineResourceContext,
+    RegisteredEntityContext,
+    StoredResourceContext,
+)
 from dhis2w_fhir_engine.r4.resources import (
-    DEFAULT_SUBJECT_RESOURCE_TYPE,
     Bundle,
     CapabilityStatement,
-    FhirBase,
     JsonResource,
     OperationOutcome,
     OperationOutcomeIssue,
     QuestionnaireResponse,
-    json_resource,
 )
 
 __all__ = [
@@ -65,13 +62,9 @@ __all__ = [
     "FHIR_JSON_MEDIA_TYPE",
     "BearerToken",
     "CaptureReceipt",
-    "DiagnosticKind",
     "EvaluationContext",
-    "EvaluationDiagnostic",
-    "EvaluationLanguage",
     "EvaluationOutcome",
     "EvaluationRequest",
-    "EvaluationResult",
     "FacadeClient",
     "FacadeCredential",
     "FacadeError",
@@ -309,134 +302,11 @@ class ResourceQuery(BaseModel):
         return tuple(pairs)
 
 
-class EvaluationLanguage(StrEnum):
-    """Which of the three languages a source is written in - mirrors `dhis2w_fhir_engine.facade.evaluation`."""
-
-    FHIRPATH = "fhirpath"
-    CQL = "cql"
-    ELM = "elm"
-
-
-class DiagnosticKind(StrEnum):
-    """Whether the source never parsed, or parsed and then refused to run."""
-
-    PARSE = "parse"
-    EVALUATION = "evaluation"
-
-
-class StoredResourceContext(BaseModel):
-    """Evaluate over a resource the facade already holds, named by type and id."""
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: Literal["stored"] = "stored"
-    resource_type: str
-    resource_id: str
-
-
-class InlineResourceContext(BaseModel):
-    """Evaluate over a resource carried in the request itself - the expression is checked against exactly it."""
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: Literal["inline"] = "inline"
-    resource: JsonResource
-
-    @classmethod
-    def over(cls, resource: FhirBase | Mapping[str, Any]) -> InlineResourceContext:
-        """Evaluate over this resource, whether the caller holds a typed R4 model or a parsed document.
-
-        The field itself is a `JsonResource`, because that is what goes on the wire. This is the
-        constructor a caller reaches for: an integrator holding a `QuestionnaireResponse` and one
-        holding the document they just parsed are both one call from an evaluation.
-        """
-        if isinstance(resource, FhirBase):
-            return cls(resource=json_resource(resource))
-        return cls(resource=JsonResource.model_validate(dict(resource)))
-
-
-class RegisteredEntityContext(BaseModel):
-    """Evaluate over a person the live register holds, named by their DHIS2 tracked entity uid."""
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: Literal["registered"] = "registered"
-    resource_type: str = DEFAULT_SUBJECT_RESOURCE_TYPE
-    tracked_entity_uid: str
-
-
 EvaluationContext = Annotated[
     StoredResourceContext | InlineResourceContext | RegisteredEntityContext,
     Field(discriminator="kind"),
 ]
 """What an evaluation runs over, discriminated on `kind` exactly as the facade discriminates it."""
-
-
-class EvaluationRequest(BaseModel):
-    """One evaluation as a caller asks for it."""
-
-    model_config = ConfigDict(frozen=True)
-
-    language: EvaluationLanguage
-    source: str
-    """The FHIRPath expression, the CQL library text, or the ELM library as JSON."""
-
-    expression_name: str | None = None
-    """Which define to answer. Omitted, a CQL or ELM library answers every define it declares."""
-
-    context: EvaluationContext | None = None
-    """The resource to evaluate over. Omitted, the expression runs over no resource at all."""
-
-
-class EvaluationDiagnostic(BaseModel):
-    """One thing that stopped the run, at the position the parser stated one."""
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: DiagnosticKind
-    message: str
-    line: int | None = None
-    column: int | None = None
-    """The column on that line, counted from one."""
-
-    expression_name: str | None = None
-    """The define this diagnostic is about, for a name the library does not declare."""
-
-
-class EvaluationResult(BaseModel):
-    """What one expression or one define answered, as JSON.
-
-    `values` is always a collection, because FHIRPath answers collections and a CQL define answering
-    a single value is that value carried as one. An empty collection is an answer - the expression
-    matched nothing - and is not the same state as a refusal.
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    name: str
-    """The define this row answers, or `expression` for a FHIRPath collection."""
-
-    values: tuple[JsonValue, ...] = ()
-    refusal: str | None = None
-    """Why this one define answered nothing, when the rest of the library still answered."""
-
-
-class EvaluationOutcome(BaseModel):
-    """One evaluation, whole: what it answered, what it declares, and what stopped it.
-
-    A source that will not parse is a 200 carrying a diagnostic, never a refusal - which is why
-    `evaluate` answers this rather than raising on a bad expression. `FacadeError` is reserved for a
-    request the facade cannot serve at all: a stored resource it does not hold, a register it does
-    not publish.
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    language: EvaluationLanguage
-    results: tuple[EvaluationResult, ...] = ()
-    diagnostics: tuple[EvaluationDiagnostic, ...] = ()
-    definitions: tuple[str, ...] = ()
-    """Every define the library declares, in declaration order - empty for FHIRPath, which has none."""
 
 
 class FacadeClient:

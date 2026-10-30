@@ -120,6 +120,10 @@ prefix to mount the operational JSON API under, which stays out unless you name 
 - **Every refusal is an `OperationOutcome`,** including one your own dependency raises.
 - **`authentication` guards everything but `/metadata`,** because a client has to be able to read the posture it is
   expected to meet.
+- **`authentication_statement` is what `/metadata` says about your check.** It has a plain default, and it is not one
+  of the postures `d2w fhir serve` ships, because your check is not one of them.
+- **Call `record_caller(request, username)` from your check** for `/whoami` to name the caller. A check that does not
+  gets a 404 at that address saying so, rather than a 401 telling an accepted caller they failed it.
 - **Under a router prefix, pass `service_base` to `attach_facade`,** since the request cannot say where the facade
   is. An ASGI mount carries its path into every link on its own.
 

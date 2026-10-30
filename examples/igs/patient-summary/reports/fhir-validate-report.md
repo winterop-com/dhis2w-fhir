@@ -2,12 +2,14 @@
 
 Target: local_basic (http://localhost:8080)
 
-Generated: 2026-08-23T10:53:41+00:00
+Generated: 2026-10-30T19:10:25+00:00
 
-- resource types swept: 41 (1683 objects)
+- resource types swept: 39 (1612 objects)
 - option sets (deep pass): 12 (48 options)
 - attributes (deep pass): 4
-- findings: 0 errors, 1 warnings, 43 infos
+- hostile names: not set - every name is published exactly as DHIS2 states it
+- graded against: the whole configured selection
+- findings: 0 errors, 1 warnings, 45 infos
 - selection findings: 0 errors, 1 warnings, 19 infos
 - code coverage (selection): 0/133 objects whose code can serve as an identity stem
 
@@ -21,11 +23,12 @@ Generated: 2026-08-23T10:53:41+00:00
 
 ## categories
 
-1 finding - 0 errors, 0 warnings, 1 info
+2 findings - 0 errors, 0 warnings, 2 infos
 
 | Severity | Scope | Category | Object | Code | Detail |
 | --- | --- | --- | --- | --- | --- |
 | info | instance | template-hostile-name | Age (<5 >5) & sex (CatFhirEsc1) | `-` | name Age (<5 >5) & sex contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the name in DHIS2 |
+| info | instance | template-hostile-name | Age (<5 >5) & sex (CatFhirEsc1) | `-` | lo NAME translation ອາຍຸ (<5 >5) ແລະ ເພດ contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the lo NAME translation in DHIS2 |
 
 ## categoryOptionCombos
 
@@ -40,14 +43,16 @@ Generated: 2026-08-23T10:53:41+00:00
 
 ## categoryOptions
 
-5 findings - 0 errors, 0 warnings, 5 infos
+7 findings - 0 errors, 0 warnings, 7 infos
 
 | Severity | Scope | Category | Object | Code | Detail |
 | --- | --- | --- | --- | --- | --- |
 | info | instance | template-hostile-name | <1y (btOyqprQ9e8) | `<1y` | name <1y contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the name in DHIS2 |
 | info | instance | template-hostile-name | <5 (CoFhirLt5A1) | `FHIR_CO_LT5` | name <5 contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the name in DHIS2 |
+| info | instance | template-hostile-name | <5 (CoFhirLt5A1) | `FHIR_CO_LT5` | lo NAME translation <5 ປີ contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the lo NAME translation in DHIS2 |
 | info | instance | template-hostile-name | >1y (GEqzEKCHoGA) | `>1y` | name >1y contains '>' which the IG publisher template injects into HTML unescaped, so pages for this resource render malformed; change the name in DHIS2 |
 | info | instance | template-hostile-name | >5 & over (CoFhirGt5A1) | `-` | name >5 & over contains '>' which the IG publisher template injects into HTML unescaped, so pages for this resource render malformed; change the name in DHIS2 |
+| info | instance | template-hostile-name | >5 & over (CoFhirGt5A1) | `-` | lo NAME translation >5 ແລະ ຫຼາຍກວ່າ contains '>' which the IG publisher template injects into HTML unescaped, so pages for this resource render malformed; change the lo NAME translation in DHIS2 |
 | info | instance | invalid-code | Outreach (wbrDrL2aYEc) | `OUTREACH\nOUTREACH` | code is not a valid FHIR code: code contains a line break |
 
 ## dataElements
@@ -60,11 +65,12 @@ Generated: 2026-08-23T10:53:41+00:00
 
 ## optionSets
 
-1 finding - 0 errors, 0 warnings, 1 info
+2 findings - 0 errors, 0 warnings, 2 infos
 
 | Severity | Scope | Category | Object | Code | Detail |
 | --- | --- | --- | --- | --- | --- |
 | info | instance | template-hostile-name | Age (<5 - 49) & over (OsFhirEscS1) | `FHIR_ESCAPE_SET` | name Age (<5 - 49) & over contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the name in DHIS2 |
+| info | instance | template-hostile-name | Age (<5 - 49) & over (OsFhirEscS1) | `FHIR_ESCAPE_SET` | lo NAME translation ອາຍຸ (<5 - 49) ແລະ ຫຼາຍກວ່າ contains '<' which the IG publisher template injects into HTML unescaped, so `make build` fails: the publisher strict-parses the page it just wrote and cannot read it back; change the lo NAME translation in DHIS2 |
 
 ## options
 
@@ -115,13 +121,11 @@ Generated: 2026-08-23T10:53:41+00:00
 
 ## trackedEntityTypes
 
-3 findings - 0 errors, 1 warning, 2 infos
+1 finding - 0 errors, 1 warning, 0 infos
 
 | Severity | Scope | Category | Object | Code | Detail |
 | --- | --- | --- | --- | --- | --- |
 | warning | selection | unmapped-tracked-entity-type | Person (nEenWmSyUEp) | `-` | tracked entity type is absent from [generate.tracked_entity_types], so its registrations are published as Patient; write '"nEenWmSyUEp" = "<resource>"' to publish it as something else |
-| info | instance | unmapped-tracked-entity-type | Fridge (oWMH7vxiPpZ) | `-` | tracked entity type is absent from [generate.tracked_entity_types], so its registrations are published as Patient; write '"oWMH7vxiPpZ" = "<resource>"' to publish it as something else |
-| info | instance | unmapped-tracked-entity-type | Lab sample (apTgVe7KlzE) | `-` | tracked entity type is absent from [generate.tracked_entity_types], so its registrations are published as Patient; write '"apTgVe7KlzE" = "<resource>"' to publish it as something else |
 
 ## validationRules
 

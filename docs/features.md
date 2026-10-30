@@ -4114,8 +4114,9 @@ refusal text a mistake produces, captured from real misconfigured runs.
 - `post_translation` posts one translated payload and answers with DHIS2's verdict; `drain_responses` drains a spool
   through a connection the caller holds.
 - `mount_facade` mounts `/metadata`, capture, reads, operations, and the operational API by flag, behind your own
-  authentication dependency if you give one, and `/metadata` states what was mounted. `attach_facade` hands it an
-  opened facade, with an optional stated service base.
+  authentication dependency if you give one, and `/metadata` states what was mounted and what your check requires.
+  `attach_facade` hands it an opened facade, with an optional stated service base, and `record_caller` lets your check
+  name its caller for `/whoami`.
 - `examples/facade/` is the numbered path through these, and `make check-engine-install` holds the engine wheel, installed
   alone, to loading no server, generator, or terminal.
 

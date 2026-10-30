@@ -44,15 +44,18 @@ Requires a DHIS2 profile (`d2w profile list`). The fixture builds the translatio
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import httpx2
 from _fixture import aggregate_form_id, conversion_context, form_canonical
 from _runner import run_example
-from dhis2w_client import Dhis2ApiError, Profile
+from dhis2w_client import Profile
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
+from dhis2w_fhir_engine.facade.forward import post_translation
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
@@ -74,10 +77,6 @@ REPORTED_NUMBERS = {"s46m5MS0hxu.Prlt0C1RF0s": 12, "s46m5MS0hxu.psbwp3CQEhs": 8}
 #: DHIS2 itself is the one that says no. That is the third verdict the demo drives.
 UNREPORTING_ORGANISATION_UNIT_UID = "EZPwuUTeIIG"
 
-#: What DHIS2 answers a payload it will not take: a verdict to pass on. From 500 up the instance is
-#: failing rather than answering, which is about the run and not about this capture.
-SERVER_ERROR_STATUS = 500
-
 
 def build_facade(context: ConversionContext, profile: Profile, *, dry_run: bool = False) -> FastAPI:
     """One route: receive a capture, translate it, post it to DHIS2, hand back the verdict."""
@@ -93,43 +92,21 @@ def build_facade(context: ConversionContext, profile: Profile, *, dry_run: bool 
             # A refusal is about the response alone, so the instance is never asked about it.
             refusals = [refusal.model_dump(mode="json", exclude_none=True) for refusal in result.refusals]
             return JSONResponse(status_code=422, content={"refusals": refusals})
-        payload = result.payload
-        assert payload is not None  # a translated result carries a payload; only a refused one does not
-
-        # Which endpoint the payload goes to is the payload's own shape: an aggregate envelope is an
-        # `/api/dataValueSets` body whole, and each tracker payload rides one key of an `/api/tracker` one.
-        wire = payload.model_dump(by_alias=True, exclude_none=True, mode="json")
-        if result.data_value_set is not None:
-            path, params = "/api/dataValueSets", {"dryRun": "true"} if dry_run else {}
-            body = wire
-        else:
-            path, params = "/api/tracker", {"importStrategy": "CREATE", "async": "false"}
-            if dry_run:
-                params["importMode"] = "VALIDATE"
-            if result.tracked_entity is not None:
-                body = {"trackedEntities": [wire]}
-            elif result.enrollment is not None:
-                body = {"enrollments": [wire]}
-            else:
-                body = {"events": [wire]}
 
         # One client per request. `open_client` reads `/api/system/info` to bind the version tree, so a
         # facade capturing continuously holds one open for the process - the same call, in a lifespan.
         async with open_client(profile) as client:
-            try:
-                verdict = await client.post_raw(path, body, params=params)
-            except Dhis2ApiError as error:
-                # A refused import carries DHIS2's own report - a verdict to pass on, not a fault -
-                # and it goes back under the status DHIS2 gave it, which is a 409 for an import the
-                # endpoint refused and a 400 for a payload it would not read at all. A 5xx is the
-                # instance failing rather than answering, and a body that is not a report is about
-                # the run rather than about this capture; both are raised.
-                if error.status_code >= SERVER_ERROR_STATUS or not isinstance(error.body, dict):
-                    raise
-                return JSONResponse(status_code=error.status_code, content=error.body)
-        return JSONResponse(content=verdict)
+            # The endpoint follows from the payload's own shape. A refused import is an outcome and a 5xx
+            # raises, because the instance failing is about the run rather than about this capture.
+            outcome = await post_translation(client, result, dry_run=dry_run)
+        return JSONResponse(status_code=outcome.http_status or 200, content=_answer(outcome))
 
     return app
+
+
+def _answer(outcome: ForwardImportOutcome) -> dict[str, Any]:
+    """What this route says about a post: DHIS2's verdict, its counts, and the rows it named."""
+    return outcome.model_dump(mode="json", exclude_none=True, exclude={"data_value_summary", "tracker_report"})
 
 
 def aggregate_capture(

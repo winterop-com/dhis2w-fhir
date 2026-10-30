@@ -116,6 +116,9 @@ class ServeSettings(BaseModel):
     operations: bool = True
     """Whether the operation routes are mounted, which is what `/metadata` declares `$evaluate` for."""
 
+    authentication_statement: str | None = None
+    """What `/metadata` says about who may call, where an application's own check guards the routes."""
+
     service_base: str | None = None
     """The URL every link is built from where it differs from what the request says, as under a router prefix."""
 

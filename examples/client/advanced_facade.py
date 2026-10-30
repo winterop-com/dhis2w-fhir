@@ -54,7 +54,7 @@ from dhis2w_fhir_engine.facade import spool as spool_queue
 from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode, ConversionContext, ConversionResult
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.facade.forward import post_translation
-from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome, ForwardImportRecord
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome, ForwardImportRecord, ForwardImportVerdict
 from dhis2w_fhir_engine.facade.overwrite import (
     ForwardedCellIndex,
     ForwardedSubmission,
@@ -331,6 +331,11 @@ async def drain_once(runtime: FacadeRuntime, settings: FacadeSettings) -> None:
                 continue
             _name_overwrites(index, result, spooled.response_id)
             record = await post_payload(client, result, received_at=spooled.received_at)
+            if record.verdict is ForwardImportVerdict.NONE:
+                # A 401 or a 429 carries JSON of its own and says nothing about this payload, so the
+                # receipt stays queued for the next pass rather than being filed under a verdict nobody gave.
+                logger.warning("still queued, %s: no verdict (%s)", spooled.response_id, record.http_status)
+                continue
             if record.is_rejected:
                 spool_queue.move_to_rejected(spooled, record)
                 logger.warning("rejected %s: %s", spooled.response_id, record.issues[0].line if record.issues else "")

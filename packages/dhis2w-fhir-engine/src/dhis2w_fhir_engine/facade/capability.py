@@ -571,11 +571,15 @@ def build_server_capability(
             CapabilityStatementRest(
                 mode="server",
                 documentation=_rest_documentation(settings),
-                security=build_security(
-                    settings.auth,
-                    settings.auth_scope,
-                    issuer=settings.jwt.issuer,
-                    forward_bearer=settings.jwt.forward_bearer,
+                security=(
+                    CapabilityStatementSecurity(cors=False, description=settings.authentication_statement)
+                    if settings.authentication_statement is not None
+                    else build_security(
+                        settings.auth,
+                        settings.auth_scope,
+                        issuer=settings.jwt.issuer,
+                        forward_bearer=settings.jwt.forward_bearer,
+                    )
                 ),
                 resource=resources,
                 operation=[

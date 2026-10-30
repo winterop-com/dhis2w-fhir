@@ -31,6 +31,9 @@ from dhis2w_fhir_engine.facade.settings import ServeSettings
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.assembly import Facade
 
+#: What `/metadata` says where an application's own dependency guards the routes.
+OWN_AUTHENTICATION_STATEMENT = "This service decides who may call it, with a credential of its own."
+
 #: Where `mount_facade` leaves what it mounted, for `attach_facade` to state at `/metadata`.
 _MOUNTED_ATTRIBUTE = "facade_mounted"
 
@@ -45,6 +48,7 @@ class MountedSurfaces(BaseModel):
     operations: bool = True
     auth: ServeAuth = ServeAuth.NONE
     auth_scope: ServeAuthScope = ServeAuthScope.WRITE
+    authentication_statement: str | None = None
 
 
 def mount_facade(
@@ -57,14 +61,16 @@ def mount_facade(
     facade_api: str | None = None,
     authentication: Any = None,
     auth_scope: ServeAuthScope = ServeAuthScope.ALL,
+    authentication_statement: str = OWN_AUTHENTICATION_STATEMENT,
 ) -> None:
     """Mount the surfaces asked for. Declare your own routes first: the reads claim every one-segment path.
 
     `metadata` is `/metadata`; `capture` is `POST /QuestionnaireResponse`; `reads` is read and search over the guide
     and the register; `operations` is `$generate`, `$translate`, `$summary`, `$evaluate`, and CDS Hooks. `facade_api`
     is a prefix for the operational JSON API, which is left out unless one is named. `authentication` is your own
-    FastAPI dependency: it guards everything but `/metadata` under the default scope, and `/metadata` then states
-    that this deployment's own credential is required. With no dependency nothing is guarded.
+    FastAPI dependency: it guards everything but `/metadata` under the default scope, and `/metadata` then says what
+    `authentication_statement` says. Calling `record_caller` from it is what gives `/whoami` a name to answer with.
+    With no dependency nothing is guarded.
     """
     posture = ServeAuth.NONE if authentication is None else ServeAuth.TOKEN
     routers = facade_routers(capture=capture, auth=posture, auth_scope=auth_scope)
@@ -100,7 +106,14 @@ def mount_facade(
     setattr(
         app.state,
         _MOUNTED_ATTRIBUTE,
-        MountedSurfaces(capture=capture, reads=reads, operations=operations, auth=posture, auth_scope=auth_scope),
+        MountedSurfaces(
+            capture=capture,
+            reads=reads,
+            operations=operations,
+            auth=posture,
+            auth_scope=auth_scope,
+            authentication_statement=None if authentication is None else authentication_statement,
+        ),
     )
 
 
@@ -122,6 +135,7 @@ def attach_facade(app: FastAPI, facade: Facade, *, service_base: str | None = No
         operations=mounted.operations,
         auth=mounted.auth,
         auth_scope=mounted.auth_scope,
+        authentication_statement=mounted.authentication_statement,
         service_base=service_base,
         tracked_entities=serve.tracked_entities,
         data_sets=serve.data_sets,

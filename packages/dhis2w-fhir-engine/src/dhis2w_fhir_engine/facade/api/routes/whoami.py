@@ -74,6 +74,23 @@ class NoPostureNamesNobodyError(ServeError):
         )
 
 
+class CallerNotRecordedError(ServeError):
+    """`/whoami` was asked of an application whose own check let the caller through without naming them.
+
+    A 404 rather than a 401: the check accepted this caller, so telling them they failed it would be false.
+    """
+
+    status_code = 404
+    issue_code = "not-supported"
+
+    def __init__(self) -> None:
+        """State what is missing: a name the application's own check did not record."""
+        super().__init__(
+            "this service's own check accepted this caller and recorded no name: call `record_caller` from it "
+            "for `/whoami` to answer"
+        )
+
+
 class AuthenticatedCaller(BaseModel):
     """Who this server established one request to be, under the posture that established it."""
 
@@ -115,6 +132,8 @@ async def read_authenticated_caller(request: Request) -> AuthenticatedCaller:
         # routers under a check of its own could reach it - and a 200 naming nobody would be this
         # address answering the one question it exists to answer by giving up on it.
         settings = serve_context(request).settings
+        if settings.authentication_statement is not None:
+            raise CallerNotRecordedError
         raise UnauthenticatedError(
             "this server established no caller for this request: the routers were mounted under a "
             "check that records no identity",

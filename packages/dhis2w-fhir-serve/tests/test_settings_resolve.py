@@ -29,7 +29,7 @@ from dhis2w_fhir_engine.facade.config import (
     ServeJwtConfig,
     load_fhir_config,
 )
-from dhis2w_fhir_engine.facade.store import CompiledIgMissingError
+from dhis2w_fhir_engine.facade.errors import CompiledIgMissingError
 from dhis2w_fhir_serve import settings as settings_module
 from dhis2w_fhir_serve.settings import ServeInvocation, resolve_serve_settings
 from pydantic import BaseModel, ConfigDict

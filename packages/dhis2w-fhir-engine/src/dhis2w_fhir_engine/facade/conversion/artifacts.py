@@ -30,6 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from dhis2w_fhir_engine.facade.conversion.context import build_conversion_context, build_form_spec
 from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode, ConversionNaming
+from dhis2w_fhir_engine.facade.errors import CompiledIgMissingError
 from dhis2w_fhir_engine.facade.foundation.schemas import PROGRAM_RULE_NAME_SUB_EXTENSION, PROGRAM_RULE_UID_SUB_EXTENSION
 from dhis2w_fhir_engine.facade.registry_package import load_registry_documents
 from dhis2w_fhir_engine.r4.resources import CodeSystem, ConceptMap, Location, Questionnaire, ValueSet
@@ -70,20 +71,17 @@ _FORM_RESOURCE_TYPE = "Questionnaire"
 TRANSLATED_RESOURCE_TYPES: tuple[str, ...] = (_FORM_RESOURCE_TYPE, "CodeSystem", "ValueSet", "ConceptMap", "Location")
 
 
-class CompiledIgMissingError(LookupError):
-    """Raised when a project has no compiled IG to translate captured responses against."""
+def compiled_guide_missing_at(directory: Path) -> CompiledIgMissingError:
+    """The refusal naming the missing directory and the two commands that fill it.
 
-    def __init__(self, directory: Path) -> None:
-        """Carry the refusal naming the missing directory and the two commands that fill it.
-
-        Every command that reads a compiled guide raises this one - `d2w fhir forward`, and
-        `d2w fhir doctor` in its drift phase - so the sentence names no verb of theirs. It closes on
-        the command the reader typed, whichever that was.
-        """
-        super().__init__(
-            f"no compiled IG at {directory} - run `d2w fhir generate` and then `make sushi` in the project, "
-            "then run this command again."
-        )
+    Every command that reads a compiled guide raises this one - `d2w fhir forward`, and
+    `d2w fhir doctor` in its drift phase - so the sentence names no verb of theirs. It closes on
+    the command the reader typed, whichever that was.
+    """
+    return CompiledIgMissingError(
+        f"no compiled IG at {directory} - run `d2w fhir generate` and then `make sushi` in the project, "
+        "then run this command again."
+    )
 
 
 class CompiledArtifactReadError(ValueError):
@@ -139,7 +137,7 @@ def load_compiled_artifacts(project: FhirProject, *, registry_package: Path | No
     compiled_directory = project.ig_directory / COMPILED_RESOURCES_RELATIVE_PATH
     compiled_paths = sorted(compiled_directory.glob("*.json")) if compiled_directory.is_dir() else []
     if not compiled_paths:
-        raise CompiledIgMissingError(compiled_directory)
+        raise compiled_guide_missing_at(compiled_directory)
     predefined_directory = project.resources_directory
     predefined_paths = sorted(predefined_directory.rglob("*.json")) if predefined_directory.is_dir() else []
     documents = [

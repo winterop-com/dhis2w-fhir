@@ -149,34 +149,29 @@ produces a `tracked_entity` for a person DHIS2 does not hold yet and an
 rides inside a `trackedEntities` wrapper rewrites the person's owning
 organisation unit, which is not this submission's to move.
 
-The tracker endpoint is posted with `importStrategy=CREATE` and `async=false`, so
-the answer to the request is the import report rather than a job to poll.
+`post_translation` does that routing and reads whichever report the endpoint answers with, so the route does not have
+to. The tracker endpoint is posted with `importStrategy=CREATE` and `async=false`, so the answer to the request is the
+import report rather than a job to poll.
 
 ```python
 async with open_client(profile) as client:
-    verdict = await client.post_raw(path, body, params=params)
+    outcome = await post_translation(client, result, dry_run=dry_run)
 ```
 
 ### Pass DHIS2's verdict back under DHIS2's status
 
-**A refused import is not an error.** DHIS2 answers one with `409 Conflict`
-carrying its own report, and a payload it will not read at all with a `400`, so
-the route catches `Dhis2ApiError` and answers with the instance's own status
-and body:
+**A refused import is not an error.** DHIS2 answers one with `409 Conflict` carrying its own report, and a payload it
+will not read at all with a `400`, so `post_translation` answers with an outcome rather than raising, and the route
+passes the status on:
 
 ```python
-except Dhis2ApiError as error:
-    if error.status_code >= SERVER_ERROR_STATUS or not isinstance(error.body, dict):
-        raise
-    return JSONResponse(status_code=error.status_code, content=error.body)
+return JSONResponse(status_code=outcome.http_status or 200, content=_answer(outcome))
 ```
 
-Two things are re-raised rather than passed on. A body that is not a report at
-all - an authentication failure, an unreachable instance - is about the run and
-not about this capture. And a 5xx is the instance *failing* rather than
-answering: DHIS2 and the proxies in front of it wrap a server error in a
-`WebMessage` with a `status` in it, and reading that as a verdict would file a
-refusal DHIS2 never made.
+`outcome.verdict` is `accepted`, `rejected`, or `none`, and `none` matters. A 401 or a 429 carries JSON of its own and
+says nothing about this payload, so a facade with a queue keeps that receipt queued rather than filing it. A 5xx raises:
+DHIS2 and the proxies in front of it wrap a server error in a `WebMessage` with a `status` in it, and reading that as a
+verdict would file a refusal DHIS2 never made.
 
 ### The three verdicts the demo drives
 
