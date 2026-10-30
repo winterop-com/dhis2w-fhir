@@ -47,7 +47,6 @@ from dhis2w_fhir_engine.facade.api.passthrough import (
 )
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
 from dhis2w_fhir_engine.facade.api.routes.whoami import WHOAMI_PATH
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import (
     JWT_BEARER_TOKEN_SECURITY_TEXT,
     JWT_ISSUER_EXTENSION_URL,
@@ -56,6 +55,7 @@ from dhis2w_fhir_engine.facade.capability import (
 )
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, ServeJwtConfig, load_fhir_config
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import settings as settings_module
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.auth_setup import ServeAuthConfigurationError, open_jwt_verifier, preflight_auth

@@ -4,13 +4,13 @@ import json
 from typing import Any
 
 import pytest
-from dhis2w_fhir import service
-from dhis2w_fhir.resources.categories.builders import build_category_artifacts, category_identities
+from dhis2w_fhir_engine.facade import live_inputs
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
 from dhis2w_fhir_engine.facade.names import CodeStemError
 from dhis2w_fhir_engine.facade.notes import GenerateNote
+from dhis2w_fhir_engine.facade.resources.categories.builders import build_category_artifacts, category_identities
 from dhis2w_fhir_engine.facade.resources.categories.schemas import (
     DEFAULT_CATEGORY_NAME,
     CategoryIn,
@@ -354,7 +354,7 @@ def test_the_default_category_is_detected_by_its_reserved_name_alone() -> None:
 def test_the_default_category_is_skipped_unless_opted_back_in() -> None:
     """The built-in placeholder emits no CS, no VS, and no ConceptMap under the default selection."""
     notes: list[GenerateNote] = []
-    selected = service._selected_categories([_SEX, _DEFAULT_CATEGORY], GenerateConfig(), notes)
+    selected = live_inputs._selected_categories([_SEX, _DEFAULT_CATEGORY], GenerateConfig(), notes)
     assert [category.uid for category in selected] == ["O5P6e8yu1T6"]
     assert notes == []
     build = _build(selected, GenerateConfig())
@@ -365,7 +365,7 @@ def test_include_default_restores_the_previous_output_byte_for_byte() -> None:
     """`include_default = true` selects the placeholder again, and its pair is the pinned golden."""
     config = GenerateConfig.model_validate({"categories": {"include_default": True}})
     notes: list[GenerateNote] = []
-    selected = service._selected_categories([_SEX, _DEFAULT_CATEGORY], config, notes)
+    selected = live_inputs._selected_categories([_SEX, _DEFAULT_CATEGORY], config, notes)
     assert [category.uid for category in selected] == ["O5P6e8yu1T6", "GLevLNI9wkl"]
     documents = _documents(_build(selected, config))
     assert documents["categories/CodeSystem-d2-cat-GLevLNI9wkl-cs.json"] == _EXPECTED_DEFAULT_CODE_SYSTEM
@@ -376,7 +376,7 @@ def test_an_include_ids_entry_naming_the_default_category_wins_over_the_skip() -
     """An explicit UID is the most specific configuration statement, so it overrides include_default."""
     config = GenerateConfig.model_validate({"categories": {"include_ids": ["GLevLNI9wkl"]}})
     notes: list[GenerateNote] = []
-    selected = service._selected_categories([_SEX, _DEFAULT_CATEGORY], config, notes)
+    selected = live_inputs._selected_categories([_SEX, _DEFAULT_CATEGORY], config, notes)
     assert [category.uid for category in selected] == ["GLevLNI9wkl"]
     assert notes == []
 
@@ -385,7 +385,7 @@ def test_an_include_ids_list_not_naming_the_default_category_leaves_it_out_witho
     """A narrowed list never reports the skipped placeholder as a mismatch - nothing asked for it."""
     config = GenerateConfig.model_validate({"categories": {"include_ids": ["O5P6e8yu1T6"]}})
     notes: list[GenerateNote] = []
-    selected = service._selected_categories([_SEX, _DEFAULT_CATEGORY], config, notes)
+    selected = live_inputs._selected_categories([_SEX, _DEFAULT_CATEGORY], config, notes)
     assert [category.uid for category in selected] == ["O5P6e8yu1T6"]
     assert notes == []
 

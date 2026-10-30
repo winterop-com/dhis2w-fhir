@@ -10,16 +10,14 @@ the coding into that category has to name the very code its CodeSystem holds.
 from __future__ import annotations
 
 import pytest
-from dhis2w_fhir import (
-    build_attribute_combo_artifacts,
-    build_category_artifacts,
-    build_category_decomposition,
-    build_data_dictionary_documents,
-)
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import build_attribute_combo_artifacts
+from dhis2w_fhir_engine.facade.resources.categories.builders import build_category_artifacts
+from dhis2w_fhir_engine.facade.resources.categories.decomposition import build_category_decomposition
 from dhis2w_fhir_engine.facade.resources.categories.schemas import CategoryIn
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryAxisIn,
     CategoryComboIn,

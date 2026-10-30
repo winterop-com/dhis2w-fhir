@@ -23,11 +23,11 @@ import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
 from dhis2w_fhir_engine.facade.api.routes.summary import SUMMARY_CAVEAT_HEADER
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.config import FhirProject, TrackedEntitiesConfig, load_project
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.app import create_app
 from fastapi import FastAPI

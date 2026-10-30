@@ -7,13 +7,7 @@ import json
 import re
 from pathlib import Path
 
-from dhis2w_fhir import (
-    build_foundation_artifacts,
-    build_option_set_artifacts,
-    build_organisation_unit_instances,
-    build_questionnaire_artifacts,
-)
-from dhis2w_fhir.resources.option_sets.builders import option_set_identities
+from dhis2w_fhir import build_foundation_artifacts, build_questionnaire_artifacts
 from dhis2w_fhir.resources.pages.builders import (
     INTRO_SUFFIX,
     PAGES_DIRECTORY,
@@ -34,7 +28,9 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
 )
 from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
 from dhis2w_fhir_engine.facade.resources.examples.synthetic import STATUS_BY_EVENT_STATUS
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import build_option_set_artifacts, option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import build_organisation_unit_instances
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,

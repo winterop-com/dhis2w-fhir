@@ -39,7 +39,7 @@ import httpx2
 from _fixture import example_project
 from _runner import run_example
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import create_app
 
 FHIR_JSON = "application/fhir+json"

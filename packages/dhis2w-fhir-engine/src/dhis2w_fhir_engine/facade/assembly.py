@@ -28,6 +28,7 @@ from dhis2w_fhir_engine.facade.config import (
 from dhis2w_fhir_engine.facade.conversion.artifacts import (
     COMPILED_RESOURCES_RELATIVE_PATH,
     CompiledArtifacts,
+    CompiledIgMissingError,
     bound_question_uids,
     build_project_context,
     load_compiled_artifacts,
@@ -41,8 +42,11 @@ from dhis2w_fhir_engine.facade.conversion.schemas import (
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.facade.forward import ForwardReport, drain_responses, fetch_value_types, post_translation
 from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome
+from dhis2w_fhir_engine.facade.live import build_live_store
+from dhis2w_fhir_engine.facade.live_inputs import fetch_live_artifacts
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope, mint_receipt
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, load_compiled_store
 from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 
@@ -144,6 +148,9 @@ async def open_facade(
 ) -> AsyncGenerator[Facade]:
     """Load one facade from settings or from a project on disk. `client` stays open: its lifetime is the caller's.
 
+    A compiled guide or package under `root` is read off disk. With neither, a client builds the same guide off the
+    instance, so a service needs no SUSHI compile and no docker: this is what `uv add` and a URL get you.
+
     With a client the question value types are read off the instance, which is the one fact a compiled guide
     cannot carry: R4 spells `BOOLEAN` and `TRUE_ONLY` as the same `#boolean` item type. Without one the facade
     validates and translates with no network at all, and a call that needs DHIS2 refuses.
@@ -156,7 +163,14 @@ async def open_facade(
         mode = source.coded_answer_mode
     else:
         project = source
-    artifacts = load_compiled_artifacts(project)
+    try:
+        artifacts = load_compiled_artifacts(project)
+        store = load_compiled_store(project)
+    except CompiledIgMissingError:
+        if client is None:
+            raise
+        artifacts = await fetch_live_artifacts(client, project)
+        store = await build_live_store(project, ServeSettings(project_dir=project.project_root, live=True), client)
     value_types = None
     if client is not None:
         conversion_naming = ConversionNaming.from_config(project.config.generate, project.config.ig.canonical)
@@ -164,7 +178,7 @@ async def open_facade(
         value_types = await fetch_value_types(client, bound, progress=StepAnnouncer())
     yield Facade(
         project=project,
-        store=load_compiled_store(project),
+        store=store,
         artifacts=artifacts,
         conversion=build_project_context(
             project, artifacts, value_types_by_data_element=value_types, coded_answer_mode=mode

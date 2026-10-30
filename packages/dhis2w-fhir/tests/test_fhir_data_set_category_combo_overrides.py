@@ -4,7 +4,7 @@ DHIS2 holds a category combo in two places for one aggregate cell. The data elem
 and the data set element - the join between a data set and an element it carries - carries the combo
 that data set holds that element's values over. The join wins: a data element on the default combo,
 carried by a data set that states a four-way age split, holds four cells in that data set and one
-everywhere else. `service._effective_category_combo` is the single point that resolves the pair, and
+everywhere else. `live_inputs._effective_category_combo` is the single point that resolves the pair, and
 every reader of a data-set cell's combo is downstream of it - the questionnaire's per-option-combo
 child items, the `D2COC_CS` concepts, the compulsory operands, and the conversion that writes each
 answer back under its own `categoryOptionCombo`.

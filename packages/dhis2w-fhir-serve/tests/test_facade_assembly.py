@@ -9,11 +9,19 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
-from dhis2w_client import Dhis2Client
+from dhis2w_client import BasicAuth, Dhis2Client
 from dhis2w_fhir_engine.facade import FacadeConfig, NoDhis2ConnectionError, open_facade
+from dhis2w_fhir_engine.facade import assembly as assembly_module
 from dhis2w_fhir_engine.facade.capture.outcome import CaptureRejection
 from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.conversion.artifacts import (
+    CompiledArtifacts,
+    CompiledIgMissingError,
+    load_compiled_artifacts,
+)
 from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle
+from dhis2w_fhir_engine.facade.settings import ServeSettings
+from dhis2w_fhir_engine.facade.store import ResourceStore, load_compiled_store
 from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 from fixture_project import AGGREGATE_RESPONSE_FILE, golden
 
@@ -100,3 +108,41 @@ async def test_a_published_package_opens_with_nothing_compiled(capture_project: 
     async with open_facade(settings) as facade:
         assert facade.conversion.forms
     assert not (root / "ig" / "fsh-generated" / "resources" / "package.json").exists()
+
+
+async def test_with_no_compiled_guide_a_client_builds_it_off_the_instance(
+    capture_project: FhirProject, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """This is what `uv add` and a URL get you: no SUSHI compile and no docker."""
+    settings = _settings(capture_project, tmp_path / "service")
+    compiled = load_compiled_artifacts(capture_project)
+    served = load_compiled_store(capture_project)
+    built: list[str] = []
+
+    async def fetch(client: object, project: FhirProject) -> CompiledArtifacts:
+        built.append("artifacts")
+        return compiled
+
+    async def build(project: FhirProject, serve_settings: ServeSettings, client: object) -> ResourceStore:
+        built.append("store")
+        assert serve_settings.live
+        return served
+
+    async def value_types(client: object, bound: object, *, progress: object) -> dict[str, str]:
+        return {}
+
+    monkeypatch.setattr(assembly_module, "fetch_live_artifacts", fetch)
+    monkeypatch.setattr(assembly_module, "build_live_store", build)
+    monkeypatch.setattr(assembly_module, "fetch_value_types", value_types)
+    client = Dhis2Client(base_url="http://dhis2.invalid", auth=BasicAuth(username="a", password="b"))
+    async with open_facade(settings, client=client) as facade:
+        assert facade.conversion.forms
+    assert built == ["artifacts", "store"]
+
+
+async def test_with_no_compiled_guide_and_no_client_the_refusal_names_what_is_missing(tmp_path: Path) -> None:
+    """Nothing to read and nowhere to read it from is a refusal, never an empty facade."""
+    settings = FacadeConfig(canonical="http://example.org/fhir/demo", root=tmp_path)
+    with pytest.raises(CompiledIgMissingError):
+        async with open_facade(settings):
+            pass

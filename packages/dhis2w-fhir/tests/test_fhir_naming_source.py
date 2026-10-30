@@ -22,23 +22,25 @@ from dhis2w_fhir import (
     PagesIn,
     build_example_artifacts,
     build_example_documents,
-    build_organisation_unit_instances,
     build_page_artifacts,
     build_questionnaire_artifacts,
-    build_questionnaire_documents,
-    option_set_identities,
-    organisation_unit_stem_subjects,
-    plan_organisation_unit_stems,
     service,
 )
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig, load_project
 from dhis2w_fhir_engine.facade.names import CodeStemError, NamingSource, StemResolution
 from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import (
+    build_organisation_unit_instances,
+    organisation_unit_stem_subjects,
+    plan_organisation_unit_stems,
+)
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,
 )
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_questionnaire_documents
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     ProgramContextIn,
     QuestionnaireItemIn,

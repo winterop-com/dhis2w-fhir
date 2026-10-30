@@ -255,6 +255,9 @@ framework and no command line.
 on disk. `validate_capture`, `capture`, `translate`, `post`, and `drain` are the functions `d2w fhir serve` and
 `d2w fhir forward` run.
 
+With no compiled guide and a client, `open_facade` builds the same guide off the instance, so `uv add` and a URL are
+enough: no `fhir.toml`, no SUSHI, no docker.
+
 ::: dhis2w_fhir_engine.facade.assembly
 
 ### Composing into your own application

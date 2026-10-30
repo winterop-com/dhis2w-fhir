@@ -16,13 +16,7 @@ import pytest
 from dhis2w_client.generated.v41.enums import ProgramRuleActionType as ProgramRuleActionTypeV41
 from dhis2w_client.generated.v43.enums import ProgramRuleActionType as ProgramRuleActionTypeV42
 from dhis2w_client.generated.v43.enums import ProgramRuleActionType as ProgramRuleActionTypeV43
-from dhis2w_fhir import build_questionnaire_artifacts, build_questionnaire_documents, option_set_identities
-from dhis2w_fhir.resources.option_sets.builders import option_concept_code_index
-from dhis2w_fhir.resources.questionnaires.program_rules import (
-    PROGRAM_RULE_ACTION_TYPES,
-    parse_rule_condition,
-    plan_program_rules,
-)
+from dhis2w_fhir import build_questionnaire_artifacts
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig
 from dhis2w_fhir_engine.facade.conversion.artifacts import CompiledArtifacts, program_rule_names
@@ -31,7 +25,14 @@ from dhis2w_fhir_engine.facade.forward import ForwardOutcome, ForwardOutcomeKind
 from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome
 from dhis2w_fhir_engine.facade.foundation.schemas import PROGRAM_RULE_ACTION_DEFINITIONS
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_concept_code_index, option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_questionnaire_documents
+from dhis2w_fhir_engine.facade.resources.questionnaires.program_rules import (
+    PROGRAM_RULE_ACTION_TYPES,
+    parse_rule_condition,
+    plan_program_rules,
+)
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     ProgramRuleActionIn,
     ProgramRuleIn,

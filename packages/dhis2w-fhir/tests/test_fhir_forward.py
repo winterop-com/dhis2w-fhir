@@ -27,15 +27,10 @@ from dhis2w_fhir import (
     ForwardOutcome,
     ForwardOutcomeKind,
     ForwardReport,
-    build_attribute_combo_artifacts,
-    build_attribute_combo_concept_maps,
     build_example_documents,
-    build_questionnaire_documents,
     build_synthetic_responses,
-    option_set_identities,
     service,
 )
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
 from dhis2w_fhir_engine.facade import forward
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig, OverwritePosture, load_project
@@ -56,8 +51,18 @@ from dhis2w_fhir_engine.facade.forward_records import (
 )
 from dhis2w_fhir_engine.facade.names import is_dhis2_uid
 from dhis2w_fhir_engine.facade.overwrite import build_forwarded_cell_index
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import (
+    build_attribute_combo_artifacts,
+    build_attribute_combo_concept_maps,
+)
 from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import (
+    build_option_set_artifacts,
+    build_option_set_concept_maps,
+    option_set_identities,
+)
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_questionnaire_documents
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,

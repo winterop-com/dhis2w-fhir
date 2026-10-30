@@ -26,13 +26,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir_engine.facade.names import flatten_whitespace
-from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note
-from dhis2w_fhir_engine.r4.resources import CodeSystemConceptProperty, CodeSystemProperty, Coding
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.resources.categories.builders import category_identities
-from dhis2w_fhir.resources.option_sets.builders import code_system_canonical, concept_assignments
+from dhis2w_fhir_engine.facade.names import flatten_whitespace
+from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note
+from dhis2w_fhir_engine.facade.resources.categories.builders import category_identities
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import code_system_canonical, concept_assignments
+from dhis2w_fhir_engine.r4.resources import CodeSystemConceptProperty, CodeSystemProperty, Coding
 
 if TYPE_CHECKING:
     from collections.abc import Collection

@@ -13,7 +13,7 @@ caller of `create_app` has to be able to catch either by name.
 
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.auth_setup import ServeAuthConfigurationError, open_jwt_verifier, preflight_auth
-from dhis2w_fhir_serve.live import build_live_store, open_live_client
+from dhis2w_fhir_serve.live import open_live_client
 from dhis2w_fhir_serve.oidc import (
     CLOCK_LEEWAY_SECONDS,
     JWKS_MINIMUM_CACHE_SECONDS,
@@ -51,7 +51,6 @@ from dhis2w_fhir_serve.settings import ServeInvocation
 from dhis2w_fhir_serve.ui import UiBundleMissingError, UiBundleStaleError
 
 __all__ = [
-    "build_live_store",
     "build_projection_store",
     "build_store",
     "cache_seconds",

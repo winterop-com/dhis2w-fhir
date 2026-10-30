@@ -16,11 +16,11 @@ from dhis2w_fhir_engine.facade.api.routes.context import (
     PROJECTION_STORE_ATTRIBUTE,
     SERVE_CONTEXT_ATTRIBUTE,
 )
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore
 
 if TYPE_CHECKING:

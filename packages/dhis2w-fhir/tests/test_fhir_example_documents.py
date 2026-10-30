@@ -31,13 +31,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir import (
-    build_attribute_combo_artifacts,
-    build_example_documents,
-    build_synthetic_responses,
-    option_set_identities,
-)
+from dhis2w_fhir import build_example_documents, build_synthetic_responses
 from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import build_attribute_combo_artifacts
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,

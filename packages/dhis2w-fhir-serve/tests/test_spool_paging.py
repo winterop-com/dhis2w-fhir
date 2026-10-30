@@ -15,9 +15,9 @@ from urllib.parse import urlsplit
 
 import httpx2
 import pytest
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle, ResponseSpool, StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve.app import create_app
 from fastapi import FastAPI
 

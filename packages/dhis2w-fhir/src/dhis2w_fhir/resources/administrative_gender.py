@@ -33,6 +33,7 @@ from dhis2w_fhir_engine.facade.foundation.tracked_entity_attribute_values import
 )
 from dhis2w_fhir_engine.facade.ips import ADMINISTRATIVE_GENDER_CODE_SYSTEM_URL, ADMINISTRATIVE_GENDER_VALUE_SET_URL
 from dhis2w_fhir_engine.facade.names import join_id_tokens, join_name_segments
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import CONCEPT_MAP_DIRECTORY, concept_map_canonical
 from dhis2w_fhir_engine.facade.status import experimental_for_status
 from dhis2w_fhir_engine.facade.writer import JsonArtifact
 from dhis2w_fhir_engine.r4.resources import (
@@ -41,8 +42,6 @@ from dhis2w_fhir_engine.r4.resources import (
     ConceptMapGroupElement,
     ConceptMapGroupElementTarget,
 )
-
-from dhis2w_fhir.resources.option_sets.builders import CONCEPT_MAP_DIRECTORY, concept_map_canonical
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

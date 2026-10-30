@@ -20,6 +20,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from dhis2w_fhir_engine.facade.names import StemResolution
 from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, generate_note
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
@@ -32,7 +34,6 @@ from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
 )
 from dhis2w_fhir_engine.facade.writer import JsonArtifact, JsonBuild
 from dhis2w_fhir_engine.r4.resources import Identifier, ListEntry, Reference, ResourceList
-from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

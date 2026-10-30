@@ -42,7 +42,7 @@ because they are produced by the same routers over the same store.
 Three lines carry it:
 
 ```python
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import create_app
 
 application = create_app(ServeSettings(project_dir=project_root, live=True))

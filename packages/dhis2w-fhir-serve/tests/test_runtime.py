@@ -22,9 +22,9 @@ from dhis2w_client import BasicAuth, Dhis2Client
 from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
 from dhis2w_fhir_engine.facade.api.passthrough import FACADE_PROVENANCE_HEADER
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
 from dhis2w_fhir_serve import runtime as runtime_module
 from dhis2w_fhir_serve.app import create_app

@@ -54,6 +54,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import httpx2
+from dhis2w_fhir_engine.facade import live_inputs
 
 if TYPE_CHECKING:
     from collections.abc import Coroutine
@@ -190,9 +191,10 @@ def capture_store() -> Any:
     without a server and without a SUSHI compile. `load_compiled_store` reads
     `ig/fsh-generated/resources`, which this fixture deliberately never writes.
     """
-    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import load_project
-    from dhis2w_fhir_serve.live import build_live_store, open_live_client
+    from dhis2w_fhir_engine.facade.live import build_live_store
+    from dhis2w_fhir_engine.facade.settings import ServeSettings
+    from dhis2w_fhir_serve.live import open_live_client
 
     project_root = example_project()
 
@@ -352,7 +354,6 @@ async def _initialise_project(directory: Path) -> None:
 async def _build_conversion_context(project_root: Path) -> ConversionContext:
     """Read the instance once and assemble the context every response here is translated through."""
     from dhis2w_core.client_context import open_client
-    from dhis2w_fhir import service
     from dhis2w_fhir_engine.facade.config import load_project
     from dhis2w_fhir_engine.facade.conversion.artifacts import bound_question_uids, build_project_context
     from dhis2w_fhir_engine.facade.conversion.schemas import ConversionNaming
@@ -361,7 +362,7 @@ async def _build_conversion_context(project_root: Path) -> ConversionContext:
     generation = _resolved_generation_profile(project)
     naming = ConversionNaming.from_config(project.config.generate, project.config.ig.canonical)
     async with open_client(generation.profile) as client:
-        artifacts = await service.fetch_live_artifacts(client, project)
+        artifacts = await live_inputs.fetch_live_artifacts(client, project)
         bound = bound_question_uids(artifacts, naming)
         value_types = await _read_value_types(client, bound)
     return build_project_context(project, artifacts, value_types_by_data_element=value_types)

@@ -44,11 +44,11 @@ from typing import Any
 from _fixture import example_project
 from _runner import run_example
 from dhis2w_fhir import service
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import ProjectionBackend, ProjectionConfig, load_project
 from dhis2w_fhir_engine.facade.projection.base import ProjectionQuery
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import build_store, open_live_client, open_projection_store, projection_path, run_sync
 
 PAGE_SIZE = 3

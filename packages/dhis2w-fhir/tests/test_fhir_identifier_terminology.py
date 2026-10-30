@@ -13,21 +13,24 @@ import json
 from typing import Any
 
 from dhis2w_fhir.foundation.artifacts import build_naming_system_declarations
-from dhis2w_fhir.resources.attribute_combos.builders import (
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import (
     build_attribute_combo_concept_maps,
     build_attribute_combo_identifier_artifacts,
 )
-from dhis2w_fhir.resources.categories.builders import build_category_concept_maps, build_category_identifier_artifacts
-from dhis2w_fhir.resources.identifier_terminology import (
+from dhis2w_fhir_engine.facade.resources.categories.builders import (
+    build_category_concept_maps,
+    build_category_identifier_artifacts,
+)
+from dhis2w_fhir_engine.facade.resources.categories.schemas import CategoryIn
+from dhis2w_fhir_engine.facade.resources.identifier_terminology import (
     build_identifier_code_system_artifacts,
     build_identifier_code_systems,
 )
-from dhis2w_fhir.resources.option_sets.builders import (
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import (
     build_option_set_concept_maps,
     build_option_set_identifier_artifacts,
 )
-from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
-from dhis2w_fhir_engine.facade.resources.categories.schemas import CategoryIn
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,

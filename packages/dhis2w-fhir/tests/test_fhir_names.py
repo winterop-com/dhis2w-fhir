@@ -5,7 +5,6 @@ import re
 
 import pytest
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
 from dhis2w_fhir.resources.organisation_units.organization import build_organisation_unit_profiles
 from dhis2w_fhir.resources.organisation_units.terminology import (
     build_organisation_unit_level_terminology,
@@ -26,6 +25,7 @@ from dhis2w_fhir_engine.facade.names import (
     pascal,
     quote,
 )
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import build_option_set_artifacts
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIdentityPlan, OptionSetIn
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,

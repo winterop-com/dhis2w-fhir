@@ -4,11 +4,9 @@ import base64
 import json
 from typing import Any
 
-from dhis2w_fhir.resources.organisation_units.documents import build_organisation_unit_level_terminology_documents
 from dhis2w_fhir.resources.organisation_units.organization import (
     REGISTRY_EXAMPLE_IDENTIFIER,
     REGISTRY_EXAMPLE_NAME,
-    build_organisation_unit_instances,
     build_organisation_unit_profiles,
     build_registry_examples,
 )
@@ -19,6 +17,10 @@ from dhis2w_fhir.resources.organisation_units.terminology import (
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.resources.organisation_units.documents import (
+    build_organisation_unit_level_terminology_documents,
+)
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import build_organisation_unit_instances
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelIn,

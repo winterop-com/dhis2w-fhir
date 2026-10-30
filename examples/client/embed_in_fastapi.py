@@ -62,8 +62,8 @@ from dhis2w_fhir_engine.facade.api.routes.mounting import (
 )
 from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
 from dhis2w_fhir_engine.facade.api.runtime import attach_serve_runtime
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import open_serve_runtime
 from dhis2w_fhir_serve.routes import register_routes, serve_routers
 from fastapi import Depends, FastAPI, HTTPException, Request

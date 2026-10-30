@@ -22,11 +22,11 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir.resources.organisation_units.organization import build_organisation_unit_instances
 from dhis2w_fhir.scaffold.project_templates import TemplateOrigin, list_templates
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import build_organisation_unit_instances
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelIn,

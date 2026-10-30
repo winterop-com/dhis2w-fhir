@@ -132,9 +132,9 @@ from dhis2w_fhir_engine.r4.resources import (
 )
 
 if TYPE_CHECKING:
-    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import FhirProject
     from dhis2w_fhir_engine.facade.register.surface import RegisterSurface, ServedRegister
+    from dhis2w_fhir_engine.facade.settings import ServeSettings
     from dhis2w_fhir_engine.facade.store import StoreSummary
 
 #: The resource type the facade receives captures on, alongside the read types it serves.

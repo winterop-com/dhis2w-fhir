@@ -24,9 +24,7 @@ from dhis2w_fhir import (
     build_example_artifacts,
     build_foundation_artifacts,
     build_questionnaire_artifacts,
-    build_questionnaire_documents,
     build_synthetic_responses,
-    option_set_identities,
 )
 from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY
 from dhis2w_fhir.resources.examples.documents import build_example_documents
@@ -34,6 +32,8 @@ from dhis2w_fhir.resources.questionnaires.builders import REGISTRATION_FILE_STEM
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig
 from dhis2w_fhir_engine.facade.foundation.schemas import TrackerSubjectTypes
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_questionnaire_documents
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     ProgramContextIn,
     QuestionnaireItemIn,

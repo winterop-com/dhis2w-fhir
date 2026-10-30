@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from dhis2w_fhir_engine.facade.foundation.schemas import (
     FORM_TYPE_DEFINITIONS,
     FORM_TYPE_TERMINOLOGY,
@@ -21,6 +23,7 @@ from dhis2w_fhir_engine.facade.foundation.schemas import (
     FoundationNaming,
 )
 from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import code_system_canonical, value_set_canonical
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
@@ -30,9 +33,6 @@ from dhis2w_fhir_engine.r4.resources import (
     ValueSetCompose,
     ValueSetInclude,
 )
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.resources.option_sets.builders import code_system_canonical, value_set_canonical
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

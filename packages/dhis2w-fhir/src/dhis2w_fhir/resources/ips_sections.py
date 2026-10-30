@@ -29,6 +29,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 from dhis2w_fhir_engine.facade.names import join_id_tokens, join_name_segments
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import CONCEPT_MAP_DIRECTORY, concept_map_canonical
 from dhis2w_fhir_engine.facade.status import experimental_for_status
 from dhis2w_fhir_engine.facade.summary import IMMUNIZATIONS_SECTION, LOINC_SYSTEM
 from dhis2w_fhir_engine.facade.writer import JsonArtifact
@@ -38,8 +39,6 @@ from dhis2w_fhir_engine.r4.resources import (
     ConceptMapGroupElement,
     ConceptMapGroupElementTarget,
 )
-
-from dhis2w_fhir.resources.option_sets.builders import CONCEPT_MAP_DIRECTORY, concept_map_canonical
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

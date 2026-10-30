@@ -13,10 +13,12 @@ from pathlib import Path
 import httpx
 import respx
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import GenerateFullReport, GenerateReport, InitOptions, UnsupportedProgramError, service
+from dhis2w_fhir import GenerateFullReport, GenerateReport, InitOptions, service
 from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY
 from dhis2w_fhir.service import GenerateSubject, _target_counts
+from dhis2w_fhir_engine.facade import live_inputs
 from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.live_inputs import UnsupportedProgramError
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, generate_note
 
 _HOST = "https://dhis2.example"
@@ -366,7 +368,7 @@ async def test_validate_codes_announces_the_sweep_and_its_size(
 
 def test_an_unsupported_program_is_a_lookup_error() -> None:
     """`UnsupportedProgramError` is a `LookupError`, so the CLI funnel renders it as a one-liner."""
-    error = service.UnsupportedProgramError("program 'X' (Uid) has programType unknown")
+    error = live_inputs.UnsupportedProgramError("program 'X' (Uid) has programType unknown")
 
     assert isinstance(error, LookupError)
     assert issubclass(UnsupportedProgramError, LookupError)

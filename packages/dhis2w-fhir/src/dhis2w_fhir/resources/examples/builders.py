@@ -38,6 +38,7 @@ from dhis2w_fhir_engine.facade.notes import (
 from dhis2w_fhir_engine.facade.period.parser import parse_period
 from dhis2w_fhir_engine.facade.period.recent import recent_periods
 from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import attribute_combo_sources
 from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir_engine.facade.resources.examples.schemas import (
     MULTI_VALUE_SEPARATOR,
@@ -64,6 +65,11 @@ from dhis2w_fhir_engine.facade.resources.examples.synthetic import (
     seeded_format_constrained_value,
     synthetic_uid,
 )
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import (
+    concept_assignments,
+    option_concept_code_index,
+    option_set_identity_index,
+)
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
     ConceptAssignmentPlan,
     OptionConceptCodeIndex,
@@ -71,6 +77,17 @@ from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
     OptionSetIdentity,
     OptionSetIdentityPlan,
     OptionSetIn,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.forms import (
+    bound_option_set_uids,
+    is_disaggregated,
+    source_items,
+    value_type_bounds,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.program_rules import (
+    FormProgramRules,
+    merged_bounds,
+    plan_program_rules,
 )
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     MAXIMUM_VALUE_EXTENSION_URL,
@@ -96,24 +113,7 @@ from dhis2w_fhir_engine.r4.primitives import (
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_sources
 from dhis2w_fhir.resources.examples.enablement import settled_question_uids
-from dhis2w_fhir.resources.option_sets.builders import (
-    concept_assignments,
-    option_concept_code_index,
-    option_set_identity_index,
-)
-from dhis2w_fhir.resources.questionnaires.builders import (
-    bound_option_set_uids,
-    is_disaggregated,
-    source_items,
-    value_type_bounds,
-)
-from dhis2w_fhir.resources.questionnaires.program_rules import (
-    FormProgramRules,
-    merged_bounds,
-    plan_program_rules,
-)
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig
