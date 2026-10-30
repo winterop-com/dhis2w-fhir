@@ -180,6 +180,7 @@ from dhis2w_fhir.drift import (
     read_published_guide,
     registry_scope_line,
 )
+from dhis2w_fhir.errors import FhirUserError
 from dhis2w_fhir.facade import (
     BASIC_SCHEME,
     BEARER_SCHEME,
@@ -1049,6 +1050,7 @@ __all__ = [
     "FHIR_NAME_MAX_LENGTH",
     "FhirProject",
     "FhirProjectConfig",
+    "FhirUserError",
     "FhirValidationReport",
     "find_project_fhir_config",
     "FindingOrigin",

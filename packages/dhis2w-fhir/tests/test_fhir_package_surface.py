@@ -30,6 +30,8 @@ _RENDERED_WITHOUT_A_DECLARED_SURFACE = frozenset(
     {
         "dhis2w_fhir.attributes",
         "dhis2w_fhir.config",
+        "dhis2w_fhir.errors",
+        "dhis2w_fhir.forward_records",
         "dhis2w_fhir.notes",
     }
 )
