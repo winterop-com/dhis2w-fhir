@@ -83,15 +83,13 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Literal
 
+from dhis2w_fhir_engine.facade.config import FHIR_CONFIG_FILENAME
+from dhis2w_fhir_engine.facade.foundation.schemas import PROGRAM_RULE_ASSIGNS_SUB_EXTENSION, FoundationNaming
 from dhis2w_fhir_engine.facade.period import PERIOD_TYPE_NAMES
 from dhis2w_fhir_engine.facade.period.parser import parse_period
 from dhis2w_fhir_engine.facade.period.recent import recent_periods
-from pydantic import BaseModel, ConfigDict, Field, computed_field
-
-from dhis2w_fhir.config import FHIR_CONFIG_FILENAME
-from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_ASSIGNS_SUB_EXTENSION, FoundationNaming
-from dhis2w_fhir.registry_package import RegistryMissingError, load_registry_documents
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
+from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError, load_registry_documents
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
     ATTRIBUTE_OPTION_RESTRICTION_RESOURCE_TYPE,
     ATTRIBUTE_OPTION_VALID_FROM_PROPERTY,
@@ -100,7 +98,10 @@ from dhis2w_fhir.resources.attribute_combos.restrictions import (
     UNUSABLE_ATTRIBUTE_OPTION_COMBO_REMEDY,
     CategoryOptionValidity,
 )
-from dhis2w_fhir.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
+from dhis2w_fhir_engine.facade.writer import generated_header, is_generated_file
+from pydantic import BaseModel, ConfigDict, Field, computed_field
+
 from dhis2w_fhir.resources.pages.builders import PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY
 from dhis2w_fhir.resources.questionnaires.assignments import (
     ASSIGNMENT_DIRECTORY,
@@ -109,15 +110,13 @@ from dhis2w_fhir.resources.questionnaires.assignments import (
 )
 from dhis2w_fhir.scaffold import SUSHI_CONFIG_RELATIVE_PATH
 from dhis2w_fhir.validation import build_aborting_code, build_aborting_name
-from dhis2w_fhir.writer import generated_header, is_generated_file
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
 
+    from dhis2w_fhir_engine.facade.config import FhirProject
     from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
-
-    from dhis2w_fhir.config import FhirProject
 
 __all__ = [
     "ArtifactCheckReport",

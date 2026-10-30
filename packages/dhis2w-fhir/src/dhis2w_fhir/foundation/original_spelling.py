@@ -14,11 +14,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dhis2w_fhir_engine.facade.coded import OriginalSpellingExtensionUrls
-
-from dhis2w_fhir.foundation.schemas import FoundationNaming
+from dhis2w_fhir_engine.facade.foundation.schemas import FoundationNaming
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 #: The resource types the two extensions are contexted on - every resource that is one DHIS2 object.
 ORIGINAL_SPELLING_CONTEXT_RESOURCE_TYPES = ("CodeSystem", "ValueSet")

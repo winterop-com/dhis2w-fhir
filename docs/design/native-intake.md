@@ -178,7 +178,7 @@ and it is the only one whose values are not data elements at all.
 
 **`Observation` - the widest client population and the cleanest lowering.** One code,
 one value, one subject, one time is exactly the shape of a DHIS2 data value, and
-`dhis2w_fhir.conversion.values` already implements the wire serialisation both
+`dhis2w_fhir_engine.facade.conversion.values` already implements the wire serialisation both
 directions. Every laboratory system, every device gateway, and every analyser
 integration on the market emits it. Its weakness is precisely section 3's problem: a
 code names a data element, a data element is asked by many forms, and nothing on the
@@ -1103,7 +1103,7 @@ land, `D2Corrects` is a lowering rule and nothing else.
   profiles, five refusal classes, and grading dial this one inherits whole.
 - [Corrections and withdrawals](data-lifecycle.md) - the spool's guarantees, the
   `basedOn` identity derivation, and the two dials a marked submission is read against.
-- [The conversion layer](conversion.md) - `dhis2w_fhir.conversion` and the CI gate that
+- [The conversion layer](conversion.md) - `dhis2w_fhir_engine.facade.conversion` and the CI gate that
   grades one translation path, which is what section 5 argues for keeping singular.
 - [The IPS document](ips.md) - the owner-stated-mapping doctrine and its option C, read
   here in the opposite direction, and `[ips.sections]` as the immunisation vocabulary's

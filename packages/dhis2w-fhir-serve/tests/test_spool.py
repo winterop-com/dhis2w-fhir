@@ -10,8 +10,8 @@ import time
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
-from dhis2w_fhir_serve.spool import (
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
+from dhis2w_fhir_engine.facade.response_spool import (
     IMPORT_REPORT_SUFFIX,
     ORPHAN_TEMPORARY_FILE_AGE_SECONDS,
     ResponseLifecycle,

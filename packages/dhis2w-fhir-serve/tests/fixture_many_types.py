@@ -62,7 +62,7 @@ from pydantic import BaseModel, ConfigDict
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from dhis2w_fhir.config import FhirProject
+    from dhis2w_fhir_engine.facade.config import FhirProject
 
 #: The attribute every added type collects: one unique asset tag, so an identifier search over a
 #: shared resource is answered by whichever of its types holds the value.

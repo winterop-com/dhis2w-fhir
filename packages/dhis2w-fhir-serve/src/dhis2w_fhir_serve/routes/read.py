@@ -51,18 +51,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlencode
 
-from dhis2w_fhir_engine.r4.resources import Bundle, BundleEntry, BundleEntrySearch, BundleLink, JsonResource
-from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict, Field
-from starlette.concurrency import run_in_threadpool
-from starlette.datastructures import QueryParams
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-
-from dhis2w_fhir_serve.capability import QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE
-from dhis2w_fhir_serve.errors import FHIR_JSON_MEDIA_TYPE, BadSearchError, NotFoundError, NotServedError
-from dhis2w_fhir_serve.routes.context import serve_context
-from dhis2w_fhir_serve.spool import (
+from dhis2w_fhir_engine.facade.capability import QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE
+from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE, BadSearchError, NotFoundError, NotServedError
+from dhis2w_fhir_engine.facade.response_spool import (
     COUNT_PARAMETER,
     PAGE_PARAMETER,
     ResponseSpool,
@@ -72,7 +63,16 @@ from dhis2w_fhir_serve.spool import (
     requested_cursor,
     requested_page_size,
 )
-from dhis2w_fhir_serve.store import IdentifierToken, SearchQuery
+from dhis2w_fhir_engine.facade.store import IdentifierToken, SearchQuery
+from dhis2w_fhir_engine.r4.resources import Bundle, BundleEntry, BundleEntrySearch, BundleLink, JsonResource
+from fastapi import APIRouter
+from pydantic import BaseModel, ConfigDict, Field
+from starlette.concurrency import run_in_threadpool
+from starlette.datastructures import QueryParams
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
+
+from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:
     from dhis2w_fhir_serve.runtime import ServeContext

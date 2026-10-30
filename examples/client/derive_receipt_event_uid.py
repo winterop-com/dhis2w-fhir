@@ -37,8 +37,9 @@ Reads the example project's guide through the shared fixture; see the README bes
 from __future__ import annotations
 
 from _fixture import aggregate_form_id, conversion_context, event_form_id
-from dhis2w_fhir import ConversionContext, translate_response
-from dhis2w_fhir.conversion import PERIOD_ISO_SUB_EXTENSION, FormSpec, WireValueKind, receipt_event_uid
+from dhis2w_fhir_engine.facade.conversion import PERIOD_ISO_SUB_EXTENSION, FormSpec, WireValueKind, receipt_event_uid
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,

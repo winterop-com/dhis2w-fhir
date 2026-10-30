@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 
 import httpx2
-from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir_serve.spool import StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.response_spool import StoredResponseEnvelope
 from fixture_project import ORG_UNIT_IDENTIFIER_SYSTEM, ORG_UNITS
 
 FHIR_JSON = "application/fhir+json"

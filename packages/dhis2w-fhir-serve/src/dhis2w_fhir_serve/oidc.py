@@ -44,7 +44,7 @@ from typing import Any
 
 import httpx2
 from dhis2w_core.oauth2_preflight import DISCOVERY_PATH, OidcDiscovery
-from dhis2w_fhir.config import ServeJwtConfig
+from dhis2w_fhir_engine.facade.config import ServeJwtConfig
 from joserfc import jwt as jose_jwt
 from joserfc.errors import BadSignatureError, InvalidKeyIdError, JoseError, MissingKeyError
 from joserfc.jwk import KeySet

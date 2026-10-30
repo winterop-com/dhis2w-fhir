@@ -48,8 +48,9 @@ Reads the example project's guide through the shared fixture; see the README bes
 from __future__ import annotations
 
 from _fixture import conversion_context, registration_form_id
-from dhis2w_fhir import ConversionContext, ConversionResult, translate_response
-from dhis2w_fhir.conversion import FormSpec, QuestionSpec
+from dhis2w_fhir_engine.facade.conversion import FormSpec, QuestionSpec
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext, ConversionResult
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.r4.resources import (
     Coding,
     Extension,

@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.resources.administrative_gender import (
     administrative_gender_map_file_prefix,
     administrative_gender_map_id,
@@ -19,6 +18,7 @@ from dhis2w_fhir.resources.administrative_gender import (
     build_administrative_gender_concept_map,
     build_administrative_gender_concept_map_artifacts,
 )
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
 from dhis2w_fhir_engine.facade.ips import IdentityNominations
 
 _CANONICAL = "http://example.org/fhir"

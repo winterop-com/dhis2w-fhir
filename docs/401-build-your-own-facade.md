@@ -74,7 +74,9 @@ table it resolves organisation units through, and the naming a project's
 extensions are written in.
 
 ```python
-from dhis2w_fhir import build_project_context, load_project, service
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.conversion.artifacts import build_project_context
 
 project = load_project(project_root)
 artifacts = await service.fetch_live_artifacts(client, project)
@@ -280,7 +282,7 @@ published primitives:
 
 | Side | Module | What the example uses |
 | --- | --- | --- |
-| write | `dhis2w_fhir_serve.spool` | `ResponseSpool.save`, `get`, `import_report`, `refusal_record` |
+| write | `dhis2w_fhir_engine.facade.response_spool` | `ResponseSpool.save`, `get`, `import_report`, `refusal_record` |
 | drain | `dhis2w_fhir_engine.facade.spool` | `read_received_responses`, `move_to_forwarded`, `move_to_rejected`, `record_refusal`, `drain_lock` |
 
 `ResponseSpool.save` writes through a temporary sibling, `fsync`s the file,

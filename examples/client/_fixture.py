@@ -58,7 +58,7 @@ import httpx2
 if TYPE_CHECKING:
     from collections.abc import Coroutine
 
-    from dhis2w_fhir import ConversionContext
+    from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
 
 PROJECT_ENVIRONMENT_VARIABLE = "D2W_FHIR_EXAMPLE_PROJECT"
 """Name a project root here and the fixture uses it as-is instead of scaffolding one."""
@@ -171,7 +171,7 @@ def example_project() -> Path:
 
 def conversion_context() -> ConversionContext:
     """The translation context read off that project - what translate_response needs."""
-    from dhis2w_fhir import ConversionContext
+    from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
 
     project_root = example_project()
     cache = project_root / _CONTEXT_CACHE_FILENAME
@@ -190,7 +190,7 @@ def capture_store() -> Any:
     without a server and without a SUSHI compile. `load_compiled_store` reads
     `ig/fsh-generated/resources`, which this fixture deliberately never writes.
     """
-    from dhis2w_fhir import load_project
+    from dhis2w_fhir_engine.facade.config import load_project
     from dhis2w_fhir_serve.live import build_live_store, open_live_client
     from dhis2w_fhir_serve.settings import ServeSettings
 
@@ -323,7 +323,8 @@ def _scaffolded_project() -> Path:
 
 async def _initialise_project(directory: Path) -> None:
     """Write the scaffold `d2w fhir init` writes, selecting one form of every kind the contract has."""
-    from dhis2w_fhir import FHIR_CONFIG_FILENAME, InitOptions, load_fhir_config, service, write_fhir_config
+    from dhis2w_fhir import InitOptions, service
+    from dhis2w_fhir_engine.facade.config import FHIR_CONFIG_FILENAME, load_fhir_config, write_fhir_config
 
     await service.init_project(
         directory,
@@ -351,8 +352,10 @@ async def _initialise_project(directory: Path) -> None:
 async def _build_conversion_context(project_root: Path) -> ConversionContext:
     """Read the instance once and assemble the context every response here is translated through."""
     from dhis2w_core.client_context import open_client
-    from dhis2w_fhir import ConversionNaming, load_project, service
-    from dhis2w_fhir.conversion.artifacts import bound_question_uids, build_project_context
+    from dhis2w_fhir import service
+    from dhis2w_fhir_engine.facade.config import load_project
+    from dhis2w_fhir_engine.facade.conversion.artifacts import bound_question_uids, build_project_context
+    from dhis2w_fhir_engine.facade.conversion.schemas import ConversionNaming
 
     project = load_project(project_root)
     generation = _resolved_generation_profile(project)

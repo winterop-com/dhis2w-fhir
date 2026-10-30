@@ -33,13 +33,13 @@ who is all it says.
 
 from __future__ import annotations
 
-from dhis2w_fhir.config import ServeAuth
+from dhis2w_fhir_engine.facade.config import ServeAuth
+from dhis2w_fhir_engine.facade.refusals import ServeError
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict
 from starlette.requests import Request
 
 from dhis2w_fhir_serve.auth import RequestIdentity, UnauthenticatedError, challenge_for, request_identity
-from dhis2w_fhir_serve.errors import ServeError
 from dhis2w_fhir_serve.routes.context import serve_context
 
 #: Where the answer is served from, under the facade API's mount.

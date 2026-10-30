@@ -47,12 +47,12 @@ import base64
 import binascii
 from typing import TYPE_CHECKING, Any, Literal
 
+from dhis2w_fhir_engine.facade.refusals import BadOperationError, NotFoundError
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 
-from dhis2w_fhir_serve.errors import BadOperationError, NotFoundError
 from dhis2w_fhir_serve.evaluation import (
     DiagnosticKind,
     EvaluationLanguage,
@@ -62,7 +62,7 @@ from dhis2w_fhir_serve.evaluation import (
 from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:
-    from dhis2w_fhir_serve.store import ResourceStore
+    from dhis2w_fhir_engine.facade.store import ResourceStore
 
 #: Where the discovery document and the one service are served from. Lowercase, so nothing collides.
 CDS_SERVICES_PATH = "/cds-services"

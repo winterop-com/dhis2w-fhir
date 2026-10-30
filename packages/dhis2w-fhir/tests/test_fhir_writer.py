@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from dhis2w_fhir.writer import (
+from dhis2w_fhir_engine.facade.writer import (
     GENERATED_HEADER,
     GENERATED_MARKDOWN_HEADER,
     FshArtifact,

@@ -13,7 +13,8 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir_serve.capture import CaptureSubject, capture_subject_sentence
+from dhis2w_fhir_engine.facade.capture.outcome import capture_subject_sentence
+from dhis2w_fhir_engine.facade.capture.validate import CaptureSubject
 
 pytestmark = pytest.mark.usefixtures("capture_client")
 

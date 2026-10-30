@@ -13,6 +13,14 @@ from typing import TYPE_CHECKING
 
 from dhis2w_fhir_engine.facade.i18n import name_translations
 from dhis2w_fhir_engine.facade.names import flatten_whitespace
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
+    ORGANISATION_UNIT_CONCEPT_PROPERTIES,
+    ORGANISATION_UNIT_LEVEL_TERMINOLOGY,
+    ORGANISATION_UNIT_TERMINOLOGY,
+    OrganisationUnitIn,
+    OrganisationUnitLevelNames,
+    ordered_organisation_units,
+)
 from dhis2w_fhir_engine.facade.status import IgStatus
 from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
@@ -26,17 +34,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation.documents import build_terminology_pair
 from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming
-from dhis2w_fhir.resources.organisation_units.schemas import (
-    ORGANISATION_UNIT_CONCEPT_PROPERTIES,
-    ORGANISATION_UNIT_LEVEL_TERMINOLOGY,
-    ORGANISATION_UNIT_TERMINOLOGY,
-    OrganisationUnitIn,
-    OrganisationUnitLevelNames,
-    ordered_organisation_units,
-)
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 #: The concept property carrying the hierarchy level of one organisation unit.
 _LEVEL_PROPERTY = "level"

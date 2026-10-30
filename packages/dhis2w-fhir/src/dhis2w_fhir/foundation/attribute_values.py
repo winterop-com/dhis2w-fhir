@@ -22,14 +22,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.schemas import FoundationNaming
 from dhis2w_fhir_engine.r4.resources import Extension, Identifier
-
-from dhis2w_fhir.foundation.schemas import FoundationNaming
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
-
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 #: The resource types D2AttributeValue is contexted on - every generated resource that carries one.
 ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES = ("Organization", "Location", "CodeSystem", "ValueSet", "Questionnaire")

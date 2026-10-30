@@ -8,26 +8,13 @@ import re
 from pathlib import Path
 
 from dhis2w_fhir import (
-    GenerateConfig,
-    NamingConfig,
-    OptionIn,
-    OptionSetIn,
-    OrganisationUnitIn,
     build_foundation_artifacts,
     build_option_set_artifacts,
     build_organisation_unit_instances,
     build_questionnaire_artifacts,
 )
-from dhis2w_fhir.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
-    AttributeOptionRestrictions,
-    CategoryOptionValidity,
-    OrganisationUnitPaths,
-)
 from dhis2w_fhir.resources.examples.builders import STATUS_BY_EVENT_STATUS
-from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
 from dhis2w_fhir.resources.option_sets.builders import option_set_identities
-from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelNames
 from dhis2w_fhir.resources.pages.builders import (
     INTRO_SUFFIX,
     PAGES_DIRECTORY,
@@ -35,7 +22,24 @@ from dhis2w_fhir.resources.pages.builders import (
     build_page_artifacts,
 )
 from dhis2w_fhir.resources.pages.schemas import PagesIn
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
+from dhis2w_fhir_engine.facade.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.names import markdown_text
+from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
+    AttributeOptionRestrictions,
+    CategoryOptionValidity,
+    OrganisationUnitPaths,
+)
+from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
+    OrganisationUnitIn,
+    OrganisationUnitLevelNames,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     ITEM_TYPES_BY_VALUE_TYPE,
     CategoryComboIn,
     CategoryOptionComboIn,
@@ -44,10 +48,6 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSectionIn,
     QuestionnaireSourceIn,
 )
-from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-from dhis2w_fhir_engine.facade.i18n import TranslationIn
-from dhis2w_fhir_engine.facade.names import markdown_text
-from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
 from translated_pages import baseline_pages, render_pages, translated_pages_input
 
 _CANONICAL = "http://example.org/fhir"
@@ -331,7 +331,7 @@ def test_registry_page_summarises_the_hierarchy() -> None:
 
 def test_registry_page_says_what_geometry_the_guide_publishes() -> None:
     """The profile paragraph follows `geometry`: the boundary extension is named only when it is published."""
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitSelection
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitSelection
 
     full = _pages()["registry.md"]
     position = _pages(GenerateConfig(organisation_units=OrganisationUnitSelection(geometry="position")))["registry.md"]

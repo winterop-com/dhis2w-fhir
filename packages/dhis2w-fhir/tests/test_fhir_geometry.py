@@ -9,7 +9,7 @@ from typing import Any
 import pytest
 from dhis2w_client.generated.v43.schemas import OrganisationUnit
 from dhis2w_fhir import service
-from dhis2w_fhir.resources.organisation_units.schemas import (
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitGeometry,
     OrganisationUnitIn,
     OrganisationUnitSelection,

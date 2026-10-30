@@ -18,7 +18,7 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import FhirProject
+from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_serve.routes.cds import CQL_LIBRARY_SERVICE_HOOK, CQL_LIBRARY_SERVICE_ID
 
 LIBRARY = """

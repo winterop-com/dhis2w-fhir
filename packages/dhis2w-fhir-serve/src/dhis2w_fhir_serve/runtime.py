@@ -45,7 +45,11 @@ from typing import TYPE_CHECKING, Any
 
 import httpx2
 from dhis2w_client import Dhis2Client
-from dhis2w_fhir.config import FhirProject, ServeAuth, load_project
+from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, load_project
+from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
+from dhis2w_fhir_engine.facade.store import ResourceStore, attach_builtin_conformance, load_compiled_store
 from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir_serve.auth import JWT_VERIFIER_ATTRIBUTE, open_jwt_verifier
@@ -55,8 +59,6 @@ from dhis2w_fhir_serve.oidc import JwtVerifier
 from dhis2w_fhir_serve.passthrough import open_pass_through_client
 from dhis2w_fhir_serve.projection.base import ProjectionStore
 from dhis2w_fhir_serve.projection.factory import build_projection_store
-from dhis2w_fhir_serve.register.index import TrackedEntityIndex
-from dhis2w_fhir_serve.register.surface import RegisterSurface
 from dhis2w_fhir_serve.routes.context import (
     CALLER_CLIENT_ATTRIBUTE,
     LIVE_CLIENT_ATTRIBUTE,
@@ -64,14 +66,12 @@ from dhis2w_fhir_serve.routes.context import (
     SERVE_CONTEXT_ATTRIBUTE,
 )
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.spool import ResponseSpool
-from dhis2w_fhir_serve.store import ResourceStore, attach_builtin_conformance, load_compiled_store
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
     from pathlib import Path
 
-    from dhis2w_fhir.config import ProjectionConfig
+    from dhis2w_fhir_engine.facade.config import ProjectionConfig
     from fastapi import FastAPI
 
 #: The distribution the server reports as its software version.

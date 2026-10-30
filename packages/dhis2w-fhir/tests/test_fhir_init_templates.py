@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from dhis2w_cli.main import build_app
 from dhis2w_core.cli_errors import CliUserError
-from dhis2w_fhir.config import load_project
 from dhis2w_fhir.scaffold import build_scaffold_files
 from dhis2w_fhir.scaffold.project_templates import (
     TemplateOrigin,
@@ -19,6 +18,7 @@ from dhis2w_fhir.scaffold.project_templates import (
     resolve_template,
 )
 from dhis2w_fhir.scaffold.schemas import InitOptions
+from dhis2w_fhir_engine.facade.config import load_project
 from typer.testing import CliRunner
 
 _runner = CliRunner()

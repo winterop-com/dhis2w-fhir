@@ -21,13 +21,13 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_fhir import build_option_set_artifacts
-from dhis2w_fhir.config import FhirProject, load_fhir_config
-from dhis2w_fhir.registry_package import RegistryMissingError
 from dhis2w_fhir.service import fetch_live_ig_inputs, resolve_generation_profile
+from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
+from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
+from dhis2w_fhir_engine.facade.store import IdentifierToken, ResourceStore, SearchQuery
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.live import build_live_store, open_live_client
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.store import IdentifierToken, ResourceStore, SearchQuery
 
 _HOST = "https://dhis2.example"
 

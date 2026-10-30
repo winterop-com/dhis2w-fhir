@@ -22,10 +22,7 @@ from typing import TYPE_CHECKING, Literal
 
 from dhis2w_fhir_engine.facade.names import StemResolution
 from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, generate_note
-from dhis2w_fhir_engine.r4.resources import Identifier, ListEntry, Reference, ResourceList
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,
     FormKind,
     QuestionnaireNaming,
@@ -33,10 +30,12 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireStemPlan,
     source_program,
 )
-from dhis2w_fhir.writer import JsonArtifact, JsonBuild
+from dhis2w_fhir_engine.facade.writer import JsonArtifact, JsonBuild
+from dhis2w_fhir_engine.r4.resources import Identifier, ListEntry, Reference, ResourceList
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 __all__ = [
     "ASSIGNMENT_DIRECTORY",

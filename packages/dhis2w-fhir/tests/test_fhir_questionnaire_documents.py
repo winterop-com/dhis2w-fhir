@@ -12,25 +12,25 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    FORM_KIND_PROFILES,
-    ITEM_TYPES_BY_VALUE_TYPE,
     PROGRAM_IDENTIFIER_SEGMENT,
-    CategoryComboIn,
-    CategoryOptionComboIn,
-    GenerateConfig,
-    NamingConfig,
-    OptionSetIdentityPlan,
-    OptionSetIn,
-    ProgramContextIn,
-    QuestionnaireItemIn,
-    QuestionnaireSectionIn,
-    QuestionnaireSourceIn,
     build_data_dictionary_documents,
     build_foundation_artifacts,
     build_questionnaire_documents,
     option_set_identities,
 )
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
+    FORM_KIND_PROFILES,
+    ITEM_TYPES_BY_VALUE_TYPE,
+    CategoryComboIn,
+    CategoryOptionComboIn,
+    ProgramContextIn,
+    QuestionnaireItemIn,
+    QuestionnaireSectionIn,
+    QuestionnaireSourceIn,
+)
 from dhis2w_fhir_engine.facade.status import IgStatus
 from dhis2w_fhir_engine.r4.resources import FhirBase, Questionnaire, QuestionnaireItem
 

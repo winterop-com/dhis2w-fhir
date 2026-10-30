@@ -37,9 +37,9 @@ from dhis2w_fhir.resources.option_sets.builders import code_system_canonical, co
 if TYPE_CHECKING:
     from collections.abc import Collection
 
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.categories.schemas import CategoryIn
-    from dhis2w_fhir.resources.questionnaires.schemas import CategoryComboIn, QuestionnaireSourceIn
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.categories.schemas import CategoryIn
+    from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import CategoryComboIn, QuestionnaireSourceIn
 
 __all__ = [
     "CATEGORY_PROPERTY_PREFIX",

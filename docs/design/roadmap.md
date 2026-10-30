@@ -895,7 +895,7 @@ the generator, which every buildpack codegens from.
 single largest open architectural question in the conversion layer, whose phased
 plan lives in [the FHIR conversion layer](conversion.md): that plan builds the
 typed Python forwarder first and asks this question of the result. **Phase A has
-shipped** as `d2w fhir forward` over `dhis2w_fhir.conversion`, so the reference
+shipped** as `d2w fhir forward` over `dhis2w_fhir_engine.facade.conversion`, so the reference
 implementation exists and what is left to decide is the phase-B carrier -
 StructureMaps with a residue manifest, or a manifest alone.
 

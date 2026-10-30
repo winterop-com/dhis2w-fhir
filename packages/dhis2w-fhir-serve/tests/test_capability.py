@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from dhis2w_fhir.config import FhirProject, ServeAuth, ServeAuthScope
-from dhis2w_fhir_engine.r4.resources import CapabilityStatement, CapabilityStatementSecurity
-from dhis2w_fhir_serve.capability import (
+from dhis2w_fhir_engine.facade.capability import (
     EVALUATE_OPERATION_DEFINITION,
     SECURITY_SERVICE_SYSTEM,
     build_server_capability,
 )
+from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.store import ResourceStore, StoreSummary
+from dhis2w_fhir_engine.r4.resources import CapabilityStatement, CapabilityStatementSecurity
 from dhis2w_fhir_serve.metadata import build_served_metadata
-from dhis2w_fhir_serve.register.index import TrackedEntityIndex
-from dhis2w_fhir_serve.register.surface import RegisterSurface
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.store import ResourceStore, StoreSummary
 
 CANONICAL = "http://example.org/fhir"
 

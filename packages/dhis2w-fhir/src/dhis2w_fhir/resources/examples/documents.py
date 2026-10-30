@@ -18,6 +18,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
+from dhis2w_fhir_engine.facade.foundation.schemas import (
+    PERIOD_ISO_SUB_EXTENSION,
+    PERIOD_RANGE_SUB_EXTENSION,
+    PERIOD_TYPE_SUB_EXTENSION,
+    FoundationNaming,
+)
 from dhis2w_fhir_engine.facade.names import StemResolution, flatten_whitespace
 from dhis2w_fhir_engine.facade.notes import (
     GenerateNote,
@@ -25,6 +31,18 @@ from dhis2w_fhir_engine.facade.notes import (
     aggregate_generate_note,
     pluralize,
     verb_for_count,
+)
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
+from dhis2w_fhir_engine.facade.resources.examples.schemas import (
+    TRACKED_ENTITY_IDENTIFIER_SEGMENT,
+    TRACKER_ENROLLMENT_IDENTIFIER_SEGMENT,
+    ExampleAnswerRules,
+)
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionConceptCodeIndex
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
+    QuestionnaireStemPlan,
+    form_subject_type,
+    plan_questionnaire_stems,
 )
 from dhis2w_fhir_engine.r4.resources import (
     Coding,
@@ -39,13 +57,6 @@ from dhis2w_fhir_engine.r4.resources import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.foundation.schemas import (
-    PERIOD_ISO_SUB_EXTENSION,
-    PERIOD_RANGE_SUB_EXTENSION,
-    PERIOD_TYPE_SUB_EXTENSION,
-    FoundationNaming,
-)
-from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir.resources.examples.builders import (
     ExampleTally,
     example_answers,
@@ -59,39 +70,31 @@ from dhis2w_fhir.resources.examples.builders import (
     example_tracker_context,
     location_reference,
 )
-from dhis2w_fhir.resources.examples.schemas import ExampleAnswerRules
 from dhis2w_fhir.resources.option_sets.builders import (
     code_system_canonical,
     option_concept_code_index,
     option_set_identity_index,
 )
-from dhis2w_fhir.resources.option_sets.schemas import OptionConceptCodeIndex
 from dhis2w_fhir.resources.questionnaires.builders import bound_option_set_uids
 from dhis2w_fhir.resources.questionnaires.program_rules import FormProgramRules, plan_program_rules
-from dhis2w_fhir.resources.questionnaires.schemas import (
-    QuestionnaireStemPlan,
-    form_subject_type,
-    plan_questionnaire_stems,
-)
 
 if TYPE_CHECKING:
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
     from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
-
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.examples.schemas import (
+    from dhis2w_fhir_engine.facade.resources.examples.schemas import (
         ExampleAnswer,
         ExampleAttributeOptionCombo,
         ExampleItem,
         ExampleResponseIn,
         ExampleTrackerContext,
     )
-    from dhis2w_fhir.resources.option_sets.schemas import (
+    from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
         ConceptAssignmentPlan,
         OptionSetIdentity,
         OptionSetIdentityPlan,
         OptionSetIn,
     )
-    from dhis2w_fhir.resources.questionnaires.schemas import FormKind, QuestionnaireSourceIn
+    from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import FormKind, QuestionnaireSourceIn
 
 __all__ = [
     "TRACKED_ENTITY_IDENTIFIER_SEGMENT",
@@ -100,11 +103,6 @@ __all__ = [
     "build_example_documents",
 ]
 
-#: The DHIS2 identifier system a tracked entity is named under - the `$DHIS2-TE` alias resolved.
-TRACKED_ENTITY_IDENTIFIER_SEGMENT = "tracked-entity"
-
-#: The DHIS2 identifier system an enrollment is named under - the `$DHIS2-TRACKER-ENROLLMENT` alias resolved.
-TRACKER_ENROLLMENT_IDENTIFIER_SEGMENT = "tracker-enrollment"
 
 #: The `QuestionnaireResponse.status` codes R4 admits, which a DHIS2 event status maps onto.
 _ResponseStatusCode = Literal["in-progress", "completed", "amended", "entered-in-error", "stopped"]

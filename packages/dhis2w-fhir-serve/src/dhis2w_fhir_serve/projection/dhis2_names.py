@@ -28,12 +28,12 @@ import logging
 from typing import TYPE_CHECKING
 
 from dhis2w_client.errors import Dhis2ApiError
+from dhis2w_fhir_engine.facade.log import LOGGER_NAME
+from dhis2w_fhir_engine.facade.register.wire import search_tracked_entities
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir_serve.log import LOGGER_NAME
 from dhis2w_fhir_serve.passthrough import RegisterReader
 from dhis2w_fhir_serve.projection.base import IndexedName, NameMatch, NameMatches, NameQuery
-from dhis2w_fhir_serve.register.wire import search_tracked_entities
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -69,7 +69,7 @@ class Dhis2NameSearchIndex(BaseModel):
         an attribute's own constraint) draws a 400 on that query alone. That is one key answering
         nothing, and the other keys still answer: a search is not a transaction, and refusing the
         whole lookup would put the instance's own key set between a person and their own record.
-        `dhis2w_fhir_serve.register.index.PublishedAttribute.can_hold` screens the keys whose
+        `dhis2w_fhir_engine.facade.register.index.PublishedAttribute.can_hold` screens the keys whose
         declared value type settles it before a request is spent; this is what catches the rest.
         """
         found: dict[str, NameMatch] = {}

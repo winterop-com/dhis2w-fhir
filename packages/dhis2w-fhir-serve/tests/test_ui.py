@@ -28,7 +28,7 @@ from pathlib import Path
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import FhirProject
+from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_serve import ui as ui_module
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings

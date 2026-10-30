@@ -23,7 +23,7 @@ boundary, and joins an assignment needs one to fold, decode, and join.
 The compiled tree carries the two artifacts a real build writes beside that registry: the guide's own
 `ImplementationGuide`, and the curated profile exemplar - a second Location claiming the root unit's
 uid, with no `partOf`, which the guide's own `definition.resource[]` calls an example. What a store
-makes of that pair is `dhis2w_fhir_serve.store`: the exemplar is held and published by nothing.
+makes of that pair is `dhis2w_fhir_engine.facade.store`: the exemplar is held and published by nothing.
 
 This lives outside `conftest.py` because two callers need it and only one of them is pytest. The
 Playwright suite boots a real `d2w fhir serve --ui` and needs the same tree on disk first, which it
@@ -46,9 +46,9 @@ from typing import Annotated, Any
 
 import typer
 from dhis2w_fhir import build_option_set_concept_map_artifacts
-from dhis2w_fhir.config import FhirProject, load_fhir_config
-from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
-from dhis2w_fhir_serve.spool import SPOOL_RELATIVE_PATH
+from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.response_spool import SPOOL_RELATIVE_PATH
 from pydantic import BaseModel, ConfigDict
 
 #: Where the dhis2w-fhir goldens live, relative to this file.
@@ -1077,7 +1077,7 @@ def build_implementation_guide() -> dict[str, Any]:
     """The guide's own statement of what it holds, naming the worked example among the published set.
 
     SUSHI writes one of these into every compiled tree, with an `exampleBoolean` or `exampleCanonical`
-    on each entry of `definition.resource[]`. That is where `dhis2w_fhir_serve.store` reads which
+    on each entry of `definition.resource[]`. That is where `dhis2w_fhir_engine.facade.store` reads which
     instances illustrate a profile rather than publishing a fact, so a fixture without one would be a
     fixture where every example is served as a unit of the registry.
     """

@@ -2,34 +2,21 @@
 
 from __future__ import annotations
 
-import dhis2w_fhir
 from dhis2w_client.generated.v43.oas import DataValueSet, TrackerEnrollment, TrackerTrackedEntity
 from dhis2w_client.generated.v43.tracker import TrackerEvent
-from dhis2w_fhir import conversion
-from dhis2w_fhir.config import GenerateConfig
-from dhis2w_fhir.conversion import (
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.conversion.schemas import (
     ConversionContext,
     ConversionNaming,
+    ConversionRefusal,
+    ConversionRefusalCategory,
     ConversionReport,
     ConversionResult,
+    ConversionTargetKind,
     FormSpec,
 )
-from dhis2w_fhir.conversion.schemas import ConversionRefusal, ConversionRefusalCategory, ConversionTargetKind
 
 _CANONICAL = "http://example.org/fhir"
-
-
-def test_the_package_re_exports_the_whole_conversion_surface() -> None:
-    """Every public conversion name is importable from `dhis2w_fhir` itself - the one stable surface.
-
-    The package docstring promises one stable import surface, so a conversion name reachable only
-    through the subpackage is a rule a caller cannot infer. The subpackage stays importable too,
-    and both paths hand back the same object.
-    """
-    missing = [name for name in conversion.__all__ if name not in dhis2w_fhir.__all__]
-    assert missing == []
-    for name in conversion.__all__:
-        assert getattr(dhis2w_fhir, name) is getattr(conversion, name), name
 
 
 def _form(canonical: str) -> FormSpec:

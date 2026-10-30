@@ -6,13 +6,13 @@ from collections.abc import Callable
 from typing import Any
 
 import pytest
-from dhis2w_fhir_serve.capture import (
+from dhis2w_fhir_engine.facade.capture.resolve import (
     AmbiguousCodingError,
     CodingResolver,
     CodingResolverSet,
     UnresolvableCodingError,
 )
-from dhis2w_fhir_serve.store import ResourceStore
+from dhis2w_fhir_engine.facade.store import ResourceStore
 
 #: The canonical the dhis2w-fhir goldens were compiled under, as `capture_project` serves them.
 CANONICAL = "http://localhost:8080/fhir"

@@ -16,15 +16,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir.config import ProjectionBackend, SearchBackend
+from dhis2w_fhir_engine.facade.config import ProjectionBackend, SearchBackend
+from dhis2w_fhir_engine.facade.refusals import ProjectionNotConfiguredError
 
-from dhis2w_fhir_serve.errors import ProjectionNotConfiguredError
 from dhis2w_fhir_serve.projection.dhis2_names import Dhis2NameSearchIndex
 from dhis2w_fhir_serve.projection.sqlite_names import SqliteNameSearchIndex
 from dhis2w_fhir_serve.projection.sqlite_store import SqliteProjectionStore
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import ProjectionConfig
+    from dhis2w_fhir_engine.facade.config import ProjectionConfig
 
     from dhis2w_fhir_serve.passthrough import RegisterReader
     from dhis2w_fhir_serve.projection.base import NameSearchIndex, ProjectionStore

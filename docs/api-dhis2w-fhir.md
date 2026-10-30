@@ -97,47 +97,6 @@ recent_periods("Monthly", 3, datetime.date(2026, 8, 2))
 
 ## Reference
 
-### Project configuration
-
-::: dhis2w_fhir.config
-
-### Conversion: QuestionnaireResponse to DHIS2
-
-The inverse of the emitters, and the reference implementation
-[`docs/design/conversion.md`](design/conversion.md) holds the later published
-StructureMaps against. A caller assembles a `ConversionContext` once from the compiled IG
-artifacts - the served Questionnaires, the option-set CodeSystems and their ConceptMaps, the
-ValueSets binding the two, and the published Locations - and then translates each captured
-response into the DHIS2 import payload its form kind reports: a `DataValueSet` for a data set,
-a `TrackerEvent` for an event program or a tracker program stage. A response the translator
-cannot read whole answers with typed refusals naming the link id and the reason, never with a
-partial payload.
-
-A result carries exactly one payload and its `target_kind` names which, so `ConversionResult.payload`
-reads the document off the kind and `payload_of` narrows it to one wire shape. The batch form is
-`ConversionReport.payloads_of`, whose four named properties - `data_value_sets`, `events`,
-`tracked_entities`, `enrollments` - are the order a drain posts them in.
-
-`conversion.artifacts` is where a project's own files become those models: it reads the
-compiled `ig/fsh-generated/resources` merged with the predefined `ig/input/resources` tree -
-the same two trees `d2w fhir serve` serves - and `build_project_context` assembles the context
-from them plus the project's `[generate]` naming, identifier base, and timezone.
-
-Every public name below is importable from `dhis2w_fhir` itself, which is the package's one
-stable import surface; the `dhis2w_fhir.conversion` path answers the same objects.
-
-::: dhis2w_fhir.conversion.schemas
-
-::: dhis2w_fhir.conversion.context
-
-::: dhis2w_fhir.conversion.artifacts
-
-::: dhis2w_fhir.conversion.values
-
-::: dhis2w_fhir.conversion.payloads
-
-::: dhis2w_fhir.conversion.translator
-
 ### The conformance runner
 
 What [`d2w fhir doctor`](201-doctor.md) concluded about one instance, as
@@ -171,22 +130,6 @@ opening a connection. Every finding is a `DriftFinding` naming what moved, which
 moved in, and what each side says about it.
 
 ::: dhis2w_fhir.drift
-
-### What a guide calls a worked example
-
-A guide compiles worked instances beside its profiles - `Usage: #example` in FSH - so a reader
-of the published pages can see what one looks like, and the guide's own `ImplementationGuide`
-is what tells them apart from what it publishes: each entry of `definition.resource[]` states
-`exampleBoolean` or `exampleCanonical` for an instance that illustrates a profile rather than
-publishing a fact. `load_declared_examples` reads that declaration off a project's published
-trees and `declared_examples` reads it off documents a caller already holds; both answer a
-`DeclaredExamples`, whose `publishes` and `declares` say which side of the line one resource
-falls on. [`d2w fhir serve`](201-serve.md) holds the declared examples out of what it searches
-and counts, and the drift phase of [`d2w fhir doctor`](201-doctor.md) holds them out of what it
-grades - the exemplar organisation unit carries an identifier no DHIS2 instance holds, so
-grading it would report a removal nobody can act on.
-
-::: dhis2w_fhir.implementation_guide
 
 ### A client for a running facade
 

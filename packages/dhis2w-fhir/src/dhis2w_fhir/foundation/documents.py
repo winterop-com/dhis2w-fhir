@@ -14,6 +14,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.schemas import (
+    FORM_TYPE_DEFINITIONS,
+    FORM_TYPE_TERMINOLOGY,
+    PERIOD_TYPE_TERMINOLOGY,
+    FoundationNaming,
+)
 from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from dhis2w_fhir_engine.r4.resources import (
@@ -26,17 +32,11 @@ from dhis2w_fhir_engine.r4.resources import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.foundation.schemas import (
-    FORM_TYPE_DEFINITIONS,
-    FORM_TYPE_TERMINOLOGY,
-    PERIOD_TYPE_TERMINOLOGY,
-    FoundationNaming,
-)
 from dhis2w_fhir.resources.option_sets.builders import code_system_canonical, value_set_canonical
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.foundation.schemas import TerminologyPairProfile
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.foundation.schemas import TerminologyPairProfile
 
 
 class TerminologyPair(BaseModel):

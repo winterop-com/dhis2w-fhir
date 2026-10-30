@@ -13,11 +13,11 @@ import tarfile
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir.config import FhirProject, load_fhir_config
-from dhis2w_fhir.registry_package import RegistryMissingError
-from dhis2w_fhir_serve.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
+from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
+from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.store import load_compiled_store
 
 _CANONICAL = "http://example.org/fhir"
 

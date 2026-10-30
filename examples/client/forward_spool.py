@@ -29,7 +29,8 @@ from pathlib import Path
 
 from _fixture import example_project
 from _runner import run_example
-from dhis2w_fhir import load_project, service
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade.config import load_project
 
 
 async def main() -> None:

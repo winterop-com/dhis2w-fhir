@@ -20,11 +20,11 @@ handler answers it with the 404 that path has always had.
 
 from __future__ import annotations
 
+from dhis2w_fhir_engine.facade.refusals import BatchNotSupportedError, NotAnEndpointError
 from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import Response
 
-from dhis2w_fhir_serve.errors import BatchNotSupportedError, NotAnEndpointError
 from dhis2w_fhir_serve.routes.context import serve_context
 
 #: The path a FHIR service base is, and the methods this facade refuses on it.

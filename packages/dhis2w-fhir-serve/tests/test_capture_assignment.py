@@ -18,15 +18,11 @@ import json
 from typing import Any
 
 import pytest
-from dhis2w_fhir_serve.capture import (
-    CaptureIndexCache,
-    CaptureIssue,
-    CaptureNaming,
-    CaptureRejection,
-    ValidatedCapture,
-    validate_response,
-)
-from dhis2w_fhir_serve.store import ResourceStore, StoreEntry
+from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
+from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.capture.outcome import CaptureIssue, CaptureRejection
+from dhis2w_fhir_engine.facade.capture.validate import ValidatedCapture, validate_response
+from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
 
 #: The canonical the dhis2w-fhir goldens were compiled under, as `capture_project` serves them.
 CANONICAL = "http://localhost:8080/fhir"

@@ -41,18 +41,18 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    GenerateConfig,
-    OptionSetIn,
-    QuestionnaireSourceIn,
     build_attribute_combo_artifacts,
     build_category_decomposition,
     build_data_dictionary_documents,
     build_questionnaire_documents,
     option_set_identities,
 )
-from dhis2w_fhir.resources.categories.schemas import CategoryIn
 from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.resources.categories.schemas import CategoryIn
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
 from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _SOURCE_DIRECTORY = Path(__file__).parent / "data" / "translated-sources"

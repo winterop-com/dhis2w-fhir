@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-from dhis2w_fhir.config import FHIR_CONFIG_FILENAME, FhirProjectConfig, HostileNamePosture, NoFhirProjectError
 from dhis2w_fhir.resources.pages.builders import SITE_PAGE_FILENAMES
 from dhis2w_fhir.scaffold import (
     CONFIG_EXAMPLE_RELATIVE_PATH,
@@ -20,6 +19,12 @@ from dhis2w_fhir.scaffold import (
 from dhis2w_fhir.scaffold.identity import adopt_scaffold_owned_lines
 from dhis2w_fhir.scaffold.refresh import preserves_every_line, read_project_scaffold_state, refresh_project
 from dhis2w_fhir.scaffold.schemas import DEFAULT_SUSHI_TIMEOUT_SECONDS, InitOptions, normalize_project_name
+from dhis2w_fhir_engine.facade.config import (
+    FHIR_CONFIG_FILENAME,
+    FhirProjectConfig,
+    HostileNamePosture,
+    NoFhirProjectError,
+)
 from makefile_harness import run_make, stub_docker
 
 _OPTIONS = InitOptions(

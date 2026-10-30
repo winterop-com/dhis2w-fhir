@@ -30,8 +30,15 @@ import httpx2
 import pytest
 import respx
 from dhis2w_client.profile import NoProfileError, Profile
-from dhis2w_fhir.config import FhirProject, ServeAuth, ServeAuthScope, ServeJwtConfig, load_fhir_config
 from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.capability import (
+    JWT_BEARER_TOKEN_SECURITY_TEXT,
+    JWT_ISSUER_EXTENSION_URL,
+    OAUTH_SECURITY_CODE,
+    build_security,
+)
+from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, ServeJwtConfig, load_fhir_config
+from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_serve import settings as settings_module
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.auth import (
@@ -42,12 +49,6 @@ from dhis2w_fhir_serve.auth import (
     challenge_for,
     open_jwt_verifier,
     preflight_auth,
-)
-from dhis2w_fhir_serve.capability import (
-    JWT_BEARER_TOKEN_SECURITY_TEXT,
-    JWT_ISSUER_EXTENSION_URL,
-    OAUTH_SECURITY_CODE,
-    build_security,
 )
 from dhis2w_fhir_serve.oidc import (
     JWKS_MINIMUM_CACHE_SECONDS,
@@ -69,7 +70,6 @@ from dhis2w_fhir_serve.routes import FACADE_MOUNT_PATH
 from dhis2w_fhir_serve.routes.whoami import WHOAMI_PATH
 from dhis2w_fhir_serve.runtime import _forwards_credentials
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.spool import ResponseSpool, StoredResponseEnvelope
 from fastapi import FastAPI
 from joserfc import jwt as jose_jwt
 from joserfc.jwk import ECKey, RSAKey

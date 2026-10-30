@@ -29,9 +29,9 @@ from conversion_corpus import (
     captured,
     report,
 )
-from dhis2w_fhir import GenerateConfig
-from dhis2w_fhir.conversion import ConversionResult
-from dhis2w_fhir.resources.examples.schemas import ExampleResponseIn
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionResult
+from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleResponseIn
 
 #: The IANA zone one run states its instance's zone-less timestamps are wall-clock readings in.
 _ZONE = "Asia/Vientiane"

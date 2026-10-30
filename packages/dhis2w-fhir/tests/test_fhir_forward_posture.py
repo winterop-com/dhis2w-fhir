@@ -15,14 +15,16 @@ from pathlib import Path
 
 import pytest
 from dhis2w_core.profile import resolve
-from dhis2w_fhir import load_project, service
-from dhis2w_fhir.config import (
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade import forward
+from dhis2w_fhir_engine.facade.config import (
     FHIR_CONFIG_FILENAME,
     CorrectionPosture,
     ForwardConfig,
     UnknownFhirConfigKeyError,
     WithdrawalPosture,
     load_fhir_config,
+    load_project,
 )
 
 _BASE_URL = "https://dhis2.example"
@@ -72,7 +74,7 @@ async def _drain(
     register_completeness: bool | None = None,
     corrections: CorrectionPosture | None = None,
     withdrawals: WithdrawalPosture | None = None,
-) -> service.ForwardReport:
+) -> forward.ForwardReport:
     """One drain of the project's empty spool, stating what the caller stated and nothing else."""
     return await service.forward_responses(
         resolve(None).profile,

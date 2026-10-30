@@ -7,7 +7,7 @@ builders turn that into resources: the store is a snapshot of the instance at st
 the compiled store is a snapshot of the last build, and no read of it ever touches DHIS2 again.
 
 That one client stays open for the life of the process, because the register is answered from the
-instance per request rather than from the store - see `dhis2w_fhir_serve.register`. The caller owns
+instance per request rather than from the store - see `dhis2w_fhir_engine.facade.register`. The caller owns
 it through `open_live_client`, so the store build and the register routes share one connection and
 one profile resolution.
 
@@ -84,13 +84,7 @@ from dhis2w_fhir import (
     build_organisation_unit_terminology_documents,
     build_questionnaire_documents,
 )
-from dhis2w_fhir.config import HostileNamePosture
 from dhis2w_fhir.foundation.documents import TerminologyPair, build_terminology_pair
-from dhis2w_fhir.foundation.schemas import (
-    PROGRAM_RULE_ACTION_DEFINITIONS,
-    PROGRAM_RULE_ACTION_TERMINOLOGY,
-    FoundationNaming,
-)
 from dhis2w_fhir.hostile_names import HostileNameGate
 from dhis2w_fhir.resources.attribute_combos.builders import (
     build_attribute_combo_artifacts,
@@ -100,27 +94,35 @@ from dhis2w_fhir.resources.attribute_combos.builders import (
 from dhis2w_fhir.resources.categories.decomposition import build_category_decomposition
 from dhis2w_fhir.resources.questionnaires.assignments import build_assignment_artifacts
 from dhis2w_fhir.service import fetch_live_ig_inputs, resolve_generation_profile
-from dhis2w_fhir.writer import JsonBuild
-from dhis2w_fhir_engine.r4.resources import CodeSystemConcept
-
-from dhis2w_fhir_serve.log import LOGGER_NAME
-from dhis2w_fhir_serve.store import (
+from dhis2w_fhir_engine.facade.config import HostileNamePosture
+from dhis2w_fhir_engine.facade.foundation.schemas import (
+    PROGRAM_RULE_ACTION_DEFINITIONS,
+    PROGRAM_RULE_ACTION_TERMINOLOGY,
+    FoundationNaming,
+)
+from dhis2w_fhir_engine.facade.log import LOGGER_NAME
+from dhis2w_fhir_engine.facade.store import (
     IdentifierToken,
     ResourceStore,
     StoreEntry,
     load_compiled_conformance_entries,
     registry_entries,
 )
+from dhis2w_fhir_engine.facade.writer import JsonBuild
+from dhis2w_fhir_engine.r4.resources import CodeSystemConcept
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from dhis2w_client import Dhis2Client
-    from dhis2w_fhir.config import FhirProject, GenerateConfig
-    from dhis2w_fhir.resources.option_sets.schemas import OptionSetIn
     from dhis2w_fhir.resources.organisation_units.documents import OrganisationUnitTerminologyBuild
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
-    from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn
+    from dhis2w_fhir_engine.facade.config import FhirProject, GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
+        OrganisationUnitIn,
+        OrganisationUnitLevelNames,
+    )
+    from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
     from dhis2w_fhir_engine.facade.status import IgStatus
     from dhis2w_fhir_engine.r4.resources import CodeSystem, ConceptMap, Questionnaire, ValueSet
 

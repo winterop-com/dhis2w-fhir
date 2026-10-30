@@ -19,14 +19,14 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.capture.validate import (
+from dhis2w_fhir_engine.facade.capture.validate import (
     AMENDED_STATUS,
     CORRECTIONS_CONFIG_KEY,
     ENTERED_IN_ERROR_STATUS,
     WITHDRAWALS_CONFIG_KEY,
 )
+from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 

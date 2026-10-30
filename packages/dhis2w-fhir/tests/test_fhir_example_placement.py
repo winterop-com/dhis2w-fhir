@@ -16,26 +16,26 @@ from __future__ import annotations
 
 import datetime
 
-from dhis2w_fhir.config import GenerateConfig
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
-    AttributeOptionRestrictions,
-    CategoryOptionValidity,
-    OrganisationUnitPaths,
-    UsableAttributeOptionCombos,
-)
 from dhis2w_fhir.resources.examples.builders import build_synthetic_responses
 from dhis2w_fhir.resources.questionnaires.assignments import AssignmentIndex
-from dhis2w_fhir.resources.questionnaires.schemas import (
-    CategoryComboIn,
-    CategoryOptionComboIn,
-    QuestionnaireSourceIn,
-)
 from dhis2w_fhir.service import (
     _plan_example_placements,
     _untimely_attribute_option_combos,
     _unusable_attribute_option_combos,
 )
+from dhis2w_fhir_engine.facade.config import GenerateConfig
 from dhis2w_fhir_engine.facade.names import StemResolution
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
+    AttributeOptionRestrictions,
+    CategoryOptionValidity,
+    OrganisationUnitPaths,
+    UsableAttributeOptionCombos,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
+    CategoryComboIn,
+    CategoryOptionComboIn,
+    QuestionnaireSourceIn,
+)
 
 #: A three-level hierarchy, as DHIS2 states it: the root, one district under it, two facilities under that.
 _ROOT = "ImspTQPwCqd"

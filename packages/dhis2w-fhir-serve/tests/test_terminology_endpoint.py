@@ -10,8 +10,8 @@ difference between a useful check and one that says false about every code a for
 from __future__ import annotations
 
 import httpx2
-from dhis2w_fhir_serve.store import ResourceStore
-from dhis2w_fhir_serve.terminology import LookupValueSet, TerminologyState, load_terminology
+from dhis2w_fhir_engine.facade.store import ResourceStore
+from dhis2w_fhir_engine.facade.terminology import LookupValueSet, TerminologyState, load_terminology
 from fixture_project import CAPTURE_CANONICAL
 
 DATA_ELEMENT_SYSTEM = f"{CAPTURE_CANONICAL}/CodeSystem/d2-de-cs"

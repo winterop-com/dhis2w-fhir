@@ -1,11 +1,11 @@
 """Golden tests for the foundation artifacts: the DHIS2 identifier aliases and the D2Period extension."""
 
-from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts
-from dhis2w_fhir.foundation.response_profiles import CAPTURE_SERVER_READ_RESOURCE_TYPES
-from dhis2w_fhir.foundation.schemas import DATA_VALUE_SET_ELEMENTS, FoundationNaming
-from dhis2w_fhir.resources.questionnaires.schemas import CAPTURED_FORM_KINDS
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
+from dhis2w_fhir_engine.facade.foundation.response_profiles import CAPTURE_SERVER_READ_RESOURCE_TYPES
+from dhis2w_fhir_engine.facade.foundation.schemas import DATA_VALUE_SET_ELEMENTS, FoundationNaming
 from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import CAPTURED_FORM_KINDS
 from dhis2w_fhir_engine.facade.status import IgStatus
 
 _CANONICAL = "http://example.org/fhir"

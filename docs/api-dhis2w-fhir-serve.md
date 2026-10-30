@@ -68,8 +68,8 @@ so anything cached would be stale within seconds of a drain.
 ## Worked example - load a store and read one resource
 
 ```python
-from dhis2w_fhir import load_project
-from dhis2w_fhir_serve import SearchQuery, load_compiled_store
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.store import SearchQuery, load_compiled_store
 
 project = load_project()
 store = load_compiled_store(project)
@@ -94,7 +94,7 @@ surface inside the process it has. That is four steps, and each one is a name:
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from dhis2w_fhir import load_project
+from dhis2w_fhir_engine.facade.config import load_project
 from dhis2w_fhir_serve import (
     ServeSettings,
     accept_head_wherever_get_is_served,
@@ -374,25 +374,6 @@ answers 501 rather than falling back to the facade's own profile.
 
 ::: dhis2w_fhir_serve.passthrough
 
-### Resource store
-
-The compiled IG merged with the predefined resource tree, indexed by `(resourceType, id)` and by
-canonical url. Resources are held as the bytes they were written as, so what a client reads back is
-what the project publishes.
-
-::: dhis2w_fhir_serve.store
-
-### Response spool
-
-Every received QuestionnaireResponse, written atomically to `.serve/responses/received/` and read
-back from whichever of `received/`, `forwarded/`, `rejected/`, and `withdrawn/` it has since been
-moved to - the first three by `d2w fhir forward`, the fourth by `d2w fhir withdraw`. The directory
-is the index and is re-read on every call, because those commands rename files while the server
-runs. A stored response is a receipt - the submission as it arrived, never a live view of DHIS2
-data.
-
-::: dhis2w_fhir_serve.spool
-
 ### Spool listing
 
 `GET /facade/spool` - the receipt envelopes with their lifecycle state, and the DHIS2 import report behind
@@ -400,22 +381,6 @@ a rejection. Typed JSON rather than FHIR, because a receipt envelope has no FHIR
 module docstring states the reasoning in full.
 
 ::: dhis2w_fhir_serve.routes.spool
-
-### Capture
-
-Receiving a QuestionnaireResponse: the naming the capture contract is written in, the questionnaire
-index an answer is checked against, the terminology resolver behind a coded answer, the phase
-machine that runs the whole thing, and the OperationOutcome vocabulary every answer is spoken in.
-
-::: dhis2w_fhir_serve.capture.naming
-
-::: dhis2w_fhir_serve.capture.index
-
-::: dhis2w_fhir_serve.capture.resolve
-
-::: dhis2w_fhir_serve.capture.validate
-
-::: dhis2w_fhir_serve.capture.outcome
 
 ### The register
 
@@ -430,18 +395,6 @@ into the resource its type is registered as, carrying identity and no claim the 
 otherwise defines - each module docstring states why. The filtering module is the register's value
 filter, `d2-attribute={attributeUid}|{value}`: which attributes each register answers it on, how the
 two backends run it, and why it answers equality and nothing else.
-
-::: dhis2w_fhir_serve.register.index
-
-::: dhis2w_fhir_serve.register.surface
-
-::: dhis2w_fhir_serve.register.wire
-
-::: dhis2w_fhir_serve.register.projection
-
-::: dhis2w_fhir_serve.register.listing
-
-::: dhis2w_fhir_serve.register.filtering
 
 ::: dhis2w_fhir_serve.routes.register
 
@@ -553,8 +506,6 @@ at the same server for a 201.
 
 ::: dhis2w_fhir_serve.routes.generate
 
-::: dhis2w_fhir_serve.synthesize
-
 ### Terminology translation
 
 `GET /ConceptMap/$translate` - the DHIS2 identifiers the published ConceptMaps state for one
@@ -598,8 +549,6 @@ server publishes no code system under that url". Membership goes to the engine's
 terminology service, so the composition rules are the engine's; the code systems are indexed here,
 because that service takes none through its public surface.
 
-::: dhis2w_fhir_serve.terminology
-
 ::: dhis2w_fhir_serve.routes.terminology
 
 ### Metadata health
@@ -640,8 +589,6 @@ does not hold.
 
 ::: dhis2w_fhir_serve.metadata
 
-::: dhis2w_fhir_serve.capability
-
 ### Live store
 
 The store built off a DHIS2 instance instead of a compiled IG, over the same JSON builders the
@@ -653,15 +600,11 @@ generate targets write to disk.
 
 Every failed interaction, and the OperationOutcome it answers with.
 
-::: dhis2w_fhir_serve.errors
-
 ::: dhis2w_fhir_serve.error_handlers
 
 ### Request logging
 
 One log line per interaction, and the plain configuration the server process runs under.
-
-::: dhis2w_fhir_serve.log
 
 ::: dhis2w_fhir_serve.request_log
 

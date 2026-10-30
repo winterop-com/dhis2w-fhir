@@ -21,7 +21,7 @@ import httpx
 import httpx2
 import pytest
 import respx
-from dhis2w_fhir.config import SearchBackend
+from dhis2w_fhir_engine.facade.config import SearchBackend
 from dhis2w_fhir_serve.projection.base import (
     IndexedName,
     NameMatch,

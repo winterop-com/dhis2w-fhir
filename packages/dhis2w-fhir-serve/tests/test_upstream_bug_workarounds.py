@@ -12,7 +12,7 @@ from dhis2w_client.errors import Dhis2ApiError
 @pytest.mark.upstream_bug
 def test_bug_115_workaround_enrollment_poll_orders_by_enrolled_at() -> None:
     """DHIS2_ISSUES.md #115 - workaround-works: the enrollment poll orders by `enrolledAt`, never `createdAt`."""
-    from dhis2w_fhir_serve.register.wire import ENROLLMENT_POLL_ORDER, POLL_ORDER
+    from dhis2w_fhir_engine.facade.register.wire import ENROLLMENT_POLL_ORDER, POLL_ORDER
 
     assert ENROLLMENT_POLL_ORDER == "enrolledAt:asc"
     assert POLL_ORDER == "createdAt:asc", "the tracked entity poll keeps creation order; only enrollments diverge"
@@ -21,7 +21,7 @@ def test_bug_115_workaround_enrollment_poll_orders_by_enrolled_at() -> None:
 @pytest.mark.upstream_bug
 def test_bug_116_workaround_poll_recognises_the_refusal() -> None:
     """DHIS2_ISSUES.md #116 — workaround-works: the fhir-serve poll recognises exactly this refusal and no other 409."""
-    from dhis2w_fhir_serve.register.wire import _is_tombstone_read_syntax_refusal
+    from dhis2w_fhir_engine.facade.register.wire import _is_tombstone_read_syntax_refusal
 
     refused = Dhis2ApiError(
         status_code=409,

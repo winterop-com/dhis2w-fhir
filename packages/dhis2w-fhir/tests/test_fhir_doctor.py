@@ -26,13 +26,6 @@ import respx
 from dhis2w_cli.main import build_app
 from dhis2w_client.profile import Profile
 from dhis2w_core.client_context import open_client
-from dhis2w_fhir.config import FhirProject, HostileNamePosture, load_project
-from dhis2w_fhir.conversion import (
-    CodedAnswerMode,
-    ConversionRefusal,
-    ConversionRefusalCategory,
-    ConversionTargetKind,
-)
 from dhis2w_fhir.doctor import (
     _ORACLE_FAMILIES,
     DOCTOR_PHASE_ORDER,
@@ -62,8 +55,16 @@ from dhis2w_fhir.doctor import (
     render_doctor_markdown,
     run_doctor,
 )
-from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome
-from dhis2w_fhir.service import ForwardOutcome, ForwardOutcomeKind, ForwardReport, GenerationProfile
+from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.config import FhirProject, HostileNamePosture, load_project
+from dhis2w_fhir_engine.facade.conversion.schemas import (
+    CodedAnswerMode,
+    ConversionRefusal,
+    ConversionRefusalCategory,
+    ConversionTargetKind,
+)
+from dhis2w_fhir_engine.facade.forward import ForwardOutcome, ForwardOutcomeKind, ForwardReport
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory
 from fastapi import FastAPI
 from starlette.responses import JSONResponse

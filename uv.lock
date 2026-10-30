@@ -704,6 +704,7 @@ dependencies = [
     { name = "dhis2w-client" },
     { name = "httpx2" },
     { name = "pydantic" },
+    { name = "tomli-w" },
 ]
 
 [package.optional-dependencies]
@@ -719,6 +720,7 @@ requires-dist = [
     { name = "httpx2", specifier = ">=2.12.0" },
     { name = "pydantic", specifier = ">=2.13" },
     { name = "rich", marker = "extra == 'cli'", specifier = ">=15.0.0" },
+    { name = "tomli-w", specifier = ">=1.2.0" },
     { name = "typer", marker = "extra == 'cli'", specifier = ">=0.27.0" },
 ]
 provides-extras = ["cli"]

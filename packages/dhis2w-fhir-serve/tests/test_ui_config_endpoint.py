@@ -16,10 +16,11 @@ from collections.abc import AsyncIterator
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import DEFAULT_BASEMAP_TEMPLATE, BasemapSource, FhirProject, TrackedEntitiesConfig
+from dhis2w_fhir_engine.facade.config import DEFAULT_BASEMAP_TEMPLATE, BasemapSource, FhirProject, TrackedEntitiesConfig
+from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.register.index import TrackedEntityIndex
-from dhis2w_fhir_serve.register.surface import RegisterSurface
 from dhis2w_fhir_serve.routes import FACADE_MOUNT_PATH
 from dhis2w_fhir_serve.routes.uiconfig import (
     OPENSTREETMAP_ATTRIBUTION,
@@ -33,7 +34,6 @@ from dhis2w_fhir_serve.routes.uiconfig import (
     tracked_entities_config,
 )
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.store import load_compiled_store
 from fastapi import FastAPI
 from fixture_project import (
     REGISTRATION_CODED_ATTRIBUTE,

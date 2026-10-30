@@ -12,14 +12,14 @@ import tarfile
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir.config import load_project
-from dhis2w_fhir.registry_package import (
+from dhis2w_fhir.validation.artifacts import ArtifactFinding, check_publishable_artifacts
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.registry_package import (
     REGISTRY_PACKAGE_RESOURCE_TYPES,
     RegistryMissingError,
     load_registry_documents,
     resolve_registry_source,
 )
-from dhis2w_fhir.validation.artifacts import ArtifactFinding, check_publishable_artifacts
 
 _CANONICAL = "http://example.org/fhir"
 _REGISTRY_CANONICAL = "http://example.org/fhir/registry"

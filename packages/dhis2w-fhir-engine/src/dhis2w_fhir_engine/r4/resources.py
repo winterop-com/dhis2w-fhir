@@ -308,7 +308,7 @@ class RegisteredEntity(DomainResource):
     attribute per address part. `birthDate_element` carries the `_birthDate`
     sibling the way `Patient` does, because a nominated birth date the instance holds no readable
     value for states its absence there - see `dhis2w_fhir_engine.facade.ips` and
-    `dhis2w_fhir_serve.register.projection`.
+    `dhis2w_fhir_engine.facade.register.projection`.
     """
 
     resourceType: str

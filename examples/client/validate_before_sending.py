@@ -28,9 +28,7 @@ from __future__ import annotations
 from typing import Literal
 
 from _fixture import aggregate_form_id, capture_store, example_project
-from dhis2w_fhir import load_project
-from dhis2w_fhir_engine.r4.resources import Extension, Period, QuestionnaireResponse, Reference
-from dhis2w_fhir_serve.capture import (
+from dhis2w_fhir_engine.facade.capture import (
     PERIOD_ISO_SUB_EXTENSION,
     PERIOD_RANGE_SUB_EXTENSION,
     PERIOD_TYPE_SUB_EXTENSION,
@@ -41,7 +39,9 @@ from dhis2w_fhir_serve.capture import (
     ValidatedCapture,
     validate_response,
 )
-from dhis2w_fhir_serve.store import ResourceStore, SearchQuery
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.store import ResourceStore, SearchQuery
+from dhis2w_fhir_engine.r4.resources import Extension, Period, QuestionnaireResponse, Reference
 
 ReportStatus = Literal["completed", "in-progress"]
 """The two states this example submits a data set report in: finished, and still being filled in."""

@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.resources.ips_sections import (
     build_section_concept_map,
     build_section_concept_map_artifacts,
@@ -18,6 +17,7 @@ from dhis2w_fhir.resources.ips_sections import (
     section_map_id,
     section_map_name,
 )
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
 from dhis2w_fhir_engine.facade.ips import ImmunizationsMapping, SectionMappings
 
 _CANONICAL = "http://example.org/fhir"

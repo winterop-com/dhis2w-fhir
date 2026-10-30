@@ -4,7 +4,7 @@ THIS SERVES ONE PROJECT'S VOCABULARIES AND IS NOT A TERMINOLOGY SERVER. It answe
 CodeSystems and ValueSets this facade publishes - the option sets its forms bind, the dictionaries
 its questions are coded through - and about nothing else. A SNOMED CT or LOINC code is answered
 "this server publishes no code system under that url", which is true and is more useful than a
-guess. `dhis2w_fhir_serve.terminology` states the whole of what is and is not known here.
+guess. `dhis2w_fhir_engine.facade.terminology` states the whole of what is and is not known here.
 
 WHY GET, AND WHY NOT `$validate-code`. R4 spells these as operations on the resource that holds the
 vocabulary - `ValueSet/$validate-code` and `CodeSystem/$lookup` - and both answer a `Parameters`
@@ -24,12 +24,12 @@ from __future__ import annotations
 
 from typing import Annotated
 
+from dhis2w_fhir_engine.facade.refusals import BadOperationError
+from dhis2w_fhir_engine.facade.terminology import LookedUpCode, TerminologyState, ValidatedCode, load_terminology
 from fastapi import APIRouter, Query
 from starlette.requests import Request
 
-from dhis2w_fhir_serve.errors import BadOperationError
 from dhis2w_fhir_serve.routes.context import serve_context
-from dhis2w_fhir_serve.terminology import LookedUpCode, TerminologyState, ValidatedCode, load_terminology
 
 #: Where the terminology state is held on the app, built by the first question that needs it.
 TERMINOLOGY_STATE_ATTRIBUTE = "terminology"

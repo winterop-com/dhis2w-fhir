@@ -10,19 +10,13 @@ import pytest
 import respx
 from dhis2w_cli.main import build_app
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import (
-    GenerateConfig,
-    InitOptions,
-    NamingConfig,
-    UnsupportedProgramError,
-    build_questionnaire_artifacts,
-    load_project,
-    service,
-)
+from dhis2w_fhir import InitOptions, UnsupportedProgramError, build_questionnaire_artifacts, service
 from dhis2w_fhir.resources.option_sets.builders import option_set_identities
-from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
 from dhis2w_fhir.resources.questionnaires.builders import collect_referenced_objects, link_id_collisions
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig, load_project
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     BOUNDS_BY_VALUE_TYPE,
     ITEM_TYPES_BY_VALUE_TYPE,
     CategoryComboIn,
@@ -35,7 +29,6 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     TargetSelection,
     source_display_name,
 )
-from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.status import IgStatus
 from typer.testing import CliRunner
 

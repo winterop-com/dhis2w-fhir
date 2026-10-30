@@ -48,7 +48,7 @@ from __future__ import annotations
 from _fixture import conversion_context, form_canonical, registration_form_id
 from _runner import run_example
 from dhis2w_client import generate_uid
-from dhis2w_fhir import translate_response
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.r4.resources import (
     Coding,
     Extension,

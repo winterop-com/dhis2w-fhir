@@ -20,14 +20,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
+from dhis2w_fhir_engine.facade.capture.resolve import CodingResolutionError, CodingResolverSet
 from dhis2w_fhir_engine.facade.names import flatten_whitespace
 from dhis2w_fhir_engine.r4.primitives import is_fhir_date, is_fhir_date_time, is_fhir_time, zoned_date_time
 from dhis2w_fhir_engine.r4.resources import Coding, QuestionnaireResponseAnswer, QuestionnaireResponseItem, Reference
 
-from dhis2w_fhir_serve.capture.resolve import CodingResolutionError, CodingResolverSet
-
 if TYPE_CHECKING:
-    from dhis2w_fhir_serve.capture.index import CaptureIndex, CaptureQuestion
+    from dhis2w_fhir_engine.facade.capture.index import CaptureIndex, CaptureQuestion
 
 #: The resource type an organisation unit is referenced by, which is what an `ORGANISATION_UNIT`
 #: value answers onto.

@@ -18,16 +18,11 @@ import json
 from typing import Any
 
 import pytest
-from dhis2w_fhir_serve.capture import (
-    CaptureIndexCache,
-    CaptureIssue,
-    CaptureNaming,
-    CaptureRejection,
-    ValidatedCapture,
-    build_capture_index,
-    validate_response,
-)
-from dhis2w_fhir_serve.store import ResourceStore, StoreEntry
+from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache, build_capture_index
+from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.capture.outcome import CaptureIssue, CaptureRejection
+from dhis2w_fhir_engine.facade.capture.validate import ValidatedCapture, validate_response
+from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
 from fixture_project import ATTRIBUTE_COMBO_CODE_SYSTEM, ATTRIBUTE_COMBO_VALUE_SET, CAPTURE_CANONICAL
 
 #: The form on the non-default category combo, and the one on the default combo beside it.

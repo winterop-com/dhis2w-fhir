@@ -58,27 +58,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir_engine.facade.names import page_text
-from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
-from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
-from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
-
-from dhis2w_fhir.foundation.attribute_values import (
-    ATTRIBUTE_CODE_SUB_EXTENSION,
-    ATTRIBUTE_ID_SUB_EXTENSION,
-    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
-    ATTRIBUTE_VALUE_SUB_EXTENSION,
-)
-from dhis2w_fhir.foundation.original_spelling import (
-    ORIGINAL_SPELLING_CONTEXT_RESOURCE_TYPES,
-)
-from dhis2w_fhir.foundation.response_profiles import (
+from dhis2w_fhir_engine.facade.foundation.response_profiles import (
     CAPTURE_SERVER_READ_RESOURCE_TYPES,
     _identifier_system,
     build_captured_response_profile_declarations,
     build_response_profile_declarations,
 )
-from dhis2w_fhir.foundation.schemas import (
+from dhis2w_fhir_engine.facade.foundation.schemas import (
     AGGREGATE_CONVERSION_MAP,
     DATA_VALUE_SET_ELEMENTS,
     DATA_VALUE_SET_MODEL,
@@ -107,17 +93,31 @@ from dhis2w_fhir.foundation.schemas import (
     NamingSystemDeclaration,
     TrackerSubjectTypes,
 )
-from dhis2w_fhir.foundation.tracked_entity_attribute_values import (
+from dhis2w_fhir_engine.facade.foundation.tracked_entity_attribute_values import (
     TRACKED_ENTITY_ATTRIBUTE_CODE_SUB_EXTENSION,
     TRACKED_ENTITY_ATTRIBUTE_ID_SUB_EXTENSION,
     TRACKED_ENTITY_ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
     TRACKED_ENTITY_ATTRIBUTE_VALUE_SUB_EXTENSION,
 )
+from dhis2w_fhir_engine.facade.names import page_text
+from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.facade.writer import FshArtifact
+from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
+
+from dhis2w_fhir.foundation.attribute_values import (
+    ATTRIBUTE_CODE_SUB_EXTENSION,
+    ATTRIBUTE_ID_SUB_EXTENSION,
+    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
+    ATTRIBUTE_VALUE_SUB_EXTENSION,
+)
+from dhis2w_fhir.foundation.original_spelling import (
+    ORIGINAL_SPELLING_CONTEXT_RESOURCE_TYPES,
+)
 from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming, location_profile_reference
-from dhis2w_fhir.writer import FshArtifact
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 
 #: The `NamingSystem.date` every declaration carries. R4 makes the element mandatory, and a

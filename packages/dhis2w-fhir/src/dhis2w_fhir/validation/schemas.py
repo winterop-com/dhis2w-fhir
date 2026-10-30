@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from typing import Literal
 
+from dhis2w_fhir_engine.facade.config import HostileNamePosture
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
 from dhis2w_fhir_engine.facade.notes import pluralize
 from pydantic import BaseModel, ConfigDict, Field, computed_field
-
-from dhis2w_fhir.config import HostileNamePosture
 
 #: The sweep collection each `ValidationScope` surface answers for - every other collection is never in scope.
 #: Every surface here is a kind the generate gate refuses a build-aborting name on, which is what makes

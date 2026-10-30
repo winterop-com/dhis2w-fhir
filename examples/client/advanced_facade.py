@@ -50,22 +50,18 @@ from dhis2w_client import Dhis2ApiError, Dhis2Client, Dhis2ClientError, Profile
 from dhis2w_client.generated.v43.oas import ImportSummary, TrackerImportReport
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve
-from dhis2w_fhir import (
-    CodedAnswerMode,
-    ConversionContext,
-    ConversionResult,
-    ForwardImportIssue,
-    ForwardImportOutcome,
-    ForwardImportRecord,
-    translate_response,
-)
+from dhis2w_fhir_engine.facade import response_spool as spool_writer
 from dhis2w_fhir_engine.facade import spool as spool_queue
+from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode, ConversionContext, ConversionResult
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome, ForwardImportRecord
 from dhis2w_fhir_engine.facade.overwrite import (
     ForwardedCellIndex,
     ForwardedSubmission,
     aggregate_cells,
     build_forwarded_cell_index,
 )
+from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle
 from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason, SpoolLayout
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
@@ -74,8 +70,6 @@ from dhis2w_fhir_engine.r4.resources import (
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir_serve import spool as spool_writer
-from dhis2w_fhir_serve.spool import ResponseLifecycle
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict

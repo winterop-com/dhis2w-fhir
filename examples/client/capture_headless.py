@@ -32,7 +32,9 @@ from pathlib import Path
 import httpx2
 from _fixture import aggregate_form_id, example_project
 from _runner import run_example
-from dhis2w_fhir import load_project, service
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade import forward
+from dhis2w_fhir_engine.facade.config import load_project
 from dhis2w_fhir_serve import ServeSettings, create_app
 
 FHIR_JSON = "application/fhir+json"
@@ -82,7 +84,7 @@ async def main() -> None:
     project = load_project(directory)
     state = service.read_spool_state(project)
     counts = state.counts
-    print(f"spool: {service.spool_layout(project).root}")
+    print(f"spool: {forward.spool_layout(project).root}")
     print(
         f"  {counts.received} not yet sent to DHIS2, {counts.forwarded} accepted by DHIS2, "
         f"{counts.rejected} refused by DHIS2, {counts.malformed} unreadable"

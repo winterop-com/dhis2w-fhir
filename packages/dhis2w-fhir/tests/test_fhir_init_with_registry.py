@@ -17,7 +17,6 @@ from pathlib import Path
 import pytest
 import yaml
 from dhis2w_cli.main import build_app
-from dhis2w_fhir.config import load_project
 from dhis2w_fhir.scaffold import (
     GUIDE_RELATIVE_ROOT,
     REGISTRY_RELATIVE_ROOT,
@@ -26,6 +25,7 @@ from dhis2w_fhir.scaffold import (
 )
 from dhis2w_fhir.scaffold.refresh import refresh_project
 from dhis2w_fhir.scaffold.schemas import InitOptions
+from dhis2w_fhir_engine.facade.config import load_project
 from makefile_harness import run_make, stub_docker
 from typer.testing import CliRunner
 
@@ -99,7 +99,7 @@ def test_the_identity_the_two_share_is_derived_from_one(tmp_path: Path) -> None:
 
 def test_the_path_between_them_resolves_to_the_registry_beside_the_guide(tmp_path: Path) -> None:
     """`path` is what the facade, the forward and the artifact check all read the registry through."""
-    from dhis2w_fhir.registry_package import resolve_registry_source
+    from dhis2w_fhir_engine.facade.registry_package import resolve_registry_source
 
     _write(tmp_path)
     registry_resources = tmp_path / REGISTRY_RELATIVE_ROOT / "ig" / "input" / "resources" / "registry"
