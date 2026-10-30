@@ -9,14 +9,15 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.errors import CompiledIgMissingError
 from dhis2w_fhir_engine.facade.log import LOGGER_NAME
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
 from dhis2w_fhir_engine.facade.store import (
-    CompiledIgMissingError,
     IdentifierToken,
     ResourceStore,
     SearchQuery,
     StoreEntry,
+    compiled_guide_missing,
     load_compiled_store,
 )
 
@@ -82,7 +83,7 @@ def test_missing_compiled_ig_names_the_registry_build_first() -> None:
         path=Path("../registry"),
     )
 
-    message = str(CompiledIgMissingError(registry))
+    message = str(compiled_guide_missing(registry))
 
     assert "build it first: `make -C ../registry build`." in message
     assert message.endswith("`d2w fhir serve --live` serves straight from DHIS2 and needs no compile.")
@@ -94,7 +95,7 @@ def test_missing_compiled_ig_without_a_checkout_names_the_archive() -> None:
         id="dhis2.fhir.example.registry", canonical="http://example.org/fhir/registry", version="0.1.0"
     )
 
-    assert "`make sushi REGISTRY_TGZ=<package.tgz>`" in str(CompiledIgMissingError(registry))
+    assert "`make sushi REGISTRY_TGZ=<package.tgz>`" in str(compiled_guide_missing(registry))
 
 
 def test_empty_compiled_directory_raises(empty_project: FhirProject) -> None:

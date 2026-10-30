@@ -31,16 +31,17 @@ from __future__ import annotations
 import json
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import httpx2
 from _fixture import aggregate_form_id, conversion_context, form_canonical
 from _runner import run_example
-from dhis2w_client import Dhis2ApiError, Dhis2Client, Dhis2ClientError, Profile
+from dhis2w_client import Dhis2Client, Dhis2ClientError, Profile
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve
 from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
+from dhis2w_fhir_engine.facade.forward import post_translation
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
@@ -63,9 +64,6 @@ REPORTED_NUMBERS = {"s46m5MS0hxu.Prlt0C1RF0s": 14, "s46m5MS0hxu.psbwp3CQEhs": 9}
 #: Wara Wara Yagala, a chiefdom of Koinadugu: a published Location the translator resolves happily,
 #: and a place the seeded instance does not collect Child Health at. DHIS2 itself is what refuses it.
 UNREPORTING_ORGANISATION_UNIT_UID = "EZPwuUTeIIG"
-
-#: From here up the instance is failing rather than answering, so the failure is about the run.
-SERVER_ERROR_STATUS = 500
 
 #: What the facade answers while it holds no client: startup unfinished, or shutdown begun.
 SERVICE_UNAVAILABLE_STATUS = 503
@@ -180,35 +178,19 @@ def build_facade(settings: FacadeSettings, context: ConversionContext) -> FastAP
             logger.error("a capture arrived while the facade held no client")
             return unreachable("the facade holds no client")
 
-        # Which endpoint the payload goes to is the payload's own shape: an aggregate envelope is an
-        # `/api/dataValueSets` body whole, and each tracker payload rides one key of an `/api/tracker` one.
-        payload = result.payload
-        assert payload is not None  # a translated result carries a payload; only a refused one does not
-        wire = payload.model_dump(by_alias=True, exclude_none=True, mode="json")
-        if result.data_value_set is not None:
-            path, params = "/api/dataValueSets", {"dryRun": "true"} if settings.dry_run else {}
-            body: dict[str, Any] = wire
+        # The endpoint follows from the payload's own shape. A refused import is an outcome and a 5xx
+        # raises, because the instance failing is about the run rather than about this capture.
+        outcome = await post_translation(client, result, dry_run=settings.dry_run)
+        if outcome.is_accepted:
+            logger.info("accepted %s as %s", response.questionnaire, result.target_kind)
         else:
-            path, params = "/api/tracker", {"importStrategy": "CREATE", "async": "false"}
-            if settings.dry_run:
-                params["importMode"] = "VALIDATE"
-            if result.tracked_entity is not None:
-                body = {"trackedEntities": [wire]}
-            elif result.enrollment is not None:
-                body = {"enrollments": [wire]}
-            else:
-                body = {"events": [wire]}
-        try:
-            verdict = await client.post_raw(path, body, params=params)
-        except Dhis2ApiError as error:
-            # DHIS2's verdict goes back under DHIS2's own status. A 5xx is the instance failing
-            # rather than answering, and a body that is no report is about the run: both raise.
-            if error.status_code >= SERVER_ERROR_STATUS or not isinstance(error.body, dict):
-                raise
-            logger.warning("DHIS2 answered %d about %s", error.status_code, response.questionnaire)
-            return JSONResponse(status_code=error.status_code, content=error.body)
-        logger.info("accepted %s as %s", response.questionnaire, result.target_kind)
-        return JSONResponse(content=verdict)
+            logger.warning("DHIS2 answered %s about %s", outcome.http_status, response.questionnaire)
+        return JSONResponse(
+            status_code=outcome.http_status or 200,
+            content=outcome.model_dump(
+                mode="json", exclude_none=True, exclude={"data_value_summary", "tracker_report"}
+            ),
+        )
 
     return app
 
@@ -263,11 +245,11 @@ async def main() -> None:
             answer = await caller.post(
                 "/QuestionnaireResponse", json=response.model_dump(mode="json", by_alias=True, exclude_none=True)
             )
-            summary = answer.json().get("response", answer.json())
+            summary = answer.json()
             print(f"POST /QuestionnaireResponse, {label} -> {answer.status_code}")
-            print(f"  {summary.get('status')}: {json.dumps(summary.get('importCount'))}")
-            for conflict in summary.get("conflicts", []):
-                print(f"  [{conflict.get('errorCode')}] {conflict.get('value')}")
+            print(f"  {summary.get('status')}: {summary.get('created')} created, {summary.get('updated')} updated")
+            for issue in summary.get("issues", []):
+                print(f"  [{issue.get('error_code')}] {issue.get('message')}")
             print()
 
 

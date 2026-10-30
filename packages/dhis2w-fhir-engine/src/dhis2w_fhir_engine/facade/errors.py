@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 
+class CompiledIgMissingError(LookupError):
+    """Raised when a project holds no compiled guide, naming what fills it for whoever asked."""
+
+
 class FhirUserError(Exception):
     """An expected failure that is the caller's to fix, holding its diagnostics in the order they read."""
 

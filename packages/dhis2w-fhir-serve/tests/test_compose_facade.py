@@ -9,7 +9,7 @@ from typing import Any
 
 import httpx2
 from dhis2w_fhir_engine.facade import open_facade
-from dhis2w_fhir_engine.facade.api import attach_facade, mount_facade
+from dhis2w_fhir_engine.facade.api import attach_facade, mount_facade, record_caller
 from dhis2w_fhir_engine.facade.config import FhirProject
 from fastapi import FastAPI, HTTPException, Request
 from fixture_project import AGGREGATE_RESPONSE_FILE, golden
@@ -118,3 +118,30 @@ async def test_the_operation_metadata_declares_is_one_the_facade_serves(capture_
         served = await client.get(f"/OperationDefinition/{definition.rsplit('/', 1)[-1]}")
     assert served.status_code == 200
     assert served.json()["resourceType"] == "OperationDefinition"
+
+
+async def test_your_own_authentication_is_what_metadata_describes(capture_project: FhirProject) -> None:
+    """A deployment's own check is not the `token` posture, and the statement does not call it one."""
+    application = _application(
+        capture_project, authentication=lambda: None, authentication_statement="Ask us for a key."
+    )
+    async with _serving(application) as client:
+        security = (await client.get("/metadata")).json()["rest"][0]["security"]
+    assert security["description"] == "Ask us for a key."
+
+
+async def test_whoami_names_the_caller_your_check_recorded(capture_project: FhirProject) -> None:
+    """A check that names its caller gets `/whoami`, and one that does not is told so rather than told it failed."""
+
+    def names_them(request: Request) -> None:
+        record_caller(request, "aminata")
+
+    named = _application(capture_project, authentication=names_them, facade_api="/controls")
+    async with _serving(named) as client:
+        assert (await client.get("/controls/whoami")).json()["username"] == "aminata"
+
+    silent = _application(capture_project, authentication=lambda: None, facade_api="/controls")
+    async with _serving(silent) as client:
+        answer = await client.get("/controls/whoami")
+    assert answer.status_code == 404
+    assert "record_caller" in answer.json()["issue"][0]["diagnostics"]

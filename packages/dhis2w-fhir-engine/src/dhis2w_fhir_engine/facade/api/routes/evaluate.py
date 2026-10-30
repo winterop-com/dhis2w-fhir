@@ -39,17 +39,24 @@ not hold, a register it does not publish.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any, Literal
+from typing import TYPE_CHECKING, Any
 
 from dhis2w_client.errors import Dhis2ClientError
 from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 
 from dhis2w_fhir_engine.facade.api.passthrough import register_reader
 from dhis2w_fhir_engine.facade.api.routes.context import serve_context
-from dhis2w_fhir_engine.facade.evaluation import EvaluationLanguage, EvaluationOutcome, evaluate_source
+from dhis2w_fhir_engine.facade.evaluation import (
+    EvaluationContext,
+    EvaluationOutcome,
+    EvaluationRequest,
+    InlineResourceContext,
+    RegisteredEntityContext,
+    StoredResourceContext,
+    evaluate_source,
+)
 from dhis2w_fhir_engine.facade.refusals import (
     NoPublishedSubjectTypeError,
     NotFoundError,
@@ -60,7 +67,6 @@ from dhis2w_fhir_engine.facade.refusals import (
 )
 from dhis2w_fhir_engine.facade.register.projection import registered_entity_for
 from dhis2w_fhir_engine.facade.register.wire import fetch_tracked_entity, upstream_refusal_text
-from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.register.reader import RegisterReader
@@ -73,68 +79,6 @@ EVALUATE_PATH = "/evaluate"
 EVALUATE_TAG = "Evaluation"
 
 router = APIRouter()
-
-
-class StoredResourceContext(BaseModel):
-    """One resource of the served guide, named the way a read names it: by type and id."""
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: Literal["stored"] = "stored"
-    resource_type: str
-    resource_id: str
-
-
-class InlineResourceContext(BaseModel):
-    """One resource the caller posted, evaluated as it arrived."""
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: Literal["inline"] = "inline"
-    resource: dict[str, Any]
-    """The resource verbatim - the same HTTP-boundary escape hatch `StoreEntry.body` documents.
-
-    An expression may be written against any FHIR resource type, including ones this repo has no
-    model for, and the engine evaluates over FHIR-shaped JSON rather than over models. Parsing it
-    into a model here would mean parsing it back out again one function later.
-    """
-
-
-class RegisteredEntityContext(BaseModel):
-    """One tracked entity the DHIS2 instance holds, as the register serves it.
-
-    The resource type is the one the published map takes the entity's type onto - `Patient` for a
-    project that tracks people, whatever the map states for the rest - so it is named rather than
-    assumed, exactly as the register's own read path names it.
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    kind: Literal["registered"] = "registered"
-    resource_type: str = DEFAULT_SUBJECT_RESOURCE_TYPE
-    tracked_entity_uid: str
-
-
-EvaluationContext = Annotated[
-    StoredResourceContext | InlineResourceContext | RegisteredEntityContext, Field(discriminator="kind")
-]
-"""The three ways a request names the one resource an expression runs over."""
-
-
-class EvaluationRequest(BaseModel):
-    """One evaluation as a caller asks for it: a language, a source, a context, and optionally one define."""
-
-    model_config = ConfigDict(frozen=True)
-
-    language: EvaluationLanguage
-    source: str
-    """The FHIRPath expression, the CQL library text, or the ELM library as JSON."""
-
-    expression_name: str | None = None
-    """Which define to answer. Omitted, a CQL or ELM library answers every define it declares."""
-
-    context: EvaluationContext | None = None
-    """The resource to evaluate over. Omitted, the expression runs over no resource at all."""
 
 
 @router.post(

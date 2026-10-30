@@ -47,15 +47,19 @@ from typing import TYPE_CHECKING
 import httpx2
 from _fixture import aggregate_form_id, conversion_context, form_canonical
 from _runner import run_example
-from dhis2w_client import Dhis2ApiError, Dhis2Client, Dhis2ClientError, Profile
-from dhis2w_client.generated.v43.oas import ImportSummary
+from dhis2w_client import Dhis2Client, Dhis2ClientError, Profile
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve
 from dhis2w_fhir_engine.facade import response_spool as spool_writer
 from dhis2w_fhir_engine.facade import spool as spool_queue
 from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext, ConversionResult
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
-from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome, ForwardImportRecord
+from dhis2w_fhir_engine.facade.forward import post_translation
+from dhis2w_fhir_engine.facade.forward_records import (
+    ForwardImportOutcome,
+    ForwardImportRecord,
+    ForwardImportVerdict,
+)
 from dhis2w_fhir_engine.facade.overwrite import aggregate_cells
 from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle
 from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason, SpoolLayout
@@ -87,9 +91,6 @@ DRAIN_INTERVAL_SECONDS = 0.5
 #: How often the demo asks its receipt where it stands, and how many times before it gives up.
 POLL_INTERVAL_SECONDS = 0.25
 POLL_ATTEMPTS = 240
-
-#: From here up the instance is failing rather than answering, so the receipt waits for the next pass.
-SERVER_ERROR_STATUS = 500
 
 logger = logging.getLogger("facade")
 
@@ -273,6 +274,11 @@ async def drain_once(runtime: FacadeRuntime, settings: FacadeSettings) -> None:
                 logger.warning("still queued, %s: %s", spooled.response_id, result.refusals[0].reason)
                 continue
             record = await post_data_value_set(client, result, received_at=spooled.received_at)
+            if record.verdict is ForwardImportVerdict.NONE:
+                # A 401 or a 429 carries JSON of its own and says nothing about this payload, so the
+                # receipt stays queued for the next pass rather than being filed under a verdict nobody gave.
+                logger.warning("still queued, %s: no verdict (%s)", spooled.response_id, record.http_status)
+                continue
             if record.is_rejected:
                 spool_queue.move_to_rejected(spooled, record)
                 logger.warning("rejected %s: %s", spooled.response_id, record.issues[0].line if record.issues else "")
@@ -287,27 +293,9 @@ async def post_data_value_set(
     """Post one aggregate envelope and project DHIS2's answer into the sidecar filed beside the receipt."""
     envelope = result.data_value_set
     assert envelope is not None  # the caller routes every other payload kind before it gets here
-    body = envelope.model_dump(by_alias=True, exclude_none=True, mode="json")
-    try:
-        answer = await client.post_raw("/api/dataValueSets", body)
-    except Dhis2ApiError as error:
-        # A refused import carries the endpoint's own report, and that is a verdict to file. A 5xx
-        # is the instance failing rather than answering, so it raises and the receipt stays queued.
-        if error.status_code >= SERVER_ERROR_STATUS or not isinstance(error.body, dict):
-            raise
-        answer = error.body
-    summary = ImportSummary.model_validate(answer.get("response") or answer)
-    counts = summary.importCount
+    outcome = await post_translation(client, result, dry_run=False)
     return ForwardImportRecord(
-        status=summary.status.value if summary.status is not None else None,
-        message=summary.description,
-        created=(counts.imported or 0) if counts is not None else 0,
-        updated=(counts.updated or 0) if counts is not None else 0,
-        ignored=(counts.ignored or 0) if counts is not None else 0,
-        issues=tuple(
-            ForwardImportIssue(error_code=conflict.errorCode, subject=conflict.object, message=conflict.value)
-            for conflict in summary.conflicts or ()
-        ),
+        **outcome.model_dump(),
         target_kind=result.target_kind,
         received_at=received_at,
         # The identity of every value this payload landed on, never the numbers. It is what lets a

@@ -14,7 +14,7 @@ from dhis2w_fhir_engine.facade.config import (
 )
 from dhis2w_fhir_engine.facade.registry_package import resolve_registry_source
 from dhis2w_fhir_engine.facade.settings import ServeSettings
-from dhis2w_fhir_engine.facade.store import COMPILED_RESOURCES_RELATIVE_PATH, CompiledIgMissingError
+from dhis2w_fhir_engine.facade.store import COMPILED_RESOURCES_RELATIVE_PATH, compiled_guide_missing
 from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir_serve.auth_setup import preflight_auth
@@ -130,7 +130,7 @@ def resolve_serve_settings(
     )
     generation = _resolved_generation(project, profile, required=live)
     if not live and not any((project.ig_directory / COMPILED_RESOURCES_RELATIVE_PATH).glob("*.json")):
-        raise CompiledIgMissingError(project.config.registry_dependency)
+        raise compiled_guide_missing(project.config.registry_dependency)
     # The registry a guide depends on is preflighted for the reason every other refusal is: a
     # facade that starts and then serves no organisation unit is a failure nobody meets until
     # they open the picker. Both store modes read the package, so both are preflighted: a live

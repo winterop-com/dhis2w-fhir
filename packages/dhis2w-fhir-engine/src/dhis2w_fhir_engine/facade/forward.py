@@ -31,6 +31,7 @@ from dhis2w_fhir_engine.facade.conversion.artifacts import (
     ProgramRuleNames,
     bound_question_uids,
     build_project_context,
+    compiled_guide_missing_at,
     load_compiled_artifacts,
     program_rule_names,
 )
@@ -772,7 +773,7 @@ async def drain_spool(
     async with connect() as client:
         if compiled is None:
             if build_guide is None:
-                raise CompiledIgMissingError(project.ig_directory / COMPILED_RESOURCES_RELATIVE_PATH)
+                raise compiled_guide_missing_at(project.ig_directory / COMPILED_RESOURCES_RELATIVE_PATH)
             progress.step("guide", "building the guide off the instance, this project holding no compiled one")
             artifacts = await build_guide(client, progress)
             progress.complete(_artifacts_completion(artifacts))

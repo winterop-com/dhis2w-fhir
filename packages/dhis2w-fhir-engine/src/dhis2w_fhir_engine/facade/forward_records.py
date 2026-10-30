@@ -172,7 +172,11 @@ class ForwardImportOutcome(BaseModel):
 
     @property
     def is_rejected(self) -> bool:
-        """Whether DHIS2 refused the payload: an error status, or any row it named against the payload."""
+        """Whether the answer states an error status or names a row against the payload.
+
+        This reads the answer whatever answered: a 401 with `status: ERROR` is true here and is no refusal.
+        To decide what became of a payload, read `verdict`, which says so where no import report arrived.
+        """
         return self.status == _ERROR_IMPORT_STATUS or bool(self.issues)
 
     @property

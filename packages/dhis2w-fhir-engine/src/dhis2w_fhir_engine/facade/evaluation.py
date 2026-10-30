@@ -43,16 +43,17 @@ from __future__ import annotations
 import json
 import math
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from datetime import date, datetime, time
 from decimal import Decimal
 from enum import Enum, StrEnum
-from typing import Any
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 from dhis2w_fhir_engine import CQLEvaluator, ELMEvaluator, FHIRPathEvaluator, unwrap_primitives
 from dhis2w_fhir_engine.r4 import BundleDataSource
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE, FhirBase, json_resource
 
 #: What one FHIRPath collection is named in the results, since the expression has no define name.
 FHIRPATH_RESULT_NAME = "expression"
@@ -427,3 +428,77 @@ def _context_resource(subject: dict[str, Any] | None) -> dict[str, Any] | None:
     if subject is None or subject.get("resourceType") == _BUNDLE_RESOURCE_TYPE:
         return None
     return subject
+
+
+class StoredResourceContext(BaseModel):
+    """One resource of the served guide, named the way a read names it: by type and id."""
+
+    model_config = ConfigDict(frozen=True)
+
+    kind: Literal["stored"] = "stored"
+    resource_type: str
+    resource_id: str
+
+
+class InlineResourceContext(BaseModel):
+    """One resource the caller posted, evaluated as it arrived."""
+
+    model_config = ConfigDict(frozen=True)
+
+    kind: Literal["inline"] = "inline"
+    resource: dict[str, Any]
+    """The resource verbatim - the same HTTP-boundary escape hatch `StoreEntry.body` documents.
+
+    An expression may be written against any FHIR resource type, including ones this repo has no
+    model for, and the engine evaluates over FHIR-shaped JSON rather than over models. Parsing it
+    into a model here would mean parsing it back out again one function later.
+    """
+
+    @classmethod
+    def over(cls, resource: FhirBase | Mapping[str, Any]) -> InlineResourceContext:
+        """Evaluate over this resource, whether the caller holds a typed R4 model or a parsed document.
+
+        The field itself is plain JSON, because that is what goes on the wire. This is the constructor a
+        caller reaches for: an integrator holding a `QuestionnaireResponse` and one holding the document
+        they just parsed are both one call from an evaluation.
+        """
+        if isinstance(resource, FhirBase):
+            return cls(resource=json_resource(resource).model_dump(mode="json", by_alias=True, exclude_none=True))
+        return cls(resource=dict(resource))
+
+
+class RegisteredEntityContext(BaseModel):
+    """One tracked entity the DHIS2 instance holds, as the register serves it.
+
+    The resource type is the one the published map takes the entity's type onto - `Patient` for a
+    project that tracks people, whatever the map states for the rest - so it is named rather than
+    assumed, exactly as the register's own read path names it.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    kind: Literal["registered"] = "registered"
+    resource_type: str = DEFAULT_SUBJECT_RESOURCE_TYPE
+    tracked_entity_uid: str
+
+
+class EvaluationRequest(BaseModel):
+    """One evaluation as a caller asks for it: a language, a source, a context, and optionally one define."""
+
+    model_config = ConfigDict(frozen=True)
+
+    language: EvaluationLanguage
+    source: str
+    """The FHIRPath expression, the CQL library text, or the ELM library as JSON."""
+
+    expression_name: str | None = None
+    """Which define to answer. Omitted, a CQL or ELM library answers every define it declares."""
+
+    context: EvaluationContext | None = None
+    """The resource to evaluate over. Omitted, the expression runs over no resource at all."""
+
+
+EvaluationContext = Annotated[
+    StoredResourceContext | InlineResourceContext | RegisteredEntityContext, Field(discriminator="kind")
+]
+"""The three ways a request names the one resource an expression runs over."""
