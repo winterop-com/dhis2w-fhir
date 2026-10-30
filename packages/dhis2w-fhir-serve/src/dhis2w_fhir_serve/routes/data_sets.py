@@ -59,9 +59,16 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir.grouping import ReportedForm, group_data_values
-from dhis2w_fhir.period import parse_period
-from dhis2w_fhir.r4 import Bundle, BundleEntry, BundleEntrySearch, BundleLink, QuestionnaireResponse, json_resource
+from dhis2w_fhir_engine.facade.grouping import ReportedForm, group_data_values
+from dhis2w_fhir_engine.facade.period import parse_period
+from dhis2w_fhir_engine.r4.resources import (
+    Bundle,
+    BundleEntry,
+    BundleEntrySearch,
+    BundleLink,
+    QuestionnaireResponse,
+    json_resource,
+)
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict
 from starlette.requests import Request

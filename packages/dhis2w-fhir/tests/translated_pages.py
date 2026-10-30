@@ -11,7 +11,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from dhis2w_fhir import GenerateConfig, OptionIn, OptionSetIn, OrganisationUnitIn
-from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelIn, OrganisationUnitLevelNames
 from dhis2w_fhir.resources.pages.builders import PAGES_DIRECTORY, build_page_artifacts
@@ -22,6 +21,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSectionIn,
     QuestionnaireSourceIn,
 )
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
 
 #: Where the committed baseline pages live.
 BASELINE_DIRECTORY = Path(__file__).parent / "data" / "pages-baseline"

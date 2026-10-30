@@ -40,8 +40,8 @@ from dhis2w_fhir.foundation.schemas import (
     GENERATE_SEED_PARAMETER,
     GENERATE_SUBJECT_PARAMETER,
 )
-from dhis2w_fhir.names import is_valid_fhir_id
-from dhis2w_fhir.r4 import Parameters, ParametersParameter, Questionnaire
+from dhis2w_fhir_engine.facade.names import is_valid_fhir_id
+from dhis2w_fhir_engine.r4.resources import Parameters, ParametersParameter, Questionnaire
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, ValidationError
 from starlette.datastructures import QueryParams

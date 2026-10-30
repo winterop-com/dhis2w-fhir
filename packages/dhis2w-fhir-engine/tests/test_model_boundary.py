@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 from dhis2w_fhir_engine import CQLEvaluator, EvaluationContext, FHIRPathEvaluator, InMemoryDataSource
-from dhis2w_fhir_engine.engine.cql.context import EncounterContext, PatientContext
+from dhis2w_fhir_engine.evaluation.cql.context import EncounterContext, PatientContext
 from dhis2w_fhir_engine.ingest import as_evaluation_input, as_resource_dict, as_resource_dicts
 from dhis2w_fhir_engine.r4 import BundleDataSource, PatientBundleDataSource
 from dhis2w_fhir_engine.r4.resources import (

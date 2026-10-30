@@ -38,16 +38,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.coded import (
+from dhis2w_fhir_engine.facade.coded import (
     DHIS2_CODE_PROPERTY,
     DHIS2_ID_PROPERTY,
     DHIS2_NAME_PROPERTY,
     code_substitutions,
 )
-from dhis2w_fhir.i18n import name_translations, translated_element
-from dhis2w_fhir.names import (
+from dhis2w_fhir_engine.facade.i18n import name_translations, translated_element
+from dhis2w_fhir_engine.facade.names import (
     FHIR_ID_MAX_LENGTH,
     StemSubject,
     code_or_uid,
@@ -57,7 +55,8 @@ from dhis2w_fhir.names import (
     join_name_segments,
     resolve_identity_stems,
 )
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
     CodeSystemConcept,
     CodeSystemConceptProperty,
@@ -72,6 +71,8 @@ from dhis2w_fhir.r4 import (
     ValueSetCompose,
     ValueSetInclude,
 )
+from pydantic import BaseModel, ConfigDict, Field
+
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
     AttributeOptionRestrictionPlan,
@@ -97,12 +98,12 @@ from dhis2w_fhir.resources.option_sets.builders import (
     value_set_canonical,
 )
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.status import IgStatus, experimental_for_status
 from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
+    from dhis2w_fhir_engine.facade.notes import GenerateNote
+
     from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.notes import GenerateNote
     from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
     from dhis2w_fhir.resources.option_sets.schemas import ConceptAssignment, ConceptAssignmentPlan
     from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn

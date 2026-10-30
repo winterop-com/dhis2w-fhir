@@ -19,7 +19,6 @@ import json
 from typing import Any
 
 from dhis2w_fhir.config import GenerateConfig
-from dhis2w_fhir.names import StemResolution
 from dhis2w_fhir.resources.attribute_combos.builders import AttributeComboBuild, build_attribute_combo_artifacts
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     ATTRIBUTE_OPTION_VALID_FROM_PROPERTY,
@@ -33,6 +32,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryOptionComboIn,
     QuestionnaireSourceIn,
 )
+from dhis2w_fhir_engine.facade.names import StemResolution
 
 _CANONICAL = "http://example.org/fhir"
 

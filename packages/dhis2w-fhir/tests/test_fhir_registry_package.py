@@ -27,8 +27,6 @@ from dhis2w_fhir import InitOptions, load_project, service
 from dhis2w_fhir.config import FhirProjectConfig, GenerateConfig
 from dhis2w_fhir.conversion.values import location_id_of
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts, build_registry_foundation_artifacts
-from dhis2w_fhir.names import StemResolution, StemSubject
-from dhis2w_fhir.notes import GenerateNoteCategory
 from dhis2w_fhir.registry_package import RegistryMissingError
 from dhis2w_fhir.resources.examples.builders import location_reference
 from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
@@ -46,6 +44,8 @@ from dhis2w_fhir.scaffold import build_scaffold_files
 from dhis2w_fhir.scaffold.refresh import read_project_scaffold_state, refresh_project
 from dhis2w_fhir.service import RegistryProjectTargetError
 from dhis2w_fhir.validation.artifacts import check_publishable_artifacts
+from dhis2w_fhir_engine.facade.names import StemResolution, StemSubject
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
 from makefile_harness import run_make, stub_docker
 from typer.testing import CliRunner
 

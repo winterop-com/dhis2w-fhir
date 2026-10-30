@@ -39,7 +39,7 @@ from __future__ import annotations
 from _fixture import conversion_context, event_form_id
 from dhis2w_fhir import ConversionContext, translate_response
 from dhis2w_fhir.conversion import FormSpec, QuestionSpec, WireValueKind
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
     QuestionnaireResponseAnswer,

@@ -47,7 +47,7 @@ import httpx2
 from _fixture import example_project, served_facade
 from _runner import run_example
 from dhis2w_fhir import FoundationNaming, load_project
-from dhis2w_fhir.r4 import Extension, Questionnaire, QuestionnaireItem, QuestionnaireItemEnableWhen
+from dhis2w_fhir_engine.r4.resources import Extension, Questionnaire, QuestionnaireItem, QuestionnaireItemEnableWhen
 
 FHIR_JSON = "application/fhir+json"
 

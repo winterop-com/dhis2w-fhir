@@ -14,7 +14,6 @@ from typing import Any
 
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.foundation.artifacts import build_naming_system_declarations
-from dhis2w_fhir.r4 import ConceptMap, ConceptMapGroup, ConceptMapGroupElement, ConceptMapGroupElementTarget
 from dhis2w_fhir.resources.attribute_combos.builders import (
     build_attribute_combo_concept_maps,
     build_attribute_combo_identifier_artifacts,
@@ -35,6 +34,12 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryOptionComboIn,
     QuestionnaireItemIn,
     QuestionnaireSourceIn,
+)
+from dhis2w_fhir_engine.r4.resources import (
+    ConceptMap,
+    ConceptMapGroup,
+    ConceptMapGroupElement,
+    ConceptMapGroupElementTarget,
 )
 
 _CANONICAL = "http://example.org/fhir"

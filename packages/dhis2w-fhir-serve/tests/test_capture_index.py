@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import Any
 
 import pytest
-from dhis2w_fhir.r4 import QuestionnaireResponseAnswer
+from dhis2w_fhir_engine.r4.resources import QuestionnaireResponseAnswer
 from dhis2w_fhir_serve.capture import (
     CaptureIndexCache,
     CaptureNaming,

@@ -5,11 +5,9 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.attributes import AttributeValueIn
-from dhis2w_fhir.coded import CodedProjectionIn
-from dhis2w_fhir.i18n import (
+from dhis2w_fhir_engine.facade.attributes import AttributeValueIn
+from dhis2w_fhir_engine.facade.coded import CodedProjectionIn
+from dhis2w_fhir_engine.facade.i18n import (
     ENROLLMENT_DATE_LABEL_PROPERTY,
     EXECUTION_DATE_LABEL_PROPERTY,
     INCIDENT_DATE_LABEL_PROPERTY,
@@ -18,7 +16,7 @@ from dhis2w_fhir.i18n import (
     name_translations,
     property_translations,
 )
-from dhis2w_fhir.names import (
+from dhis2w_fhir_engine.facade.names import (
     FHIR_ID_MAX_LENGTH,
     NamingSource,
     StemResolution,
@@ -28,8 +26,9 @@ from dhis2w_fhir.names import (
     join_name_segments,
     resolve_identity_stems,
 )
-from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
+from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from dhis2w_fhir.config import NamingConfig

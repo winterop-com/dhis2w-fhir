@@ -10,12 +10,12 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.exceptions import FHIRPathError
-from dhis2w_fhir_engine.engine.fhirpath.evaluator import FHIRPathEvaluator
-from dhis2w_fhir_engine.engine.fhirpath.functions.aggregates import fn_avg, fn_max, fn_min, fn_sum
-from dhis2w_fhir_engine.engine.fhirpath.visitor import _PrimitiveWithExtension
-from dhis2w_fhir_engine.engine.types import FHIRDate, Quantity
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.exceptions import FHIRPathError
+from dhis2w_fhir_engine.evaluation.fhirpath.evaluator import FHIRPathEvaluator
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.aggregates import fn_avg, fn_max, fn_min, fn_sum
+from dhis2w_fhir_engine.evaluation.fhirpath.visitor import _PrimitiveWithExtension
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, Quantity
 
 
 @pytest.fixture

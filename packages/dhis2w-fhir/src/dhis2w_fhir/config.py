@@ -22,20 +22,20 @@ from typing import Literal, Union, get_args, get_origin
 from urllib.parse import urlsplit
 
 import tomli_w
+from dhis2w_fhir_engine.facade.errors import FhirUserError
+from dhis2w_fhir_engine.facade.i18n import normalize_locale
+from dhis2w_fhir_engine.facade.ips import IdentityNominations, SectionMappings
+from dhis2w_fhir_engine.facade.names import NamingSource, is_dhis2_uid, strip_trailing_slash
+from dhis2w_fhir_engine.facade.spool import SPOOL_RELATIVE_PATH
+from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE, IgStatus, PackageContent, ProjectKind
+from dhis2w_fhir_engine.r4.resources import SUBJECT_RESOURCE_TYPES
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
-from dhis2w_fhir.errors import FhirUserError
-from dhis2w_fhir.i18n import normalize_locale
-from dhis2w_fhir.ips import IdentityNominations, SectionMappings
-from dhis2w_fhir.names import NamingSource, is_dhis2_uid, strip_trailing_slash
-from dhis2w_fhir.r4 import SUBJECT_RESOURCE_TYPES
 from dhis2w_fhir.resources.categories.schemas import CategorySelection
 from dhis2w_fhir.resources.examples.schemas import ExampleSelection
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetSelection
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitSelection, RegistryDependency
 from dhis2w_fhir.resources.questionnaires.schemas import TargetSelection
-from dhis2w_fhir.spool import SPOOL_RELATIVE_PATH
-from dhis2w_fhir.status import ORGANISATION_UNIT_PACKAGE, IgStatus, PackageContent, ProjectKind
 
 FHIR_CONFIG_FILENAME = "fhir.toml"
 

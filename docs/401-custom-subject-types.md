@@ -64,7 +64,7 @@ fifty-row checklist instead of silence.
 
 The value must be one of a deliberate subset of R4's resource types - the
 types a longitudinal DHIS2 record is plausibly kept about, declared as
-`SUBJECT_RESOURCE_TYPES` in `dhis2w_fhir.r4`:
+`SUBJECT_RESOURCE_TYPES` in `dhis2w_fhir_engine.r4.resources`:
 
 | Resource type | A tracked entity it fits |
 | --- | --- |

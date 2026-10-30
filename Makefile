@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install lint test test-slow coverage ui ui-if-available lint-frontend test-frontend e2e-frontend frontend-dev screenshot verify-examples check-examples verify-igs publisher-check-summary docs docs-serve build clean
+.PHONY: help install lint test test-slow coverage ui ui-if-available lint-frontend test-frontend e2e-frontend frontend-dev screenshot verify-examples check-engine-install check-examples verify-igs publisher-check-summary docs docs-serve build clean
 
 FRONTEND_DIR := packages/dhis2w-fhir-serve/frontend
 # Where `make frontend-dev` proxies the capture UI's FHIR calls: a running `d2w fhir serve`.
@@ -77,6 +77,13 @@ endif
 
 verify-examples:  ## Run every non-interactive example against DHIS2_PROFILE (default local_basic; needs a DHIS2)
 	uv run python -u scripts/verify_examples.py --profile $${DHIS2_PROFILE:-local_basic}
+
+check-engine-install:  ## Install the engine wheel alone in a clean environment and check what each part loads
+	@work=$$(mktemp -d); trap 'rm -rf "$$work"' EXIT; \
+	uv build -q --package dhis2w-fhir-engine --wheel --out-dir "$$work/dist" && \
+	uv venv -q --python 3.13 "$$work/venv" && \
+	uv pip install -q --python "$$work/venv/bin/python" "$$work"/dist/*.whl && \
+	"$$work/venv/bin/python" scripts/check_engine_boundaries.py
 
 check-examples:  ## Check that every `d2w ...` command an example script runs exists (no DHIS2 needed)
 	uv run python scripts/check_example_refs.py

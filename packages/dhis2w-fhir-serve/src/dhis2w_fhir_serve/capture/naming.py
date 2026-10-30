@@ -18,14 +18,14 @@ from typing import TYPE_CHECKING
 
 from dhis2w_fhir.conversion.values import LOCATION_REFERENCE_PREFIX, location_id_of
 from dhis2w_fhir.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS, FoundationNaming
-from dhis2w_fhir.names import join_id_tokens
-from dhis2w_fhir.r4 import Extension, Period
+from dhis2w_fhir_engine.facade.names import join_id_tokens
+from dhis2w_fhir_engine.r4.resources import Extension, Period
 from pydantic import BaseModel, ConfigDict
 
 if TYPE_CHECKING:
     from dhis2w_fhir.config import FhirProject
-    from dhis2w_fhir.period.schemas import PeriodValue
     from dhis2w_fhir.resources.questionnaires.schemas import FormKind
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
 
 #: The sub-extension urls D2Period slices its three facts under, as `d2-period.fsh.jinja` names them.
 PERIOD_ISO_SUB_EXTENSION = "iso"

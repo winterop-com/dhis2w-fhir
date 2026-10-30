@@ -18,7 +18,7 @@ import json
 from typing import Any
 
 import pytest
-from dhis2w_fhir.r4 import Questionnaire
+from dhis2w_fhir_engine.r4.resources import Questionnaire
 from dhis2w_fhir_serve.capture import (
     CaptureIndexCache,
     CaptureIssue,

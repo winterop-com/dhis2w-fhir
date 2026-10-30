@@ -91,9 +91,15 @@ import random
 import string
 from typing import TYPE_CHECKING, Any, Final, Literal
 
-from dhis2w_fhir.names import flatten_whitespace
-from dhis2w_fhir.period import parse_period, recent_periods
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir.resources.examples.synthetic import (
+    UNSYNTHESIZABLE_VALUE_TYPES,
+    distinct_unique_value,
+    seeded_format_constrained_value,
+)
+from dhis2w_fhir.resources.questionnaires.schemas import FormKind
+from dhis2w_fhir_engine.facade.names import flatten_whitespace
+from dhis2w_fhir_engine.facade.period import parse_period, recent_periods
+from dhis2w_fhir_engine.r4.resources import (
     Coding,
     Extension,
     Identifier,
@@ -105,12 +111,6 @@ from dhis2w_fhir.r4 import (
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir.resources.examples.synthetic import (
-    UNSYNTHESIZABLE_VALUE_TYPES,
-    distinct_unique_value,
-    seeded_format_constrained_value,
-)
-from dhis2w_fhir.resources.questionnaires.schemas import FormKind
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 
 from dhis2w_fhir_serve.capture.index import (
@@ -127,7 +127,7 @@ from dhis2w_fhir_serve.spool import ResponseLifecycle, ResponseSpool, StoredRece
 from dhis2w_fhir_serve.store import IdentifierToken, ResourceStore, StoreEntry
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.period.schemas import PeriodValue
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
 
 #: The largest seed `$generate` accepts. A seed travels as an R4 `integer`, which is 32-bit signed,
 #: so a seed a client cannot spell in the operation's own input parameter is not one this server draws.

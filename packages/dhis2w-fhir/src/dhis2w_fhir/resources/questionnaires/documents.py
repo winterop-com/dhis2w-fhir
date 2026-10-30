@@ -21,41 +21,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.attribute_values import (
-    attribute_value_extension_url,
-    attribute_value_extensions,
-    attribute_value_identifiers,
-)
-from dhis2w_fhir.foundation.schemas import (
-    DATE_LABEL_ENROLLMENT_SUB_EXTENSION,
-    DATE_LABEL_EVENT_SUB_EXTENSION,
-    DATE_LABEL_INCIDENT_SUB_EXTENSION,
-    PROGRAM_RULE_ACTION_SUB_EXTENSION,
-    PROGRAM_RULE_ASSIGNS_SUB_EXTENSION,
-    PROGRAM_RULE_CONDITION_SUB_EXTENSION,
-    PROGRAM_RULE_DESCRIPTION_SUB_EXTENSION,
-    PROGRAM_RULE_NAME_SUB_EXTENSION,
-    PROGRAM_RULE_UID_SUB_EXTENSION,
-    FoundationNaming,
-)
-from dhis2w_fhir.i18n import (
+from dhis2w_fhir_engine.facade.i18n import (
     TranslationIn,
     description_translations,
     name_translations,
     text_translations,
     translated_element,
 )
-from dhis2w_fhir.names import code_or_uid, flatten_whitespace
-from dhis2w_fhir.notes import (
+from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace
+from dhis2w_fhir_engine.facade.notes import (
     GenerateNote,
     GenerateNoteCategory,
     aggregate_generate_note,
     pluralize,
     verb_for_count,
 )
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.r4.resources import (
     CodeableConcept,
     CodeSystem,
     CodeSystemConcept,
@@ -76,6 +58,25 @@ from dhis2w_fhir.r4 import (
     ValueSet,
     ValueSetCompose,
     ValueSetInclude,
+)
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.foundation.attribute_values import (
+    attribute_value_extension_url,
+    attribute_value_extensions,
+    attribute_value_identifiers,
+)
+from dhis2w_fhir.foundation.schemas import (
+    DATE_LABEL_ENROLLMENT_SUB_EXTENSION,
+    DATE_LABEL_EVENT_SUB_EXTENSION,
+    DATE_LABEL_INCIDENT_SUB_EXTENSION,
+    PROGRAM_RULE_ACTION_SUB_EXTENSION,
+    PROGRAM_RULE_ASSIGNS_SUB_EXTENSION,
+    PROGRAM_RULE_CONDITION_SUB_EXTENSION,
+    PROGRAM_RULE_DESCRIPTION_SUB_EXTENSION,
+    PROGRAM_RULE_NAME_SUB_EXTENSION,
+    PROGRAM_RULE_UID_SUB_EXTENSION,
+    FoundationNaming,
 )
 from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir.resources.option_sets.builders import (
@@ -155,12 +156,12 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     source_display_name,
     source_title_translations,
 )
-from dhis2w_fhir.status import IgStatus, experimental_for_status
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from dhis2w_fhir.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+
     from dhis2w_fhir.config import GenerateConfig
     from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
     from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentity, OptionSetIdentityPlan, OptionSetIn

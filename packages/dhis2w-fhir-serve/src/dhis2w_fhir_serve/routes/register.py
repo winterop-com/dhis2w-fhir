@@ -146,7 +146,7 @@ from urllib.parse import urlencode
 
 from dhis2w_client.errors import Dhis2ClientError
 from dhis2w_fhir.config import SearchBackend
-from dhis2w_fhir.r4 import Bundle, BundleEntry, BundleEntrySearch, BundleLink, json_resource
+from dhis2w_fhir_engine.r4.resources import Bundle, BundleEntry, BundleEntrySearch, BundleLink, json_resource
 from pydantic import BaseModel, ConfigDict
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response

@@ -2,7 +2,7 @@
 
 The engine owns these because it is the FHIR foundation package: everything that speaks R4 in this
 workspace - the capture and document surfaces of `dhis2w_fhir`, the server in `dhis2w_fhir_serve` -
-reads them from here, and `dhis2w_fhir.r4` is the capture-facing facade over this module.
+reads them from here.
 
 Every model round-trips: `Model.model_validate(payload).model_dump_json(exclude_none=True,
 by_alias=True)` reproduces the input document key for key. The primitive-extension keys `_name`,
@@ -307,7 +307,7 @@ class RegisteredEntity(DomainResource):
     reason: each is filled from an `[ips.identity]` nomination too, a phone attribute and one
     attribute per address part. `birthDate_element` carries the `_birthDate`
     sibling the way `Patient` does, because a nominated birth date the instance holds no readable
-    value for states its absence there - see `dhis2w_fhir.ips` and
+    value for states its absence there - see `dhis2w_fhir_engine.facade.ips` and
     `dhis2w_fhir_serve.register.projection`.
     """
 

@@ -31,7 +31,6 @@ from dhis2w_fhir import (
     load_project,
     service,
 )
-from dhis2w_fhir.period import parse_period
 from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY, response_status_code
 from dhis2w_fhir.resources.examples.enablement import ExampleGate, asked_question_uids
 from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
@@ -50,6 +49,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSectionIn,
     QuestionnaireSourceIn,
 )
+from dhis2w_fhir_engine.facade.period.parser import parse_period
 from typer.testing import CliRunner
 
 _HOST = "https://dhis2.example"

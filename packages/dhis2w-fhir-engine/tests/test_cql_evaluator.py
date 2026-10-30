@@ -19,7 +19,7 @@ from decimal import Decimal
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import (
+from dhis2w_fhir_engine.evaluation.cql import (
     CQLCode,
     CQLConcept,
     CQLEvaluator,
@@ -28,7 +28,7 @@ from dhis2w_fhir_engine.engine.cql import (
     compile_library,
     evaluate,
 )
-from dhis2w_fhir_engine.engine.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
 
 # =============================================================================
 # Literal Tests
@@ -1981,25 +1981,25 @@ class TestDateTimeConstructors:
     """Test date/time constructor functions."""
 
     def test_today_returns_date(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("Today()")
         assert isinstance(result, FHIRDate)
 
     def test_now_returns_datetime(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("Now()")
         assert isinstance(result, FHIRDateTime)
 
     def test_timeofday_returns_time(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRTime
 
         result = evaluate("TimeOfDay()")
         assert isinstance(result, FHIRTime)
 
     def test_date_constructor_full(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("Date(2024, 3, 15)")
         assert isinstance(result, FHIRDate)
@@ -2008,14 +2008,14 @@ class TestDateTimeConstructors:
         assert result.day == 15
 
     def test_date_constructor_year_only(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("Date(2024)")
         assert isinstance(result, FHIRDate)
         assert result.year == 2024
 
     def test_datetime_constructor_full(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("DateTime(2024, 6, 15, 14, 30, 45)")
         assert isinstance(result, FHIRDateTime)
@@ -2027,7 +2027,7 @@ class TestDateTimeConstructors:
         assert result.second == 45
 
     def test_datetime_constructor_date_only(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("DateTime(2024, 12, 25)")
         assert isinstance(result, FHIRDateTime)
@@ -2036,7 +2036,7 @@ class TestDateTimeConstructors:
         assert result.day == 25
 
     def test_time_constructor(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRTime
 
         result = evaluate("Time(14, 30, 0)")
         assert isinstance(result, FHIRTime)
@@ -2104,7 +2104,7 @@ class TestIntervalFunctions:
         assert evaluate("end of Interval[1, 10]") == 10
 
     def test_start_of_date_interval(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("start of Interval[@2024-01-01, @2024-12-31]")
         assert isinstance(result, FHIRDate)
@@ -2113,7 +2113,7 @@ class TestIntervalFunctions:
         assert result.day == 1
 
     def test_end_of_date_interval(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("end of Interval[@2024-01-01, @2024-12-31]")
         assert isinstance(result, FHIRDate)
@@ -2175,7 +2175,7 @@ class TestDateArithmetic:
     """Test date arithmetic with durations."""
 
     def test_date_plus_years(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-01 + 1 year")
         assert isinstance(result, FHIRDate)
@@ -2184,14 +2184,14 @@ class TestDateArithmetic:
         assert result.day == 1
 
     def test_date_plus_months(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-15 + 3 months")
         assert isinstance(result, FHIRDate)
         assert result.month == 4
 
     def test_date_plus_days(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-01 + 30 days")
         assert isinstance(result, FHIRDate)
@@ -2199,42 +2199,42 @@ class TestDateArithmetic:
         assert result.day == 31
 
     def test_date_plus_weeks(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-01 + 2 weeks")
         assert isinstance(result, FHIRDate)
         assert result.day == 15
 
     def test_date_minus_years(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-01 - 5 years")
         assert isinstance(result, FHIRDate)
         assert result.year == 2019
 
     def test_date_minus_months(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-06-15 - 3 months")
         assert isinstance(result, FHIRDate)
         assert result.month == 3
 
     def test_date_minus_days(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-31 - 15 days")
         assert isinstance(result, FHIRDate)
         assert result.day == 16
 
     def test_datetime_plus_hours(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("@2024-01-01T10:00:00 + 5 hours")
         assert isinstance(result, FHIRDateTime)
         assert result.hour == 15
 
     def test_datetime_plus_minutes(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("@2024-01-01T10:30:00 + 45 minutes")
         assert isinstance(result, FHIRDateTime)
@@ -2242,7 +2242,7 @@ class TestDateArithmetic:
         assert result.minute == 15
 
     def test_datetime_minus_hours(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("@2024-01-01T10:00:00 - 3 hours")
         assert isinstance(result, FHIRDateTime)
@@ -2455,7 +2455,7 @@ class TestEdgeCases:
     """Test edge cases for date/time operations."""
 
     def test_leap_year_feb_29_plus_year(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-02-29 + 1 year")
         assert isinstance(result, FHIRDate)
@@ -2465,7 +2465,7 @@ class TestEdgeCases:
         assert result.day == 28
 
     def test_month_end_plus_month(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-31 + 1 month")
         assert isinstance(result, FHIRDate)
@@ -2473,7 +2473,7 @@ class TestEdgeCases:
         assert result.month == 2
 
     def test_year_boundary_crossing(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-12-15 + 1 month")
         assert isinstance(result, FHIRDate)
@@ -2481,7 +2481,7 @@ class TestEdgeCases:
         assert result.month == 1
 
     def test_midnight_boundary(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("@2024-01-01T23:00:00 + 2 hours")
         assert isinstance(result, FHIRDateTime)
@@ -2489,7 +2489,7 @@ class TestEdgeCases:
         assert result.hour == 1
 
     def test_negative_duration(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("@2024-01-01 - 1 year")
         assert isinstance(result, FHIRDate)
@@ -2720,7 +2720,7 @@ class TestDateConversion:
     """Test date conversion functions."""
 
     def test_todate_string(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDate
+        from dhis2w_fhir_engine.evaluation.types import FHIRDate
 
         result = evaluate("ToDate('2024-03-15')")
         assert isinstance(result, FHIRDate)
@@ -2729,7 +2729,7 @@ class TestDateConversion:
         assert result.day == 15
 
     def test_todatetime_string(self) -> None:
-        from dhis2w_fhir_engine.engine.types import FHIRDateTime
+        from dhis2w_fhir_engine.evaluation.types import FHIRDateTime
 
         result = evaluate("ToDateTime('2024-03-15T10:30:00')")
         assert isinstance(result, FHIRDateTime)

@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir_engine.engine.cql import (
+from dhis2w_fhir_engine.evaluation.cql import (
     CQLCode,
     CQLConcept,
     CQLContext,
@@ -20,8 +20,8 @@ from dhis2w_fhir_engine.engine.cql import (
     CQLTuple,
     InMemoryLibraryResolver,
 )
-from dhis2w_fhir_engine.engine.exceptions import CQLError
-from dhis2w_fhir_engine.engine.types import Quantity
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.types import Quantity
 
 
 class RetrieveCall(BaseModel):

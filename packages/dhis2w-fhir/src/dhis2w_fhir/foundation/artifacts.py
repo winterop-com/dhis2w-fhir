@@ -58,6 +58,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.names import page_text
+from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 
 from dhis2w_fhir.foundation.attribute_values import (
@@ -110,10 +113,7 @@ from dhis2w_fhir.foundation.tracked_entity_attribute_values import (
     TRACKED_ENTITY_ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
     TRACKED_ENTITY_ATTRIBUTE_VALUE_SUB_EXTENSION,
 )
-from dhis2w_fhir.names import page_text
-from dhis2w_fhir.period.schemas import PERIOD_TYPE_DEFINITIONS
 from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming, location_profile_reference
-from dhis2w_fhir.status import IgStatus, experimental_for_status
 from dhis2w_fhir.writer import FshArtifact
 
 if TYPE_CHECKING:

@@ -26,9 +26,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+from dhis2w_fhir_engine.facade.notes import GenerateNote
 from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.notes import GenerateNote
 
 
 class FshArtifact(BaseModel):

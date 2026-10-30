@@ -10,9 +10,7 @@ cannot be a Group member, and `List.entry.item` is `Reference(Resource)`.
 import json
 from typing import Any
 
-from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
-from dhis2w_fhir.names import StemResolution, StemSubject, resolve_identity_stems
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentityPlan
 from dhis2w_fhir.resources.organisation_units.organization import ORGANISATION_UNIT_STEM_SURFACE
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitSelection
@@ -30,6 +28,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSourceIn,
     plan_questionnaire_stems,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.names import StemResolution, StemSubject, resolve_identity_stems
 
 _CANONICAL = "http://example.org/fhir"
 

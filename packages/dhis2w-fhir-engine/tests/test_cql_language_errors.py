@@ -7,8 +7,8 @@ failures, external functions with no implementation, and recursive definitions.
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
 
 
 @pytest.fixture
@@ -253,7 +253,7 @@ class TestUnresolvedNames:
         assert evaluator.evaluate_definition("TooMany") == 3
 
     def test_a_qualified_call_into_a_library_that_lacks_the_function(self, evaluator: CQLEvaluator) -> None:
-        from dhis2w_fhir_engine.engine.cql import InMemoryLibraryResolver
+        from dhis2w_fhir_engine.evaluation.cql import InMemoryLibraryResolver
 
         resolver = InMemoryLibraryResolver({"Helper": "library Helper version '1.0'\ndefine Answer: 42"})
         with_include = CQLEvaluator(library_resolver=resolver)

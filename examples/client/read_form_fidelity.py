@@ -45,7 +45,7 @@ from _fixture import (
 )
 from _runner import run_example
 from dhis2w_fhir import FoundationNaming, load_project
-from dhis2w_fhir.r4 import Extension, Questionnaire, QuestionnaireItem
+from dhis2w_fhir_engine.r4.resources import Extension, Questionnaire, QuestionnaireItem
 from pydantic import BaseModel
 
 FHIR_JSON = "application/fhir+json"

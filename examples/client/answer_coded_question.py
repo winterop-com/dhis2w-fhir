@@ -36,7 +36,7 @@ import httpx2
 from _fixture import conversion_context, served_facade
 from _runner import run_example
 from dhis2w_fhir.conversion import answer_wire_value
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
     Coding,
     FhirBase,

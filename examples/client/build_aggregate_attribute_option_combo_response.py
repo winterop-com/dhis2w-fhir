@@ -39,7 +39,7 @@ from __future__ import annotations
 from _fixture import attribute_option_combo_form_id, conversion_context, form_canonical
 from _runner import run_example
 from dhis2w_fhir import translate_response
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     Coding,
     Extension,
     QuestionnaireResponse,

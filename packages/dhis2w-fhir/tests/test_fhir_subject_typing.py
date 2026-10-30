@@ -21,7 +21,6 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     build_example_artifacts,
     build_foundation_artifacts,
@@ -31,7 +30,6 @@ from dhis2w_fhir import (
     option_set_identities,
 )
 from dhis2w_fhir.foundation.schemas import TrackerSubjectTypes
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE, SUBJECT_RESOURCE_TYPES
 from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY
 from dhis2w_fhir.resources.examples.documents import build_example_documents
 from dhis2w_fhir.resources.questionnaires.builders import REGISTRATION_FILE_STEM
@@ -42,6 +40,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     form_subject_type,
     form_tracked_entity_type_uid,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE, SUBJECT_RESOURCE_TYPES
 from pydantic import ValidationError
 
 _CANONICAL = "http://example.org/fhir"

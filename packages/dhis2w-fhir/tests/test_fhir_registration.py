@@ -19,7 +19,6 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     OptionSetIn,
     build_data_dictionary_documents,
@@ -27,7 +26,6 @@ from dhis2w_fhir import (
     build_questionnaire_documents,
     option_set_identities,
 )
-from dhis2w_fhir.r4 import FhirBase
 from dhis2w_fhir.resources.questionnaires.assignments import assignment_container, assignment_container_uid
 from dhis2w_fhir.resources.questionnaires.builders import (
     REGISTRATION_FILE_STEM,
@@ -46,6 +44,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSourceIn,
     plan_questionnaire_stems,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _GOLDEN_DIRECTORY = Path(__file__).parent / "data" / "r4"
 

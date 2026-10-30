@@ -38,6 +38,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.i18n import (
+    TRANSLATION_EXTENSION_URL,
+    TranslationIn,
+    description_translations,
+    name_translations,
+    text_translations,
+)
+from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace, page_text, quote, quote_verbatim
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, aggregate_generate_note, pluralize, verb_for_count
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -58,20 +68,6 @@ from dhis2w_fhir.foundation.schemas import (
     PROGRAM_RULE_NAME_SUB_EXTENSION,
     PROGRAM_RULE_UID_SUB_EXTENSION,
     FoundationNaming,
-)
-from dhis2w_fhir.i18n import (
-    TRANSLATION_EXTENSION_URL,
-    TranslationIn,
-    description_translations,
-    name_translations,
-    text_translations,
-)
-from dhis2w_fhir.names import code_or_uid, flatten_whitespace, page_text, quote, quote_verbatim
-from dhis2w_fhir.notes import (
-    GenerateNoteCategory,
-    aggregate_generate_note,
-    pluralize,
-    verb_for_count,
 )
 from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir.resources.option_sets.builders import (
@@ -138,13 +134,13 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     source_title_translations,
     unmapped_tracked_entity_type_notes,
 )
-from dhis2w_fhir.status import IgStatus, experimental_for_status
 from dhis2w_fhir.writer import FshArtifact, FshBuild
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
+    from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+
     from dhis2w_fhir.config import GenerateConfig
     from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
 

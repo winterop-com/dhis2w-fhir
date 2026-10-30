@@ -5,11 +5,7 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import service
-from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.names import CodeStemError
-from dhis2w_fhir.notes import GenerateNote
 from dhis2w_fhir.resources.categories.builders import build_category_artifacts, category_identities
 from dhis2w_fhir.resources.categories.schemas import (
     DEFAULT_CATEGORY_NAME,
@@ -18,8 +14,12 @@ from dhis2w_fhir.resources.categories.schemas import (
     is_default_category,
 )
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.status import IgStatus
 from dhis2w_fhir.writer import JsonBuild
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.names import CodeStemError
+from dhis2w_fhir_engine.facade.notes import GenerateNote
+from dhis2w_fhir_engine.facade.status import IgStatus
 
 _CODE_STEMS = GenerateConfig(naming=NamingConfig(source="code"))
 _CODE_OR_ID_STEMS = GenerateConfig(naming=NamingConfig(source="code-or-id"))

@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from dhis2w_fhir_engine.facade.attributes import AttributeValueIn
+from dhis2w_fhir_engine.facade.coded import CodedProjectionIn
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.notes import GenerateNote
 from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.attributes import AttributeValueIn
-from dhis2w_fhir.coded import CodedProjectionIn
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.notes import GenerateNote
 
 
 class OptionSetSelection(BaseModel):

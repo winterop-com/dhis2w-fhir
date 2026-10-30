@@ -24,7 +24,6 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     CodedAnswerMode,
     ForwardCompletenessKind,
     ForwardImportIssue,
@@ -40,7 +39,6 @@ from dhis2w_fhir import (
     build_attribute_combo_artifacts,
     build_attribute_combo_concept_maps,
     build_example_documents,
-    build_forwarded_cell_index,
     build_questionnaire_documents,
     build_synthetic_responses,
     load_project,
@@ -58,8 +56,6 @@ from dhis2w_fhir.conversion import (
     receipt_event_uid,
 )
 from dhis2w_fhir.forward_records import ForwardImportRecord
-from dhis2w_fhir.names import is_dhis2_uid
-from dhis2w_fhir.r4 import Extension, Identifier, Location, QuestionnaireResponse
 from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
 from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
@@ -69,7 +65,10 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramContextIn,
     QuestionnaireSectionIn,
 )
-from dhis2w_fhir.spool import (
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.names import is_dhis2_uid
+from dhis2w_fhir_engine.facade.overwrite import build_forwarded_cell_index
+from dhis2w_fhir_engine.facade.spool import (
     DRAIN_LOCK_FILE_NAME,
     FORWARDED_RESPONSES_RELATIVE_PATH,
     IMPORT_REPORT_SUFFIX,
@@ -86,6 +85,7 @@ from dhis2w_fhir.spool import (
     read_received_responses,
     read_spooled_receipts,
 )
+from dhis2w_fhir_engine.r4.resources import Extension, Identifier, Location, QuestionnaireResponse
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 _BASE_URL = "https://dhis2.example"

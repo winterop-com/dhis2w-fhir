@@ -41,6 +41,9 @@ jobs:
       - name: Test
         run: make test
 
+      - name: Check the engine installed alone
+        run: make check-engine-install
+
       - name: Check the example commands
         run: make check-examples
 

@@ -21,8 +21,9 @@ FHIRPathEvaluator().evaluate("Patient.name.family", Patient(name=[HumanName(fami
 # ['Kamara']
 ```
 
-The package depends on `antlr4-python3-runtime`, `httpx2`, and `pydantic`; the `[cli]` extra adds `typer` and `rich`. It has no DHIS2
-dependency and no web framework: it evaluates expressions over FHIR-shaped JSON and returns values.
+The package depends on `antlr4-python3-runtime`, `dhis2w-client`, `httpx2`, and `pydantic`; the `[cli]` extra adds
+`typer` and `rich`. `dhis2w_fhir_engine.evaluation` is free of DHIS2 as code and evaluates expressions over
+FHIR-shaped JSON. `dhis2w_fhir_engine.facade` is what a FHIR-to-DHIS2 service is built from.
 
 ## Install
 

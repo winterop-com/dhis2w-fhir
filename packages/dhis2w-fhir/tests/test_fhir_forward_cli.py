@@ -14,7 +14,6 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from dhis2w_cli.main import build_app
 from dhis2w_fhir import (
-    AggregateCell,
     CodedAnswerMode,
     ConversionNote,
     ConversionNoteCategory,
@@ -30,9 +29,9 @@ from dhis2w_fhir import (
     ForwardOutcomeKind,
     ForwardReport,
     OverwritePosture,
-    OverwrittenValue,
     WithdrawalPosture,
 )
+from dhis2w_fhir_engine.facade.overwrite import AggregateCell, OverwrittenValue
 from typer.testing import CliRunner
 
 _runner = CliRunner()

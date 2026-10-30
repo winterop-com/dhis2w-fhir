@@ -30,9 +30,55 @@ from dhis2w_client.v43.aggregate import CompleteDataSetRegistration, CompleteDat
 from dhis2w_core.cli_errors import CliUserError
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile, resolve
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+from dhis2w_fhir_engine.facade.grouping import ReportedForm, group_data_values
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.names import StemResolution, StemSubject, code_or_uid, contact_value, flatten_whitespace
+from dhis2w_fhir_engine.facade.notes import (
+    GenerateNote,
+    GenerateNoteCategory,
+    aggregate_generate_note,
+    generate_note,
+    pluralize,
+)
+from dhis2w_fhir_engine.facade.overwrite import (
+    AggregateCell,
+    ForwardedCellIndex,
+    ForwardedSubmission,
+    ForwardOverwrite,
+    OverwrittenValue,
+    aggregate_cells,
+    build_forwarded_cell_index,
+)
+from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.facade.period.recent import recent_periods
+from dhis2w_fhir_engine.facade.spool import (
+    IMPORT_REPORT_SUFFIX,
+    ForwardRefusalRecord,
+    QuarantinedFile,
+    RefusalReason,
+    SpooledReceipt,
+    SpooledResponse,
+    SpoolLayout,
+    SpoolReadError,
+    SpoolState,
+    drain_lock,
+    move_to_forwarded,
+    move_to_received,
+    move_to_rejected,
+    move_to_withdrawn,
+    read_import_reports,
+    read_receipt,
+    read_received_responses,
+    read_refusal_record,
+    read_spooled_receipts,
+    record_refusal,
+    sweep_orphan_temporary_files,
+    write_import_report,
+)
+from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir.config import (
     CorrectionPosture,
     FhirProject,
@@ -80,22 +126,7 @@ from dhis2w_fhir.forward_records import (
     WithdrawalRecord,
 )
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts, build_registry_foundation_artifacts
-from dhis2w_fhir.grouping import ReportedForm, group_data_values
 from dhis2w_fhir.hostile_names import HostileNameGate
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.names import StemResolution, StemSubject, code_or_uid, contact_value, flatten_whitespace
-from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note, generate_note, pluralize
-from dhis2w_fhir.overwrite import (
-    AggregateCell,
-    ForwardedCellIndex,
-    ForwardedSubmission,
-    ForwardOverwrite,
-    OverwrittenValue,
-    aggregate_cells,
-    build_forwarded_cell_index,
-)
-from dhis2w_fhir.period import parse_period, recent_periods
-from dhis2w_fhir.r4 import QuestionnaireResponse
 from dhis2w_fhir.registry_package import (
     REGISTRY_CHECKOUT_RELATIVE_PATH,
     load_registry_documents,
@@ -238,30 +269,6 @@ from dhis2w_fhir.scaffold import (
 from dhis2w_fhir.scaffold.identity import sushi_config_identity_disagreements
 from dhis2w_fhir.scaffold.project_templates import ProjectTemplate
 from dhis2w_fhir.scaffold.schemas import InitOptions, ScaffoldReport
-from dhis2w_fhir.spool import (
-    IMPORT_REPORT_SUFFIX,
-    ForwardRefusalRecord,
-    QuarantinedFile,
-    RefusalReason,
-    SpooledReceipt,
-    SpooledResponse,
-    SpoolLayout,
-    SpoolReadError,
-    SpoolState,
-    drain_lock,
-    move_to_forwarded,
-    move_to_received,
-    move_to_rejected,
-    move_to_withdrawn,
-    read_import_reports,
-    read_receipt,
-    read_received_responses,
-    read_refusal_record,
-    read_spooled_receipts,
-    record_refusal,
-    sweep_orphan_temporary_files,
-    write_import_report,
-)
 from dhis2w_fhir.validation import build_aborting_code, build_aborting_name, build_code_validation
 from dhis2w_fhir.validation.schemas import (
     FhirValidationReport,
@@ -299,8 +306,7 @@ if TYPE_CHECKING:
         TrackedEntityType,
     )
     from dhis2w_core.progress import ProgressReporter
-
-    from dhis2w_fhir.period.schemas import PeriodValue
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
 
 _STREAM_PAGE_SIZE = 500
 _TRANSLATION_FIELDS = "translations[locale,property,value]"
@@ -2926,7 +2932,7 @@ async def _fetch_data_value_responses(
 def _example_groups(data_value_set: DataValueSet, requested_iso: str) -> list[ReportedForm]:
     """The forms one envelope reports, richest first and then by organisation unit - an example-picking order.
 
-    The grouping itself is `dhis2w_fhir.grouping.group_data_values`, which the facade's data set
+    The grouping itself is `dhis2w_fhir_engine.facade.grouping.group_data_values`, which the facade's data set
     read-back reads the same envelope through; the order is this target's own, because an example
     corpus wants the fullest form it can find and a served record wants a stable one. A form the
     envelope names no organisation unit for is left out: an example is subject to a Location, and
@@ -6800,7 +6806,7 @@ def _forwarded_cell_index(layout: SpoolLayout, conversion: ConversionReport) -> 
 
     A drain carrying no aggregate payload cannot replace an aggregate value, so it reads nothing at
     all - `forwarded/` is unbounded, and a tracker run has no reason to pay for a directory it cannot
-    collide with. A drain that does carry one pays a single pass: see `dhis2w_fhir.overwrite`.
+    collide with. A drain that does carry one pays a single pass: see `dhis2w_fhir_engine.facade.overwrite`.
     """
     if not any(result.payload_of(DataValueSet) is not None for result in conversion.translated):
         return ForwardedCellIndex()
@@ -6925,7 +6931,7 @@ async def _post_translations(
     Inside one kind the order is arrival, `received_at` then the receipt id. DHIS2 replaces an
     aggregate value in place, so the instance holds whatever was posted last, and posting the oldest
     submission of a cell last would leave it holding the oldest number. Arrival order is also what
-    `dhis2w_fhir.overwrite` reads the forwarded index by, so the drain and the index name the same
+    `dhis2w_fhir_engine.facade.overwrite` reads the forwarded index by, so the drain and the index name the same
     receipt as the sender of each cell.
 
     **The receipt is filed the instant its verdict is known**, sidecar first and then the rename, so

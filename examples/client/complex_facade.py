@@ -12,7 +12,7 @@ forward` drains, through the same published primitives:
 - `dhis2w_fhir_serve.spool.ResponseSpool` is the write side: `save` lands a receipt through a
   temporary sibling, an `fsync`, a rename, and an `fsync` of the directory - which is the whole
   reason a `201` from this facade is a promise rather than a hope.
-- `dhis2w_fhir.spool` is the drain side: `read_received_responses` reads the queue,
+- `dhis2w_fhir_engine.facade.spool` is the drain side: `read_received_responses` reads the queue,
   `move_to_forwarded` / `move_to_rejected` file each receipt beside DHIS2's own report, and
   `record_refusal` leaves the queue's history beside a receipt the translator stopped reading.
 
@@ -57,19 +57,18 @@ from dhis2w_fhir import (
     ForwardImportIssue,
     ForwardImportOutcome,
     ForwardImportRecord,
-    SpoolLayout,
-    aggregate_cells,
     translate_response,
 )
-from dhis2w_fhir import spool as spool_queue
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade import spool as spool_queue
+from dhis2w_fhir_engine.facade.overwrite import aggregate_cells
+from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason, SpoolLayout
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
     QuestionnaireResponseAnswer,
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir.spool import ForwardRefusalRecord, RefusalReason
 from dhis2w_fhir_serve import spool as spool_writer
 from dhis2w_fhir_serve.spool import ResponseLifecycle
 from fastapi import FastAPI

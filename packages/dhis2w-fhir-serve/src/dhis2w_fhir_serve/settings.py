@@ -21,7 +21,7 @@ from dhis2w_fhir.config import (
 from dhis2w_fhir.registry_package import resolve_registry_source
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitGeometry
 from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
-from dhis2w_fhir.spool import SPOOL_RELATIVE_PATH
+from dhis2w_fhir_engine.facade.spool import SPOOL_RELATIVE_PATH
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir_serve.auth import preflight_auth
@@ -53,7 +53,7 @@ class ServeSettings(BaseModel):
     scripted client has no reason to also hold a React bundle open.
 
     `spool_dir` is where the receipt tree lives, off `[serve] spool_dir` - relative to the project
-    root unless it is absolute. It is resolved through `dhis2w_fhir.spool.resolve_spool_root`, the
+    root unless it is absolute. It is resolved through `dhis2w_fhir_engine.facade.spool.resolve_spool_root`, the
     same function `d2w fhir forward` resolves it through, because the writer and the drainer landing
     on two different directories would be a receipt nothing ever forwards.
 

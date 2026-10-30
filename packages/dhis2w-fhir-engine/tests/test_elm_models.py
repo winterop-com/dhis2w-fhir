@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from dhis2w_fhir_engine.engine.elm.exceptions import ELMValidationError
-from dhis2w_fhir_engine.engine.elm.loader import ELMLoader
-from dhis2w_fhir_engine.engine.elm.models.expressions import (
+from dhis2w_fhir_engine.evaluation.elm.exceptions import ELMValidationError
+from dhis2w_fhir_engine.evaluation.elm.loader import ELMLoader
+from dhis2w_fhir_engine.evaluation.elm.models.expressions import (
     ELMAdd,
     ELMAnd,
     ELMEqual,
@@ -20,7 +20,7 @@ from dhis2w_fhir_engine.engine.elm.models.expressions import (
     ELMSubtract,
     ELMTuple,
 )
-from dhis2w_fhir_engine.engine.elm.models.library import (
+from dhis2w_fhir_engine.evaluation.elm.models.library import (
     ELMAnnotation,
     ELMCodeDef,
     ELMCodeSystem,
@@ -35,7 +35,7 @@ from dhis2w_fhir_engine.engine.elm.models.library import (
     ELMUsing,
     ELMValueSet,
 )
-from dhis2w_fhir_engine.engine.elm.models.types import (
+from dhis2w_fhir_engine.evaluation.elm.models.types import (
     ELMListTypeSpecifier,
     ELMNamedTypeSpecifier,
     ELMTupleTypeSpecifier,
@@ -118,7 +118,7 @@ class TestELMValueSet:
 
 class TestELMCodeDef:
     def test_code_definition(self) -> None:
-        from dhis2w_fhir_engine.engine.elm.models.library import ELMCodeSystemRef
+        from dhis2w_fhir_engine.evaluation.elm.models.library import ELMCodeSystemRef
 
         code = ELMCodeDef(
             name="Systolic BP",
@@ -177,7 +177,7 @@ class TestELMTypeSpecifiers:
         assert ts.elementType.name == "String"
 
     def test_tuple_type_specifier(self) -> None:
-        from dhis2w_fhir_engine.engine.elm.models.types import ELMTupleElementDefinition
+        from dhis2w_fhir_engine.evaluation.elm.models.types import ELMTupleElementDefinition
 
         ts = ELMTupleTypeSpecifier(
             element=[

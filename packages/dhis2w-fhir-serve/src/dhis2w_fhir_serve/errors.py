@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from dhis2w_fhir.status import ORGANISATION_UNIT_PACKAGE
+from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
 
 #: The media type every FHIR interaction answers with, success or failure.
 FHIR_JSON_MEDIA_TYPE = "application/fhir+json"

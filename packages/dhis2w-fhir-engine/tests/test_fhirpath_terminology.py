@@ -1,7 +1,7 @@
 """Tests for FHIRPath terminology functions (memberOf, subsumes, subsumedBy)."""
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.fhir import (
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.fhir import (
     _extract_code_system,
     _get_subsumes_outcome,
     fn_member_of,

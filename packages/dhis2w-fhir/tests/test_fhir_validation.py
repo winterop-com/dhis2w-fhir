@@ -4,9 +4,7 @@ import re
 from datetime import UTC, datetime
 
 import pytest
-from dhis2w_fhir.coded import substituted_code
 from dhis2w_fhir.config import GenerateConfig, HostileNamePosture, NamingConfig
-from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir.validation import build_code_validation, render_validation_markdown
 from dhis2w_fhir.validation.pdf import render_validation_pdf
@@ -17,6 +15,8 @@ from dhis2w_fhir.validation.schemas import (
     ValidationFinding,
     ValidationScope,
 )
+from dhis2w_fhir_engine.facade.coded import substituted_code
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
 
 _CONFIG = GenerateConfig()
 _CODE_MODE = GenerateConfig(concept_code_source="code")
@@ -475,9 +475,9 @@ def test_a_tracker_program_code_never_collides_with_a_data_set_code() -> None:
 
 def test_validate_error_parity_with_the_generate_refusal() -> None:
     """The same fixture a validate error names is the one `d2w fhir generate` refuses to emit."""
-    from dhis2w_fhir.attributes import AttributeCodeIndex
-    from dhis2w_fhir.names import CodeStemError
     from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
+    from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.names import CodeStemError
 
     uncoded = _set("Os1aaaaaaaa", "Uncoded", [])
     sweep = MetadataCollectionIn(resource="optionSets", items=[MetadataItemIn(uid="Os1aaaaaaaa", name="Uncoded")])

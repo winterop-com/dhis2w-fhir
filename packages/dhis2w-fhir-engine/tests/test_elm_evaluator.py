@@ -6,11 +6,11 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.context import CQLContext
-from dhis2w_fhir_engine.engine.cql.types import CQLInterval
-from dhis2w_fhir_engine.engine.elm.evaluator import ELMEvaluator
-from dhis2w_fhir_engine.engine.elm.exceptions import ELMExecutionError, ELMReferenceError
-from dhis2w_fhir_engine.engine.elm.visitor import ELMExpressionVisitor
+from dhis2w_fhir_engine.evaluation.cql.context import CQLContext
+from dhis2w_fhir_engine.evaluation.cql.types import CQLInterval
+from dhis2w_fhir_engine.evaluation.elm.evaluator import ELMEvaluator
+from dhis2w_fhir_engine.evaluation.elm.exceptions import ELMExecutionError, ELMReferenceError
+from dhis2w_fhir_engine.evaluation.elm.visitor import ELMExpressionVisitor
 
 
 class TestELMExpressionVisitor:

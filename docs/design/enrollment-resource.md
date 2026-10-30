@@ -439,7 +439,7 @@ this guide ever targets R6, the recommendation gets strictly stronger: `subject`
 
 Small, and entirely on the read side.
 
-1. **`EpisodeOfCare` in `dhis2w_fhir.r4`** - a hand-written model beside `Patient` and
+1. **`EpisodeOfCare` in `dhis2w_fhir_engine.r4.resources`** - a hand-written model beside `Patient` and
    `Location`, carrying `identifier`, `status`, `type`, `patient`, `period`, and
    `extension`, and nothing this project does not fill. Re-exported from
    `dhis2w_fhir/__init__.py` with an `::: ` entry in `docs/api-dhis2w-fhir.md`, per the repo's

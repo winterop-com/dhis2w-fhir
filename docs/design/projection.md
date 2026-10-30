@@ -607,7 +607,7 @@ backend is a config line rather than a refactor.
 ### 7.3 `ProjectionDataSource`
 
 Implements the engine's existing `DataSource` protocol
-(`dhis2w_fhir_engine.engine.cql.context:22`), and **lives in the serve layer, never
+(`dhis2w_fhir_engine.evaluation.cql.context:22`), and **lives in the serve layer, never
 in the engine**. `examples/engine/e2e_measure_from_dhis2.py` ends with the
 invariant that must not break:
 

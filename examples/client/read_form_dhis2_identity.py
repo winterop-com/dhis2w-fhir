@@ -36,7 +36,7 @@ from __future__ import annotations
 import httpx2
 from _fixture import aggregate_form_id, registration_form_id, served_facade
 from _runner import run_example
-from dhis2w_fhir.r4 import CodeSystem, Coding, Questionnaire, QuestionnaireItem
+from dhis2w_fhir_engine.r4.resources import CodeSystem, Coding, Questionnaire, QuestionnaireItem
 
 FHIR_JSON = "application/fhir+json"
 

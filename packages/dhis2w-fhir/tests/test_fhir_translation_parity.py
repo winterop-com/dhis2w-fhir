@@ -41,7 +41,6 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     OptionSetIn,
     QuestionnaireSourceIn,
@@ -51,9 +50,10 @@ from dhis2w_fhir import (
     build_questionnaire_documents,
     option_set_identities,
 )
-from dhis2w_fhir.r4 import FhirBase
 from dhis2w_fhir.resources.categories.schemas import CategoryIn
 from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _SOURCE_DIRECTORY = Path(__file__).parent / "data" / "translated-sources"
 _GOLDEN_DIRECTORY = Path(__file__).parent / "data" / "r4-translated"

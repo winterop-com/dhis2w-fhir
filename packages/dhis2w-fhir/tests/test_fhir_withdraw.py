@@ -26,7 +26,7 @@ from dhis2w_fhir import load_project, service
 from dhis2w_fhir.config import WithdrawalPosture
 from dhis2w_fhir.conversion import receipt_event_uid
 from dhis2w_fhir.forward_records import WithdrawalRecord
-from dhis2w_fhir.spool import (
+from dhis2w_fhir_engine.facade.spool import (
     FORWARDED_RESPONSES_RELATIVE_PATH,
     IMPORT_REPORT_SUFFIX,
     RECEIVED_RESPONSES_RELATIVE_PATH,

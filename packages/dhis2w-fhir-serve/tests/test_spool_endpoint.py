@@ -19,7 +19,7 @@ import httpx2
 import pytest
 from dhis2w_fhir.config import FhirProject
 from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
-from dhis2w_fhir.spool import ForwardRefusalRecord, RefusalReason
+from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
 from dhis2w_fhir_serve.spool import IMPORT_REPORT_SUFFIX, REFUSAL_RECORD_SUFFIX, ResponseLifecycle, ResponseSpool

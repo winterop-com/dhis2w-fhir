@@ -17,7 +17,6 @@ from __future__ import annotations
 import datetime
 
 from dhis2w_fhir.config import GenerateConfig
-from dhis2w_fhir.names import StemResolution
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     AttributeOptionRestrictions,
     CategoryOptionValidity,
@@ -36,6 +35,7 @@ from dhis2w_fhir.service import (
     _untimely_attribute_option_combos,
     _unusable_attribute_option_combos,
 )
+from dhis2w_fhir_engine.facade.names import StemResolution
 
 #: A three-level hierarchy, as DHIS2 states it: the root, one district under it, two facilities under that.
 _ROOT = "ImspTQPwCqd"

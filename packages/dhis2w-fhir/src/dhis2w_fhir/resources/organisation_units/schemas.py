@@ -5,13 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+from dhis2w_fhir_engine.facade.attributes import AttributeValueIn
+from dhis2w_fhir_engine.facade.coded import CodedProjectionIn
+from dhis2w_fhir_engine.facade.i18n import TranslationIn, name_translations
+from dhis2w_fhir_engine.facade.names import flatten_whitespace, strip_trailing_slash
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from dhis2w_fhir.attributes import AttributeValueIn
-from dhis2w_fhir.coded import CodedProjectionIn
 from dhis2w_fhir.foundation.schemas import TerminologyPairProfile, TerminologyPropertyDeclaration
-from dhis2w_fhir.i18n import TranslationIn, name_translations
-from dhis2w_fhir.names import flatten_whitespace, strip_trailing_slash
 
 #: The prose the org-unit-level CodeSystem/ValueSet pair publishes under - the levels the selection reaches.
 ORGANISATION_UNIT_LEVEL_TERMINOLOGY = TerminologyPairProfile(

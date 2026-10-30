@@ -21,7 +21,6 @@ import datetime
 
 import pytest
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     AttributeComboPlan,
     GenerateConfig,
     OptionSetIn,
@@ -51,8 +50,19 @@ from dhis2w_fhir.conversion import (
     translate_responses,
     wall_clock_reading,
 )
-from dhis2w_fhir.period import parse_period
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
+from dhis2w_fhir.resources.option_sets.schemas import OptionIn
+from dhis2w_fhir.resources.questionnaires.builders import source_items
+from dhis2w_fhir.resources.questionnaires.schemas import (
+    CategoryComboIn,
+    CategoryOptionComboIn,
+    ProgramContextIn,
+    QuestionnaireSectionIn,
+)
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.r4.resources import (
     Attachment,
     CodeSystem,
     CodeSystemConcept,
@@ -71,16 +81,6 @@ from dhis2w_fhir.r4 import (
     QuestionnaireResponseItem,
     Reference,
     ValueSet,
-)
-from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
-from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.resources.questionnaires.builders import source_items
-from dhis2w_fhir.resources.questionnaires.schemas import (
-    CategoryComboIn,
-    CategoryOptionComboIn,
-    ProgramContextIn,
-    QuestionnaireSectionIn,
 )
 
 _CANONICAL = "http://example.org/fhir"

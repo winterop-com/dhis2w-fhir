@@ -8,10 +8,11 @@ the [`d2w fhir` series](index.md) is the task-oriented
 companion, and the [glossary](glossary.md) is the vocabulary
 either side of the boundary.
 
-## Two packages
+## Three packages
 
 | Package | Holds | Needs |
 | --- | --- | --- |
+| `dhis2w-fhir-engine` | Evaluation, the R4 models, and the facade library a service is built from | dhis2w-client, antlr4, httpx2, pydantic |
 | `dhis2w-fhir` | The plugin: scaffold, generate, validate, forward, doctor, and the conversion layer | httpx2, pydantic, jinja2 |
 | `dhis2w-fhir-serve` | The facade behind `d2w fhir serve` | FastAPI, uvicorn |
 
@@ -19,8 +20,8 @@ The split is the dependency: a generator writes a file tree and needs no web
 server, so `pip install dhis2w-cli` stays light and
 `pip install 'dhis2w-cli[serve]'` adds the facade. `d2w fhir serve` lives in
 `dhis2w-fhir`'s `cli.py` and imports the server behind a guard that raises a
-`LookupError` naming both install routes. The arrow points serve -> fhir, never
-back.
+`LookupError` naming both install routes. The arrows point serve -> fhir ->
+engine, never back.
 
 The plugin mounts through the `dhis2w.plugins.v1` entry point - the same pluginkit
 mechanism third-party packs use - and is version-neutral: the wire client auto-detects
@@ -564,7 +565,7 @@ Five modules:
   `Patient.name`, `gender`, and `birthDate` from `[ips.identity]` and from
   nothing else - **no demographics are invented**, because DHIS2 attribute
   semantics are per-instance and a guess would be indistinguishable from a
-  fact. The reading lives in `dhis2w_fhir.ips`, the nominations reach the
+  fact. The reading lives in `dhis2w_fhir_engine.facade.ips`, the nominations reach the
   server on `TrackedEntityIndex`, and a project that nominates nothing serves
   the same bytes it served before the table existed.
 
@@ -580,7 +581,7 @@ configuration, not live, no published type, or not in this surface.
 register projects them, and the doses as the record projects them. Nothing about
 it opens a third way into DHIS2.
 
-- **The assembly is a library and not a route.** `dhis2w_fhir.summary` takes a
+- **The assembly is a library and not a route.** `dhis2w_fhir_engine.facade.summary` takes a
   projected subject and a sequence of doses and returns the IPS document Bundle -
   a `Composition` coded `60591-5`, the three sections the IPS requires
   (`11450-4`, `48765-2`, `10160-0`) each carrying an `emptyReason`, and an
@@ -589,7 +590,7 @@ it opens a third way into DHIS2.
   `d2w fhir` is as free to call it as the server is. Every id is derived from a
   DHIS2 identifier through `uuid5`, so two assemblies of an unchanged record
   differ in `Bundle.timestamp` and `Composition.date` and nowhere else.
-- **The mapping is `dhis2w_fhir.ips`**, beside the identity nominations and for
+- **The mapping is `dhis2w_fhir_engine.facade.ips`**, beside the identity nominations and for
   the same reason: DHIS2 marks no data element as an immunisation, so
   `[ips.sections.immunizations]` naming the stages and the dose data elements is
   the instance's own statement or there is nothing to carry.

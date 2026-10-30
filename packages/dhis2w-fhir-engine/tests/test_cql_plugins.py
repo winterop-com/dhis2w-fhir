@@ -5,8 +5,8 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.cql.plugins import (
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.cql.plugins import (
     CQLPluginRegistry,
     create_math_plugins,
     create_string_plugins,

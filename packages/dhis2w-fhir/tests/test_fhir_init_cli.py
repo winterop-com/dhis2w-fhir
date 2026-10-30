@@ -497,7 +497,7 @@ def test_init_refuses_a_name_outside_the_fhir_shape(workdir: Path, given: str) -
 
 def test_init_derives_a_name_the_fhir_shape_accepts(workdir: Path) -> None:
     """The name `--id` yields on its own is one FHIR accepts, whatever the id is spelled like."""
-    from dhis2w_fhir.names import FHIR_NAME_MAX_LENGTH, is_fhir_name
+    from dhis2w_fhir_engine.facade.names import FHIR_NAME_MAX_LENGTH, is_fhir_name
 
     long_id = "dhis2.fhir." + "segment." * 60
 

@@ -37,9 +37,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
 
-from dhis2w_fhir.i18n import FORM_NAME_PROPERTY, NAME_PROPERTY, normalize_locale
 from dhis2w_fhir.service import resolve_validation_scope, validate_instance_codes
 from dhis2w_fhir.validation.schemas import SCOPE_SURFACE_FIELDS
+from dhis2w_fhir_engine.facade.i18n import FORM_NAME_PROPERTY, NAME_PROPERTY, normalize_locale
 from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:

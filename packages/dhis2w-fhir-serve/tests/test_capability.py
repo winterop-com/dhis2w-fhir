@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dhis2w_fhir.config import FhirProject, ServeAuth, ServeAuthScope
-from dhis2w_fhir.r4 import CapabilityStatement, CapabilityStatementSecurity
+from dhis2w_fhir_engine.r4.resources import CapabilityStatement, CapabilityStatementSecurity
 from dhis2w_fhir_serve.capability import (
     EVALUATE_OPERATION_DEFINITION,
     SECURITY_SERVICE_SYSTEM,

@@ -48,7 +48,7 @@ from dhis2w_fhir.conversion import (
     QuestionSpec,
     answer_wire_value,
 )
-from dhis2w_fhir.r4 import Attachment, QuestionnaireResponseAnswer, Reference
+from dhis2w_fhir_engine.r4.resources import Attachment, QuestionnaireResponseAnswer, Reference
 
 #: The DHIS2 value type that always binds an option set, and the one whose question repeats.
 MULTI_SELECT_VALUE_TYPE = "MULTI_TEXT"

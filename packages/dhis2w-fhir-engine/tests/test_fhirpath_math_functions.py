@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.datetime import (
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.datetime import (
     fn_day,
     fn_hour,
     fn_millisecond,
@@ -19,7 +19,7 @@ from dhis2w_fhir_engine.engine.fhirpath.functions.datetime import (
     fn_today,
     fn_year,
 )
-from dhis2w_fhir_engine.engine.fhirpath.functions.math import (
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.math import (
     fn_abs,
     fn_ceiling,
     fn_exp,
@@ -34,8 +34,8 @@ from dhis2w_fhir_engine.engine.fhirpath.functions.math import (
     fn_sqrt,
     fn_truncate,
 )
-from dhis2w_fhir_engine.engine.fhirpath.visitor import _PrimitiveWithExtension
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.fhirpath.visitor import _PrimitiveWithExtension
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 
 
 @pytest.fixture

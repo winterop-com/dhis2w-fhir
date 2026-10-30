@@ -5,10 +5,10 @@ from __future__ import annotations
 from enum import StrEnum
 
 from dhis2w_client.generated.v43.oas import ImportSummary, TrackerImportReport
+from dhis2w_fhir_engine.facade.overwrite import AggregateCell
 from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir.conversion.schemas import ConversionTargetKind
-from dhis2w_fhir.overwrite import AggregateCell
 
 
 class ForwardCompletenessKind(StrEnum):

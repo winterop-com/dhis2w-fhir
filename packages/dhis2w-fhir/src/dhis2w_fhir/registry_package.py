@@ -25,9 +25,8 @@ import tarfile
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Literal
 
+from dhis2w_fhir_engine.facade.errors import FhirUserError
 from pydantic import BaseModel, ConfigDict
-
-from dhis2w_fhir.errors import FhirUserError
 
 if TYPE_CHECKING:
     from dhis2w_fhir.config import FhirProject

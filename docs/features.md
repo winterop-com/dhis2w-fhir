@@ -789,7 +789,7 @@ Published as two FHIR-native artifacts:
   identifiers and the set's DHIS2 attribute values on both halves, shipped as
   pre-built R4 JSON under `ig/input/resources/terminology/`, one
   `CodeSystem-<id>.json` and one `ValueSet-<id>.json` per set. They are
-  serialised from the `dhis2w_fhir.r4` models and loaded by SUSHI as predefined
+  serialised from the `dhis2w_fhir_engine.r4.resources` models and loaded by SUSHI as predefined
   resources into `sushi-local#LOCAL` rather than compiled from FSH, each
   carrying the FSH-style `name` a questionnaire's `Canonical(...)` binding
   fishes them by.
@@ -1186,7 +1186,7 @@ registration form become `Questionnaire` instances.
   `GET /facade/uiconfig`, which draws points only, or no map at all, to match.
 - **Shipped as pre-built R4 JSON** under `ig/input/resources/registry/`, one
   `Organization-<stem>.json` and one `Location-<stem>.json` per unit,
-  serialised from the `dhis2w_fhir.r4` models and loaded by SUSHI as predefined
+  serialised from the `dhis2w_fhir_engine.r4.resources` models and loaded by SUSHI as predefined
   resources into `sushi-local#LOCAL` rather than compiled from FSH.
 - **`D2Organization` / `D2Location` profiles**, the latter slicing the level
   extension `named level 1..1`, so every published Location states the
@@ -4145,9 +4145,7 @@ It owns the R4 resource models at `dhis2w_fhir_engine.r4.resources`: `Patient`,
 `Bundle`, `QuestionnaireResponse`, `Composition`, `Extension`, and the rest.
 Every model is closed, frozen, and alias-aware, so
 `model_dump_json(exclude_none=True, by_alias=True)` reproduces the wire document
-key for key. `dhis2w_fhir.r4` is the capture-facing facade re-exporting that
-family, so a name is defined once and imported from whichever package a caller
-already works in.
+key for key. A name is defined once, and every package imports it from here.
 
 Every entry point that ingests a resource - the evaluation contexts, the
 FHIRPath, CQL, and ELM evaluators, the data sources, the measure evaluator -

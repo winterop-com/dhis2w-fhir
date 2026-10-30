@@ -35,8 +35,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from dhis2w_fhir.period import parse_period
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir.resources.questionnaires.schemas import FormKind
+from dhis2w_fhir_engine.facade.period import parse_period
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     Meta,
     QuestionnaireResponse,
@@ -44,7 +45,6 @@ from dhis2w_fhir.r4 import (
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir.resources.questionnaires.schemas import FormKind
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from dhis2w_fhir_serve.capture.index import CaptureIndex, CaptureIndexCache, UnreadableQuestionnaireError
@@ -61,8 +61,8 @@ from dhis2w_fhir_serve.history.answers import (
 from dhis2w_fhir_serve.store import IdentifierToken, ResourceStore, SearchQuery
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.grouping import ReportedForm
-    from dhis2w_fhir.period.schemas import PeriodValue
+    from dhis2w_fhir_engine.facade.grouping import ReportedForm
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
 
 #: The resource type a served form is held as.
 QUESTIONNAIRE_RESOURCE_TYPE = "Questionnaire"

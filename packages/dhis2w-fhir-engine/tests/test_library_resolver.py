@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from dhis2w_fhir_engine.engine.cql import (
+from dhis2w_fhir_engine.evaluation.cql import (
     CompositeLibraryResolver,
     CQLEvaluator,
     FileLibraryResolver,

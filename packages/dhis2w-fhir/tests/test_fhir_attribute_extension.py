@@ -20,7 +20,6 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, load_project, service
-from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts
 from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
@@ -32,8 +31,9 @@ from dhis2w_fhir.resources.organisation_units.schemas import (
 )
 from dhis2w_fhir.resources.questionnaires.builders import build_questionnaire_artifacts
 from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireItemIn, QuestionnaireSourceIn
-from dhis2w_fhir.status import IgStatus
 from dhis2w_fhir.writer import JsonBuild
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+from dhis2w_fhir_engine.facade.status import IgStatus
 
 _HOST = "https://dhis2.example"
 _CANONICAL = "http://example.org/fhir"

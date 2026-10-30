@@ -1,7 +1,7 @@
 """Tests for collection and existence function edge cases."""
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.collections import (
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.collections import (
     _deep_equals,
     _ensure_list,
     fn_combine,
@@ -14,7 +14,7 @@ from dhis2w_fhir_engine.engine.fhirpath.functions.collections import (
     fn_superset_of,
     fn_union,
 )
-from dhis2w_fhir_engine.engine.fhirpath.functions.existence import (
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.existence import (
     fn_all,
     fn_all_false,
     fn_all_true,

@@ -52,7 +52,7 @@ from dhis2w_client import Dhis2ApiError, Profile
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import ConversionContext, translate_response
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
     QuestionnaireResponseAnswer,

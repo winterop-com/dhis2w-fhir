@@ -63,8 +63,8 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir.notes import pluralize, verb_for_count
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade.notes import pluralize, verb_for_count
+from dhis2w_fhir_engine.r4.resources import (
     Bundle,
     BundleEntry,
     BundleEntrySearch,

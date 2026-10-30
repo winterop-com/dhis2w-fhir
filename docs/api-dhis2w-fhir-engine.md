@@ -1,14 +1,14 @@
 # FHIR evaluation engine (`dhis2w_fhir_engine`)
 
-`dhis2w_fhir_engine` is the package behind the `d2w-fhir-engine` console script: FHIRPath, CQL, and
-ELM evaluation over FHIR data, with clinical quality measure evaluation on top, and the R4 resource
-models everything else in this repository reads FHIR through. It carries no DHIS2 dependency and no
-web framework: it evaluates expressions over FHIR-shaped JSON and returns values.
+`dhis2w_fhir_engine` is the package a FHIR-to-DHIS2 service installs. It holds FHIRPath, CQL, and ELM
+evaluation with clinical quality measures on top, the R4 resource models, and the facade library under
+`dhis2w_fhir_engine.facade`.
 
-It is the FHIR foundation of the workspace rather than a leaf of it. `dhis2w-fhir` and
-`dhis2w-fhir-serve` both depend on it, and `dhis2w_fhir.r4` is a facade re-exporting the models
-defined here - so `Patient` imported from either path is one class, and a document a generator built
-is a document an evaluator reads without a conversion step in between.
+`dhis2w_fhir_engine.evaluation` stays free of DHIS2 as code: it evaluates expressions over FHIR-shaped
+JSON and returns values, and a test holds it to that. `dhis2w-fhir` and `dhis2w-fhir-serve` both depend
+on this package, so `Patient` is one class everywhere and a document a generator built is a document an
+evaluator reads without a conversion step in between. The `d2w-fhir-engine` console script needs the
+`[cli]` extra.
 
 The grammar, parser, AST, and evaluator layers know nothing about any particular FHIR release.
 FHIRPath is normative and CQL is 1.5, and neither names a version. Everything that does bind to a
@@ -97,11 +97,11 @@ libraries. Evaluators receive one and never import a version subpackage.
 What an evaluation carries with it - the resource in scope, the reference resolver, the terminology
 provider - and the value types FHIRPath and CQL answer with.
 
-::: dhis2w_fhir_engine.engine.context
+::: dhis2w_fhir_engine.evaluation.context
 
-::: dhis2w_fhir_engine.engine.types
+::: dhis2w_fhir_engine.evaluation.types
 
-::: dhis2w_fhir_engine.engine.exceptions
+::: dhis2w_fhir_engine.evaluation.exceptions
 
 ### FHIRPath
 
@@ -109,16 +109,16 @@ The smaller language: paths, filters, and functions over one resource or one col
 expression answers with a collection, which is why `unwrap_primitives` exists - it strips the
 extension-carrying wrapper off FHIR primitives and leaves plain Python values.
 
-::: dhis2w_fhir_engine.engine.fhirpath
+::: dhis2w_fhir_engine.evaluation.fhirpath
 
-::: dhis2w_fhir_engine.engine.fhirpath.evaluator
+::: dhis2w_fhir_engine.evaluation.fhirpath.evaluator
 
 ### The function registry
 
 Every FHIRPath and CQL function the engine implements, registered on one shared registry that a
 caller can extend.
 
-::: dhis2w_fhir_engine.engine.functions
+::: dhis2w_fhir_engine.evaluation.functions
 
 ### CQL
 
@@ -126,23 +126,23 @@ The bigger language: a named, versioned library of definitions evaluated against
 evaluator compiles source into a `CQLLibrary` and answers definitions by name; the context holds the
 subject in scope, the query aliases, the parameters, and the definition cache.
 
-::: dhis2w_fhir_engine.engine.cql
+::: dhis2w_fhir_engine.evaluation.cql
 
-::: dhis2w_fhir_engine.engine.cql.evaluator
+::: dhis2w_fhir_engine.evaluation.cql.evaluator
 
-::: dhis2w_fhir_engine.engine.cql.library
+::: dhis2w_fhir_engine.evaluation.cql.library
 
-::: dhis2w_fhir_engine.engine.cql.context
+::: dhis2w_fhir_engine.evaluation.cql.context
 
-::: dhis2w_fhir_engine.engine.cql.types
+::: dhis2w_fhir_engine.evaluation.cql.types
 
 ### Library resolution and plugins
 
 Where an `include` finds the library it names, and how a caller adds functions of their own.
 
-::: dhis2w_fhir_engine.engine.cql.library_resolver
+::: dhis2w_fhir_engine.evaluation.cql.library_resolver
 
-::: dhis2w_fhir_engine.engine.cql.plugins
+::: dhis2w_fhir_engine.evaluation.cql.plugins
 
 ### ELM
 
@@ -150,21 +150,21 @@ CQL after compilation, as the standardised JSON tree. The serializer writes it, 
 and the evaluator runs it - so a library authored here publishes for other implementations and a
 library compiled elsewhere runs here.
 
-::: dhis2w_fhir_engine.engine.elm
+::: dhis2w_fhir_engine.evaluation.elm
 
-::: dhis2w_fhir_engine.engine.elm.serializer
+::: dhis2w_fhir_engine.evaluation.elm.serializer
 
-::: dhis2w_fhir_engine.engine.elm.loader
+::: dhis2w_fhir_engine.evaluation.elm.loader
 
-::: dhis2w_fhir_engine.engine.elm.evaluator
+::: dhis2w_fhir_engine.evaluation.elm.evaluator
 
-::: dhis2w_fhir_engine.engine.elm.models
+::: dhis2w_fhir_engine.evaluation.elm.models
 
 ### Units
 
 UCUM quantity arithmetic and conversion, used wherever a CQL expression compares two measurements.
 
-::: dhis2w_fhir_engine.engine.units
+::: dhis2w_fhir_engine.evaluation.units
 
 ### FHIR R4: the binding
 
@@ -184,7 +184,7 @@ from - `Extension`, `Reference`, `Coding`, `CodeableConcept`, `Identifier`, `Met
 
 Every model is closed (`extra="forbid"`) and frozen, and every optional field defaults to `None`, so
 `model_dump_json(exclude_none=True, by_alias=True)` reproduces the wire document key for key. The
-open `JsonResource` is the single exception, for a document carried through verbatim. `dhis2w_fhir.r4`
+open `JsonResource` is the single exception, for a document carried through verbatim. `dhis2w_fhir_engine.r4.resources`
 re-exports this whole family for capture code; the terminology models in
 `dhis2w_fhir_engine.r4.terminology` are a separate, open family for the terminology-service
 operations, so `Coding`, `CodeableConcept`, and `ValueSet` exist in both places - import each from its
@@ -244,7 +244,76 @@ path.
 
 ::: dhis2w_fhir_engine.r4.builtins
 
-### Command line
+## The facade
+
+What a FHIR-to-DHIS2 service is built from, under `dhis2w_fhir_engine.facade`. Importing it loads no web
+framework and no command line.
+
+### Refusals a user can fix
+
+::: dhis2w_fhir_engine.facade.errors
+
+### Periods
+
+::: dhis2w_fhir_engine.facade.period
+
+### The patient summary
+
+The `[ips]` tables and the document they reach. `dhis2w_fhir_engine.facade.ips` holds the two
+nominations an instance makes about a person - which tracked entity attribute carries
+their name, birth date, and sex, and which recorded values are doses - because DHIS2
+states neither and a guess would be indistinguishable from a fact.
+`dhis2w_fhir_engine.facade.summary` assembles those into the IPS document Bundle, as a pure function
+of what a caller already read, and states in the document itself what it is and is not.
+The section mapping is published beside the vocabularies it maps, as `D2Section_CM`, so a
+consumer audits the assignment without ever holding the project's `fhir.toml` -
+[Terminology and ConceptMaps](401-terminology-and-conceptmaps.md#the-sections-a-recorded-value-feeds)
+covers the shape, and `build_section_concept_map` and
+`build_section_concept_map_artifacts` are the builders behind it.
+
+::: dhis2w_fhir_engine.facade.ips
+
+::: dhis2w_fhir_engine.facade.summary
+
+### DHIS2 attribute values
+
+The projection every generated resource carries its DHIS2 attribute values on, plus
+the `uid -> code` index a generate run resolves once against `/api/attributes` and
+every emitter joins against. DHIS2 sends an attribute value as an attribute UID and a
+string, so the code is a lookup rather than part of the value.
+
+::: dhis2w_fhir_engine.facade.attributes
+
+### Generate notes
+
+What a generate target has to say about a run, as a model rather than a sentence. A
+`GenerateNote` carries the kind of decision it records (`GenerateNoteCategory`) beside
+the human text, and `echoes_validate` says whether the kind only restates a finding
+[`d2w fhir validate`](201-validate.md) reports on the instance - which is
+what lets a bare run count those apart from what generation itself found.
+
+::: dhis2w_fhir_engine.facade.notes
+
+### The capture spool
+
+Where `d2w fhir serve` writes a receipt and where `d2w fhir forward` moves it next. The
+layout is duplicated rather than imported - `dhis2w-fhir` is a dependency of
+`dhis2w-fhir-serve`, so the arrow only points one way and the forwarder reads the files
+directly under the same conventions.
+
+::: dhis2w_fhir_engine.facade.spool
+
+::: dhis2w_fhir.forward_records
+
+### Values a previous submission already sent
+
+The identity of an aggregate data value, and the index a drain reads out of `forwarded/` to
+say that a value it is about to send is one an earlier submission already sent. DHIS2 counts
+that write exactly as it counts a first entry, so the spool is where the answer lives.
+
+::: dhis2w_fhir_engine.facade.overwrite
+
+## Command line
 
 The `d2w-fhir-engine` console script: one Typer app mounting `fhirpath`, `cql`, and `elm` over the
 same engine.

@@ -18,23 +18,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.schemas import (
-    PERIOD_ISO_SUB_EXTENSION,
-    PERIOD_RANGE_SUB_EXTENSION,
-    PERIOD_TYPE_SUB_EXTENSION,
-    FoundationNaming,
-)
-from dhis2w_fhir.names import StemResolution, flatten_whitespace
-from dhis2w_fhir.notes import (
+from dhis2w_fhir_engine.facade.names import StemResolution, flatten_whitespace
+from dhis2w_fhir_engine.facade.notes import (
     GenerateNote,
     GenerateNoteCategory,
     aggregate_generate_note,
     pluralize,
     verb_for_count,
 )
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     Coding,
     Extension,
     Identifier,
@@ -44,6 +36,14 @@ from dhis2w_fhir.r4 import (
     QuestionnaireResponseAnswer,
     QuestionnaireResponseItem,
     Reference,
+)
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.foundation.schemas import (
+    PERIOD_ISO_SUB_EXTENSION,
+    PERIOD_RANGE_SUB_EXTENSION,
+    PERIOD_TYPE_SUB_EXTENSION,
+    FoundationNaming,
 )
 from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir.resources.examples.builders import (
@@ -75,8 +75,9 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
 )
 
 if TYPE_CHECKING:
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
+
     from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.period.schemas import PeriodValue
     from dhis2w_fhir.resources.examples.schemas import (
         ExampleAnswer,
         ExampleAttributeOptionCombo,

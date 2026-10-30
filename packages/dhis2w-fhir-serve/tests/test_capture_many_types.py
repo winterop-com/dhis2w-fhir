@@ -27,7 +27,7 @@ import httpx2
 import pytest
 from dhis2w_fhir.config import FhirProject
 from dhis2w_fhir.conversion import ConversionNaming, build_conversion_context, translate_response
-from dhis2w_fhir.r4 import Questionnaire, QuestionnaireResponse
+from dhis2w_fhir_engine.r4.resources import Questionnaire, QuestionnaireResponse
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
 from dhis2w_fhir_serve.store import load_compiled_store

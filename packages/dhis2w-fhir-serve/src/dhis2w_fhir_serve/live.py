@@ -92,7 +92,6 @@ from dhis2w_fhir.foundation.schemas import (
     FoundationNaming,
 )
 from dhis2w_fhir.hostile_names import HostileNameGate
-from dhis2w_fhir.r4 import CodeSystemConcept
 from dhis2w_fhir.resources.attribute_combos.builders import (
     build_attribute_combo_artifacts,
     build_attribute_combo_concept_map_artifacts,
@@ -102,6 +101,7 @@ from dhis2w_fhir.resources.categories.decomposition import build_category_decomp
 from dhis2w_fhir.resources.questionnaires.assignments import build_assignment_artifacts
 from dhis2w_fhir.service import fetch_live_ig_inputs, resolve_generation_profile
 from dhis2w_fhir.writer import JsonBuild
+from dhis2w_fhir_engine.r4.resources import CodeSystemConcept
 
 from dhis2w_fhir_serve.log import LOGGER_NAME
 from dhis2w_fhir_serve.store import (
@@ -117,12 +117,12 @@ if TYPE_CHECKING:
 
     from dhis2w_client import Dhis2Client
     from dhis2w_fhir.config import FhirProject, GenerateConfig
-    from dhis2w_fhir.r4 import CodeSystem, ConceptMap, Questionnaire, ValueSet
     from dhis2w_fhir.resources.option_sets.schemas import OptionSetIn
     from dhis2w_fhir.resources.organisation_units.documents import OrganisationUnitTerminologyBuild
     from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
     from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn
-    from dhis2w_fhir.status import IgStatus
+    from dhis2w_fhir_engine.facade.status import IgStatus
+    from dhis2w_fhir_engine.r4.resources import CodeSystem, ConceptMap, Questionnaire, ValueSet
 
     from dhis2w_fhir_serve.settings import ServeSettings
 

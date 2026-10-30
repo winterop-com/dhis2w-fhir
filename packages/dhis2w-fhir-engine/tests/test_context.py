@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
 
 
 class TestEvaluationContextBasics:

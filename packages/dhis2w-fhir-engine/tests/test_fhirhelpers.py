@@ -2,7 +2,7 @@
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
 from dhis2w_fhir_engine.r4 import InMemoryDataSource
 from dhis2w_fhir_engine.r4.builtins import get_builtin_resolver
 

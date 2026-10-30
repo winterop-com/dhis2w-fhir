@@ -43,17 +43,24 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.names import StemResolution
+from dhis2w_fhir_engine.r4.resources import (
+    CodeSystemConceptProperty,
+    CodeSystemProperty,
+    ListEntry,
+    Reference,
+    ResourceList,
+)
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.names import StemResolution
-from dhis2w_fhir.r4 import CodeSystemConceptProperty, CodeSystemProperty, ListEntry, Reference, ResourceList
 from dhis2w_fhir.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
 from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
     from collections.abc import Collection
 
-    from dhis2w_fhir.period.schemas import PeriodValue
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
+
     from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn
 
 __all__ = [

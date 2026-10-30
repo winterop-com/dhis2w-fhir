@@ -16,9 +16,9 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.evaluator import CQLEvaluator
-from dhis2w_fhir_engine.engine.exceptions import CQLError
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.cql.evaluator import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 from tests.compliance.test_runner import (
     ComplianceTestCase,
     get_test_statistics,

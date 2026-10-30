@@ -37,7 +37,7 @@ from _fixture import FixtureError, conversion_context, example_project, form_can
 from _runner import run_example
 from dhis2w_core.client_context import open_client
 from dhis2w_fhir import load_project, service, translate_response
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     Identifier,
     QuestionnaireResponse,

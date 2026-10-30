@@ -6,7 +6,7 @@ import ast
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir.notes import (
+from dhis2w_fhir_engine.facade.notes import (
     VALIDATE_ECHO_CATEGORIES,
     GenerateNote,
     GenerateNoteCategory,
@@ -15,7 +15,18 @@ from dhis2w_fhir.notes import (
     generate_note,
 )
 
-_PACKAGE_ROOT = Path(__file__).resolve().parents[1] / "src" / "dhis2w_fhir"
+#: Where notes are raised: the generator, and the facade library it builds on.
+_PACKAGE_ROOTS = (
+    Path(__file__).resolve().parents[1] / "src" / "dhis2w_fhir",
+    Path(__file__).resolve().parents[2] / "dhis2w-fhir-engine" / "src" / "dhis2w_fhir_engine" / "facade",
+)
+
+
+def _relative(path: Path) -> str:
+    """A source file's path under whichever package root holds it."""
+    root = next(root for root in _PACKAGE_ROOTS if path.is_relative_to(root))
+    return str(path.relative_to(root))
+
 
 #: The two constructors a note is allowed to come from - everything else would be an untyped note.
 _NOTE_CONSTRUCTORS = frozenset({"generate_note", "aggregate_generate_note"})
@@ -96,15 +107,16 @@ _ECHO_VERDICTS: dict[GenerateNoteCategory, bool] = {
 def _modules() -> list[Path]:
     """Every source file that deals in generate notes, in a stable order.
 
-    A module qualifies by importing `dhis2w_fhir.notes`, which is what raising a generate note takes.
+    A module qualifies by importing `dhis2w_fhir_engine.facade.notes`, which is what raising a generate note takes.
     Other note-shaped things in the package - a conversion carries its own - are a different surface
     with a different model, and the taxonomy this file guards is the generate one.
     """
     return sorted(
         path
-        for path in _PACKAGE_ROOT.rglob("*.py")
+        for root in _PACKAGE_ROOTS
+        for path in root.rglob("*.py")
         if "__pycache__" not in path.parts
-        and (path.name == "notes.py" or "dhis2w_fhir.notes import" in path.read_text(encoding="utf-8"))
+        and (path.name == "notes.py" or "dhis2w_fhir_engine.facade.notes import" in path.read_text(encoding="utf-8"))
     )
 
 
@@ -120,7 +132,7 @@ def _observed_inventory() -> dict[str, dict[GenerateNoteCategory, int]]:
             argument = node.args[0]
             assert isinstance(argument, ast.Attribute), f"{path}: a note kind is a GenerateNoteCategory member"
             category = GenerateNoteCategory[argument.attr]
-            module = str(path.relative_to(_PACKAGE_ROOT))
+            module = _relative(path)
             inventory.setdefault(module, {})
             inventory[module][category] = inventory[module].get(category, 0) + 1
     return inventory
@@ -138,7 +150,7 @@ def _appended_notes() -> list[tuple[str, ast.expr]]:
             target = node.func.value
             name = target.id if isinstance(target, ast.Name) else getattr(target, "attr", "")
             if name.endswith("notes"):
-                appended.append((str(path.relative_to(_PACKAGE_ROOT)), node.args[0]))
+                appended.append((_relative(path), node.args[0]))
     return appended
 
 
@@ -165,7 +177,7 @@ def test_no_note_is_appended_as_a_bare_string() -> None:
 def test_the_message_builder_is_only_ever_reached_through_a_constructor() -> None:
     """`aggregate_note` formats text and nothing more, so only `notes.py` calls it directly."""
     callers = {
-        str(path.relative_to(_PACKAGE_ROOT))
+        _relative(path)
         for path in _modules()
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8")))
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "aggregate_note"

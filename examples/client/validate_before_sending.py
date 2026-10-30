@@ -29,7 +29,7 @@ from typing import Literal
 
 from _fixture import aggregate_form_id, capture_store, example_project
 from dhis2w_fhir import load_project
-from dhis2w_fhir.r4 import Extension, Period, QuestionnaireResponse, Reference
+from dhis2w_fhir_engine.r4.resources import Extension, Period, QuestionnaireResponse, Reference
 from dhis2w_fhir_serve.capture import (
     PERIOD_ISO_SUB_EXTENSION,
     PERIOD_RANGE_SUB_EXTENSION,

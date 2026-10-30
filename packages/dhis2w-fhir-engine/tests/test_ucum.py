@@ -4,8 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-from dhis2w_fhir_engine.engine.units import UCUMConverter, convert_quantity, parse_unit
-from dhis2w_fhir_engine.engine.units.definitions import (
+from dhis2w_fhir_engine.evaluation.units import UCUMConverter, convert_quantity, parse_unit
+from dhis2w_fhir_engine.evaluation.units.definitions import (
     DIMENSIONLESS,
     LENGTH,
     MASS,
@@ -14,7 +14,7 @@ from dhis2w_fhir_engine.engine.units.definitions import (
     VOLUME,
     get_prefixed_unit,
 )
-from dhis2w_fhir_engine.engine.units.ucum import (
+from dhis2w_fhir_engine.evaluation.units.ucum import (
     IncompatibleUnitsError,
     UnitParseError,
     is_compatible,
@@ -379,7 +379,7 @@ class TestCQLIntegration:
     """Tests for CQL ConvertQuantity function integration."""
 
     def test_cql_convert_quantity(self) -> None:
-        from dhis2w_fhir_engine.engine.cql import CQLEvaluator
+        from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
 
         evaluator = CQLEvaluator()
 
@@ -390,7 +390,7 @@ class TestCQLIntegration:
         assert result.unit == "mg"
 
     def test_cql_convert_weight(self) -> None:
-        from dhis2w_fhir_engine.engine.cql import CQLEvaluator
+        from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
 
         evaluator = CQLEvaluator()
 
@@ -400,7 +400,7 @@ class TestCQLIntegration:
         assert result.unit == "kg"
 
     def test_cql_convert_temperature(self) -> None:
-        from dhis2w_fhir_engine.engine.cql import CQLEvaluator
+        from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
 
         evaluator = CQLEvaluator()
 
@@ -410,7 +410,7 @@ class TestCQLIntegration:
         assert result.unit == "Cel"
 
     def test_cql_convert_volume(self) -> None:
-        from dhis2w_fhir_engine.engine.cql import CQLEvaluator
+        from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
 
         evaluator = CQLEvaluator()
 

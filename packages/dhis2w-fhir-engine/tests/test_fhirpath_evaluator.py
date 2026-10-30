@@ -8,9 +8,9 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.exceptions import FHIRPathError
-from dhis2w_fhir_engine.engine.fhirpath import FHIRPathEvaluator
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime
+from dhis2w_fhir_engine.evaluation.exceptions import FHIRPathError
+from dhis2w_fhir_engine.evaluation.fhirpath import FHIRPathEvaluator
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime
 
 # Load example FHIR resources
 R4_FIXTURES_DIR = Path(__file__).parent / "data" / "r4"
@@ -750,7 +750,7 @@ class TestDateTimeFunctions:
         """today() returns the current date."""
         from datetime import datetime
 
-        from dhis2w_fhir_engine.engine.context import EvaluationContext
+        from dhis2w_fhir_engine.evaluation.context import EvaluationContext
 
         fixed_time = datetime(2024, 6, 15, 10, 30, 0, tzinfo=UTC)
         ctx = EvaluationContext(now=fixed_time)
@@ -761,7 +761,7 @@ class TestDateTimeFunctions:
         """now() returns the current datetime with timezone."""
         from datetime import datetime
 
-        from dhis2w_fhir_engine.engine.context import EvaluationContext
+        from dhis2w_fhir_engine.evaluation.context import EvaluationContext
 
         fixed_time = datetime(2024, 6, 15, 10, 30, 45, 123000, tzinfo=UTC)
         ctx = EvaluationContext(now=fixed_time)
@@ -774,7 +774,7 @@ class TestDateTimeFunctions:
         """timeOfDay() returns the current time."""
         from datetime import datetime
 
-        from dhis2w_fhir_engine.engine.context import EvaluationContext
+        from dhis2w_fhir_engine.evaluation.context import EvaluationContext
 
         fixed_time = datetime(2024, 6, 15, 14, 45, 30, 500000, tzinfo=UTC)
         ctx = EvaluationContext(now=fixed_time)
@@ -910,7 +910,7 @@ class TestFHIRFunctions:
 
     def test_resolve_with_resolver(self, evaluator: Any, patient: dict[str, Any], bundle: dict[str, Any]) -> Any:
         """resolve() uses the reference_resolver callback."""
-        from dhis2w_fhir_engine.engine.context import EvaluationContext
+        from dhis2w_fhir_engine.evaluation.context import EvaluationContext
 
         # Create a resolver that looks up resources in the bundle
         def resolve_reference(ref: str) -> dict[str, Any] | None:
@@ -951,7 +951,7 @@ class TestQuantity:
     def test_quantity_addition(self, evaluator: Any) -> None:
         from decimal import Decimal
 
-        from dhis2w_fhir_engine.engine.types import Quantity
+        from dhis2w_fhir_engine.evaluation.types import Quantity
 
         result = evaluator.evaluate("10 'kg' + 5 'kg'", None)
         assert result == [Quantity(value=Decimal("15"), unit="kg")]
@@ -959,7 +959,7 @@ class TestQuantity:
     def test_quantity_subtraction(self, evaluator: Any) -> None:
         from decimal import Decimal
 
-        from dhis2w_fhir_engine.engine.types import Quantity
+        from dhis2w_fhir_engine.evaluation.types import Quantity
 
         result = evaluator.evaluate("10 'kg' - 3 'kg'", None)
         assert result == [Quantity(value=Decimal("7"), unit="kg")]
@@ -1478,7 +1478,7 @@ class TestSubsettingFunctionsExtended:
 
     def test_single_multiple_elements(self, evaluator: Any, patient: dict[str, Any]) -> None:
         # Single with multiple elements raises FHIRPathError
-        from dhis2w_fhir_engine.engine.exceptions import FHIRPathError
+        from dhis2w_fhir_engine.evaluation.exceptions import FHIRPathError
 
         with pytest.raises(FHIRPathError):
             evaluator.evaluate("Patient.name.single()", patient)

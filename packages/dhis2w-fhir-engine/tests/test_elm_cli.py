@@ -8,7 +8,7 @@ from typer.testing import CliRunner
 
 from dhis2w_fhir_engine.cli import app as root_app
 from dhis2w_fhir_engine.cli.elm import app
-from dhis2w_fhir_engine.engine.elm import ELMSerializer
+from dhis2w_fhir_engine.evaluation.elm import ELMSerializer
 
 runner = CliRunner()
 

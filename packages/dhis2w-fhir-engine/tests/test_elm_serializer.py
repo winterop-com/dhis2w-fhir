@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.evaluator import CQLEvaluator
-from dhis2w_fhir_engine.engine.elm import ELMEvaluator, ELMSerializer, serialize_to_elm, serialize_to_elm_json
-from dhis2w_fhir_engine.engine.elm.exceptions import ELMValidationError
+from dhis2w_fhir_engine.evaluation.cql.evaluator import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.elm import ELMEvaluator, ELMSerializer, serialize_to_elm, serialize_to_elm_json
+from dhis2w_fhir_engine.evaluation.elm.exceptions import ELMValidationError
 
 
 class TestELMSerializerBasics:

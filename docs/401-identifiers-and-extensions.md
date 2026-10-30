@@ -276,10 +276,10 @@ with its ISO format: `Daily (yyyyMMdd)`, `Monthly (yyyyMM)`, `FinancialApril
 bi-monthly types, the November-anchored financial types, and the rest of the
 twenty-three.
 
-The matching parser lives in `dhis2w_fhir.period`:
+The matching parser lives in `dhis2w_fhir_engine.facade.period`:
 
 ```python
-from dhis2w_fhir.period import parse_period
+from dhis2w_fhir_engine.facade.period import parse_period
 
 parse_period("2024BiW2")
 # PeriodValue(iso='2024BiW2', period_type='BiWeekly',
@@ -292,7 +292,7 @@ date is already past, newest first.
 
 ```python
 import datetime
-from dhis2w_fhir.period import recent_periods
+from dhis2w_fhir_engine.facade.period import recent_periods
 
 recent_periods("Monthly", 3, datetime.date(2026, 8, 2))
 # ['202607', '202606', '202605']

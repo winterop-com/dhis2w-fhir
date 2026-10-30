@@ -39,9 +39,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.coded import (
+from dhis2w_fhir_engine.facade.coded import (
     DHIS2_CODE_PROPERTY,
     DHIS2_ID_PROPERTY,
     DHIS2_NAME_PROPERTY,
@@ -49,14 +47,8 @@ from dhis2w_fhir.coded import (
     code_substitutions,
     original_spelling_extensions,
 )
-from dhis2w_fhir.foundation.attribute_values import (
-    attribute_value_extension_url,
-    attribute_value_extensions,
-    attribute_value_identifiers,
-)
-from dhis2w_fhir.foundation.original_spelling import original_spelling_extension_urls
-from dhis2w_fhir.i18n import name_translations, translated_element
-from dhis2w_fhir.names import (
+from dhis2w_fhir_engine.facade.i18n import name_translations, translated_element
+from dhis2w_fhir_engine.facade.names import (
     FHIR_ID_MAX_LENGTH,
     StemSubject,
     code_or_uid,
@@ -66,8 +58,9 @@ from dhis2w_fhir.names import (
     join_name_segments,
     resolve_identity_stems,
 )
-from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note, generate_note
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note, generate_note
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
     CodeSystemConcept,
     CodeSystemConceptDesignation,
@@ -84,6 +77,14 @@ from dhis2w_fhir.r4 import (
     ValueSetCompose,
     ValueSetInclude,
 )
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.foundation.attribute_values import (
+    attribute_value_extension_url,
+    attribute_value_extensions,
+    attribute_value_identifiers,
+)
+from dhis2w_fhir.foundation.original_spelling import original_spelling_extension_urls
 from dhis2w_fhir.resources.identifier_terminology import build_identifier_code_system_artifacts
 from dhis2w_fhir.resources.option_sets.schemas import (
     ConceptAssignment,
@@ -97,11 +98,11 @@ from dhis2w_fhir.resources.option_sets.schemas import (
     OptionSetIdentityPlan,
     OptionSetIn,
 )
-from dhis2w_fhir.status import IgStatus, experimental_for_status
 from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+
     from dhis2w_fhir.config import GenerateConfig
 
 

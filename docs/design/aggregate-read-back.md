@@ -156,12 +156,12 @@ UID it carries under that system - never by a name and never by a canonical this
 server composed, because what a form is called follows `[generate.naming] source`
 and what it is about does not.
 
-**The grouping is shared.** `dhis2w_fhir.grouping.group_data_values` turns one
+**The grouping is shared.** `dhis2w_fhir_engine.facade.grouping.group_data_values` turns one
 `DataValueSet` into the forms it reports, and both consumers read it: the examples
 target that publishes a corpus, and the facade that serves a document. The rule is
 subtle enough to be worth writing once - a value's own period, organisation unit,
 and attribute option combo first, **the envelope's behind it**, and the period the
-caller asked for behind that. `dhis2w_fhir.overwrite.aggregate_cells` reads the
+caller asked for behind that. `dhis2w_fhir_engine.facade.overwrite.aggregate_cells` reads the
 same envelope the same way round, for the same reason.
 
 **The wire read.** `history/data_values.py` sends the data set, the one

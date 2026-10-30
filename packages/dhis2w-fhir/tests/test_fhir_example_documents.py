@@ -40,7 +40,6 @@ from dhis2w_fhir import (
     build_synthetic_responses,
     option_set_identities,
 )
-from dhis2w_fhir.r4 import FhirBase, QuestionnaireResponse
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
 from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryComboIn,
@@ -49,6 +48,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireItemIn,
     QuestionnaireSectionIn,
 )
+from dhis2w_fhir_engine.r4.resources import FhirBase, QuestionnaireResponse
 
 _SOURCE_DIRECTORY = Path(__file__).parent / "data" / "questionnaire-sources"
 _GOLDEN_DIRECTORY = Path(__file__).parent / "data" / "r4"
