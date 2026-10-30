@@ -25,6 +25,9 @@ and
 [`embed_in_fastapi.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/embed_in_fastapi.py).
 Every console block below is their output.
 
+**Starting from an empty directory?** [Compose a facade](401-compose-a-facade.md) needs only the engine, and is the
+shorter road when you do not want `d2w fhir serve`'s project on disk.
+
 ## The third posture
 
 [Build your own facade](401-build-your-own-facade.md) sets out two: run

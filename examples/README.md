@@ -6,6 +6,9 @@
 
 The narrative these scripts sit under is the [`d2w fhir` guide series](https://winterop-com.github.io/dhis2w-fhir/); [`docs/features.md`](https://winterop-com.github.io/dhis2w-fhir/features/) is the catalog of what the packages do.
 
+**Building your own service?** [`facade/`](facade/README.md) is one numbered path from `uv add dhis2w-fhir-engine` to a
+composed service, with no project and no compile.
+
 ## Prerequisites
 
 ```bash

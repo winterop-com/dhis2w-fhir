@@ -43,6 +43,8 @@ from types import TracebackType
 from typing import Annotated, Any, Literal, Self
 
 import httpx2
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
+
 from dhis2w_fhir_engine.r4.resources import (
     DEFAULT_SUBJECT_RESOURCE_TYPE,
     Bundle,
@@ -54,7 +56,6 @@ from dhis2w_fhir_engine.r4.resources import (
     QuestionnaireResponse,
     json_resource,
 )
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
 
 __all__ = [
     "BASIC_SCHEME",

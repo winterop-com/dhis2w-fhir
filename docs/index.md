@@ -18,6 +18,9 @@ one page, with the command that does each and the link that owns it - read it
 first if you are new here. Everything else in this series is depth behind one of
 those steps, or one of the capabilities that sit beyond them.
 
+**Building your own service?** [Compose a facade](401-compose-a-facade.md) starts from `uv add dhis2w-fhir-engine`,
+with no project, no compile, and no docker.
+
 [Features](features.md) is the catalog of every capability of the three packages
 on one page.
 

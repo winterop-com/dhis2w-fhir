@@ -33,7 +33,7 @@ import sys
 
 from _fixture import aggregate_form_id, served_facade
 from _runner import run_example
-from dhis2w_fhir import (
+from dhis2w_fhir_engine.facade.client import (
     EvaluationLanguage,
     EvaluationOutcome,
     FacadeClient,

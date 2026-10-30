@@ -131,50 +131,6 @@ moved in, and what each side says about it.
 
 ::: dhis2w_fhir.drift
 
-### A client for a running facade
-
-`FacadeClient` is the typed path to a `d2w fhir serve` facade: construct it against a base
-url, hand `submit_response` a filled form, and read the receipt id off what comes back. The
-facade publishes no OpenAPI document - `/metadata` is its contract - so this client is
-hand-written against the routes it mounts rather than generated from a schema.
-
-Three shapes are worth knowing before the first call. A `create` answers an
-`OperationOutcome` and not the resource, so the id of an accepted submission is the last
-segment of the `Location` header - `CaptureReceipt` carries both, plus the warnings the
-answer stated. A 201 means the facade stored the submission durably, not that anything
-reached DHIS2; `d2w fhir forward` is what drains the queue. And an expression that will not
-parse is a 200 carrying its line and column, so `evaluate` answers an `EvaluationOutcome`
-rather than raising - `FacadeError` is reserved for a request the facade cannot serve at all.
-
-```python
-from dhis2w_fhir import FacadeClient
-
-async with FacadeClient("http://127.0.0.1:8123") as facade:
-    draft = await facade.generate("BfMAe6Itzgt", seed=20260)
-    receipt = await facade.submit_response(draft)
-    print(receipt.response_id, receipt.note)
-    stored = await facade.read_response(receipt.response_id)
-```
-
-Five runnable examples cover the surface, one method group each.
-[`send_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/send_with_the_client.py)
-is the write half above, end to end.
-[`search_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/search_with_the_client.py)
-is the read half - `canonical_resource_types` read off `/metadata`, a typed
-`ResourceQuery` against the published forms and against the live register, and
-`resolve` turning a canonical url into whichever type holds it.
-[`evaluate_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/evaluate_with_the_client.py)
-runs FHIRPath over both evaluation contexts and shows the diagnostic an
-unparseable expression is answered with.
-[`authenticate_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/authenticate_with_the_client.py)
-presents a `BearerToken` to a facade started with `--auth token`, beside the 401
-a caller with no credential and a caller with the wrong one get. And
-[`handle_refusals_with_the_client.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/handle_refusals_with_the_client.py)
-reads `FacadeError` itself: `status_code`, one typed issue per thing wrong, and
-`diagnostics` for the log line that has to say why in one.
-
-::: dhis2w_fhir.facade
-
 ### Package surface
 
 The names below re-export from `dhis2w_fhir` itself; the

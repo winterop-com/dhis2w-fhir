@@ -52,7 +52,7 @@ EXAMPLES_ROOT = REPOSITORY_ROOT / "examples"
 # The pack is driven from the command line and from Python, plus the evaluation engine, which is
 # its own package and its own kind of caller: expressions over FHIR-shaped data, with no DHIS2 in
 # the picture. `examples/igs/` holds committed guides, verified by `make verify-igs`, not here.
-SURFACES = ("cli", "client", "engine")
+SURFACES = ("cli", "client", "engine", "facade")
 
 # Examples a batch pass cannot run. Paths are relative to `examples/`. Every entry states why it
 # cannot be executed, and closing one of these gaps is a fix, not a nicety.

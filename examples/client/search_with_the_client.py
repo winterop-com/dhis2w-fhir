@@ -29,7 +29,7 @@ import sys
 
 from _fixture import aggregate_form_id, form_canonical, person_form_id, served_facade
 from _runner import run_example
-from dhis2w_fhir import FacadeClient, ResourceQuery
+from dhis2w_fhir_engine.facade.client import FacadeClient, ResourceQuery
 from dhis2w_fhir_engine.r4.resources import Bundle, JsonResource
 
 #: How many entries each search asks for. Every published form and every registered person has the

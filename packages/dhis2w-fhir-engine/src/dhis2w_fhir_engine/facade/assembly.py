@@ -7,6 +7,7 @@ port, or a web framework, and every method is the function the commands call.
 
 from __future__ import annotations
 
+import datetime
 import tarfile
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -47,11 +48,15 @@ from dhis2w_fhir_engine.facade.live_inputs import fetch_live_artifacts
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope, mint_receipt
 from dhis2w_fhir_engine.facade.settings import ServeSettings
-from dhis2w_fhir_engine.facade.store import ResourceStore, load_compiled_store
-from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
+from dhis2w_fhir_engine.facade.store import ResourceStore, SearchQuery, load_compiled_store
+from dhis2w_fhir_engine.facade.synthesize import generate_response
+from dhis2w_fhir_engine.r4.resources import Questionnaire, QuestionnaireResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
+
+#: The resource type a form is published as.
+QUESTIONNAIRE_RESOURCE_TYPE = "Questionnaire"
 
 #: The directory a published package holds its resources in, and its manifest, which is no resource.
 _PACKAGE_ROOT = "package"
@@ -106,6 +111,20 @@ class Facade(BaseModel):
     spool: ResponseSpool
     client: Dhis2Client | None = None
     strict_codes: bool = DEFAULT_STRICT_CODES
+
+    def forms(self) -> tuple[Questionnaire, ...]:
+        """Every form this facade publishes."""
+        entries = self.store.search(QUESTIONNAIRE_RESOURCE_TYPE, SearchQuery())
+        return tuple(Questionnaire.model_validate(entry.body) for entry in entries)
+
+    def synthesize(self, form: Questionnaire, *, seed: int = 1) -> QuestionnaireResponse:
+        """Draw one synthetic response to a form, which is what `$generate` answers and postable as it stands."""
+        if form.url is None:
+            raise ValueError("a form with no canonical URL cannot be answered")
+        index = self.indexes.resolve(form.url, self.naming, self.store)
+        return generate_response(
+            form, index, self.naming, self.store, seed=seed, today=datetime.date.today(), spool=self.spool
+        )
 
     def validate_capture(self, body: bytes) -> ValidatedCapture:
         """Check one submitted QuestionnaireResponse against the guide, raising `CaptureRejection` to refuse it."""
