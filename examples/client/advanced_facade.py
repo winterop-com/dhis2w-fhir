@@ -98,9 +98,6 @@ DRAIN_INTERVAL_SECONDS = 0.5
 POLL_INTERVAL_SECONDS = 0.25
 POLL_ATTEMPTS = 240
 
-#: From here up the instance is failing rather than answering, so the receipt waits for the next pass.
-SERVER_ERROR_STATUS = 500
-
 logger = logging.getLogger("facade")
 
 
