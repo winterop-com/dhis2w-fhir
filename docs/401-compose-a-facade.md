@@ -55,6 +55,11 @@ $ uv run uvicorn main:app
 That is a FHIR facade: `/metadata`, read and search over the forms and the register, `$generate`, and
 `POST /QuestionnaireResponse`. With no compiled guide, `open_facade` builds the guide off the instance as it starts.
 
+!!! warning "This example answers for anyone who can reach it"
+    It guards nothing, and it reads DHIS2 as `admin`, so any caller can read every person in the instance with no
+    credential. That is only fine on your own machine against a demo instance. Read
+    [Who can read what](#who-can-read-what) before anyone else can reach it.
+
 ## Which package holds what
 
 ```mermaid
@@ -119,13 +124,38 @@ prefix to mount the operational JSON API under, which stays out unless you name 
   route added after it is a route they already claimed.
 - **Every refusal is an `OperationOutcome`,** including one your own dependency raises.
 - **`authentication` guards everything but `/metadata`,** because a client has to be able to read the posture it is
-  expected to meet.
+  expected to meet. It does not change what a caller can read: see [Who can read what](#who-can-read-what).
 - **`authentication_statement` is what `/metadata` says about your check.** It has a plain default, and it is not one
   of the postures `d2w fhir serve` ships, because your check is not one of them.
 - **Call `record_caller(request, username)` from your check** for `/whoami` to name the caller. A check that does not
   gets a 404 at that address saying so, rather than a 401 telling an accepted caller they failed it.
 - **Under a router prefix, pass `service_base` to `attach_facade`,** since the request cannot say where the facade
   is. An ASGI mount carries its path into every link on its own.
+
+## Who can read what
+
+**DHIS2 sees one account, whoever is calling.** `/Patient`, `$summary`, and every other read of a person goes through
+the one connection you pass to `open_facade`, so DHIS2 applies that account's rights and not the caller's. Captures are
+posted as that account too.
+
+- **`mount_facade(app)` guards nothing.** Anyone who can reach the port reads every person that account can see, with no
+  credential.
+- **`authentication=` decides who gets in, and nothing about what they read.** Everyone your check lets through reads as
+  that one account, including people DHIS2 would hide from them personally.
+- **Nothing refuses a public port for you.** `d2w fhir serve` will not bind beyond loopback until a posture is stated. A
+  server you start yourself has no such check.
+
+So, before anyone else can reach this service:
+
+1. **Give it a dedicated DHIS2 account** that may see only what every caller may see, using its organisation units and
+   sharing. Never `admin`, which the examples use only because they run against a local demo instance.
+2. **Put your own check in front of it** with `authentication=`, or keep it on loopback behind something that has one.
+3. **If it only receives captures, mount only that:** `mount_facade(app, reads=False, operations=False)` serves
+   `/metadata` and capture, and answers 404 for `/Patient` and `$summary`.
+
+Where each caller must see only what DHIS2 would show them personally, use `d2w fhir serve`: its
+[`dhis2` posture](201-secure.md#under-dhis2-the-register-is-read-as-you) reads the register as the caller. `mount_facade`
+does not offer that.
 
 ## A guide off disk instead
 
