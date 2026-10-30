@@ -48,7 +48,7 @@ from dhis2w_fhir_engine.facade.live_inputs import fetch_live_artifacts
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope, mint_receipt
 from dhis2w_fhir_engine.facade.settings import ServeSettings
-from dhis2w_fhir_engine.facade.store import ResourceStore, SearchQuery, load_compiled_store
+from dhis2w_fhir_engine.facade.store import ResourceStore, SearchQuery, attach_builtin_conformance, load_compiled_store
 from dhis2w_fhir_engine.facade.synthesize import generate_response
 from dhis2w_fhir_engine.r4.resources import Questionnaire, QuestionnaireResponse
 
@@ -197,7 +197,7 @@ async def open_facade(
         value_types = await fetch_value_types(client, bound, progress=StepAnnouncer())
     yield Facade(
         project=project,
-        store=store,
+        store=attach_builtin_conformance(store),
         artifacts=artifacts,
         conversion=build_project_context(
             project, artifacts, value_types_by_data_element=value_types, coded_answer_mode=mode
