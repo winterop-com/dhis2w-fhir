@@ -16,7 +16,7 @@ constructed anywhere in this module. `--live` swaps the store for one built from
 and keeps the client that built it open for the life of the process, because the register routes
 answer from the instance per request rather than from anything loaded here. That client is the only
 thing in a running facade that is neither the store nor the spool, and it lives on `app.state`
-rather than on the context for the reason `dhis2w_fhir_serve.routes.context` states. It is closed
+rather than on the context for the reason `dhis2w_fhir_engine.facade.api.routes.context` states. It is closed
 when the lifespan unwinds; the default mode never opens one, which is what makes the register routes
 live-only.
 """
@@ -27,14 +27,15 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
+from dhis2w_fhir_engine.facade.api.request_log import RequestLogMiddleware
+from dhis2w_fhir_engine.facade.api.runtime import attach_serve_runtime, server_version
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.log import LOGGER_NAME
 from fastapi import FastAPI
 
-from dhis2w_fhir_serve.error_handlers import register_error_handlers
-from dhis2w_fhir_serve.request_log import RequestLogMiddleware
 from dhis2w_fhir_serve.routes import register_routes
-from dhis2w_fhir_serve.runtime import attach_serve_runtime, open_serve_runtime, server_version
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_serve.runtime import open_serve_runtime
 
 #: The title the app carries, matching the command that runs it.
 APPLICATION_TITLE = "d2w fhir serve"
@@ -68,7 +69,7 @@ def create_app(settings: ServeSettings) -> FastAPI:
 
     `settings.auth` and `settings.auth_scope` decide which routers carry the authentication check,
     which is settled at build time for the same reason. What the check then DOES is a request-time
-    question and lives in `dhis2w_fhir_serve.auth`; an application embedding the facade mounts its own
+    question and lives in `dhis2w_fhir_engine.facade.api.auth`; an application embedding the facade mounts its own
     dependency over the same set. Nothing secret reaches this factory: the tokens a `token` posture
     compares against are read from the environment by the check itself, never from the settings.
     """

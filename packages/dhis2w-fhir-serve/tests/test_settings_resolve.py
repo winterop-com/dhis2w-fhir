@@ -19,6 +19,7 @@ from typing import Any
 import pytest
 from dhis2w_client.profile import NoProfileError, Profile
 from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.api.auth import SERVE_TOKENS_VARIABLE
 from dhis2w_fhir_engine.facade.config import (
     BasemapSource,
     FhirProject,
@@ -30,8 +31,7 @@ from dhis2w_fhir_engine.facade.config import (
 )
 from dhis2w_fhir_engine.facade.store import CompiledIgMissingError
 from dhis2w_fhir_serve import settings as settings_module
-from dhis2w_fhir_serve.auth import SERVE_TOKENS_VARIABLE
-from dhis2w_fhir_serve.settings import ServeInvocation, ServeSettings
+from dhis2w_fhir_serve.settings import ServeInvocation, resolve_serve_settings
 from pydantic import BaseModel, ConfigDict
 
 PROJECT_HEAD = """
@@ -256,14 +256,14 @@ def _resolved_dial(invocation: ServeInvocation, dial: str) -> Any:
 )
 def test_the_precedence_table(tmp_path: Path, case: PrecedenceCase) -> None:
     """A stated dial wins over `[serve]`, `[serve]` wins over the default, and stating nothing takes both."""
-    invocation = ServeSettings.resolve(_project(tmp_path, case.table), **case.stated)
+    invocation = resolve_serve_settings(_project(tmp_path, case.table), **case.stated)
 
     assert _resolved_dial(invocation, case.dial) == case.expected
 
 
 def test_the_keys_with_no_dial_come_off_the_table(tmp_path: Path) -> None:
     """`capture` and `spool_dir` say what this server offers and where its receipts live: no flag overrides them."""
-    invocation = ServeSettings.resolve(_project(tmp_path, "[serve]\ncapture = false\nspool_dir = 'receipts'\n"))
+    invocation = resolve_serve_settings(_project(tmp_path, "[serve]\ncapture = false\nspool_dir = 'receipts'\n"))
 
     assert invocation.settings.capture is False
     assert invocation.settings.spool_dir == "receipts"
@@ -273,7 +273,7 @@ def test_the_tracked_entities_table_is_carried_across(tmp_path: Path) -> None:
     """The register a run serves is the project's statement, not the invocation's."""
     table = "[serve.tracked_entities]\nenabled = true\nlisting = false\ntracked_entity_types = ['nEenWmSyUEp']\n"
 
-    invocation = ServeSettings.resolve(_project(tmp_path, table))
+    invocation = resolve_serve_settings(_project(tmp_path, table))
 
     assert invocation.settings.tracked_entities.enabled is True
     assert invocation.settings.tracked_entities.listing is False
@@ -284,8 +284,8 @@ def test_the_search_backend_is_carried_across_and_defaults_to_the_instance(tmp_p
     """What answers a register search is the project's statement too, and its default is today's behaviour."""
     stating_table = tmp_path / "stated"
     stating_table.mkdir()
-    silent = ServeSettings.resolve(_project(tmp_path))
-    stated = ServeSettings.resolve(_project(stating_table, '[serve.search]\nbackend = "dhis2"\n'))
+    silent = resolve_serve_settings(_project(tmp_path))
+    stated = resolve_serve_settings(_project(stating_table, '[serve.search]\nbackend = "dhis2"\n'))
 
     assert silent.settings.search.backend is SearchBackend.DHIS2
     assert stated.settings.search.backend is SearchBackend.DHIS2
@@ -293,7 +293,7 @@ def test_the_search_backend_is_carried_across_and_defaults_to_the_instance(tmp_p
 
 def test_a_live_run_is_a_property_of_the_invocation(tmp_path: Path, resolved_profile: GenerationProfile) -> None:
     """No `[serve]` key answers `live`, and a live run needs no compiled guide on disk."""
-    invocation = ServeSettings.resolve(_project(tmp_path, compiled=False), live=True)
+    invocation = resolve_serve_settings(_project(tmp_path, compiled=False), live=True)
 
     assert invocation.settings.live is True
 
@@ -301,19 +301,19 @@ def test_a_live_run_is_a_property_of_the_invocation(tmp_path: Path, resolved_pro
 def test_a_basemap_that_names_nothing_servable_is_refused(tmp_path: Path) -> None:
     """`--basemap none` beside a real layer is a contradiction, and it refuses rather than guessing."""
     with pytest.raises(ValueError, match="serves no layers at all"):
-        ServeSettings.resolve(_project(tmp_path), basemaps=["none", STATED_BASEMAP])
+        resolve_serve_settings(_project(tmp_path), basemaps=["none", STATED_BASEMAP])
 
 
 def test_a_basemap_saying_none_serves_no_layers(tmp_path: Path) -> None:
     """The air-gapped posture: the only layer the map offers is the None its control always carries."""
-    invocation = ServeSettings.resolve(_project(tmp_path), basemaps=["none"])
+    invocation = resolve_serve_settings(_project(tmp_path), basemaps=["none"])
 
     assert invocation.settings.basemaps == []
 
 
 def test_a_bare_template_is_named_after_its_host(tmp_path: Path) -> None:
     """A source this project was handed and knows nothing else about is called what its host is called."""
-    invocation = ServeSettings.resolve(_project(tmp_path), basemaps=[TABLE_BASEMAP_URL])
+    invocation = resolve_serve_settings(_project(tmp_path), basemaps=[TABLE_BASEMAP_URL])
 
     assert invocation.settings.basemaps == [BasemapSource(name="tables.example.org", url=TABLE_BASEMAP_URL)]
 
@@ -322,7 +322,7 @@ def test_the_resolved_profile_becomes_the_address_the_screens_link_out_to(
     tmp_path: Path, resolved_profile: GenerationProfile
 ) -> None:
     """The instance's address reaches the settings; the name, the origin, and the credentials stay beside them."""
-    invocation = ServeSettings.resolve(_project(tmp_path))
+    invocation = resolve_serve_settings(_project(tmp_path))
 
     assert invocation.settings.dhis2_base_url == INSTANCE_URL
     assert invocation.generation == resolved_profile
@@ -331,7 +331,7 @@ def test_the_resolved_profile_becomes_the_address_the_screens_link_out_to(
 
 def test_a_machine_naming_no_profile_serves_its_guide_offline(tmp_path: Path) -> None:
     """Absence is a posture rather than a failure: no address, so the screens link no identity anywhere."""
-    invocation = ServeSettings.resolve(_project(tmp_path))
+    invocation = resolve_serve_settings(_project(tmp_path))
 
     assert invocation.generation is None
     assert invocation.settings.dhis2_base_url is None
@@ -340,7 +340,7 @@ def test_a_machine_naming_no_profile_serves_its_guide_offline(tmp_path: Path) ->
 def test_a_live_run_needs_the_profile_it_reads_through(tmp_path: Path) -> None:
     """A live store has an instance to read, so a machine naming no profile refuses the run."""
     with pytest.raises(NoProfileError):
-        ServeSettings.resolve(_project(tmp_path, compiled=False), live=True)
+        resolve_serve_settings(_project(tmp_path, compiled=False), live=True)
 
 
 def test_a_named_profile_is_passed_to_the_lookup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -355,7 +355,7 @@ def test_a_named_profile_is_passed_to_the_lookup(tmp_path: Path, monkeypatch: py
 
     monkeypatch.setattr(settings_module, "resolve_generation_profile", _record)
 
-    invocation = ServeSettings.resolve(_project(tmp_path), profile="probe")
+    invocation = resolve_serve_settings(_project(tmp_path), profile="probe")
 
     assert asked == ["probe"]
     assert invocation.settings.profile == "probe"
@@ -364,12 +364,12 @@ def test_a_named_profile_is_passed_to_the_lookup(tmp_path: Path, monkeypatch: py
 def test_a_project_that_has_never_been_built_is_refused(tmp_path: Path) -> None:
     """A compiled run with nothing compiled says so in one line, rather than answering every read with a 404."""
     with pytest.raises(CompiledIgMissingError):
-        ServeSettings.resolve(_project(tmp_path, compiled=False))
+        resolve_serve_settings(_project(tmp_path, compiled=False))
 
 
 def test_the_resolved_settings_are_read_only(tmp_path: Path) -> None:
     """What a run resolved is settled once: the factory is handed it and never rewrites it."""
-    invocation = ServeSettings.resolve(_project(tmp_path))
+    invocation = resolve_serve_settings(_project(tmp_path))
 
     with pytest.raises(ValueError, match="frozen"):
         invocation.settings.live = True

@@ -54,6 +54,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import httpx2
 from dhis2w_client.errors import Dhis2ClientError
 from dhis2w_core.client_context import open_client
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import (
     FhirProject,
     MalformedFhirConfigError,
@@ -1056,7 +1057,8 @@ class _DoctorRun:
         started = time.perf_counter()
         project = self._require_project()
         try:
-            from dhis2w_fhir_serve import ServeSettings, create_app
+            from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+            from dhis2w_fhir_serve import create_app
         except ImportError:
             self._record(DoctorPhase.SERVE, DoctorOutcome.SKIPPED, "", started, reason=_SERVE_PACKAGE_MISSING)
             return False
@@ -1584,7 +1586,6 @@ async def _materialise_live_store(project: FhirProject, client: Dhis2Client | No
     `client` is the run's own connection, which the builders read through and which stays open for
     the phases after this one; with none, a live client is opened and closed around the build.
     """
-    from dhis2w_fhir_serve import ServeSettings  # noqa: PLC0415
     from dhis2w_fhir_serve.live import build_live_store, open_live_client  # noqa: PLC0415
 
     settings = ServeSettings(project_dir=project.project_root, live=True)

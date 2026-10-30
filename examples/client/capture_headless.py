@@ -34,8 +34,9 @@ from _fixture import aggregate_form_id, example_project
 from _runner import run_example
 from dhis2w_fhir import service
 from dhis2w_fhir_engine.facade import forward
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import load_project
-from dhis2w_fhir_serve import ServeSettings, create_app
+from dhis2w_fhir_serve import create_app
 
 FHIR_JSON = "application/fhir+json"
 CREATED = 201

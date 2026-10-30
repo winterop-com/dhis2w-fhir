@@ -23,6 +23,8 @@ import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
 from dhis2w_fhir.validation.schemas import ValidationFinding
+from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.health import (
@@ -31,9 +33,7 @@ from dhis2w_fhir_serve.health import (
     field_at_fault,
     translation_coverage,
 )
-from dhis2w_fhir_serve.routes import FACADE_MOUNT_PATH
 from dhis2w_fhir_serve.routes.metadata_health import METADATA_HEALTH_PATH
-from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 
 _HOST = "https://dhis2.example"

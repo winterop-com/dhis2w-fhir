@@ -41,6 +41,7 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.config import (
     FhirProject,
@@ -50,20 +51,19 @@ from dhis2w_fhir_engine.facade.config import (
     SearchConfig,
     TrackedEntitiesConfig,
 )
-from dhis2w_fhir_engine.facade.register.index import PublishedTrackedEntityType, TrackedEntityIndex
-from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
-from dhis2w_fhir_engine.facade.store import load_compiled_store
-from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.projection.base import (
+from dhis2w_fhir_engine.facade.projection.base import (
     IndexedName,
     ProjectedResource,
     ProjectionBatch,
     ProjectionCursor,
     ProjectionEndpoint,
 )
+from dhis2w_fhir_engine.facade.register.index import PublishedTrackedEntityType, TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.store import load_compiled_store
+from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.projection.sqlite_store import SqliteProjectionStore
 from dhis2w_fhir_serve.routes.uiconfig import tracked_entities_config
-from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 from fixture_project import (
     CAPTURE_IDENTIFIER_BASE,

@@ -42,7 +42,8 @@ because they are produced by the same routers over the same store.
 Three lines carry it:
 
 ```python
-from dhis2w_fhir_serve import ServeSettings, create_app
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+from dhis2w_fhir_serve import create_app
 
 application = create_app(ServeSettings(project_dir=project_root, live=True))
 
@@ -76,7 +77,7 @@ facade closed - no port was ever bound
 which is what a project that has never run SUSHI has to do. `live=False` serves
 the compiled guide on disk and needs no instance at all.
 
-**`ServeSettings.resolve` is the other constructor**, and it is the one
+**`resolve_serve_settings` is the other constructor**, and it is the one
 `d2w fhir serve` uses: it reads `fhir.toml`, resolves the profile, and refuses
 the run for the five postures it cannot honour before anything is built.
 Constructing `ServeSettings` directly - as above - states the settings outright
@@ -172,7 +173,8 @@ The other seam, for a service that already IS a FastAPI application. Three
 functions are the whole contract:
 
 ```python
-from dhis2w_fhir_serve import attach_serve_runtime, open_serve_runtime, register_routes
+from dhis2w_fhir_engine.facade.api.runtime import attach_serve_runtime
+from dhis2w_fhir_serve import open_serve_runtime, register_routes
 
 
 @asynccontextmanager

@@ -22,7 +22,7 @@ extension on a document every FHIR client parses, to say something no FHIR clien
 
 SO IT IS `/spool`'s SHAPE, FOR `/spool`'s REASONS, AT `/spool`'s ADDRESS. A plain typed JSON
 endpoint, `application/json`, Pydantic models rather than a Bundle, served under the facade API's own
-mount rather than at the FHIR base. `dhis2w_fhir_serve.routes.spool` argues that choice in full; this
+mount rather than at the FHIR base. `dhis2w_fhir_engine.facade.api.routes.spool` argues that choice in full; this
 module inherits it rather than restating it.
 
 THE AUTHENTICATION POSTURE IS HERE FOR THE SAME REASON `capture` is: it is a fact about how this
@@ -50,13 +50,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
+from dhis2w_fhir_engine.facade.api.routes.context import live_client, serve_context
 from dhis2w_fhir_engine.facade.config import DEFAULT_BASEMAP_TEMPLATE, BasemapSource, ServeAuth, ServeAuthScope
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitGeometry
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.requests import Request
-
-from dhis2w_fhir_serve.routes.context import live_client, serve_context
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.register.surface import RegisterSurface

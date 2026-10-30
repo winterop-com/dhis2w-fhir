@@ -51,6 +51,15 @@ from enum import StrEnum
 from pathlib import Path  # noqa: TC003 - pydantic resolves this annotation at runtime
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from dhis2w_fhir_engine.facade.projection.base import (
+    IndexedName,
+    ProjectedResource,
+    ProjectedResourceKey,
+    ProjectionBatch,
+    ProjectionCursor,
+    ProjectionEndpoint,
+    ProjectionWatermarks,
+)
 from dhis2w_fhir_engine.facade.register.projection import attribute_values, registered_entity_for
 from dhis2w_fhir_engine.facade.register.wire import (
     POLL_PAGE_SIZE,
@@ -61,22 +70,11 @@ from dhis2w_fhir_engine.facade.register.wire import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir_serve.projection.base import (
-    IndexedName,
-    ProjectedResource,
-    ProjectedResourceKey,
-    ProjectionBatch,
-    ProjectionCursor,
-    ProjectionEndpoint,
-    ProjectionWatermarks,
-)
-
 if TYPE_CHECKING:
     from dhis2w_client.generated.v43.oas import TrackerTrackedEntity
+    from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
+    from dhis2w_fhir_engine.facade.register.reader import RegisterReader
     from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
-
-    from dhis2w_fhir_serve.passthrough import RegisterReader
-    from dhis2w_fhir_serve.projection.base import ProjectionStore
 
 #: How many steps a run narrates, so a caller can size a progress display before the first read.
 SYNC_STEPS = 3

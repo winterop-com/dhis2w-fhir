@@ -25,12 +25,12 @@ from typing import Any
 
 import httpx2
 import pytest
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_engine.facade.conversion import ConversionNaming, build_conversion_context, translate_response
 from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_engine.r4.resources import Questionnaire, QuestionnaireResponse
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 from fixture_many_types import (
     MANY_TRACKED_ENTITY_TYPES,

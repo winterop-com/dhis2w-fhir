@@ -257,6 +257,13 @@ on disk. `validate_capture`, `capture`, `translate`, `post`, and `drain` are the
 
 ::: dhis2w_fhir_engine.facade.assembly
 
+### Composing into your own application
+
+`mount_facade` mounts the surfaces you ask for, and `attach_facade` hands an opened facade to them from your lifespan.
+`/metadata` states what was mounted. Declare your own routes first: the reads claim every one-segment path.
+
+::: dhis2w_fhir_engine.facade.api.compose
+
 ### The drain
 
 `post_translation` posts one translated payload and answers with DHIS2's verdict. `drain_responses` drains a spool
@@ -455,6 +462,239 @@ machine that runs the whole thing, and the OperationOutcome vocabulary every ans
 ### Request logging
 
 ::: dhis2w_fhir_engine.facade.log
+
+### The routers
+
+::: dhis2w_fhir_engine.facade.api.routes.context
+
+::: dhis2w_fhir_engine.facade.api.routes.negotiation
+
+### Authentication
+
+Who the facade serves: the four postures `[serve] auth` picks between, the scope `[serve] auth_scope`
+covers, the startup refusals a posture this run could not honour meets before the socket opens, and
+the one dependency the guarded routers carry.
+
+The `dhis2` posture's 401 challenges with `xBasic`, not `Basic` - a browser that meets `Basic` on a
+request a page made opens its own credential dialog and never hands the response back, leaving the
+capture UI's Submit pending instead of rendering the refusal. The scheme callers **send** is
+untouched, and the header reads the same for every caller rather than shifting by `Accept` or user
+agent. `BROWSER_SAFE_BASIC_SCHEME` is the constant.
+
+::: dhis2w_fhir_engine.facade.api.auth
+
+### Who the caller is (`GET /facade/whoami`)
+
+The one address whose whole answer is who this server just decided the caller is. It carries the
+authentication check in **every** scope - `write` guards one route and `all` guards all but
+`/metadata`, and this one is guarded under both - so a client can get a verdict on a credential
+without doing anything with it. Wrong credentials get the same 401, the same OperationOutcome, and
+the same `WWW-Authenticate` challenge every other refusal on this facade gets.
+
+It names a caller only where `[serve] auth` names a posture. Under `auth = "none"` the address
+answers its own 404 - "this server authenticates nobody, so it names nobody: `/facade/whoami` answers a
+caller only where `[serve] auth` states a posture" - rather than falling through to the read
+catch-all, which would call `whoami` a resource type nobody asked for.
+
+```console
+$ curl -su clerk:the-right-password http://127.0.0.1:8095/facade/whoami
+{"posture":"dhis2","username":"clerk","name":"clerk"}
+
+$ curl -su clerk:wrong -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8095/facade/whoami
+401
+```
+
+`username` is the DHIS2 username under `dhis2`, the claim `[serve.jwt] username_claim` names under
+`jwt` - the same value a receipt is stamped with - and null under `token`, which names a deployment
+rather than a person. `name` is what to call the caller in a sentence: the username where there is
+one, and a stated constant where there is not.
+
+The capture UI's sign-in panel is the first caller: it asks here with what was typed before it holds
+on to anything, so a wrong password is refused at the prompt rather than at the first submission.
+The path is fixed rather than discovered, because the UI is served same-origin by the very process
+that answers it.
+
+::: dhis2w_fhir_engine.facade.api.routes.whoami
+
+### Credential pass-through
+
+Under `[serve] auth = "dhis2"` on a live run - and under `"jwt"` with `[serve.jwt] forward_bearer` on
+- a register read carries the **caller's** own `Authorization` header to the instance, opaque and
+unparsed, so DHIS2 applies its sharing, organisation unit scopes, ownership, and access levels to the
+person who actually asked. The reads share one pooled connection held on the runtime for the life of
+the process, and that pool carries no credential of its own - `CallerCredentialReader` is the
+per-request pairing of it with one caller's header, and nothing on the path is cached. The startup
+store build, `/facade/uiconfig`, and the forward drain are not on it: none of them acts on behalf of a
+request. Under `jwt` with `forward_bearer` off there is no caller channel at all, and the register
+answers 501 rather than falling back to the facade's own profile.
+
+::: dhis2w_fhir_engine.facade.api.passthrough
+
+### Spool listing
+
+`GET /facade/spool` - the receipt envelopes with their lifecycle state, and the DHIS2 import report behind
+a rejection. Typed JSON rather than FHIR, because a receipt envelope has no FHIR analogue; the
+module docstring states the reasoning in full.
+
+::: dhis2w_fhir_engine.facade.api.routes.spool
+
+### The register
+
+`GET /{resourceType}` and `GET /{resourceType}/{id}`, answered from the DHIS2 instance rather than
+from the store, and only by a process started with `--live`. Which resource types those are is the
+published `D2TET_CM`'s to say - one per FHIR resource the map takes a registered tracked entity type
+onto - so a project tracking people alone serves `Patient` and one that also registers samples serves
+`Specimen` beside it. The index reads what the guide publishes about the instance's subjects, the
+surface narrows that by `[serve.tracked_entities]`, the wire module holds the empirical
+`/api/tracker/trackedEntities` contract the search obeys, and the projection turns one tracked entity
+into the resource its type is registered as, carrying identity and no claim the target resource
+otherwise defines - each module docstring states why. The filtering module is the register's value
+filter, `d2-attribute={attributeUid}|{value}`: which attributes each register answers it on, how the
+two backends run it, and why it answers equality and nothing else.
+
+::: dhis2w_fhir_engine.facade.api.routes.register
+
+### The projection seams
+
+::: dhis2w_fhir_engine.facade.projection.base
+
+::: dhis2w_fhir_engine.facade.projection.dhis2_names
+
+### The materialized projection
+
+::: dhis2w_fhir_engine.facade.projection.serving
+
+### Enrollment listing
+
+`GET /facade/tracked-entities/{uid}/enrollments` - which programs one tracked entity is enrolled in, as the
+picker's typed JSON feed rather than as a FHIR resource, because whether a DHIS2 enrollment is an
+`EpisodeOfCare` or a `CarePlan` is a decision this project has deliberately not taken yet.
+
+::: dhis2w_fhir_engine.facade.api.routes.enrollments
+
+### The record
+
+`GET /facade/tracked-entities/{uid}/events` - one tracked entity's own events, each served as the
+`QuestionnaireResponse` its program stage's published form describes, and `GET
+/facade/tracked-entities/{uid}/events/{eventUid}` for one of them. Where the register answers who somebody
+is, this answers what has happened to them: one entity-scoped read of the instance per request, under
+the credentials of whoever asked. The wire module holds the read and the order it puts the record in,
+and the projection turns one recorded event into the document the capture contract already states for
+it - so the shape a client reads back is the shape a client would post.
+
+::: dhis2w_fhir_engine.facade.history.wire
+
+::: dhis2w_fhir_engine.facade.history.projection
+
+::: dhis2w_fhir_engine.facade.api.routes.history
+
+### The patient summary
+
+`GET /{type}/{id}/$summary` and `GET /{type}/$summary?identifier=` - the IPS's own two
+addresses, answered on the register resources R4 gives a person and refused by name on the rest.
+A summary reads nothing new: the subject is the resource the register already serves, and the
+doses come off the very record projection above, read through the immunisation mapping
+`[ips.sections.immunizations]` states. `dhis2w_fhir_engine.facade.summary` assembles the document; these two
+modules are what finds the doses and what answers the request, with the document's caveat riding
+the response as well as `Composition.text`.
+
+::: dhis2w_fhir_engine.facade.patient_summary
+
+::: dhis2w_fhir_engine.facade.api.routes.summary
+
+### Read and search routes
+
+`GET /{type}/{id}` and `GET /{type}`, answered from the store for every definitional resource and
+from the spool for QuestionnaireResponse.
+
+::: dhis2w_fhir_engine.facade.api.routes.read
+
+### Capture route
+
+`POST /QuestionnaireResponse` - the one write the facade accepts.
+
+::: dhis2w_fhir_engine.facade.api.routes.capture
+
+### Generating a response
+
+`GET|POST /Questionnaire/{id}/$generate` and the synthesizer behind it: one served form filled in
+from the very capture index a submission is validated against, so the generated response posts back
+at the same server for a 201.
+
+::: dhis2w_fhir_engine.facade.api.routes.generate
+
+### Terminology translation
+
+`GET /ConceptMap/$translate` - the DHIS2 identifiers the published ConceptMaps state for one
+concept. The matching itself is a pure function over the maps a store holds, so a caller with a
+loaded store answers the same question with no server running.
+
+::: dhis2w_fhir_engine.facade.api.routes.translate
+
+### Evaluating an expression
+
+`POST /facade/evaluate` - one FHIRPath expression, CQL library, or ELM library run over one resource this
+facade serves, answering typed results and real diagnostics: a parse failure at the line and column
+the parser stopped on, a per-define refusal in the define's own row. The engine layer is a pure
+function over FHIR-shaped JSON, so a caller with a loaded store evaluates the same expression with no
+server running. The sandbox is closed by construction - no library path is ever passed to the engine
+and ELM is parsed to a dict before the engine sees it, so an expression reaches the supplied context
+and nothing else.
+
+::: dhis2w_fhir_engine.facade.evaluation
+
+::: dhis2w_fhir_engine.facade.api.routes.evaluate
+
+### The evaluation as a Parameters resource
+
+`POST /$evaluate` - the same evaluation, answered as the `Parameters` resource a FHIR client expects
+from an operation: one parameter per define named by the define, `value[x]` for a single primitive,
+`resource` where a define answered a resource, one `part` per value where it answered several, an
+`OperationOutcome` part where it refused, and an `outcome` parameter carrying the line and column a
+parser stopped on. Both directions are pure functions - `evaluation_ask` reads a `Parameters` input
+into the request it asks for, `evaluation_parameters` says one `EvaluationOutcome` in FHIR's own
+terms - so a caller assembling or reading an operation body needs no server running.
+
+::: dhis2w_fhir_engine.facade.api.routes.evaluate_operation
+
+### This guide's vocabularies
+
+`GET /facade/terminology/validate-code` and `GET /facade/terminology/lookup` - is this code in that published value
+set, and what is this code called. It answers about the CodeSystems and ValueSets **this project
+publishes** and is not a general terminology server: a SNOMED CT or LOINC code is answered "this
+server publishes no code system under that url". Membership goes to the engine's in-memory
+terminology service, so the composition rules are the engine's; the code systems are indexed here,
+because that service takes none through its public surface.
+
+::: dhis2w_fhir_engine.facade.api.routes.terminology
+
+### CDS Hooks
+
+`GET /cds-services` and `POST /cds-services/{id}` - the discovery document and one service, which
+evaluates a caller-supplied CQL library (or a Library this guide publishes) over the resources the
+hook prefetched and answers one card per define that resolves to true or to a message. There is no
+feedback endpoint, no suggestions, and no second service; each would mean an EHR state this facade
+does not hold.
+
+::: dhis2w_fhir_engine.facade.api.routes.cds
+
+### Conformance
+
+`GET /metadata`, and the `kind #instance` CapabilityStatement it answers with.
+
+::: dhis2w_fhir_engine.facade.api.metadata
+
+### Errors
+
+Every failed interaction, and the OperationOutcome it answers with.
+
+::: dhis2w_fhir_engine.facade.api.error_handlers
+
+### Request logging
+
+One log line per interaction, and the plain configuration the server process runs under.
+
+::: dhis2w_fhir_engine.facade.api.request_log
 
 ## Command line
 

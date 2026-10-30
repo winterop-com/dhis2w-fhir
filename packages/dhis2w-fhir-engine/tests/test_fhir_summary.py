@@ -51,7 +51,7 @@ def _dose(
     occurred_at: str | None = "2025-04-16T00:00:00Z",
     dose_number: str | None = None,
 ) -> RecordedDose:
-    """One dose the record projected, in the shape `dhis2w_fhir_serve.summary` hands over."""
+    """One dose the record projected, in the shape `dhis2w_fhir_engine.facade.patient_summary` hands over."""
     return RecordedDose(
         event_uid=event_uid,
         data_element_uid=data_element_uid,

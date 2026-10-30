@@ -31,6 +31,23 @@ import pytest
 import respx
 from dhis2w_client.profile import NoProfileError, Profile
 from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.api.auth import (
+    JWT_VERIFIER_ATTRIBUTE,
+    RequestIdentity,
+    TokenRefusedError,
+    UnauthenticatedError,
+    challenge_for,
+)
+from dhis2w_fhir_engine.facade.api.passthrough import (
+    FACADE_PROVENANCE_HEADER,
+    RegisterNotForwardableError,
+    UpstreamRefusalError,
+    open_pass_through_client,
+    register_reader,
+)
+from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
+from dhis2w_fhir_engine.facade.api.routes.whoami import WHOAMI_PATH
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import (
     JWT_BEARER_TOKEN_SECURITY_TEXT,
     JWT_ISSUER_EXTENSION_URL,
@@ -41,35 +58,17 @@ from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthSc
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_serve import settings as settings_module
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.auth import (
-    JWT_VERIFIER_ATTRIBUTE,
-    RequestIdentity,
-    ServeAuthConfigurationError,
-    UnauthenticatedError,
-    challenge_for,
-    open_jwt_verifier,
-    preflight_auth,
-)
+from dhis2w_fhir_serve.auth_setup import ServeAuthConfigurationError, open_jwt_verifier, preflight_auth
 from dhis2w_fhir_serve.oidc import (
     JWKS_MINIMUM_CACHE_SECONDS,
     JWT_ALGORITHMS,
     JwtVerifier,
     OidcIssuerUnavailableError,
-    TokenRefusedError,
     cache_seconds,
     discover_issuer,
 )
-from dhis2w_fhir_serve.passthrough import (
-    FACADE_PROVENANCE_HEADER,
-    RegisterNotForwardableError,
-    UpstreamRefusalError,
-    open_pass_through_client,
-    register_reader,
-)
-from dhis2w_fhir_serve.routes import FACADE_MOUNT_PATH
-from dhis2w_fhir_serve.routes.whoami import WHOAMI_PATH
 from dhis2w_fhir_serve.runtime import _forwards_credentials
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_serve.settings import resolve_serve_settings
 from fastapi import FastAPI
 from joserfc import jwt as jose_jwt
 from joserfc.jwk import ECKey, RSAKey
@@ -845,7 +844,7 @@ async def test_a_facade_resolved_from_the_table_runs_on_the_issuer_it_names(
         f'\n[serve]\nauth = "jwt"\n\n[serve.jwt]\nissuer = "{ISSUER}"\naudience = "{AUDIENCE}"\n',
     )
 
-    invocation = ServeSettings.resolve(project)
+    invocation = resolve_serve_settings(project)
 
     assert invocation.settings.auth is ServeAuth.JWT
     assert invocation.settings.jwt.issuer == ISSUER
@@ -874,7 +873,7 @@ def test_forward_bearer_written_down_is_what_the_runtime_opens_a_pool_for(
         f'\n[serve]\nauth = "jwt"\n\n[serve.jwt]\nissuer = "{ISSUER}"\nforward_bearer = true\n',
     )
 
-    invocation = ServeSettings.resolve(project, live=True)
+    invocation = resolve_serve_settings(project, live=True)
 
     assert invocation.settings.jwt.forward_bearer is True
     assert _forwards_credentials(invocation.settings) is True

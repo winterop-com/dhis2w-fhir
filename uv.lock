@@ -702,6 +702,7 @@ source = { editable = "packages/dhis2w-fhir-engine" }
 dependencies = [
     { name = "antlr4-python3-runtime" },
     { name = "dhis2w-client" },
+    { name = "fastapi" },
     { name = "httpx2" },
     { name = "pydantic" },
     { name = "tomli-w" },
@@ -717,6 +718,7 @@ cli = [
 requires-dist = [
     { name = "antlr4-python3-runtime", specifier = ">=4.13.2" },
     { name = "dhis2w-client", specifier = "==1.33.4" },
+    { name = "fastapi", specifier = ">=0.141.1" },
     { name = "httpx2", specifier = ">=2.12.0" },
     { name = "pydantic", specifier = ">=2.13" },
     { name = "rich", marker = "extra == 'cli'", specifier = ">=15.0.0" },

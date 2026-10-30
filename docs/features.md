@@ -1266,7 +1266,7 @@ registration form become `Questionnaire` instances.
   and stays out, and the package's own profiles and ImplementationGuide stay
   where they are, so a facade answering for one guide never holds a second
   ImplementationGuide.
-  `d2w fhir serve` preflights the registry in `ServeSettings.resolve`, so the
+  `d2w fhir serve` preflights the registry in `resolve_serve_settings`, so the
   refusal lands before the starting banner - in both store modes. **A `--live`
   run over a depending guide serves the package's units too** and walks no
   hierarchy on the instance: units of its own would publish a second identity
@@ -1808,7 +1808,7 @@ bound to loopback by default that loads the project once at startup.
   of the register are answered under the caller's own DHIS2 authorization, and
   the `write`-scope sentence names the register as needing credentials rather
   than claiming every read is open.
-- **Five startup refusals, in `ServeSettings.resolve`** beside the sibling
+- **Five startup refusals, in `resolve_serve_settings`** beside the sibling
   preflights, so `d2w fhir serve` and an embedder meet the same ones: binding an
   interface other than loopback while neither the run nor `fhir.toml` has stated
   a posture (the message names the fhir.toml line to write), the `token` posture
@@ -1844,7 +1844,7 @@ bound to loopback by default that loads the project once at startup.
   `make serve` / `make serve-live` read too, with flags
   beating the table beating the defaults and `--strict-codes` /
   `--no-strict-codes` reaching all three levels.
-  The precedence is `ServeSettings.resolve`, in `dhis2w-fhir-serve`, so an
+  The precedence is `resolve_serve_settings`, in `dhis2w-fhir-serve`, so an
   embedded facade asks for the posture `d2w fhir serve` has by name rather than
   reproducing it: it applies the flag-over-table precedence, resolves the DHIS2
   profile into the address the screens link out to, and refuses a project with
@@ -2516,7 +2516,7 @@ typed `ResourceQuery`), `resolve` by canonical, `generate`, `submit_response`
 that already runs FastAPI serves the real FHIR surface rather than a second
 implementation of it.
 
-- **The settings.** `ServeSettings.resolve(project, ...)` returns a
+- **The settings.** `resolve_serve_settings(project, ...)` returns a
   `ServeInvocation`: the frozen settings, the address the process binds, and the
   profile it resolved - the credentials stay on the invocation and never reach
   the settings the app is handed.

@@ -22,12 +22,13 @@ import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_fhir import build_option_set_artifacts
 from dhis2w_fhir.service import fetch_live_ig_inputs, resolve_generation_profile
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
 from dhis2w_fhir_engine.facade.store import IdentifierToken, ResourceStore, SearchQuery
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.live import build_live_store, open_live_client
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_serve.settings import resolve_serve_settings
 
 _HOST = "https://dhis2.example"
 
@@ -861,7 +862,7 @@ async def test_a_live_run_reaching_no_registry_refuses_before_the_banner(
     project = _depending_live_project(tmp_path / "guide", path="../registry")
 
     with pytest.raises(RegistryMissingError, match=_REGISTRY_ID):
-        ServeSettings.resolve(project, live=True)
+        resolve_serve_settings(project, live=True)
 
 
 @respx.mock

@@ -17,7 +17,7 @@ from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
 from dhis2w_fhir_engine.facade.store import load_compiled_store
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_serve.settings import resolve_serve_settings
 
 _CANONICAL = "http://example.org/fhir"
 
@@ -129,7 +129,7 @@ def test_the_preflight_refuses_before_the_server_starts(tmp_path: Path) -> None:
     project = _depending_project(tmp_path / "guide")
 
     with pytest.raises(RegistryMissingError):
-        ServeSettings.resolve(project)
+        resolve_serve_settings(project)
 
 
 def test_the_preflight_passes_once_the_registry_is_reachable(tmp_path: Path) -> None:
@@ -137,7 +137,7 @@ def test_the_preflight_passes_once_the_registry_is_reachable(tmp_path: Path) -> 
     _checkout(tmp_path / "registry")
     project = _depending_project(tmp_path / "guide", path="../registry")
 
-    invocation = ServeSettings.resolve(project)
+    invocation = resolve_serve_settings(project)
 
     assert invocation.settings.registry_package is None
 
@@ -180,7 +180,7 @@ def test_a_live_run_reads_the_registry_the_compiled_run_reads(
     _checkout(tmp_path / "registry")
     project = _depending_project(tmp_path / "guide", path="../registry")
 
-    invocation = ServeSettings.resolve(project, live=True)
+    invocation = resolve_serve_settings(project, live=True)
 
     assert invocation.settings.live is True
     assert invocation.settings.registry_package is None
@@ -199,7 +199,7 @@ def test_a_live_run_reaching_no_registry_refuses_exactly_as_a_compiled_one_does(
     project = _depending_project(tmp_path / "guide")
 
     with pytest.raises(RegistryMissingError, match=_REGISTRY_ID):
-        ServeSettings.resolve(project, live=True)
+        resolve_serve_settings(project, live=True)
 
 
 def test_the_package_reaches_the_settings_for_the_runtime_to_load_from(tmp_path: Path) -> None:
@@ -207,7 +207,7 @@ def test_the_package_reaches_the_settings_for_the_runtime_to_load_from(tmp_path:
     package = _package(tmp_path / "dist" / "package.tgz")
     project = _depending_project(tmp_path / "guide")
 
-    invocation = ServeSettings.resolve(project, registry_package=package)
+    invocation = resolve_serve_settings(project, registry_package=package)
 
     assert invocation.settings.registry_package == package
 

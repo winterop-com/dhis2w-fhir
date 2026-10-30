@@ -43,6 +43,7 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
 )
 from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboIdentity
 from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
+from dhis2w_fhir_engine.facade.resources.examples.synthetic import STATUS_BY_EVENT_STATUS
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import ConceptAssignmentPlan
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,
@@ -66,7 +67,6 @@ from dhis2w_fhir.foundation.artifacts import build_naming_system_declarations
 from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_identities, attribute_combo_sources
 from dhis2w_fhir.resources.examples.builders import (
     MULTI_VALUE_TYPE,
-    STATUS_BY_EVENT_STATUS,
     answer_element,
     example_attribute_combo_assignments,
 )

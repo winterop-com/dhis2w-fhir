@@ -20,7 +20,7 @@ from dhis2w_fhir_engine.facade.capability import QUESTIONNAIRE_RESPONSE_RESOURCE
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.refusals import ORGANISATION_UNIT_PACKAGE_SUBJECT, package_statement
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_serve.settings import resolve_serve_settings
 from dhis2w_fhir_serve.ui import frontend_source_directory
 from fastapi import FastAPI
 
@@ -76,7 +76,7 @@ def package_project(tmp_path: Path) -> FhirProject:
 @pytest.fixture
 def package_app(package_project: FhirProject) -> FastAPI:
     """The facade over the package, started the way `d2w fhir serve` starts it."""
-    return create_app(ServeSettings.resolve(package_project).settings)
+    return create_app(resolve_serve_settings(package_project).settings)
 
 
 @pytest.fixture

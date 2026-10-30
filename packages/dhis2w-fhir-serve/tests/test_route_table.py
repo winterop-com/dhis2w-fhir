@@ -23,20 +23,21 @@ import httpx2
 import pytest
 from dhis2w_fhir_engine.facade import capability as capability_module
 from dhis2w_fhir_engine.facade import response_spool as response_spool_module
-from dhis2w_fhir_engine.facade.config import FhirProject, SearchBackend, SearchConfig, ServeAuth, ServeAuthScope
-from dhis2w_fhir_engine.facade.refusals import NotFoundError
-from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.error_handlers import register_error_handlers
-from dhis2w_fhir_serve.routes import (
+from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
+from dhis2w_fhir_engine.facade.api.routes.mounting import (
     FACADE_MOUNT_PATH,
     accept_head_wherever_get_is_served,
     api_routes,
     build_facade_api,
-    serve_routers,
 )
-from dhis2w_fhir_serve.routes.negotiation import require_json_is_acceptable
-from dhis2w_fhir_serve.runtime import attach_serve_runtime, open_serve_runtime
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
+from dhis2w_fhir_engine.facade.api.runtime import attach_serve_runtime
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+from dhis2w_fhir_engine.facade.config import FhirProject, SearchBackend, SearchConfig, ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.refusals import NotFoundError
+from dhis2w_fhir_serve.app import create_app
+from dhis2w_fhir_serve.routes import serve_routers
+from dhis2w_fhir_serve.runtime import open_serve_runtime
 from fastapi import Depends, FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict

@@ -15,9 +15,9 @@ invisible, the absence from a package's `__all__` is.
     This paper reflects the design conversation that produced it, and the tree has moved
     since. The rows and findings below were re-read against the current packages on
     2026-08-26 and corrected where the code had answered them - the doctor surface, the
-    serve modules the API pages render, `ServeSettings.resolve`, the four-level facade
+    serve modules the API pages render, `resolve_serve_settings`, the four-level facade
     ladder, and the CQL reading. Section 3's proposed contract is largely built:
-    `ServeSettings.resolve`, `ServeRuntime`, `open_serve_runtime`, and `ServeRouters` all
+    `resolve_serve_settings`, `ServeRuntime`, `open_serve_runtime`, and `ServeRouters` all
     exist and are exported. What stays is the doctrine in section 1 and the reasoning
     behind each recommendation, which is what the paper is for.
 
@@ -107,7 +107,7 @@ questions.
 | **Forward** - refusal sidecars | `ForwardImportRecord` (`:4412`) is the on-disk report shape and is exported | `_record_refusals` (`:5222`), including the attempt counter at `:5242`; `_file_terminal_refusals` (`:5180`); `TERMINAL_REFUSAL_CATEGORIES` (`:4279`) is public and unexported; the sidecar text constants are private | One public call that records a refusal against a spooled response, over the `ForwardRefusalRecord` the spool already defines | `ASSEMBLY-ONLY` |
 | **Reports** - the files a run leaves behind | The validation renderers (markdown, CSV, PDF) and `render_doctor_markdown` | Everything else. `_write_forward_report` (`cli.py:1674`), `_completeness_report_lines` (`:1577`), `_overwritten_value_report_lines` (`:1632`), `_write_generate_notes` (`:468`), `_write_doctor_report` (`:2243`). **The forward report and the generate notes have no renderer anywhere outside `cli.py`** | Renderers in the library taking a report model and returning text; the command keeps the path and nothing else | `ASSEMBLY-ONLY` |
 | **Exit codes** | Nothing, and correctly so | Three rules, each derived from a public property but stated only in a command body: `report.error_count` (`cli.py:973`), `report.rejected` or `report.stopped` (`:2011`), `report.failed_phases` (`:2331`) | Optionally a predicate per report model. An embedder can reconstruct all three today, but has to read `cli.py` to learn them | `ASSEMBLY-ONLY` |
-| **Serve** - settings | `ServeSettings` is exported and frozen, and so is the resolution: `ServeSettings.resolve(project, ...)` (`settings.py:120`) holds the flag-over-`[serve]` precedence, the basemap parsing, the profile-to-`dhis2_base_url` step, and the compiled-guide preflight, and the command calls it | Nothing | Unchanged. This row is what the recommendation in section 3.3 asked for, and it is the one an embedder must reach for: an embedder that resolves its own settings gets a facade that differs from `d2w fhir serve`'s silently | `LIBRARY` |
+| **Serve** - settings | `ServeSettings` is exported and frozen, and so is the resolution: `resolve_serve_settings(project, ...)` (`settings.py:120`) holds the flag-over-`[serve]` precedence, the basemap parsing, the profile-to-`dhis2_base_url` step, and the compiled-guide preflight, and the command calls it | Nothing | Unchanged. This row is what the recommendation in section 3.3 asked for, and it is the one an embedder must reach for: an embedder that resolves its own settings gets a facade that differs from `d2w fhir serve`'s silently | `LIBRARY` |
 | **Serve** - context assembly | `ServeContext` (`app.py:58`), `build_store` (`:105`), `create_app` (`:74`), `server_version` (`:120`) | `_lifespan` (`app.py:126`) wires six steps privately: `load_project`, `open_live_client`, `build_store`, `ResponseSpool.at`, `TrackedEntityIndex.from_store` into `RegisterSurface.resolve`, and `build_served_metadata`. It also decides where the live client lives (`app.state.live_client`) | An async context manager yielding the assembled runtime, with `_lifespan` as its first caller. Section 3 | `ASSEMBLY-ONLY` |
 | **Serve** - the routers | None of the nine. `register_routes` (`routes/__init__.py:43`) is the only exported mount, and it takes a `FastAPI` | Nine router modules, all reached by module path: `metadata.py:29`, `routes/capture.py:57` and `:60`, `routes/root.py:37`, `routes/translate.py:37`, `routes/generate.py:46`, `routes/spool.py:66`, `routes/uiconfig.py:67`, `routes/enrollments.py:74`, `routes/read.py:75`. The `Accept` dependency `require_json_is_acceptable` (`routes/negotiation.py:57`) and the HEAD sweep `_accept_head_wherever_get_is_served` (`routes/__init__.py:86`) are unexported and private respectively | Routers exported by name with their mount requirements stated as data. Section 3 | `ASSEMBLY-ONLY` |
 | **Serve** - the store | `ResourceStore`, `StoreEntry`, `StoreSummary`, `SearchQuery`, `IdentifierToken`, `load_compiled_store`, `CompiledIgMissingError`, `COMPILED_RESOURCES_RELATIVE_PATH` - all re-exported | Nothing. `store.py:14` says it plainly: "This module knows nothing about DHIS2" | Unchanged, except for the graduation question in section 6 | `LIBRARY` |
@@ -202,7 +202,7 @@ cycle, applies a HEAD-parity sweep to every one, and gives the FHIR subset a mou
 
 ### 3.2 The five seams that are not seams yet
 
-**Settings resolution.** *Built.* `ServeSettings.resolve` (`settings.py:120`) is the
+**Settings resolution.** *Built.* `resolve_serve_settings` (`settings.py:120`) is the
 classmethod section 3.3 proposes, and the command calls it, so an embedder asking for
 `d2w fhir serve`'s posture asks by name. The seam this paragraph described - an embedder
 constructing `ServeSettings` by hand and reproducing the precedence rules from a command
@@ -237,7 +237,7 @@ client follows a `next` link into a 404.
 Five public names, each replacing a private step, with `create_app` rewritten as their
 first caller.
 
-**`ServeSettings.resolve(project, *, host=None, port=None, ...) -> ServeSettings`.** A
+**`resolve_serve_settings(project, *, host=None, port=None, ...) -> ServeSettings`.** A
 classmethod on the model that already exists, mirroring `RegisterSurface.resolve`. Takes
 the loaded project and the overrides one invocation states; returns the frozen settings.
 Every precedence rule in `cli.py:1270-1296` moves into it, and the command calls it. An
@@ -361,7 +361,7 @@ is one decision rather than twenty.
 `require_json_is_acceptable` on the surface; `_lifespan` and `register_routes` rewritten
 as their first callers. Section 3.
 
-**R4 - Serve settings resolve in the library.** `ServeSettings.resolve` takes the
+**R4 - Serve settings resolve in the library.** `resolve_serve_settings` takes the
 precedence rules out of the command body, so an embedded facade and `d2w fhir serve`
 cannot silently disagree about what `[serve]` meant.
 
@@ -427,7 +427,7 @@ connection; and the commands' behaviour is unchanged over the full command surfa
 
 **PR 3 - `feat(fhir-serve): serve settings resolve where the library can reach them`.**
 Touches `dhis2w-fhir-serve` (`settings.py`) and `dhis2w-fhir` (`cli.py`). Adds
-`ServeSettings.resolve`; the command's body shrinks to argument collection plus the
+`resolve_serve_settings`; the command's body shrinks to argument collection plus the
 preflight and the banner. **Tests prove**: the settings a resolved call produces equal the
 settings the command produced for the same project and the same flags, over the basemap,
 strict-codes, UI, and profile paths.

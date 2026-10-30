@@ -35,6 +35,7 @@ import respx
 from dhis2w_client.generated.v43.oas import TrackerTrackedEntity
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.config import FhirProject, TrackedEntitiesConfig
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
@@ -43,7 +44,6 @@ from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.routes.uiconfig import tracked_entities_config
-from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 from fixture_many_types import (
     ASSET_TAG_ATTRIBUTE,

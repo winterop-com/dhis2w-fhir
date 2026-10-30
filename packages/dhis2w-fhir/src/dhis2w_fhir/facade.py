@@ -26,8 +26,8 @@ what drains the queue into an instance, and until it runs the receipt is a promi
 facade is holding.
 
 THE EVALUATION SHAPES ARE MIRRORED, NOT IMPORTED. `POST /facade/evaluate` is the facade's own endpoint
-and its request and response models are defined in `dhis2w_fhir_serve.evaluation` and
-`dhis2w_fhir_serve.routes.evaluate`, which this package cannot import: `dhis2w-fhir-serve` depends on
+and its request and response models are defined in `dhis2w_fhir_engine.facade.evaluation` and
+`dhis2w_fhir_engine.facade.api.routes.evaluate`, which this package cannot import: `dhis2w-fhir-serve` depends on
 `dhis2w-fhir`, so the arrow points one way only. `EvaluationRequest`, `EvaluationOutcome`, and the
 three context shapes below mirror those definitions field for field, and those two modules are the
 source of truth for them.
@@ -96,7 +96,8 @@ JSON_MEDIA_TYPE = "application/json"
 #: same string as the path its sub-application is mounted at.
 FACADE_API_PATH = "/facade"
 
-#: The `Authorization` scheme the `token` and `jwt` postures take, spelled as `dhis2w_fhir_serve.auth` spells it.
+#: The `Authorization` scheme the `token` and `jwt` postures take, spelled as `dhis2w_fhir_engine.facade.api.auth`
+#: spells it.
 BEARER_SCHEME = "Bearer"
 
 #: The scheme the `dhis2` posture takes for a username and a password.
@@ -308,7 +309,7 @@ class ResourceQuery(BaseModel):
 
 
 class EvaluationLanguage(StrEnum):
-    """Which of the three languages a source is written in - mirrors `dhis2w_fhir_serve.evaluation`."""
+    """Which of the three languages a source is written in - mirrors `dhis2w_fhir_engine.facade.evaluation`."""
 
     FHIRPATH = "fhirpath"
     CQL = "cql"
@@ -371,7 +372,7 @@ EvaluationContext = Annotated[
 
 
 class EvaluationRequest(BaseModel):
-    """One evaluation as a caller asks for it - mirrors `dhis2w_fhir_serve.routes.evaluate.EvaluationRequest`."""
+    """One evaluation as a caller asks for it."""
 
     model_config = ConfigDict(frozen=True)
 

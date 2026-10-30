@@ -22,7 +22,7 @@ import httpx2
 import pytest
 import respx
 from dhis2w_fhir_engine.facade.config import SearchBackend
-from dhis2w_fhir_serve.projection.base import (
+from dhis2w_fhir_engine.facade.projection.base import (
     IndexedName,
     NameMatch,
     NameQuery,
@@ -35,8 +35,8 @@ from dhis2w_fhir_serve.projection.base import (
     ProjectionStore,
     ProjectionWatermarks,
 )
-from dhis2w_fhir_serve.projection.dhis2_names import Dhis2NameSearchIndex
-from dhis2w_fhir_serve.projection.factory import build_name_search_index
+from dhis2w_fhir_engine.facade.projection.dhis2_names import Dhis2NameSearchIndex
+from dhis2w_fhir_engine.facade.projection.search import build_name_search_index
 from pydantic import BaseModel, ConfigDict
 
 _HOST = "https://dhis2.example"
@@ -67,6 +67,10 @@ class _Reader(BaseModel):
 
 class _Store(BaseModel):
     """The smallest thing that satisfies `ProjectionStore`, holding one cursor and nothing else."""
+
+    def name_search_index(self) -> Any:
+        """Answer nothing: this store exists to show the shape."""
+        return None
 
     model_config = ConfigDict(frozen=True)
 

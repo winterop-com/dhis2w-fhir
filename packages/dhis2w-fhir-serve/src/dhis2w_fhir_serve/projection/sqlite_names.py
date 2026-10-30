@@ -34,9 +34,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.projection.base import IndexedName, NameMatch, NameMatches, NameQuery
 from sqlalchemy import select
 
-from dhis2w_fhir_serve.projection.base import IndexedName, NameMatch, NameMatches, NameQuery
 from dhis2w_fhir_serve.projection.schema import ProjectedNameRow
 
 if TYPE_CHECKING:

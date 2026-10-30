@@ -27,18 +27,18 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
+from dhis2w_fhir_engine.facade.api.auth import challenge_for
+from dhis2w_fhir_engine.facade.api.passthrough import FACADE_PROVENANCE_HEADER, open_pass_through_client
+from dhis2w_fhir_engine.facade.api.routes import register as register_route_module
+from dhis2w_fhir_engine.facade.api.runtime import facade_provenance
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, TrackedEntitiesConfig
+from dhis2w_fhir_engine.facade.projection.base import IndexedName, NameMatch, NameMatches, NameQuery
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.auth import challenge_for
-from dhis2w_fhir_serve.passthrough import FACADE_PROVENANCE_HEADER, open_pass_through_client
-from dhis2w_fhir_serve.projection.base import IndexedName, NameMatch, NameMatches, NameQuery
-from dhis2w_fhir_serve.routes import register as register_route_module
-from dhis2w_fhir_serve.runtime import facade_provenance
-from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 from fixture_project import (
     CAPTURE_IDENTIFIER_BASE,
@@ -850,7 +850,7 @@ async def test_the_read_names_the_facade_and_never_the_caller_in_a_header_of_its
     await pass_through_facade.get(f"/Patient/{_PERSON_UID}", headers={"Authorization": _CALLER_BASIC})
 
     sent = read.calls.last.request
-    assert sent.headers[FACADE_PROVENANCE_HEADER].startswith("dhis2w-fhir-serve/")
+    assert sent.headers[FACADE_PROVENANCE_HEADER].startswith("dhis2w-fhir-engine/")
     assert "clerk" not in str(sent.headers)
 
 

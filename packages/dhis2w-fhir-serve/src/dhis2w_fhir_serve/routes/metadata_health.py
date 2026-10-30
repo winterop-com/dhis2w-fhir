@@ -10,7 +10,7 @@ WHY IT IS NOT FHIR. There is no FHIR shape for "this DHIS2 name has a `<` in it"
 is what a server answers a request with, not a report about somebody else's metadata, and the
 translation coverage has no resource at all. So this is `/spool`'s shape for `/spool`'s reasons, at
 `/spool`'s address: plain `application/json`, Pydantic models rather than a Bundle, served under the
-facade API's own mount rather than at the FHIR base. `dhis2w_fhir_serve.routes.spool` argues that
+facade API's own mount rather than at the FHIR base. `dhis2w_fhir_engine.facade.api.routes.spool` argues that
 choice in full.
 
 The name carries a hyphen and the address carries the mount, so nothing about it can be mistaken for
@@ -30,11 +30,11 @@ is the next slice, and the FHIR roadmap's near-term section is where it is state
 
 from __future__ import annotations
 
+from dhis2w_fhir_engine.facade.api.routes.context import live_client, serve_context
 from fastapi import APIRouter
 from starlette.requests import Request
 
 from dhis2w_fhir_serve.health import MetadataHealth, compiled_run_health, read_metadata_health
-from dhis2w_fhir_serve.routes.context import live_client, serve_context
 
 #: Where the report is served from, under the facade API's mount.
 METADATA_HEALTH_PATH = "/metadata-health"

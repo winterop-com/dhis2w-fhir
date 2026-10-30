@@ -44,6 +44,7 @@ from typing import Any
 
 import httpx2
 from dhis2w_core.oauth2_preflight import DISCOVERY_PATH, OidcDiscovery
+from dhis2w_fhir_engine.facade.api.auth import TokenRefusedError, VerifiedToken
 from dhis2w_fhir_engine.facade.config import ServeJwtConfig
 from joserfc import jwt as jose_jwt
 from joserfc.errors import BadSignatureError, InvalidKeyIdError, JoseError, MissingKeyError
@@ -72,38 +73,10 @@ CLOCK_LEEWAY_SECONDS = 60
 class OidcIssuerUnavailableError(RuntimeError):
     """The issuer this run was told to trust could not be read, so the posture cannot be honoured.
 
-    A startup failure rather than a request failure. `dhis2w_fhir_serve.auth.open_jwt_verifier`
+    A startup failure rather than a request failure. `dhis2w_fhir_engine.facade.api.auth.open_jwt_verifier`
     turns it into the same `ServeAuthConfigurationError` the other posture refusals raise, so a
     deployer meets one line naming the key rather than a server that starts and 401s everybody.
     """
-
-
-class TokenRefusedError(ValueError):
-    """One presented token this issuer's keys, or this facade's rules, would not accept.
-
-    Carries the sentence a caller is told and nothing else. `dhis2w_fhir_serve.auth` is what turns
-    it into the 401 and the `WWW-Authenticate` challenge that goes with it - this module refuses
-    tokens and never writes HTTP.
-    """
-
-    def __init__(self, diagnostics: str) -> None:
-        super().__init__(diagnostics)
-        self.diagnostics = diagnostics
-
-
-class VerifiedToken(BaseModel):
-    """What one accepted token established: who is calling, and the claims that said so."""
-
-    model_config = ConfigDict(frozen=True)
-
-    username: str
-    """The value of `[serve.jwt] username_claim`, which becomes the request identity."""
-
-    subject: str | None = None
-    """The token's `sub` - the issuer's own stable identifier for the caller, where it stated one."""
-
-    expires_at: int | None = None
-    """The token's `exp`, as it stood - what a deployment reads to know how long an answer stays true."""
 
 
 class PublishedKeys(BaseModel):

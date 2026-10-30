@@ -17,9 +17,9 @@ from pathlib import Path
 from typing import Any
 
 import httpx2
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.settings import ServeSettings
 
 #: The form on the non-default category combo, and its four published combos.
 ATTRIBUTE_COMBO_ID = "TuL8IOPzpHh"

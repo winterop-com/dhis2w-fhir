@@ -16,6 +16,7 @@ from dhis2w_fhir_engine.facade.forward import (
     ForwardUnverifiableReason,
     spool_layout,
 )
+from dhis2w_fhir_engine.facade.resources.examples.synthetic import STATUS_BY_EVENT_STATUS, response_status_code
 
 from dhis2w_fhir.doctor import (
     CAPTURE_SEED_BASE,
@@ -153,7 +154,6 @@ from dhis2w_fhir.resources.categories.decomposition import (
 )
 from dhis2w_fhir.resources.examples.builders import (
     EXAMPLES_DIRECTORY,
-    STATUS_BY_EVENT_STATUS,
     ExampleTally,
     SyntheticBuild,
     answer_element,
@@ -170,7 +170,6 @@ from dhis2w_fhir.resources.examples.builders import (
     example_tracker_context,
     location_reference,
     location_stem,
-    response_status_code,
     synthetic_period,
 )
 from dhis2w_fhir.resources.examples.documents import ExampleDocumentBuild, build_example_documents

@@ -42,6 +42,7 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
 )
 from dhis2w_fhir_engine.facade.spool import MALFORMED_RESPONSES_RELATIVE_PATH
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
+from dhis2w_fhir_serve.settings import resolve_serve_settings
 from pydantic import BaseModel, ConfigDict
 from typer.core import TyperGroup
 
@@ -53,14 +54,15 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
     from dhis2w_core.progress import ProgressReporter
+
+    # Type-only, exactly as `d2w fhir serve` and `d2w fhir sync` import the package itself: the serve
+    # extra may not be installed, and a name used in an annotation costs no import at runtime.
+    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import FhirProject, ProjectionConfig
     from dhis2w_fhir_engine.facade.forward import ForwardOutcome, ForwardReport
     from dhis2w_fhir_engine.facade.notes import GenerateNote
     from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
-
-    # Type-only, exactly as `d2w fhir serve` and `d2w fhir sync` import the package itself: the serve
-    # extra may not be installed, and a name used in an annotation costs no import at runtime.
-    from dhis2w_fhir_serve import ServeSettings, SyncReport
+    from dhis2w_fhir_serve import SyncReport
 
     from dhis2w_fhir.doctor import DoctorReport
     from dhis2w_fhir.hostile_names import HostileNameGate, HostileRewrite
@@ -2623,7 +2625,7 @@ def serve_command(
     """
     try:
         from dhis2w_fhir_engine.facade.log import configure_logging
-        from dhis2w_fhir_serve import ServeAuthConfigurationError, ServeSettings, create_app
+        from dhis2w_fhir_serve import ServeAuthConfigurationError, create_app
 
         # The stamp exists so the capture UI can be told apart from the last one built, which keeps it
         # off the serve package's library surface: it is read from its own module, not the package root.
@@ -2633,12 +2635,12 @@ def serve_command(
 
     project = load_project(directory)
     # The precedence, the profile, and the preflight on the compiled guide belong to
-    # `ServeSettings.resolve`, in `dhis2w-fhir-serve`, so an embedded facade asks for the posture
+    # `resolve_serve_settings`, in `dhis2w-fhir-serve`, so an embedded facade asks for the posture
     # this command has by name and the two cannot disagree about what a flag beats or when an
     # unknown profile refuses a run. The one `ValueError` it raises is a `--basemap` value that
     # names nothing servable, which is this command's to render against the flag it came from.
     try:
-        invocation = ServeSettings.resolve(
+        invocation = resolve_serve_settings(
             project,
             live=live,
             host=host,
@@ -3781,7 +3783,8 @@ def sync_command(
     `\[serve.projection] store` - a project that names none is refused here, naming the key.
     """
     try:
-        from dhis2w_fhir_serve import SYNC_STEPS, ServeSettings
+        from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+        from dhis2w_fhir_serve import SYNC_STEPS
     except ImportError as error:
         raise LookupError(_serve_package_missing("sync")) from error
 

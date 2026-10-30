@@ -54,19 +54,18 @@ from pathlib import Path
 import httpx2
 from _fixture import example_project
 from _runner import run_example
-from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
-from dhis2w_fhir_serve import (
+from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
+from dhis2w_fhir_engine.facade.api.routes.mounting import (
     FACADE_MOUNT_PATH,
-    ServeSettings,
     accept_head_wherever_get_is_served,
-    attach_serve_runtime,
     build_facade_api,
-    open_serve_runtime,
-    register_error_handlers,
-    register_routes,
-    require_json_is_acceptable,
-    serve_routers,
 )
+from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
+from dhis2w_fhir_engine.facade.api.runtime import attach_serve_runtime
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
+from dhis2w_fhir_serve import open_serve_runtime
+from dhis2w_fhir_serve.routes import register_routes, serve_routers
 from fastapi import Depends, FastAPI, HTTPException, Request
 
 FHIR_JSON = "application/fhir+json"

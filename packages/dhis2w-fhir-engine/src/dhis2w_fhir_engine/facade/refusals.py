@@ -26,10 +26,10 @@ IssueCode = Literal["invalid", "not-found", "not-supported", "exception", "proce
 """The `OperationOutcome.issue.code` values the facade uses.
 
 `login` is R4's own code for "the user or system was not able to be authenticated", which is what a
-401 off `dhis2w_fhir_serve.auth` means. It is a child of `security` in the issue-type hierarchy, and
+401 off `dhis2w_fhir_engine.facade.api.auth` means. It is a child of `security` in the issue-type hierarchy, and
 the child says the actual thing. `forbidden` is its sibling - "the user does not have the rights to
 perform this action" - and the facade uses it for one answer only: a 403 the DHIS2 instance gave a
-caller on a pass-through read, carried through as `dhis2w_fhir_serve.passthrough` describes.
+caller on a pass-through read, carried through as `dhis2w_fhir_engine.facade.api.passthrough` describes.
 """
 
 
@@ -47,7 +47,7 @@ class ServeError(Exception):
         """The headers this refusal has to carry beyond the body, which for almost every one is none.
 
         A `dict[str, str]` because HTTP headers are the boundary, and the one refusal that overrides
-        this is `dhis2w_fhir_serve.auth.UnauthenticatedError`: RFC 9110 requires a 401 to name the
+        this is `dhis2w_fhir_engine.facade.api.auth.UnauthenticatedError`: RFC 9110 requires a 401 to name the
         challenge a client should meet.
         """
         return {}

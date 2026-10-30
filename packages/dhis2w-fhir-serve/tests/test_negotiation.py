@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import httpx2
 import pytest
-from dhis2w_fhir_serve.routes.negotiation import accepts_json, format_asks_for_json
+from dhis2w_fhir_engine.facade.api.routes.negotiation import accepts_json, format_asks_for_json
 
 FHIR_JSON = "application/fhir+json"
 FHIR_XML = "application/fhir+xml"

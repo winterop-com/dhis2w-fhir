@@ -18,8 +18,8 @@ from typing import Any
 
 import httpx2
 import pytest
+from dhis2w_fhir_engine.facade.api.routes.cds import CQL_LIBRARY_SERVICE_HOOK, CQL_LIBRARY_SERVICE_ID
 from dhis2w_fhir_engine.facade.config import FhirProject
-from dhis2w_fhir_serve.routes.cds import CQL_LIBRARY_SERVICE_HOOK, CQL_LIBRARY_SERVICE_ID
 
 LIBRARY = """
 library Advice version '1.0'
@@ -171,7 +171,7 @@ async def test_a_library_id_this_guide_does_not_publish_is_not_found(client: htt
 
 def test_the_discovery_document_is_the_shape_cds_hooks_defines() -> None:
     """The wire keys are the specification's, camelCase and all, whatever the fields are named here."""
-    from dhis2w_fhir_serve.routes.cds import CdsDiscovery, CdsService
+    from dhis2w_fhir_engine.facade.api.routes.cds import CdsDiscovery, CdsService
 
     document = CdsDiscovery(services=(CdsService(id="x", hook="patient-view", title="X", description="x"),)).model_dump(
         mode="json", by_alias=True, exclude_none=True

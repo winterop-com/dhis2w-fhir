@@ -132,8 +132,7 @@ from dhis2w_fhir_engine.r4.resources import (
 )
 
 if TYPE_CHECKING:
-    from dhis2w_fhir_serve.settings import ServeSettings
-
+    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import FhirProject
     from dhis2w_fhir_engine.facade.register.surface import RegisterSurface, ServedRegister
     from dhis2w_fhir_engine.facade.store import StoreSummary
@@ -554,9 +553,9 @@ def build_server_capability(
         *(
             _read_resource(resource_type, project.config.generate.identifier_system_base, canonical, names, forms=forms)
             for resource_type in SERVED_READ_RESOURCE_TYPES
-            if resource_type in store_summary.counts_by_type
+            if settings.reads and resource_type in store_summary.counts_by_type
         ),
-        *_register_resources(settings, register_surface, project.config.ips.enabled),
+        *(_register_resources(settings, register_surface, project.config.ips.enabled) if settings.reads else ()),
     ]
     return CapabilityStatement(
         status="active",
@@ -585,7 +584,9 @@ def build_server_capability(
                         definition=EVALUATE_OPERATION_DEFINITION,
                         documentation=EVALUATE_DOCUMENTATION,
                     )
-                ],
+                ]
+                if settings.operations
+                else None,
             )
         ],
     )
