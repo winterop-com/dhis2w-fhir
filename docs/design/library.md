@@ -481,7 +481,7 @@ runs four levels, not three: `minimal_facade.py` (one route, nothing written dow
 `basic_facade.py` (one client, a health route, a log line per verdict),
 `complex_facade.py` (a durable spool and a background drain), and `advanced_facade.py`
 (tracker routing, the coded-answer dial, and the rest) - the four are walked in order in
-[Build your own facade](../401-build-your-own-facade.md). `complex_facade.py:26` already
+[Write the route yourself](../401-build-your-own-facade.md). `complex_facade.py:26` already
 makes the argument this whole paper generalises: "half the imports are the served
 facade's own. Writing receipts durably is not a thing worth having a second version of,
 so this level uses the one that exists." The level above it currently ends by conceding
@@ -542,7 +542,7 @@ contract is not finished.
 - [FHIR roadmap and review guide](roadmap.md) - section 2.9 for the external surface this
   paper's generation rows read through, and decision 3.13 for the MCP rule this doctrine
   does not touch.
-- [Build your own facade](../401-build-your-own-facade.md) - the guide the facade ladder
+- [Write the route yourself](../401-build-your-own-facade.md) - the guide the facade ladder
   belongs to, and the page PR 8 extends.
 - [`dhis2w_fhir` API reference](../api-dhis2w-fhir.md) and
   [`dhis2w_fhir_serve` API reference](../api-dhis2w-fhir-serve.md) - what the docs

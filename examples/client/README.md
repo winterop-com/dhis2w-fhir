@@ -141,10 +141,10 @@ Generating, serving, and draining from Python, rather than from the command line
 | [`complex_facade.py`](complex_facade.py) | Facade ladder, level three: the real spool primitives — a receipt written durably, `201` before DHIS2 is asked, a background drain that retries, and a receipt readable by id |
 | [`advanced_facade.py`](advanced_facade.py) | Facade ladder, level four: tracker routing, the coded-answer dial as configuration, values an earlier receipt already sent named before the post, and a small `/metadata` — then run `d2w fhir serve` |
 
-## Embed the facade
+## Serve as a library
 
 The headless path: `dhis2w-fhir-serve` as a library in your own process — no server, no port, no UI,
-no `d2w` command. The narrative is [Embed the facade](../../../docs/401-embed-the-facade.md).
+no `d2w` command. The narrative is [Serve as a library](../../../docs/401-embed-the-facade.md).
 
 | File | Shows |
 | --- | --- |

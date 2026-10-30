@@ -632,10 +632,19 @@ def _statement_description(
     )
 
 
+#: What this server says where a capture reaches DHIS2 while the caller waits, rather than through a spool.
+CAPTURE_AS_CALLER_REST_DOCUMENTATION = (
+    "Every request presents the caller's own DHIS2 credentials. Reads and captures reach DHIS2 under them, so DHIS2 "
+    "applies that caller's rights. A capture answers 201 only once DHIS2 has taken it, and a refusal stores nothing."
+)
+
+
 def _rest_documentation(settings: ServeSettings) -> str:
     """What one interaction with this server is, for the three things a process may be."""
     if settings.publishes is not None:
         return PACKAGE_REST_DOCUMENTATION
+    if settings.capture_as_caller:
+        return CAPTURE_AS_CALLER_REST_DOCUMENTATION
     return _REST_DOCUMENTATION if settings.capture else _VIEWER_REST_DOCUMENTATION
 
 

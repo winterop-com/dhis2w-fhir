@@ -23,7 +23,6 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import Profile
-from dhis2w_fhir_engine.facade.api.passthrough import open_pass_through_client
 from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
 from dhis2w_fhir_engine.facade.config import (
@@ -34,6 +33,7 @@ from dhis2w_fhir_engine.facade.config import (
     TrackedEntitiesConfig,
 )
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.reader import open_pass_through_client
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import load_compiled_store

@@ -46,15 +46,11 @@ from dhis2w_fhir_engine.facade.api.auth import (
     read_serve_tokens,
     validate_with_dhis2,
 )
-from dhis2w_fhir_engine.facade.api.passthrough import (
-    FACADE_PROVENANCE_HEADER,
-    CallerCredentialReader,
-    UpstreamRefusalError,
-    open_pass_through_client,
-)
+from dhis2w_fhir_engine.facade.api.passthrough import CallerCredentialReader, UpstreamRefusalError
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
 from dhis2w_fhir_engine.facade.api.routes.whoami import TOKEN_CALLER_NAME, WHOAMI_PATH, authenticated_caller
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
+from dhis2w_fhir_engine.facade.register.reader import FACADE_PROVENANCE_HEADER, open_pass_through_client
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve.app import create_app

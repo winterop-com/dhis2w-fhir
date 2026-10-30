@@ -2510,7 +2510,7 @@ typed `ResourceQuery`), `resolve` by canonical, `generate`, `submit_response`
 `PersonalAccessToken`; a refusal raises `FacadeError` carrying the facade's
 `OperationOutcome`.
 
-### Embed the facade
+### Serve as a library
 
 `dhis2w-fhir-serve` publishes what `d2w fhir serve` assembles, so an application
 that already runs FastAPI serves the real FHIR surface rather than a second
@@ -4104,10 +4104,10 @@ refusal text a mistake produces, captured from real misconfigured runs.
 
 ---
 
-## Compose a facade from the engine
+## Build a middleware from the engine
 
 `uv add dhis2w-fhir-engine` is enough to build a FHIR-to-DHIS2 service, with no `fhir.toml`, no SUSHI, and no docker. See
-[Compose a facade](401-compose-a-facade.md).
+[Build a middleware](build-a-middleware.md).
 
 - `FacadeConfig`, `open_facade`, and `Facade` load one guide off a live instance, a compiled directory, or a published
   `package.tgz`. `Facade` offers `forms`, `synthesize`, `validate_capture`, `capture`, `translate`, `post`, and `drain`.
@@ -4115,11 +4115,14 @@ refusal text a mistake produces, captured from real misconfigured runs.
   through a connection the caller holds.
 - `mount_facade` mounts `/metadata`, capture, reads, operations, and the operational API by flag, behind your own
   authentication dependency if you give one, and `/metadata` states what was mounted and what your check requires.
-  Everyone who gets in reads DHIS2 as the one account behind the connection.
+  `read_as_caller` has DHIS2 apply each caller's own rights to reads and to captures, which post at once rather than being
+  spooled; under `authentication` everyone who gets in acts as the connection's one account. A facade that can take a
+  capture or read a person refuses to start with neither, unless `allow_anonymous` says so.
   `attach_facade` hands it an opened facade, with an optional stated service base, and `record_caller` lets your check
   name its caller for `/whoami`.
-- `examples/facade/` is the numbered path through these, and `make check-engine-install` holds the engine wheel, installed
-  alone, to loading no server, generator, or terminal.
+- `examples/facade/` is the numbered path through these, ending in a round trip: a capture committed into DHIS2, read back
+  as FHIR, and evaluated with FHIRPath and CQL. `make check-engine-install` holds the engine wheel, installed alone, to loading
+  no server, generator, or terminal.
 
 ## FHIR Evaluation Engine
 

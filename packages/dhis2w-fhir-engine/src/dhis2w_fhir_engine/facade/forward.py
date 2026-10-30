@@ -8,10 +8,10 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 import httpx2
-from dhis2w_client.errors import AuthenticationError, Dhis2ApiError
+from dhis2w_client.errors import AuthenticationError, Dhis2ApiError, Dhis2ClientError
 from dhis2w_client.generated.v43.oas import (
     DataValueSet,
     ImportConflict,
@@ -67,6 +67,7 @@ from dhis2w_fhir_engine.facade.overwrite import (
     build_forwarded_cell_index,
 )
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
+from dhis2w_fhir_engine.facade.refusals import ServeError
 from dhis2w_fhir_engine.facade.spool import (
     ForwardRefusalRecord,
     QuarantinedFile,
@@ -252,6 +253,14 @@ _UNVERIFIABLE_IN_DRY_RUN_REASON = (
     "run writes nothing to the instance, so there is no enrollment for DHIS2 to check the event against. "
     "An import posts registrations first, and the event is checked against the enrollment one created."
 )
+
+
+class ImportPoster(Protocol):
+    """What posting a payload needs of a connection: the facade's own client, or one bound to a caller's credentials."""
+
+    async def post_raw(self, path: str, body: Any = None, *, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        """POST one document, answering parsed JSON and raising `Dhis2ApiError` for a refusal."""
+        ...
 
 
 class ForwardOutcomeKind(StrEnum):
@@ -1456,7 +1465,7 @@ async def _register_completeness(
     return outcomes
 
 
-async def _completeness_answer(client: Dhis2Client, claim: CompleteDataSetRegistration) -> ForwardCompletenessOutcome:
+async def _completeness_answer(client: ImportPoster, claim: CompleteDataSetRegistration) -> ForwardCompletenessOutcome:
     """Post one registration and answer with what became of the claim, an unreachable instance included.
 
     A registration is a second write about values that are already in DHIS2, so nothing it meets is
@@ -1486,7 +1495,7 @@ def _record_completeness_in_sidecar(layout: SpoolLayout, response_id: str, outco
     write_import_report(layout, SpoolState.FORWARDED, response_id, record.model_copy(update={"completeness": outcome}))
 
 
-async def _post_completeness(client: Dhis2Client, claim: CompleteDataSetRegistration) -> ForwardCompletenessOutcome:
+async def _post_completeness(client: ImportPoster, claim: CompleteDataSetRegistration) -> ForwardCompletenessOutcome:
     """POST one completeness registration and project DHIS2's answer onto the outcome the report reads.
 
     The answer is `/api/dataValueSets`' own envelope - a `WebMessage` wrapping an `ImportSummary` - so
@@ -1575,7 +1584,7 @@ def _post_order(result: ConversionResult) -> int:
     return FORWARD_TARGET_ORDER.index(result.target_kind)
 
 
-async def post_translation(client: Dhis2Client, result: ConversionResult, *, dry_run: bool) -> ForwardImportOutcome:
+async def post_translation(client: ImportPoster, result: ConversionResult, *, dry_run: bool) -> ForwardImportOutcome:
     """Post one translated payload to the endpoint its target kind names, and project DHIS2's answer."""
     payload = result.payload
     if payload is None or result.target_kind is None:
@@ -1592,7 +1601,7 @@ async def post_translation(client: Dhis2Client, result: ConversionResult, *, dry
 
 
 async def _post_body(
-    client: Dhis2Client,
+    client: ImportPoster,
     path: str,
     body: dict[str, Any],
     params: dict[str, str],
@@ -1961,3 +1970,14 @@ async def drain_responses(
             withdrawals=withdrawals if withdrawals is not None else forward_config.withdrawals,
             reporter=reporter,
         )
+
+
+async def claim_completeness(client: ImportPoster, claim: CompleteDataSetRegistration) -> ForwardCompletenessOutcome:
+    """Register one report complete, once its values landed. A claim that did not reach DHIS2 is left pending.
+
+    The values are already in DHIS2 when this runs, so a failure here is never a reason to refuse them.
+    """
+    try:
+        return await _completeness_answer(client, claim)
+    except (Dhis2ClientError, ServeError) as error:
+        return _completeness_outcome(ForwardCompletenessKind.PENDING, claim, message=str(error))

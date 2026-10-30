@@ -13,6 +13,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import httpx2
 from dhis2w_client import Dhis2Client
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -46,6 +47,8 @@ from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome
 from dhis2w_fhir_engine.facade.live import build_live_store
 from dhis2w_fhir_engine.facade.live_inputs import fetch_live_artifacts
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
+from dhis2w_fhir_engine.facade.provenance import facade_provenance
+from dhis2w_fhir_engine.facade.register.reader import open_pass_through_client
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope, mint_receipt
 from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, SearchQuery, attach_builtin_conformance, load_compiled_store
@@ -110,6 +113,9 @@ class Facade(BaseModel):
     indexes: CaptureIndexCache
     spool: ResponseSpool
     client: Dhis2Client | None = None
+    caller_client: httpx2.AsyncClient | None = None
+    """A connection to the same instance holding no credential, which a read as the caller sends their own over."""
+
     strict_codes: bool = DEFAULT_STRICT_CODES
 
     def forms(self) -> tuple[Questionnaire, ...]:
@@ -197,7 +203,24 @@ async def open_facade(
         conversion_naming = ConversionNaming.from_config(project.config.generate, project.config.ig.canonical)
         bound = bound_question_uids(artifacts, conversion_naming)
         value_types = await fetch_value_types(client, bound, progress=StepAnnouncer())
-    yield Facade(
+    if client is None:
+        yield _facade(project, store, artifacts, value_types, mode, None, None)
+        return
+    async with open_pass_through_client(client.base_url, provenance=facade_provenance()) as callers:
+        yield _facade(project, store, artifacts, value_types, mode, client, callers)
+
+
+def _facade(
+    project: FhirProject,
+    store: ResourceStore,
+    artifacts: CompiledArtifacts,
+    value_types: dict[str, str] | None,
+    mode: CodedAnswerMode,
+    client: Dhis2Client | None,
+    callers: httpx2.AsyncClient | None,
+) -> Facade:
+    """Assemble what one facade holds, once its guide is read and its connections are open."""
+    return Facade(
         project=project,
         store=attach_builtin_conformance(store),
         artifacts=artifacts,
@@ -208,6 +231,7 @@ async def open_facade(
         indexes=CaptureIndexCache(),
         spool=ResponseSpool.at(project.project_root),
         client=client,
+        caller_client=callers,
     )
 
 

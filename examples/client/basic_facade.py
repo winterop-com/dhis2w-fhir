@@ -17,7 +17,7 @@ failed request, and its sender is the only one who knows it happened. `/health` 
 is unreachable, which is more than the level below says, and it is not a queue. Captures start
 surviving one level up, at `examples/client/complex_facade.py`.
 
-The guide is [Build your own facade](../../../docs/401-build-your-own-facade.md); what a valid
+The guide is [Write the route yourself](../../../docs/401-build-your-own-facade.md); what a valid
 response is, is [the capture contract](../../../docs/401-capture-contract.md).
 
 Usage:

@@ -16,10 +16,20 @@ packages listed on one page in [Features](https://winterop-com.github.io/dhis2w-
 
 ## Install
 
+To run the toolchain:
+
 ```bash
 uv tool install "dhis2w-cli[fhir,serve]"   # d2w fhir, plus the facade behind d2w fhir serve
 d2w fhir --help
 ```
+
+To build a service of your own between another system and DHIS2, with no project and no compile:
+
+```bash
+uv add dhis2w-fhir-engine
+```
+
+[Build a middleware](https://winterop-com.github.io/dhis2w-fhir/build-a-middleware/) starts there.
 
 A project scaffolded by `d2w fhir init` is a uv project that pins all three itself.
 

@@ -15,6 +15,10 @@ is what puts `d2w fhir serve` on the machine, and Docker is what the scaffold's
 - find the page that owns the depth behind any step
 - say what the toolchain does beyond those three steps
 
+!!! tip "Building a service of your own?"
+    This page is about running `d2w fhir`, the finished toolchain. To build a service between another system and DHIS2
+    with no project and no compile, go to [Build a middleware](build-a-middleware.md).
+
 ## What this is
 
 `d2w fhir` puts a FHIR facade in front of a DHIS2 instance. The instance's

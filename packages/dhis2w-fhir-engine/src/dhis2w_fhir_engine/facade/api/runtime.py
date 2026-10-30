@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from importlib.metadata import version
 from typing import TYPE_CHECKING, Any
 
 import httpx2
@@ -12,11 +11,13 @@ from pydantic import BaseModel, ConfigDict
 from dhis2w_fhir_engine.facade.api.auth import JWT_VERIFIER_ATTRIBUTE, TokenVerifier
 from dhis2w_fhir_engine.facade.api.routes.context import (
     CALLER_CLIENT_ATTRIBUTE,
+    CONVERSION_CONTEXT_ATTRIBUTE,
     LIVE_CLIENT_ATTRIBUTE,
     PROJECTION_STORE_ATTRIBUTE,
     SERVE_CONTEXT_ATTRIBUTE,
 )
 from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
@@ -25,10 +26,6 @@ from dhis2w_fhir_engine.facade.store import ResourceStore
 
 if TYPE_CHECKING:
     from fastapi import FastAPI
-
-
-#: The distribution the server reports as its software version.
-DISTRIBUTION_NAME = "dhis2w-fhir-engine"
 
 
 class ServeContext(BaseModel):
@@ -86,6 +83,9 @@ class ServeRuntime(BaseModel):
     only writer - and every read of it states the cursor it was read at.
     """
 
+    conversion: ConversionContext | None = None
+    """What a capture is translated with where it posts at once rather than being spooled for a drain."""
+
 
 def attach_serve_runtime(app: FastAPI, runtime: ServeRuntime) -> None:
     """Put one loaded runtime where every route handler reads it from, before the first request.
@@ -101,13 +101,4 @@ def attach_serve_runtime(app: FastAPI, runtime: ServeRuntime) -> None:
     setattr(app.state, CALLER_CLIENT_ATTRIBUTE, runtime.caller_client)
     setattr(app.state, JWT_VERIFIER_ATTRIBUTE, runtime.jwt_verifier)
     setattr(app.state, PROJECTION_STORE_ATTRIBUTE, runtime.projection_store)
-
-
-def server_version() -> str:
-    """The installed version of this package, as the app and its CapabilityStatement report it."""
-    return version(DISTRIBUTION_NAME)
-
-
-def facade_provenance() -> str:
-    """What a pass-through read names itself as to the instance: this software, and its version."""
-    return f"{DISTRIBUTION_NAME}/{server_version()}"
+    setattr(app.state, CONVERSION_CONTEXT_ATTRIBUTE, runtime.conversion)

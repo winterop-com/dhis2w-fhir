@@ -48,7 +48,7 @@ for the credential a guarded facade takes, and
 for reading a refusal off `FacadeError` rather than out of a parsed body.
 
 **Every endpoint on this page answers the same way with no server running.**
-[Embed the facade](401-embed-the-facade.md) builds the application in your own
+[Serve as a library](401-embed-the-facade.md) builds the application in your own
 process and drives it over an ASGI transport, which is the posture for a caller
 that wants the FHIR surface as a library rather than as an address.
 
@@ -1826,5 +1826,5 @@ Next: [Identifiers and the D2 extensions](401-identifiers-and-extensions.md)
 carries. The
 [`dhis2w_fhir_serve` API reference](api-dhis2w-fhir-serve.md) covers the
 store, the spool, and the capture path as importable Python, and
-[`FacadeClient`](api-dhis2w-fhir.md#a-client-for-a-running-facade) is the
+[`FacadeClient`](api-dhis2w-fhir-engine.md#a-client-for-a-running-facade) is the
 client side of the same surface.

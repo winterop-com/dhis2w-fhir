@@ -332,6 +332,15 @@ class ResponseSpool(BaseModel):
         payload = envelope.model_dump_json(indent=2, include=set(StoredResponseEnvelope.model_fields)) + "\n"
         _write_atomically(directory / f"{envelope.response_id}.json", payload)
 
+    def save_forwarded(self, envelope: StoredResponseEnvelope, report: BaseModel) -> None:
+        """File a capture DHIS2 has already taken: its report first, then the receipt, so no reader meets one bare."""
+        directory = self.directory_for(ResponseLifecycle.FORWARDED)
+        directory.mkdir(parents=True, exist_ok=True)
+        report_path = directory / f"{envelope.response_id}{IMPORT_REPORT_SUFFIX}"
+        _write_atomically(report_path, report.model_dump_json(indent=2, exclude_none=True) + "\n")
+        payload = envelope.model_dump_json(indent=2, include=set(StoredResponseEnvelope.model_fields))
+        _write_atomically(directory / f"{envelope.response_id}.json", payload)
+
     def get(self, response_id: str) -> StoredReceipt | None:
         """The receipt a `GET /QuestionnaireResponse/{id}` read resolves to, in whichever state it now sits.
 

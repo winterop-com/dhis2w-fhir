@@ -62,7 +62,6 @@ authenticates would be an assertion this server has no business making.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 
 import httpx2
@@ -83,14 +82,11 @@ from dhis2w_fhir_engine.facade.refusals import IssueCode, ServeError
 from dhis2w_fhir_engine.facade.register.reader import RegisterReader
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
+    pass
 
-#: The header every pass-through read carries, naming the software the read arrived through.
-FACADE_PROVENANCE_HEADER = "X-DHIS2W-Facade"
 
 #: What a pass-through read asks the instance for, and how long it waits to be answered.
 PASS_THROUGH_ACCEPT = "application/json"  # noqa: S105 - not a credential
-PASS_THROUGH_TIMEOUT_SECONDS = 30.0
 
 #: The two DHIS2 verdicts a caller is told verbatim rather than as a facade failure. Every other
 #: refusal is this server failing to read the instance, which is what a 502 says. DHIS2 hides what a
@@ -207,26 +203,26 @@ class CallerCredentialReader(BaseModel):
             raise Dhis2ApiError(status_code=answer.status_code, message=answer.reason_phrase, body=_error_body(answer))
         return _parsed_body(answer)
 
+    async def post_raw(self, path: str, body: Any = None, *, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Post one document as the caller, refusing the way a read does, so DHIS2 applies their rights to the write."""
+        try:
+            answer = await self.connection.post(path, json=body, params=params, headers=self._headers())
+        except httpx2.HTTPError as error:
+            raise Dhis2ClientError(f"the DHIS2 instance could not be written to as the caller ({error})") from error
+        issue_code = PASSED_THROUGH_REFUSALS.get(answer.status_code)
+        if issue_code is not None:
+            raise UpstreamRefusalError(
+                answer.status_code,
+                issue_code,
+                self.challenge if answer.status_code == 401 else None,
+            )
+        if answer.status_code >= 400:
+            raise Dhis2ApiError(status_code=answer.status_code, message=answer.reason_phrase, body=_error_body(answer))
+        return _parsed_body(answer)
+
     def _headers(self) -> dict[str, str]:
         """What one read carries beyond the pool's own: the caller's credential, and what it wants back."""
         return {"Authorization": self.authorization, "Accept": PASS_THROUGH_ACCEPT}
-
-
-@asynccontextmanager
-async def open_pass_through_client(base_url: str, *, provenance: str) -> AsyncGenerator[httpx2.AsyncClient]:
-    """Open the connection pass-through reads share, pointed at the instance and holding no credential.
-
-    No `auth=` and no `Authorization` in the default headers, so a request that somehow reached this
-    pool without a caller's header would be an anonymous request to DHIS2 rather than a request as
-    the facade. The provenance header is a property of the process rather than of a request, so it
-    rides on the pool.
-    """
-    async with httpx2.AsyncClient(
-        base_url=base_url,
-        timeout=PASS_THROUGH_TIMEOUT_SECONDS,
-        headers={FACADE_PROVENANCE_HEADER: provenance},
-    ) as connection:
-        yield connection
 
 
 async def register_reader(request: Request) -> RegisterReader | None:

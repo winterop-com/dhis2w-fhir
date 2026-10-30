@@ -263,6 +263,8 @@ enough: no `fhir.toml`, no SUSHI, no docker.
 ### Composing into your own application
 
 `mount_facade` mounts the surfaces you ask for, and `attach_facade` hands an opened facade to them from your lifespan.
+A facade that can take a capture or read a person refuses to start until you state who may: see
+[Who can do what](build-who-can-do-what.md).
 `/metadata` states what was mounted. Declare your own routes first: the reads claim every one-segment path.
 
 ::: dhis2w_fhir_engine.facade.api.compose

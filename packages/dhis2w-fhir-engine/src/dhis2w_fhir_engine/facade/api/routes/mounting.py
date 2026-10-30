@@ -442,7 +442,7 @@ def build_facade_api(
     has. `/docs` is the convenience, not the contract.
     """
     from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
-    from dhis2w_fhir_engine.facade.api.runtime import server_version
+    from dhis2w_fhir_engine.facade.provenance import server_version
 
     api = FastAPI(
         title=FACADE_API_TITLE,

@@ -83,6 +83,16 @@ nav:
   - Overview: index.md
   - Introduction: 100-introduction.md
   - Features: features.md
+  - Build a middleware:
+      - Start here: build-a-middleware.md
+      - Who can do what: build-who-can-do-what.md
+      - Choose where the guide comes from: build-choose-a-guide.md
+      - Receive captures: build-receive-captures.md
+      - Read forms and people: build-read-forms-and-people.md
+      - Round trip: build-round-trip.md
+      - Mount the routes: build-mount-the-routes.md
+      - Serve as a library: 401-embed-the-facade.md
+      - Write the route yourself: 401-build-your-own-facade.md
   - 101 - Understand:
       - Glossary: glossary.md
       - What and why: 101-what-and-why.md
@@ -111,9 +121,6 @@ nav:
   - 401 - Integrate and extend:
       - The capture contract: 401-capture-contract.md
       - Consume the FHIR API: 401-consume-the-fhir-api.md
-      - Compose a facade: 401-compose-a-facade.md
-      - Embed the facade: 401-embed-the-facade.md
-      - Build your own facade: 401-build-your-own-facade.md
       - Identifiers and extensions: 401-identifiers-and-extensions.md
       - Terminology and ConceptMaps: 401-terminology-and-conceptmaps.md
       - Custom subject types: 401-custom-subject-types.md

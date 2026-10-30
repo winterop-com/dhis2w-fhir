@@ -1,4 +1,4 @@
-# Embed the facade
+# Serve as a library
 
 **Who this is for:** the developer who wants the FHIR facade inside their own
 process - as a library, with no server to run, no port to bind, and no UI.
@@ -25,12 +25,13 @@ and
 [`embed_in_fastapi.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/embed_in_fastapi.py).
 Every console block below is their output.
 
-**Starting from an empty directory?** [Compose a facade](401-compose-a-facade.md) needs only the engine, and is the
-shorter road when you do not want `d2w fhir serve`'s project on disk.
+**Starting from an empty directory?** [Build a middleware](build-a-middleware.md) needs only the engine, and is the
+shorter road. This page is for when you already have a `d2w fhir` project, and want all of what `d2w fhir serve` does from
+that project, with no port. It needs `dhis2w-fhir-serve` installed.
 
 ## The third posture
 
-[Build your own facade](401-build-your-own-facade.md) sets out two: run
+[Write the route yourself](401-build-your-own-facade.md) sets out two: run
 `d2w fhir serve`, or write your own route over `translate_response`. There is a
 third between them, and for a lot of integrations it is the right one - **take
 this facade as a library**. `d2w fhir serve` is one caller of `create_app`, not
@@ -250,7 +251,7 @@ operational address exists to refuse, and once with the controls under a prefix
 this service chose. The contract moves with them: it names the same ten
 operations under whichever base they were mounted at.
 
-Next: [Build your own facade](401-build-your-own-facade.md) for the case where
+Next: [Write the route yourself](401-build-your-own-facade.md) for the case where
 you want the translation and none of the rest of this. The
 [`dhis2w_fhir_serve` API reference](api-dhis2w-fhir-serve.md) documents every
 symbol named on this page.

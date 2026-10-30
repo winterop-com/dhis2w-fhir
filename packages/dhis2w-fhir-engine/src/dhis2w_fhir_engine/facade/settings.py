@@ -116,6 +116,12 @@ class ServeSettings(BaseModel):
     operations: bool = True
     """Whether the operation routes are mounted, which is what `/metadata` declares `$evaluate` for."""
 
+    capture_as_caller: bool = False
+    """Whether a capture posts to DHIS2 at once under the caller's own credentials, rather than being spooled."""
+
+    capture_validate_only: bool = False
+    """Whether that post runs under the endpoint's validate-only mode, so nothing is written or stored."""
+
     authentication_statement: str | None = None
     """What `/metadata` says about who may call, where an application's own check guards the routes."""
 
