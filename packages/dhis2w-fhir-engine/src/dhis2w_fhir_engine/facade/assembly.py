@@ -103,13 +103,13 @@ class Facade(BaseModel):
     client: Dhis2Client | None = None
     strict_codes: bool = DEFAULT_STRICT_CODES
 
-    def validate(self, body: bytes) -> ValidatedCapture:
+    def validate_capture(self, body: bytes) -> ValidatedCapture:
         """Check one submitted QuestionnaireResponse against the guide, raising `CaptureRejection` to refuse it."""
         return validate_response(body, self.indexes, self.naming, self.store, self.strict_codes)
 
     def capture(self, body: bytes, *, submitted_by: str | None = None) -> StoredResponseEnvelope:
         """Validate one submission and write its receipt durably. It blocks on an fsync, so run it off an event loop."""
-        envelope = mint_receipt(self.validate(body), submitted_by=submitted_by)
+        envelope = mint_receipt(self.validate_capture(body), submitted_by=submitted_by)
         self.spool.save(envelope)
         return envelope
 
