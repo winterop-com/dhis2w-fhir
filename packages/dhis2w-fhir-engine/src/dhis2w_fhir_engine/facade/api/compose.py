@@ -71,6 +71,11 @@ def mount_facade(
     FastAPI dependency: it guards everything but `/metadata` under the default scope, and `/metadata` then says what
     `authentication_statement` says. Calling `record_caller` from it is what gives `/whoami` a name to answer with.
     With no dependency nothing is guarded.
+
+    WHOEVER GETS IN READS AS ONE ACCOUNT. A read of a person goes through the connection given to `open_facade`, so
+    DHIS2 applies that account's rights and not the caller's. `authentication` decides who may ask and nothing about
+    what an answer contains, and no check here stops this service being reached from another host. Give that
+    connection an account that may see only what every caller may, or leave `reads` and `operations` off.
     """
     posture = ServeAuth.NONE if authentication is None else ServeAuth.TOKEN
     routers = facade_routers(capture=capture, auth=posture, auth_scope=auth_scope)

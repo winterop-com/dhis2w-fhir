@@ -4115,6 +4115,7 @@ refusal text a mistake produces, captured from real misconfigured runs.
   through a connection the caller holds.
 - `mount_facade` mounts `/metadata`, capture, reads, operations, and the operational API by flag, behind your own
   authentication dependency if you give one, and `/metadata` states what was mounted and what your check requires.
+  Everyone who gets in reads DHIS2 as the one account behind the connection.
   `attach_facade` hands it an opened facade, with an optional stated service base, and `record_caller` lets your check
   name its caller for `/whoami`.
 - `examples/facade/` is the numbered path through these, and `make check-engine-install` holds the engine wheel, installed

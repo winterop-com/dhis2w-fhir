@@ -5,6 +5,9 @@
 # engine wheel from this checkout so it verifies the code in front of it. A real project runs
 # `uv add dhis2w-fhir-engine uvicorn` instead.
 #
+# This service guards nothing and reads DHIS2 as admin, which is only fine on your own machine against a demo instance.
+# Before anyone else can reach one, read "Who can read what" in docs/401-compose-a-facade.md.
+#
 # Usage: bash examples/facade/step9_from_nothing.sh
 set -euo pipefail
 

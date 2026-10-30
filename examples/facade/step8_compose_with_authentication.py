@@ -4,6 +4,9 @@ Everything is mounted here, including the operational API under a prefix this se
 it all but `/metadata`, because a client has to be able to read the posture it is expected to meet, and a refusal
 still answers as an `OperationOutcome`, whoever raised it.
 
+Your dependency decides who gets in, not what they can read: everyone it lets through reads DHIS2 as the one account
+behind the connection, which is why a real service gives that connection a dedicated account rather than `admin`.
+
 Usage:
     uv run python examples/facade/step8_compose_with_authentication.py
 

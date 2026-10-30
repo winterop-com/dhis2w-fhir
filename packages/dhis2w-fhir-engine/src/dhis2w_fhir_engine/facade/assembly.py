@@ -173,6 +173,8 @@ async def open_facade(
     With a client the question value types are read off the instance, which is the one fact a compiled guide
     cannot carry: R4 spells `BOOLEAN` and `TRUE_ONLY` as the same `#boolean` item type. Without one the facade
     validates and translates with no network at all, and a call that needs DHIS2 refuses.
+
+    Everything this facade reads or posts, it does as `client`'s account, whoever asked it to. See `mount_facade`.
     """
     mode = CodedAnswerMode.LENIENT
     if isinstance(source, FacadeConfig):
