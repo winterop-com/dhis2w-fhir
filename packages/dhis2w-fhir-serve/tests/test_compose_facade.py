@@ -108,3 +108,13 @@ async def test_the_operational_api_is_left_out_unless_a_prefix_is_named(capture_
         assert (await client.get("/facade/spool")).status_code == 404
     async with _serving(_application(capture_project, facade_api="/controls")) as client:
         assert (await client.get("/controls/spool")).status_code == 200
+
+
+async def test_the_operation_metadata_declares_is_one_the_facade_serves(capture_project: FhirProject) -> None:
+    """A definition `/metadata` names and nothing answers would send a client to a 404."""
+    async with _serving(_application(capture_project)) as client:
+        statement = (await client.get("/metadata")).json()
+        definition = statement["rest"][0]["operation"][0]["definition"]
+        served = await client.get(f"/OperationDefinition/{definition.rsplit('/', 1)[-1]}")
+    assert served.status_code == 200
+    assert served.json()["resourceType"] == "OperationDefinition"
