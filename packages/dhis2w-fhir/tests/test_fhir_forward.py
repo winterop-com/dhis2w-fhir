@@ -57,10 +57,11 @@ from dhis2w_fhir.conversion import (
     load_compiled_artifacts,
     receipt_event_uid,
 )
+from dhis2w_fhir.forward_records import ForwardImportRecord
 from dhis2w_fhir.names import is_dhis2_uid
 from dhis2w_fhir.r4 import Extension, Identifier, Location, QuestionnaireResponse
 from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
-from dhis2w_fhir.resources.option_sets import build_option_set_artifacts, build_option_set_concept_maps
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
 from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryComboIn,
@@ -3374,10 +3375,10 @@ async def test_a_completeness_answer_with_no_import_summary_leaves_the_claim_pen
     assert (one_aggregate_project / FORWARDED_RESPONSES_RELATIVE_PATH / f"{document.id}.json").is_file()
 
 
-def _forwarded_report(root: Path, response_id: str) -> service.ForwardImportRecord:
+def _forwarded_report(root: Path, response_id: str) -> ForwardImportRecord:
     """The sidecar beside one forwarded receipt, which is where a completeness claim lives once filed."""
     path = root / FORWARDED_RESPONSES_RELATIVE_PATH / f"{response_id}{IMPORT_REPORT_SUFFIX}"
-    return service.ForwardImportRecord.model_validate_json(path.read_text(encoding="utf-8"))
+    return ForwardImportRecord.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 @respx.mock

@@ -1294,3 +1294,7 @@ class QuestionnaireNaming(BaseModel):
     def category_option_combo_value_set_id(self) -> str:
         """FHIR id of the category-option-combo support ValueSet (e.g. `d2-coc-vs`)."""
         return join_id_tokens(self.prefix, "coc", "vs")
+
+
+#: The identifier-system segment that alias expands to, which the JSON path writes absolutely.
+TRACKED_ENTITY_TYPE_IDENTIFIER_SEGMENT = "tracked-entity-type"

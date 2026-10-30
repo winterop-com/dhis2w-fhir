@@ -20,15 +20,12 @@ from dhis2w_fhir import (
     service,
 )
 from dhis2w_fhir.attributes import AttributeCodeIndex
-from dhis2w_fhir.resources.option_sets import option_set_identities
+from dhis2w_fhir.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
-from dhis2w_fhir.resources.questionnaires import (
+from dhis2w_fhir.resources.questionnaires.builders import collect_referenced_objects, link_id_collisions
+from dhis2w_fhir.resources.questionnaires.schemas import (
     BOUNDS_BY_VALUE_TYPE,
     ITEM_TYPES_BY_VALUE_TYPE,
-    collect_referenced_objects,
-    link_id_collisions,
-)
-from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,
     ProgramContextIn,

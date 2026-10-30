@@ -35,7 +35,7 @@ import json
 from typing import Any
 
 from dhis2w_fhir.conversion.values import location_id_of
-from dhis2w_fhir.foundation import (
+from dhis2w_fhir.foundation.schemas import (
     GENERATE_ATTRIBUTE_OPTION_COMBO_PARAMETER,
     GENERATE_SEED_PARAMETER,
     GENERATE_SUBJECT_PARAMETER,

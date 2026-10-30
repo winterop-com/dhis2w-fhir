@@ -18,19 +18,19 @@ from typing import Any
 
 from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
-from dhis2w_fhir.resources.attribute_combos import (
-    ATTRIBUTE_COMBO_DIRECTORY,
+from dhis2w_fhir.resources.attribute_combos.builders import (
     AttributeComboBuild,
     attribute_combo_concept_map_file_prefix,
     attribute_combo_sources,
     build_attribute_combo_artifacts,
     build_attribute_combo_concept_map_artifacts,
 )
-from dhis2w_fhir.resources.examples import build_example_artifacts, build_synthetic_responses
+from dhis2w_fhir.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
+from dhis2w_fhir.resources.examples.builders import build_example_artifacts, build_synthetic_responses
 from dhis2w_fhir.resources.examples.documents import build_example_documents
 from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentityPlan
-from dhis2w_fhir.resources.questionnaires import build_questionnaire_artifacts
+from dhis2w_fhir.resources.questionnaires.builders import build_questionnaire_artifacts
 from dhis2w_fhir.resources.questionnaires.documents import build_questionnaire_documents
 from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryComboIn,

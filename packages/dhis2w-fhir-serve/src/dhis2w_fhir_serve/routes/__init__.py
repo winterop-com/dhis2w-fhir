@@ -447,7 +447,7 @@ def build_facade_api(
     a deployment behind a closed network reads `/openapi.json` and opens it in whatever it already
     has. `/docs` is the convenience, not the contract.
     """
-    from dhis2w_fhir_serve.errors import register_error_handlers
+    from dhis2w_fhir_serve.error_handlers import register_error_handlers
     from dhis2w_fhir_serve.runtime import server_version
 
     api = FastAPI(

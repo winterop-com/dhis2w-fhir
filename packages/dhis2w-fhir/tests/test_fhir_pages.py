@@ -28,14 +28,19 @@ from dhis2w_fhir.resources.attribute_combos.restrictions import (
     CategoryOptionValidity,
     OrganisationUnitPaths,
 )
-from dhis2w_fhir.resources.examples import STATUS_BY_EVENT_STATUS
+from dhis2w_fhir.resources.examples.builders import STATUS_BY_EVENT_STATUS
 from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
-from dhis2w_fhir.resources.option_sets import option_set_identities
+from dhis2w_fhir.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelNames
-from dhis2w_fhir.resources.pages import INTRO_SUFFIX, PAGES_DIRECTORY, SITE_PAGE_FILENAMES, build_page_artifacts
+from dhis2w_fhir.resources.pages.builders import (
+    INTRO_SUFFIX,
+    PAGES_DIRECTORY,
+    SITE_PAGE_FILENAMES,
+    build_page_artifacts,
+)
 from dhis2w_fhir.resources.pages.schemas import PagesIn
-from dhis2w_fhir.resources.questionnaires import ITEM_TYPES_BY_VALUE_TYPE
 from dhis2w_fhir.resources.questionnaires.schemas import (
+    ITEM_TYPES_BY_VALUE_TYPE,
     CategoryComboIn,
     CategoryOptionComboIn,
     ProgramContextIn,

@@ -13,7 +13,8 @@ from pathlib import Path
 
 import pytest
 from dhis2w_cli.main import build_app
-from dhis2w_fhir.service import DISCARDED_STATUS, OVERWRITE_REFUSAL_CATEGORY, ForwardImportRecord
+from dhis2w_fhir.forward_records import ForwardImportRecord
+from dhis2w_fhir.service import DISCARDED_STATUS, OVERWRITE_REFUSAL_CATEGORY
 from dhis2w_fhir.spool import (
     IMPORT_REPORT_SUFFIX,
     MALFORMED_RESPONSES_RELATIVE_PATH,

@@ -38,7 +38,7 @@ from dhis2w_fhir.doctor import DoctorOutcome, DoctorPhase, generate_findings, gr
 from dhis2w_fhir.i18n import TranslationIn
 from dhis2w_fhir.notes import GenerateNoteCategory
 from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE, FhirBase
-from dhis2w_fhir.resources.questionnaires import DATA_DICTIONARY_DIRECTORY
+from dhis2w_fhir.resources.questionnaires.builders import DATA_DICTIONARY_DIRECTORY
 from dhis2w_fhir.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramContextIn,

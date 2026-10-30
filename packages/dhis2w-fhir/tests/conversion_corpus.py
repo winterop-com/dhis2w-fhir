@@ -40,8 +40,8 @@ from dhis2w_fhir.conversion import (
 )
 from dhis2w_fhir.r4 import CodeSystem, Identifier, Location, ValueSet
 from dhis2w_fhir.resources.examples.schemas import ExampleResponseIn
-from dhis2w_fhir.resources.option_sets import build_option_set_artifacts, build_option_set_concept_maps
-from dhis2w_fhir.resources.questionnaires import source_items
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
+from dhis2w_fhir.resources.questionnaires.builders import source_items
 
 SOURCE_DIRECTORY = Path(__file__).parent / "data" / "questionnaire-sources"
 

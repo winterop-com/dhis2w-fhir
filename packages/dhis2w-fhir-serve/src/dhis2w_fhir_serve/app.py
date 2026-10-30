@@ -29,8 +29,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from dhis2w_fhir_serve.errors import register_error_handlers
-from dhis2w_fhir_serve.log import LOGGER_NAME, RequestLogMiddleware
+from dhis2w_fhir_serve.error_handlers import register_error_handlers
+from dhis2w_fhir_serve.log import LOGGER_NAME
+from dhis2w_fhir_serve.request_log import RequestLogMiddleware
 from dhis2w_fhir_serve.routes import register_routes
 from dhis2w_fhir_serve.runtime import attach_serve_runtime, open_serve_runtime, server_version
 from dhis2w_fhir_serve.settings import ServeSettings

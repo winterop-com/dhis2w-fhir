@@ -105,7 +105,7 @@ from dhis2w_fhir.r4 import (
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir.resources.examples import (
+from dhis2w_fhir.resources.examples.synthetic import (
     UNSYNTHESIZABLE_VALUE_TYPES,
     distinct_unique_value,
     seeded_format_constrained_value,

@@ -46,8 +46,7 @@ from dhis2w_fhir.r4 import (
     Reference,
 )
 from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
-from dhis2w_fhir.resources.examples import (
-    ExampleAnswerRules,
+from dhis2w_fhir.resources.examples.builders import (
     ExampleTally,
     example_answers,
     example_attribute_combo_assignments,
@@ -60,13 +59,14 @@ from dhis2w_fhir.resources.examples import (
     example_tracker_context,
     location_reference,
 )
-from dhis2w_fhir.resources.option_sets import (
+from dhis2w_fhir.resources.examples.schemas import ExampleAnswerRules
+from dhis2w_fhir.resources.option_sets.builders import (
     code_system_canonical,
     option_concept_code_index,
     option_set_identity_index,
 )
 from dhis2w_fhir.resources.option_sets.schemas import OptionConceptCodeIndex
-from dhis2w_fhir.resources.questionnaires import bound_option_set_uids
+from dhis2w_fhir.resources.questionnaires.builders import bound_option_set_uids
 from dhis2w_fhir.resources.questionnaires.program_rules import FormProgramRules, plan_program_rules
 from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireStemPlan,

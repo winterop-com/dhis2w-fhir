@@ -818,6 +818,8 @@ status.py                    [ig] status -> FHIR status + experimental
 ips.py                       The [ips] nominations: identity, section mappings
 summary.py                   The IPS document assembly, as a library
 spool.py                     The read side of .serve/responses
+forward_records.py           What DHIS2 answered, as filed beside a receipt
+errors.py                    The failure a user can fix, free of any terminal
 doctor.py                    The nine-phase conformance runner
 r4/                          Frozen, alias-aware R4 models; JSON is dumped from these
 period/                      The 23 period types, parse_period, recent_periods
@@ -847,7 +849,9 @@ summary.py                   The doses one record holds, off the projection
 health.py                    The validate findings and translation coverage
 synthesize.py                $generate
 spool.py                     The write side of .serve/responses
-errors.py, log.py, ui.py     OperationOutcome handlers, logging, the UI mounts
+errors.py, error_handlers.py Refusals, and how each reaches the wire as an OperationOutcome
+log.py, request_log.py       The logger, and one line per request
+ui.py                        The UI mounts
 ```
 
 `resources/` is reserved for DHIS2 domains, which is why `scaffold/`,

@@ -15,7 +15,7 @@ import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import GenerateFullReport, GenerateReport, InitOptions, UnsupportedProgramError, load_project, service
 from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, generate_note
-from dhis2w_fhir.resources.examples import EXAMPLES_DIRECTORY
+from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY
 from dhis2w_fhir.service import GenerateSubject, _target_counts
 
 _HOST = "https://dhis2.example"

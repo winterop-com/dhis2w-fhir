@@ -477,7 +477,7 @@ def test_validate_error_parity_with_the_generate_refusal() -> None:
     """The same fixture a validate error names is the one `d2w fhir generate` refuses to emit."""
     from dhis2w_fhir.attributes import AttributeCodeIndex
     from dhis2w_fhir.names import CodeStemError
-    from dhis2w_fhir.resources.option_sets import build_option_set_artifacts
+    from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
 
     uncoded = _set("Os1aaaaaaaa", "Uncoded", [])
     sweep = MetadataCollectionIn(resource="optionSets", items=[MetadataItemIn(uid="Os1aaaaaaaa", name="Uncoded")])

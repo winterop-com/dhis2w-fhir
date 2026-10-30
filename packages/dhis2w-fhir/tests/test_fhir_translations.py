@@ -13,16 +13,14 @@ from dhis2w_fhir.i18n import (
     normalize_locale,
     text_translations,
 )
-from dhis2w_fhir.resources.option_sets import build_option_set_artifacts
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
-from dhis2w_fhir.resources.organisation_units import (
-    build_organisation_unit_instances,
-    build_organisation_unit_terminology,
-)
+from dhis2w_fhir.resources.organisation_units.organization import build_organisation_unit_instances
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,
 )
+from dhis2w_fhir.resources.organisation_units.terminology import build_organisation_unit_terminology
 from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramContextIn,
     QuestionnaireItemIn,

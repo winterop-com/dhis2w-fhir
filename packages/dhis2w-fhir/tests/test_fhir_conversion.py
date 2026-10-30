@@ -73,9 +73,9 @@ from dhis2w_fhir.r4 import (
     ValueSet,
 )
 from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
-from dhis2w_fhir.resources.option_sets import build_option_set_artifacts, build_option_set_concept_maps
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.resources.questionnaires import source_items
+from dhis2w_fhir.resources.questionnaires.builders import source_items
 from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,

@@ -93,7 +93,7 @@ from dhis2w_fhir.foundation.schemas import (
 )
 from dhis2w_fhir.hostile_names import HostileNameGate
 from dhis2w_fhir.r4 import CodeSystemConcept
-from dhis2w_fhir.resources.attribute_combos import (
+from dhis2w_fhir.resources.attribute_combos.builders import (
     build_attribute_combo_artifacts,
     build_attribute_combo_concept_map_artifacts,
     build_attribute_combo_identifier_artifacts,
@@ -119,7 +119,7 @@ if TYPE_CHECKING:
     from dhis2w_fhir.config import FhirProject, GenerateConfig
     from dhis2w_fhir.r4 import CodeSystem, ConceptMap, Questionnaire, ValueSet
     from dhis2w_fhir.resources.option_sets.schemas import OptionSetIn
-    from dhis2w_fhir.resources.organisation_units import OrganisationUnitTerminologyBuild
+    from dhis2w_fhir.resources.organisation_units.documents import OrganisationUnitTerminologyBuild
     from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
     from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn
     from dhis2w_fhir.status import IgStatus

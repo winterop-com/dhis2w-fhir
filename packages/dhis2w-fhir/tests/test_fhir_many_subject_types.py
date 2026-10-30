@@ -37,7 +37,7 @@ from dhis2w_fhir import (
 )
 from dhis2w_fhir.foundation.schemas import TrackerSubjectTypes
 from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
-from dhis2w_fhir.resources.questionnaires import registration_subject, source_description
+from dhis2w_fhir.resources.questionnaires.builders import registration_subject, source_description
 from dhis2w_fhir.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,

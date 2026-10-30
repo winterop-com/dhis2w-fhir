@@ -14,15 +14,15 @@ from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.names import StemResolution, StemSubject, resolve_identity_stems
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentityPlan
-from dhis2w_fhir.resources.organisation_units import ORGANISATION_UNIT_STEM_SURFACE
+from dhis2w_fhir.resources.organisation_units.organization import ORGANISATION_UNIT_STEM_SURFACE
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitSelection
-from dhis2w_fhir.resources.questionnaires import build_questionnaire_artifacts
 from dhis2w_fhir.resources.questionnaires.assignments import (
     ASSIGNMENT_DIRECTORY,
     AssignmentBuild,
     AssignmentIndex,
     build_assignment_artifacts,
 )
+from dhis2w_fhir.resources.questionnaires.builders import build_questionnaire_artifacts
 from dhis2w_fhir.resources.questionnaires.documents import build_questionnaire_documents
 from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramContextIn,

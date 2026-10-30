@@ -655,11 +655,15 @@ Every failed interaction, and the OperationOutcome it answers with.
 
 ::: dhis2w_fhir_serve.errors
 
+::: dhis2w_fhir_serve.error_handlers
+
 ### Request logging
 
 One log line per interaction, and the plain configuration the server process runs under.
 
 ::: dhis2w_fhir_serve.log
+
+::: dhis2w_fhir_serve.request_log
 
 ### Package surface
 

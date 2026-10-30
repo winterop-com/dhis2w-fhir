@@ -28,7 +28,8 @@ from dhis2w_fhir import (
     option_set_identities,
 )
 from dhis2w_fhir.r4 import FhirBase
-from dhis2w_fhir.resources.questionnaires import (
+from dhis2w_fhir.resources.questionnaires.assignments import assignment_container, assignment_container_uid
+from dhis2w_fhir.resources.questionnaires.builders import (
     REGISTRATION_FILE_STEM,
     bound_option_set_uids,
     form_collects_incident_date,
@@ -36,7 +37,6 @@ from dhis2w_fhir.resources.questionnaires import (
     question_code_system,
     question_entity_level,
 )
-from dhis2w_fhir.resources.questionnaires.assignments import assignment_container, assignment_container_uid
 from dhis2w_fhir.resources.questionnaires.schemas import (
     CAPTURED_FORM_KINDS,
     FORM_KIND_PROFILES,

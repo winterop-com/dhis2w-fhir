@@ -56,7 +56,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-from dhis2w_fhir.service import ForwardImportOutcome, WithdrawalRecord
+from dhis2w_fhir.forward_records import ForwardImportOutcome, WithdrawalRecord
 from dhis2w_fhir.spool import (
     QUARANTINE_REASON_SUFFIX,
     ForwardRefusalRecord,

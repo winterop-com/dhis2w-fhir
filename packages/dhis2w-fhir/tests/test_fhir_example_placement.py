@@ -24,7 +24,7 @@ from dhis2w_fhir.resources.attribute_combos.restrictions import (
     OrganisationUnitPaths,
     UsableAttributeOptionCombos,
 )
-from dhis2w_fhir.resources.examples import build_synthetic_responses
+from dhis2w_fhir.resources.examples.builders import build_synthetic_responses
 from dhis2w_fhir.resources.questionnaires.assignments import AssignmentIndex
 from dhis2w_fhir.resources.questionnaires.schemas import (
     CategoryComboIn,

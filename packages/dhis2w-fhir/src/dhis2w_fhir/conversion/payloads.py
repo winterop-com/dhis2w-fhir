@@ -83,7 +83,7 @@ from dhis2w_fhir.foundation.schemas import (
     PERIOD_TYPE_SUB_EXTENSION,
 )
 from dhis2w_fhir.period import parse_period
-from dhis2w_fhir.resources.examples import derived_seed, synthetic_uid
+from dhis2w_fhir.resources.examples.synthetic import derived_seed, synthetic_uid
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

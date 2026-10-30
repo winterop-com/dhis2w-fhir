@@ -67,7 +67,7 @@ from dhis2w_fhir.config import (
 )
 from dhis2w_fhir.conversion.artifacts import CompiledArtifactReadError, CompiledIgMissingError
 from dhis2w_fhir.drift import detect_drift
-from dhis2w_fhir.foundation import CAPTURE_SERVER_READ_RESOURCE_TYPES
+from dhis2w_fhir.foundation.response_profiles import CAPTURE_SERVER_READ_RESOURCE_TYPES
 from dhis2w_fhir.hostile_names import project_gate
 from dhis2w_fhir.names import code_or_uid, flatten_whitespace, pascal
 from dhis2w_fhir.scaffold.schemas import DEFAULT_SUSHI_TIMEOUT_SECONDS, InitOptions

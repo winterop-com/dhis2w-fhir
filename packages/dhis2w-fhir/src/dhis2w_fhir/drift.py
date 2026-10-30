@@ -69,7 +69,7 @@ from dhis2w_fhir.coded import DHIS2_ID_PROPERTY
 from dhis2w_fhir.conversion.artifacts import load_compiled_artifacts
 from dhis2w_fhir.implementation_guide import load_declared_examples
 from dhis2w_fhir.names import flatten_whitespace
-from dhis2w_fhir.resources.option_sets import code_system_canonical
+from dhis2w_fhir.resources.option_sets.builders import code_system_canonical
 from dhis2w_fhir.resources.questionnaires.schemas import FORM_KIND_PROFILES, FormKind, QuestionnaireNaming
 from dhis2w_fhir.validation.substitution import substitute_build_aborting_text
 

@@ -28,7 +28,7 @@ _NOTE_CONSTRUCTORS = frozenset({"generate_note", "aggregate_generate_note"})
 _EMISSION_INVENTORY: dict[str, dict[GenerateNoteCategory, int]] = {
     "hostile_names.py": {GenerateNoteCategory.NAME_SUBSTITUTION: 1, GenerateNoteCategory.CODE_SUBSTITUTION: 1},
     "names.py": {GenerateNoteCategory.STEM_FALLBACK: 1},
-    "resources/examples/__init__.py": {
+    "resources/examples/builders.py": {
         GenerateNoteCategory.ANSWER_FALLBACK: 1,
         GenerateNoteCategory.INSTANCE_DATA_GAP: 5,
         GenerateNoteCategory.SELECTION_GAP: 1,
@@ -36,13 +36,13 @@ _EMISSION_INVENTORY: dict[str, dict[GenerateNoteCategory, int]] = {
     },
     "resources/categories/decomposition.py": {GenerateNoteCategory.SELECTION_GAP: 1},
     "resources/examples/documents.py": {GenerateNoteCategory.SELECTION_GAP: 1},
-    "resources/option_sets/__init__.py": {
+    "resources/option_sets/builders.py": {
         GenerateNoteCategory.CODE_COLLISION: 2,
         GenerateNoteCategory.CODE_FALLBACK: 1,
     },
     "resources/organisation_units/organization.py": {GenerateNoteCategory.SELECTION_GAP: 1},
     "resources/questionnaires/assignments.py": {GenerateNoteCategory.SELECTION_GAP: 1},
-    "resources/questionnaires/__init__.py": {
+    "resources/questionnaires/builders.py": {
         GenerateNoteCategory.REFUSED_FORM: 1,
         GenerateNoteCategory.SELECTION_GAP: 1,
     },

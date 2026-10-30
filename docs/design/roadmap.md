@@ -68,7 +68,7 @@ models and ship no templates.
 | `grouping.py` | `group_data_values`, `ReportedForm`, `ReportedValue` - one `/api/dataValueSets` envelope grouped into the forms it reports, on the `(orgUnit, period, attributeOptionCombo)` key, with the value's own key first and the envelope's behind it. Read by `generate examples` with `source = "instance"` and by the facade's data set read-back, so the fall-back rule is written once ([Aggregate read-back](aggregate-read-back.md)). |
 | `notes.py` | `aggregate_note` - the one formatter for "N subjects, a capped sample, and the remainder". |
 | `status.py` | `IgStatus` (`draft` / `active`) and `experimental_for_status`. A leaf, so every emitter imports it without reaching for `config.py`. |
-| `foundation/__init__.py` | The seven instance-independent `foundation/` artifacts and the `NamingSystem` / response-profile declarations. |
+| `foundation/artifacts.py` | The seven instance-independent `foundation/` artifacts and the `NamingSystem` / response-profile declarations. |
 | `foundation/schemas.py` | `FoundationNaming`, `IdentifierSystemSubject`, `FormTypeDefinition`, `ResponseProfileDeclaration`, `NamingSystemDeclaration`. |
 | `foundation/attribute_values.py` | The `D2AttributeValue` context list and sub-extension names, `attribute_value_extension_url`, and `attribute_value_extensions` - the one builder every resource emitter calls. The only `foundation/` module read at emit time rather than at definition time. |
 | `period/__init__.py` | Re-export surface for the period grammar. |
@@ -77,23 +77,22 @@ models and ship no templates.
 | `period/recent.py` | `recent_periods` - the inverse, built on the parser so the two cannot drift. |
 | `resources/__init__.py` | Re-export shim over the resource components. |
 | `resources/identifier_terminology.py` | `build_identifier_code_systems` and `build_identifier_code_system_artifacts` - one `content: complete` CodeSystem per DHIS2 identifier namespace the given ConceptMaps target, read off the maps rather than assumed, so a family that grows a group cannot leave its new target system un-enumerated. Each family calls it for the namespaces its own maps name and writes the result into the directory it owns. |
-| `resources/option_sets/__init__.py` | The pre-built CodeSystem/ValueSet JSON pair per option set, the ConceptMap per set, `build_option_set_identifier_artifacts` for the two identifier namespaces those maps target, `TERMINOLOGY_DIRECTORY`, `option_set_identities`, `option_set_identity_index`, `concept_assignments`, `max_slug_length`, `option_set_code_fallback`, `option_set_fsh_name`. |
+| `resources/option_sets/builders.py` | The pre-built CodeSystem/ValueSet JSON pair per option set, the ConceptMap per set, `build_option_set_identifier_artifacts` for the two identifier namespaces those maps target, `TERMINOLOGY_DIRECTORY`, `option_set_identities`, `option_set_identity_index`, `concept_assignments`, `max_slug_length`, `option_set_code_fallback`, `option_set_fsh_name`. |
 | `resources/option_sets/schemas.py` | `OptionSetSelection`, `OptionIn`, `ConceptSourceIn` (the concept-source projection categories share), `OptionSetIn`, `ConceptAssignment`, `ConceptAssignmentPlan`, `OptionSetIdentity`, `OptionSetIdentityPlan`, `OptionSetIdentityIndex`. |
-| `resources/categories/__init__.py` | The pre-built CodeSystem/ValueSet JSON pair per DHIS2 category, `CATEGORY_DIRECTORY`, `build_category_artifacts`, `build_category_identifier_artifacts`, `category_identities`, `category_fsh_name`, `max_category_slug_length`. Concepts are built by the option-set component's `build_concepts`, so both terminology sources assign concept codes in one place. |
+| `resources/categories/builders.py` | The pre-built CodeSystem/ValueSet JSON pair per DHIS2 category, `CATEGORY_DIRECTORY`, `build_category_artifacts`, `build_category_identifier_artifacts`, `category_identities`, `category_fsh_name`, `max_category_slug_length`. Concepts are built by the option-set component's `build_concepts`, so both terminology sources assign concept codes in one place. |
 | `resources/categories/schemas.py` | `CategorySelection`, `CategoryIn` (a `ConceptSourceIn`), `CategoryIdentity`, `CategoryIdentityPlan`, `DEFAULT_CATEGORY_NAME`, `is_default_category`. |
-| `resources/questionnaires/__init__.py` | One Questionnaire per form plus the two support terminology pairs; `ITEM_TYPES_BY_VALUE_TYPE`, `BOUNDS_BY_VALUE_TYPE`, `QUESTIONNAIRE_DIRECTORIES`, `domain_code`, `is_multi_valued`. |
+| `resources/questionnaires/builders.py` | One Questionnaire per form plus the two support terminology pairs; `ITEM_TYPES_BY_VALUE_TYPE`, `BOUNDS_BY_VALUE_TYPE`, `QUESTIONNAIRE_DIRECTORIES`, `domain_code`, `is_multi_valued`. |
 | `resources/questionnaires/documents.py` | The JSON twin of the FSH emitter: `build_questionnaire_documents` and `build_data_dictionary_documents` return finished R4 documents with every name already absolute, through the same exported decisions (`item_type`, `is_disaggregated`, `source_description`, `source_program`, `FormKindProfile` / `FORM_KIND_PROFILES`) the FSH path calls. `test_fhir_questionnaire_parity.py` gates the equality against SUSHI output. |
 | `resources/questionnaires/schemas.py` | `TargetSelection`, `NumericBounds`, `CategoryOptionComboIn`, `CategoryComboIn`, `QuestionnaireItemIn`, `QuestionnaireSectionIn`, `QuestionnaireSourceIn`, `QuestionnaireNaming`, the `FormKind` alias. |
-| `resources/examples/__init__.py` | The `Usage: #example` QuestionnaireResponse per example, `build_synthetic_responses`, `answer_element`, `zoned_date_time`, `response_status_code`, and the whole answer-typing layer. |
+| `resources/examples/builders.py` | The `Usage: #example` QuestionnaireResponse per example, `build_synthetic_responses`, `answer_element`, `zoned_date_time`, `response_status_code`, and the whole answer-typing layer. |
 | `resources/examples/documents.py` | `build_example_documents` - the same responses as finished `QuestionnaireResponse` documents, which is what `d2w fhir generate load-set` writes into `load/`. |
 | `resources/examples/schemas.py` | `ExampleSelection`, `ExampleAnswerIn`, `ExampleResponseIn`, `ExampleSource`, `MAXIMUM_EXAMPLES_PER_TARGET`. |
-| `resources/organisation_units/__init__.py` | Re-exports the five org-unit builders, `REGISTRY_DIRECTORY`, and `BOUNDARY_CONTENT_TYPE`. |
 | `resources/organisation_units/naming.py` | `OrganisationUnitNaming` and `OrganisationUnitInstanceUrls` - every org-unit artifact name, id, and instance URL from the naming tokens. A leaf, which is why `foundation/` can read it without a cycle. |
 | `resources/organisation_units/organization.py` | The `profiles.fsh` artifact, `REGISTRY_DIRECTORY`, and `build_organisation_unit_instances` - the `Organization` models plus the `JsonArtifact` serialisation of both halves of the registry. |
 | `resources/organisation_units/location.py` | The `Location` models - position, `partOf`, and the base64 GeoJSON boundary attachment; `BOUNDARY_CONTENT_TYPE`. |
 | `resources/organisation_units/terminology.py` | The level CodeSystem/ValueSet and the optional whole-selection pair. |
 | `resources/organisation_units/schemas.py` | `OrganisationUnitSelection`, `GeoPoint`, `OrganisationUnitIn`. |
-| `resources/pages/__init__.py` | The six site pages, the per-artifact intros, `SITE_PAGE_FILENAMES`, `PAGES_DIRECTORY`, `PAGES_BASE_SUBDIRECTORY`, `INTRO_SUFFIX`. |
+| `resources/pages/builders.py` | The six site pages, the per-artifact intros, `SITE_PAGE_FILENAMES`, `PAGES_DIRECTORY`, `PAGES_BASE_SUBDIRECTORY`, `INTRO_SUFFIX`. |
 | `resources/pages/schemas.py` | `PagesIn` plus one view-model per page (`FormRow`, `RegistryView`, `TerminologyView`, `IdentifiersView`, `PeriodsView`, `CaptureView`, and the intro views). |
 | `scaffold/__init__.py` | `build_scaffold_files` - the twelve files `d2w fhir init` writes - plus `SUSHI_CONFIG_RELATIVE_PATH` and `FSH_INI_RELATIVE_PATH`, the two files a refresh recovers values from. |
 | `scaffold/schemas.py` | `InitOptions`, `ScaffoldFile`, `ProjectScaffoldState`, `ScaffoldReport` (created / skipped / refreshed / unchanged / extended / diverged), `normalize_project_name`, `DEFAULT_SUSHI_TIMEOUT_SECONDS`. |
@@ -1135,19 +1134,19 @@ DHIS2 importer would reject or silently mis-store?
 **Where to start.**
 
 *The profiles themselves.* `foundation/templates/d2-responses.fsh.jinja` and
-`build_response_profile_declarations` in `foundation/__init__.py`. Read what the
+`build_response_profile_declarations` in `foundation/response_profiles.py`. Read what the
 profiles pin and, more importantly, what they leave open:
 `QuestionnaireResponse.item` is entirely unconstrained by either profile, and
 `subject` is a `Reference(D2Location)` with no statement that the Location has
 to be one the registry published.
 
-*The linkId grammar.* `resources/questionnaires/__init__.py`: `_item_views`,
+*The linkId grammar.* `resources/questionnaires/builders.py`: `_item_views`,
 `_data_element_views`, `_new_path` / `_set_path`, and the two grammars -
 `<dataElementId>` for a plain question and `<dataElementId>.<categoryOptionComboId>`
 for a disaggregated cell. Note that a section group's `linkId` is the DHIS2
 section UID, which shares a namespace with the data element ids.
 
-*The answer typing.* `resources/examples/__init__.py`: `answer_element`,
+*The answer typing.* `resources/examples/builders.py`: `answer_element`,
 `_typed_answer`, `_typed_answers`, `_coded_answer`, `_temporal_answer`,
 `_integer_answer`, `_decimal_answer`, `_boolean_answer`, and its two FSH literal
 patterns `_FSH_DECIMAL_PATTERN` / `_FSH_INTEGER_PATTERN`. The R4 primitive checks
@@ -1158,7 +1157,7 @@ what the emitter would have written.
 
 *The prose contract.* `docs/401-capture-contract.md` and the
 generated `capture.md` behind
-`resources/pages/__init__.py`'s `_capture_page`.
+`resources/pages/builders.py`'s `_capture_page`.
 
 **Risks already suspected.**
 
@@ -1295,8 +1294,8 @@ called by the service), `clean_generated_files`, `option_set_fsh_name`,
 `NamingSystemDeclaration`, `ResponseProfileDeclaration`. Some are genuinely
 public API for `docs/api-dhis2w-fhir.md`; some may be re-exports of internals. Note
 also that `build_naming_system_declarations` is imported by
-`resources/pages/__init__.py` and re-exported from the package but is **not** in
-`foundation/__init__.py`'s own `__all__`.
+`resources/pages/builders.py` and re-exported from the package but is **not** in
+`foundation/artifacts.py`'s own `__all__`.
 
 *Escaping consistency across three layers.* `names.page_text` (FSH page
 furniture), `names.quote` / `names.escape_fsh_string` (FSH string literals),
@@ -1351,7 +1350,7 @@ what kind of bug this codebase produces.
 - **Examples declared a response profile unconditionally** while the surrounding
   code deliberately tolerated a missing `D2Period` or a missing `authored`, so a
   published example could claim a conformance it failed. The fix is
-  `_response_profile` in `resources/examples/__init__.py`, which declares the
+  `_response_profile` in `resources/examples/builders.py`, which declares the
   base `QuestionnaireResponse` when the kind's 1..1 element is absent.
 - **Questionnaires and examples built option-set CodeSystem and ValueSet names
   themselves** instead of reading the identity plan, so every option-bound
