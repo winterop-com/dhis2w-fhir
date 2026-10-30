@@ -20,6 +20,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.schemas import FoundationNaming
 from dhis2w_fhir_engine.facade.i18n import name_translations, translated_element
 from dhis2w_fhir_engine.facade.names import (
     FHIR_ID_MAX_LENGTH,
@@ -34,7 +35,12 @@ from dhis2w_fhir_engine.facade.names import (
     resolve_identity_stems,
 )
 from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, aggregate_generate_note
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
+    OrganisationUnitLevelNames,
+    RegistryDependency,
+)
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.facade.writer import FshArtifact, JsonArtifact, JsonBuild
 from dhis2w_fhir_engine.r4.resources import (
     BOUNDARY_EXTENSION_URL,
     CodeableConcept,
@@ -55,21 +61,17 @@ from dhis2w_fhir.foundation.attribute_values import (
     attribute_value_extensions,
     attribute_value_identifiers,
 )
-from dhis2w_fhir.foundation.schemas import FoundationNaming
 from dhis2w_fhir.resources.organisation_units.location import build_location
 from dhis2w_fhir.resources.organisation_units.naming import (
     OrganisationUnitInstanceUrls,
     OrganisationUnitNaming,
     organisation_unit_level_coding,
 )
-from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelNames, RegistryDependency
-from dhis2w_fhir.writer import FshArtifact, JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitIn
 
 #: The `ig/input/resources/` subdirectory the registry owns outright - one JSON file per resource.
 REGISTRY_DIRECTORY = "registry"

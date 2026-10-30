@@ -29,8 +29,8 @@ import httpx2
 import pytest
 import respx
 from dhis2w_core.profile import Profile
-from dhis2w_fhir.config import FhirProject
 from dhis2w_fhir.service import forward_responses
+from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI

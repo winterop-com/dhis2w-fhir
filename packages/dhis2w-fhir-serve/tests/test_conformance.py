@@ -15,9 +15,9 @@ from urllib.parse import urlencode
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import FhirProject, load_fhir_config
-from dhis2w_fhir_serve.capability import EVALUATE_OPERATION_DEFINITION
-from dhis2w_fhir_serve.store import (
+from dhis2w_fhir_engine.facade.capability import EVALUATE_OPERATION_DEFINITION
+from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
+from dhis2w_fhir_engine.facade.store import (
     GUIDE_CONFORMANCE_RESOURCE_TYPES,
     ResourceStore,
     attach_builtin_conformance,

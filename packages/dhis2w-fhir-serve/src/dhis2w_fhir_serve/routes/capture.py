@@ -24,7 +24,7 @@ A CORRECTION OR A WITHDRAWAL IS REFUSED HERE where the project's dials are off. 
 corrections` and `[forward] withdrawals` are read off `fhir.toml` onto the capture state, and a
 submission carrying `status = "amended"` or `status = "entered-in-error"` against an off dial is
 answered 422 with the key named. With the dial on it is stored like any other receipt, status and
-all - see `dhis2w_fhir_serve.capture.validate`.
+all - see `dhis2w_fhir_engine.facade.capture.validate`.
 
 WHO SUBMITTED IT is stamped on the receipt where this run established anybody. Under
 `[serve] auth = "dhis2"` the check has already read `/api/me` as the caller, so the username DHIS2
@@ -35,8 +35,26 @@ authenticates nobody knows nobody.
 
 from __future__ import annotations
 
-from typing import Any
-
+from dhis2w_fhir_engine.facade.capability import QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE
+from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
+from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.capture.outcome import CaptureIssue, CaptureRejection, rejection_outcome, success_outcome
+from dhis2w_fhir_engine.facade.capture.validate import (
+    CaptureLifecyclePostures,
+    CaptureSubject,
+    ValidatedCapture,
+    validate_response,
+)
+from dhis2w_fhir_engine.facade.refusals import (
+    FHIR_JSON_MEDIA_TYPE,
+    CaptureDisabledError,
+    PackagePublishesNoFormsError,
+    UnsupportedMediaTypeError,
+)
+from dhis2w_fhir_engine.facade.response_spool import (
+    StoredResponseEnvelope,
+    mint_receipt,
+)
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
@@ -45,24 +63,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from dhis2w_fhir_serve.auth import request_identity
-from dhis2w_fhir_serve.capability import QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE
-from dhis2w_fhir_serve.capture.index import CaptureIndexCache
-from dhis2w_fhir_serve.capture.naming import CaptureNaming
-from dhis2w_fhir_serve.capture.outcome import CaptureIssue, CaptureRejection, rejection_outcome, success_outcome
-from dhis2w_fhir_serve.capture.validate import (
-    CaptureLifecyclePostures,
-    CaptureSubject,
-    ValidatedCapture,
-    validate_response,
-)
-from dhis2w_fhir_serve.errors import (
-    FHIR_JSON_MEDIA_TYPE,
-    CaptureDisabledError,
-    PackagePublishesNoFormsError,
-    UnsupportedMediaTypeError,
-)
 from dhis2w_fhir_serve.routes.context import serve_context
-from dhis2w_fhir_serve.spool import StoredResponseEnvelope, current_instant, new_response_id
 
 #: Where the capture state is held on the app. It is deliberately not part of `ServeContext`: the
 #: context is everything the lifespan loaded, and this is built by the first request that needs a
@@ -185,19 +186,9 @@ def capture_state(request: Request) -> CaptureState:
 
 
 def _receipt(validated: ValidatedCapture, request: Request) -> StoredResponseEnvelope:
-    """Mint the receipt for one accepted submission, stamping the id it is served under onto the stored copy."""
-    response_id = new_response_id()
-    stored: dict[str, Any] = {**validated.response, "id": response_id}
+    """Mint the receipt for one accepted submission, under the caller this request authenticated as."""
     identity = request_identity(request)
-    return StoredResponseEnvelope(
-        response_id=response_id,
-        received_at=current_instant(),
-        form_kind=validated.form_kind,
-        questionnaire=validated.canonical,
-        submitted_by=None if identity is None else identity.username,
-        warnings=tuple(warning.diagnostics or "" for warning in validated.warnings),
-        response=stored,
-    )
+    return mint_receipt(validated, submitted_by=None if identity is None else identity.username)
 
 
 def _created(

@@ -17,12 +17,17 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
+from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome, WithdrawalRecord
+from dhis2w_fhir_engine.facade.response_spool import (
+    IMPORT_REPORT_SUFFIX,
+    REFUSAL_RECORD_SUFFIX,
+    ResponseLifecycle,
+    ResponseSpool,
+)
 from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.spool import IMPORT_REPORT_SUFFIX, REFUSAL_RECORD_SUFFIX, ResponseLifecycle, ResponseSpool
 from fastapi import FastAPI
 
 #: The service base the in-process client uses, matching every other serve test.

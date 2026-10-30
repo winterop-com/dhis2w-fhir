@@ -13,9 +13,10 @@ from pathlib import Path
 import httpx
 import respx
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import GenerateFullReport, GenerateReport, InitOptions, UnsupportedProgramError, load_project, service
+from dhis2w_fhir import GenerateFullReport, GenerateReport, InitOptions, UnsupportedProgramError, service
 from dhis2w_fhir.resources.examples.builders import EXAMPLES_DIRECTORY
 from dhis2w_fhir.service import GenerateSubject, _target_counts
+from dhis2w_fhir_engine.facade.config import load_project
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, generate_note
 
 _HOST = "https://dhis2.example"

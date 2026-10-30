@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir.resources.organisation_units.schemas import RegistryDependency
-from dhis2w_fhir_serve.log import LOGGER_NAME
-from dhis2w_fhir_serve.store import (
+from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.log import LOGGER_NAME
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
+from dhis2w_fhir_engine.facade.store import (
     CompiledIgMissingError,
     IdentifierToken,
     ResourceStore,
@@ -487,8 +487,8 @@ def test_a_guide_this_server_cannot_read_costs_its_own_declarations(
 
 def test_the_held_out_examples_line_counts_by_type_and_names_only_a_few() -> None:
     """A guide declares one example per form and per registry profile, so the line cannot name them all."""
-    from dhis2w_fhir.implementation_guide import DeclaredExamples, PublishedResourceKey
-    from dhis2w_fhir_serve.store import _held_out_line
+    from dhis2w_fhir_engine.facade.implementation_guide import DeclaredExamples, PublishedResourceKey
+    from dhis2w_fhir_engine.facade.store import _held_out_line
 
     pairs = [("QuestionnaireResponse", f"form{index}-example-1") for index in range(64)]
     pairs += [("Location", "d2-location-example"), ("Organization", "d2-organization-example")]
@@ -511,8 +511,8 @@ def test_the_held_out_examples_line_counts_by_type_and_names_only_a_few() -> Non
 
 def test_a_guide_with_few_examples_names_every_one() -> None:
     """Under the sample size there is nothing to leave out, so the line says no 'more'."""
-    from dhis2w_fhir.implementation_guide import DeclaredExamples, PublishedResourceKey
-    from dhis2w_fhir_serve.store import _held_out_line
+    from dhis2w_fhir_engine.facade.implementation_guide import DeclaredExamples, PublishedResourceKey
+    from dhis2w_fhir_engine.facade.store import _held_out_line
 
     keys = frozenset(
         PublishedResourceKey(resource_type="Location", resource_id=resource_id)

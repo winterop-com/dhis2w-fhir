@@ -28,14 +28,12 @@ import tempfile
 from pathlib import Path
 
 from _runner import run_example
-from dhis2w_fhir import (
+from dhis2w_fhir import GenerateReport, InitOptions, service
+from dhis2w_fhir_engine.facade.config import (
     FHIR_CONFIG_FILENAME,
     FhirProject,
-    GenerateReport,
-    InitOptions,
     load_fhir_config,
     load_project,
-    service,
     write_fhir_config,
 )
 

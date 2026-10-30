@@ -21,7 +21,7 @@ the same combo, data sets and programs alike, because the pair is the combo's an
 A pair states one more thing about itself: where each of its concepts may be captured. DHIS2 scopes
 a category option to organisation units, and a combo is usable at a unit only where every option
 composing it is, so each concept names one restriction `List` per restricted option it is met from
-(`dhis2w_fhir.resources.attribute_combos.restrictions`). A concept naming none is usable wherever
+(`dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions`). A concept naming none is usable wherever
 the form itself is. DHIS2 scopes a category option to a calendar window too, so a concept met from
 a dated option also carries `dhis2-valid-from` / `dhis2-valid-to` - the narrowest window of its
 options, outside which DHIS2 answers a capture `E8032 Untimely data entry`.
@@ -55,7 +55,24 @@ from dhis2w_fhir_engine.facade.names import (
     join_name_segments,
     resolve_identity_stems,
 )
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
+    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
+    AttributeOptionRestrictionPlan,
+    AttributeOptionRestrictions,
+    attribute_option_restriction_declaration,
+    attribute_option_validity_declarations,
+    build_attribute_option_restriction_artifacts,
+)
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import (
+    ATTRIBUTE_COMBO_DIRECTORY,
+    AttributeComboIdentity,
+    AttributeComboIdentityPlan,
+    AttributeComboIn,
+    AttributeComboPlan,
+)
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.facade.writer import JsonArtifact, JsonBuild
 from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
     CodeSystemConcept,
@@ -73,21 +90,6 @@ from dhis2w_fhir_engine.r4.resources import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
-    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
-    AttributeOptionRestrictionPlan,
-    AttributeOptionRestrictions,
-    attribute_option_restriction_declaration,
-    attribute_option_validity_declarations,
-    build_attribute_option_restriction_artifacts,
-)
-from dhis2w_fhir.resources.attribute_combos.schemas import (
-    ATTRIBUTE_COMBO_DIRECTORY,
-    AttributeComboIdentity,
-    AttributeComboIdentityPlan,
-    AttributeComboIn,
-    AttributeComboPlan,
-)
 from dhis2w_fhir.resources.identifier_terminology import build_identifier_code_system_artifacts
 from dhis2w_fhir.resources.option_sets.builders import (
     CONCEPT_MAP_DIRECTORY,
@@ -97,16 +99,14 @@ from dhis2w_fhir.resources.option_sets.builders import (
     concept_map_canonical,
     value_set_canonical,
 )
-from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
     from dhis2w_fhir_engine.facade.notes import GenerateNote
+    from dhis2w_fhir_engine.facade.resources.option_sets.schemas import ConceptAssignment, ConceptAssignmentPlan
+    from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
 
-    from dhis2w_fhir.config import GenerateConfig
     from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
-    from dhis2w_fhir.resources.option_sets.schemas import ConceptAssignment, ConceptAssignmentPlan
-    from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn
 
 
 # The longest emitted id is `<id-stem><slug>-cs`/`-vs`, so the slug is bounded against the

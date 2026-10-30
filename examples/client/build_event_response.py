@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from _fixture import conversion_context, event_form_id, form_canonical
 from _runner import run_example
-from dhis2w_fhir import translate_response
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,

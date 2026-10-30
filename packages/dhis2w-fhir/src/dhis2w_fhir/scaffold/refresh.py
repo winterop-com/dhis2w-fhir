@@ -62,7 +62,8 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 
-from dhis2w_fhir.config import FHIR_CONFIG_FILENAME, NoFhirProjectError, load_fhir_config
+from dhis2w_fhir_engine.facade.config import FHIR_CONFIG_FILENAME, NoFhirProjectError, load_fhir_config
+
 from dhis2w_fhir.scaffold import (
     CONFIG_EXAMPLE_RELATIVE_PATH,
     FSH_INI_RELATIVE_PATH,

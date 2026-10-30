@@ -5,7 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from dhis2w_client.profile import NoProfileError
-from dhis2w_fhir.config import (
+from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
+from dhis2w_fhir_engine.facade.capture.validate import DEFAULT_STRICT_CODES
+from dhis2w_fhir_engine.facade.config import (
     DEFAULT_BASEMAPS,
     BasemapSource,
     DataSetsConfig,
@@ -18,15 +20,13 @@ from dhis2w_fhir.config import (
     TrackedEntitiesConfig,
     basemaps_from_options,
 )
-from dhis2w_fhir.registry_package import resolve_registry_source
-from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitGeometry
-from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
+from dhis2w_fhir_engine.facade.registry_package import resolve_registry_source
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitGeometry
 from dhis2w_fhir_engine.facade.spool import SPOOL_RELATIVE_PATH
+from dhis2w_fhir_engine.facade.store import COMPILED_RESOURCES_RELATIVE_PATH, CompiledIgMissingError
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir_serve.auth import preflight_auth
-from dhis2w_fhir_serve.capture.validate import DEFAULT_STRICT_CODES
-from dhis2w_fhir_serve.store import COMPILED_RESOURCES_RELATIVE_PATH, CompiledIgMissingError
 
 
 class ServeSettings(BaseModel):

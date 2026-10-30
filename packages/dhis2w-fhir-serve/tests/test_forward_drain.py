@@ -24,9 +24,9 @@ import httpx2
 import pytest
 import respx
 from dhis2w_core.profile import Profile
-from dhis2w_fhir.config import FhirProject
 from dhis2w_fhir.service import forward_responses
-from dhis2w_fhir_serve.spool import (
+from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.response_spool import (
     FORWARDED_RESPONSES_RELATIVE_PATH,
     IMPORT_REPORT_SUFFIX,
     REJECTED_RESPONSES_RELATIVE_PATH,
@@ -225,7 +225,7 @@ async def test_a_receipt_the_drain_never_reached_is_still_offered_as_pending(
 @pytest.mark.parametrize("lifecycle_directory", [FORWARDED_RESPONSES_RELATIVE_PATH, REJECTED_RESPONSES_RELATIVE_PATH])
 def test_an_import_report_is_never_listed_as_a_receipt(capture_project: FhirProject, lifecycle_directory: str) -> None:
     """The sidecar shares a directory and a `.json` tail with the receipt, in both drained states."""
-    from dhis2w_fhir_serve.spool import ResponseSpool
+    from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
 
     directory = capture_project.project_root / lifecycle_directory
     directory.mkdir(parents=True, exist_ok=True)

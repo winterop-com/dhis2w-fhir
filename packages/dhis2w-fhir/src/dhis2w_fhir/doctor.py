@@ -54,11 +54,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import httpx2
 from dhis2w_client.errors import Dhis2ClientError
 from dhis2w_core.client_context import open_client
-from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace, pascal
-from pydantic import BaseModel, ConfigDict
-
-from dhis2w_fhir import service
-from dhis2w_fhir.config import (
+from dhis2w_fhir_engine.facade.config import (
     FhirProject,
     MalformedFhirConfigError,
     NoFhirProjectError,
@@ -66,9 +62,13 @@ from dhis2w_fhir.config import (
     load_project,
     write_fhir_config,
 )
-from dhis2w_fhir.conversion.artifacts import CompiledArtifactReadError, CompiledIgMissingError
+from dhis2w_fhir_engine.facade.conversion.artifacts import CompiledArtifactReadError, CompiledIgMissingError
+from dhis2w_fhir_engine.facade.foundation.response_profiles import CAPTURE_SERVER_READ_RESOURCE_TYPES
+from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace, pascal
+from pydantic import BaseModel, ConfigDict
+
+from dhis2w_fhir import service
 from dhis2w_fhir.drift import detect_drift
-from dhis2w_fhir.foundation.response_profiles import CAPTURE_SERVER_READ_RESOURCE_TYPES
 from dhis2w_fhir.hostile_names import project_gate
 from dhis2w_fhir.scaffold.schemas import DEFAULT_SUSHI_TIMEOUT_SECONDS, InitOptions
 from dhis2w_fhir.service import GenerationProfile
@@ -78,10 +78,10 @@ if TYPE_CHECKING:
 
     from dhis2w_client import Dhis2Client
     from dhis2w_core.progress import ProgressReporter
+    from dhis2w_fhir_engine.facade.forward import ForwardReport
     from dhis2w_fhir_engine.facade.notes import GenerateNote
 
     from dhis2w_fhir.drift import DriftReport
-    from dhis2w_fhir.service import ForwardReport
 
 __all__ = [
     "CAPTURE_SEED_BASE",

@@ -11,21 +11,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from dhis2w_fhir_engine.facade.capability import build_server_capability
+from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from dhis2w_fhir_serve.capability import build_server_capability
-from dhis2w_fhir_serve.errors import FHIR_JSON_MEDIA_TYPE
 from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import FhirProject
+    from dhis2w_fhir_engine.facade.config import FhirProject
+    from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+    from dhis2w_fhir_engine.facade.store import StoreSummary
 
-    from dhis2w_fhir_serve.register.surface import RegisterSurface
     from dhis2w_fhir_serve.settings import ServeSettings
-    from dhis2w_fhir_serve.store import StoreSummary
 
 router = APIRouter()
 

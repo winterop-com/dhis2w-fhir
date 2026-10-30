@@ -14,17 +14,17 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from dhis2w_cli.main import build_app
 from dhis2w_fhir import validation
-from dhis2w_fhir.config import load_project
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
-    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
-    ATTRIBUTE_OPTION_VALID_FROM_PROPERTY,
-    ATTRIBUTE_OPTION_VALID_TO_PROPERTY,
-)
 from dhis2w_fhir.resources.pages.builders import PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY
 from dhis2w_fhir.resources.questionnaires.builders import DATA_SET_DIRECTORY
 from dhis2w_fhir.validation import artifacts
 from dhis2w_fhir.validation.artifacts import check_publishable_artifacts
-from dhis2w_fhir.writer import GENERATED_HEADER, GENERATED_MARKDOWN_HEADER
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
+    ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
+    ATTRIBUTE_OPTION_VALID_FROM_PROPERTY,
+    ATTRIBUTE_OPTION_VALID_TO_PROPERTY,
+)
+from dhis2w_fhir_engine.facade.writer import GENERATED_HEADER, GENERATED_MARKDOWN_HEADER
 from typer.testing import CliRunner
 
 if TYPE_CHECKING:

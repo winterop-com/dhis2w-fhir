@@ -13,14 +13,9 @@ from pathlib import Path
 import httpx
 import respx
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import (
-    GENERATED_HEADER,
-    GENERATED_MARKDOWN_HEADER,
-    InitOptions,
-    clean_generated_files,
-    load_project,
-    service,
-)
+from dhis2w_fhir import InitOptions, service
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.writer import GENERATED_HEADER, GENERATED_MARKDOWN_HEADER, clean_generated_files
 
 _HOST = "https://dhis2.example"
 

@@ -249,6 +249,23 @@ path.
 What a FHIR-to-DHIS2 service is built from, under `dhis2w_fhir_engine.facade`. Importing it loads no web
 framework and no command line.
 
+### Opening a facade
+
+`open_facade` loads one guide into a `Facade` you hold: from a `FacadeConfig`, with no `fhir.toml`, or from a project
+on disk. `validate`, `capture`, `translate`, `post`, and `drain` are the functions `d2w fhir serve` and
+`d2w fhir forward` run.
+
+::: dhis2w_fhir_engine.facade.assembly
+
+### The drain
+
+`post_translation` posts one translated payload and answers with DHIS2's verdict. `drain_responses` drains a spool
+through a connection you hold, under the same lock, filing, and stop on a server error `d2w fhir forward` uses.
+
+::: dhis2w_fhir_engine.facade.forward
+
+::: dhis2w_fhir_engine.facade.progress
+
 ### Refusals a user can fix
 
 ::: dhis2w_fhir_engine.facade.errors
@@ -303,7 +320,7 @@ directly under the same conventions.
 
 ::: dhis2w_fhir_engine.facade.spool
 
-::: dhis2w_fhir.forward_records
+::: dhis2w_fhir_engine.facade.forward_records
 
 ### Values a previous submission already sent
 
@@ -312,6 +329,132 @@ say that a value it is about to send is one an earlier submission already sent. 
 that write exactly as it counts a first entry, so the spool is where the answer lives.
 
 ::: dhis2w_fhir_engine.facade.overwrite
+
+### Project configuration
+
+::: dhis2w_fhir_engine.facade.config
+
+### Conversion: QuestionnaireResponse to DHIS2
+
+The inverse of the emitters, and the reference implementation
+[`docs/design/conversion.md`](design/conversion.md) holds the later published
+StructureMaps against. A caller assembles a `ConversionContext` once from the compiled IG
+artifacts - the served Questionnaires, the option-set CodeSystems and their ConceptMaps, the
+ValueSets binding the two, and the published Locations - and then translates each captured
+response into the DHIS2 import payload its form kind reports: a `DataValueSet` for a data set,
+a `TrackerEvent` for an event program or a tracker program stage. A response the translator
+cannot read whole answers with typed refusals naming the link id and the reason, never with a
+partial payload.
+
+A result carries exactly one payload and its `target_kind` names which, so `ConversionResult.payload`
+reads the document off the kind and `payload_of` narrows it to one wire shape. The batch form is
+`ConversionReport.payloads_of`, whose four named properties - `data_value_sets`, `events`,
+`tracked_entities`, `enrollments` - are the order a drain posts them in.
+
+`conversion.artifacts` is where a project's own files become those models: it reads the
+compiled `ig/fsh-generated/resources` merged with the predefined `ig/input/resources` tree -
+the same two trees `d2w fhir serve` serves - and `build_project_context` assembles the context
+from them plus the project's `[generate]` naming, identifier base, and timezone.
+
+Every public name below is importable from `dhis2w_fhir` itself, which is the package's one
+stable import surface; the `dhis2w_fhir_engine.facade.conversion` path answers the same objects.
+
+::: dhis2w_fhir_engine.facade.conversion.schemas
+
+::: dhis2w_fhir_engine.facade.conversion.context
+
+::: dhis2w_fhir_engine.facade.conversion.artifacts
+
+::: dhis2w_fhir_engine.facade.conversion.values
+
+::: dhis2w_fhir_engine.facade.conversion.payloads
+
+::: dhis2w_fhir_engine.facade.conversion.translator
+
+### What a guide calls a worked example
+
+A guide compiles worked instances beside its profiles - `Usage: #example` in FSH - so a reader
+of the published pages can see what one looks like, and the guide's own `ImplementationGuide`
+is what tells them apart from what it publishes: each entry of `definition.resource[]` states
+`exampleBoolean` or `exampleCanonical` for an instance that illustrates a profile rather than
+publishing a fact. `load_declared_examples` reads that declaration off a project's published
+trees and `declared_examples` reads it off documents a caller already holds; both answer a
+`DeclaredExamples`, whose `publishes` and `declares` say which side of the line one resource
+falls on. [`d2w fhir serve`](201-serve.md) holds the declared examples out of what it searches
+and counts, and the drift phase of [`d2w fhir doctor`](201-doctor.md) holds them out of what it
+grades - the exemplar organisation unit carries an identifier no DHIS2 instance holds, so
+grading it would report a removal nobody can act on.
+
+::: dhis2w_fhir_engine.facade.implementation_guide
+
+### Resource store
+
+The compiled IG merged with the predefined resource tree, indexed by `(resourceType, id)` and by
+canonical url. Resources are held as the bytes they were written as, so what a client reads back is
+what the project publishes.
+
+::: dhis2w_fhir_engine.facade.store
+
+### Response spool
+
+Every received QuestionnaireResponse, written atomically to `.serve/responses/received/` and read
+back from whichever of `received/`, `forwarded/`, `rejected/`, and `withdrawn/` it has since been
+moved to - the first three by `d2w fhir forward`, the fourth by `d2w fhir withdraw`. The directory
+is the index and is re-read on every call, because those commands rename files while the server
+runs. A stored response is a receipt - the submission as it arrived, never a live view of DHIS2
+data.
+
+::: dhis2w_fhir_engine.facade.response_spool
+
+### Capture
+
+Receiving a QuestionnaireResponse: the naming the capture contract is written in, the questionnaire
+index an answer is checked against, the terminology resolver behind a coded answer, the phase
+machine that runs the whole thing, and the OperationOutcome vocabulary every answer is spoken in.
+
+::: dhis2w_fhir_engine.facade.capture.naming
+
+::: dhis2w_fhir_engine.facade.capture.index
+
+::: dhis2w_fhir_engine.facade.capture.resolve
+
+::: dhis2w_fhir_engine.facade.capture.validate
+
+::: dhis2w_fhir_engine.facade.capture.outcome
+
+### The register
+
+::: dhis2w_fhir_engine.facade.register.index
+
+::: dhis2w_fhir_engine.facade.register.surface
+
+::: dhis2w_fhir_engine.facade.register.wire
+
+::: dhis2w_fhir_engine.facade.register.projection
+
+::: dhis2w_fhir_engine.facade.register.listing
+
+::: dhis2w_fhir_engine.facade.register.filtering
+
+### Generating a response
+
+::: dhis2w_fhir_engine.facade.synthesize
+
+### This guide's vocabularies
+
+::: dhis2w_fhir_engine.facade.terminology
+
+### Conformance
+
+::: dhis2w_fhir_engine.facade.capability
+
+### Errors
+
+::: dhis2w_fhir_engine.facade.refusals
+
+### Request logging
+
+::: dhis2w_fhir_engine.facade.log
 
 ## Command line
 

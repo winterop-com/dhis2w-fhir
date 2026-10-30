@@ -64,6 +64,18 @@ from urllib.parse import urlencode
 
 from dhis2w_client.errors import Dhis2ClientError
 from dhis2w_fhir_engine.facade.notes import pluralize, verb_for_count
+from dhis2w_fhir_engine.facade.refusals import (
+    FHIR_JSON_MEDIA_TYPE,
+    NoPublishedSubjectTypeError,
+    NotFoundError,
+    NotServedFromCompiledIgError,
+    RecordDisabledError,
+    RegisterDisabledError,
+    UnsupportedSearchParameterError,
+    UpstreamError,
+)
+from dhis2w_fhir_engine.facade.register.wire import upstream_refusal_text
+from dhis2w_fhir_engine.facade.response_spool import COUNT_PARAMETER, PAGE_PARAMETER, SpoolCursor, requested_cursor
 from dhis2w_fhir_engine.r4.resources import (
     Bundle,
     BundleEntry,
@@ -79,25 +91,13 @@ from pydantic import BaseModel, ConfigDict
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from dhis2w_fhir_serve.errors import (
-    FHIR_JSON_MEDIA_TYPE,
-    NoPublishedSubjectTypeError,
-    NotFoundError,
-    NotServedFromCompiledIgError,
-    RecordDisabledError,
-    RegisterDisabledError,
-    UnsupportedSearchParameterError,
-    UpstreamError,
-)
 from dhis2w_fhir_serve.history.projection import ProjectedRecord, RecordProjection
 from dhis2w_fhir_serve.history.wire import RecordedEvent, TrackedEntityRecord, fetch_tracked_entity_record
 from dhis2w_fhir_serve.passthrough import RegisterReader, register_reader
-from dhis2w_fhir_serve.register.wire import upstream_refusal_text
 from dhis2w_fhir_serve.routes.capture import capture_state
 from dhis2w_fhir_serve.routes.context import serve_context
 from dhis2w_fhir_serve.routes.negotiation import FORMAT_PARAMETER
 from dhis2w_fhir_serve.routes.read import base_url, requested_entry_cap
-from dhis2w_fhir_serve.spool import COUNT_PARAMETER, PAGE_PARAMETER, SpoolCursor, requested_cursor
 
 #: Where the record is served from, under the facade API's mount and under the tracked entity whose
 #: record it is - the enrollment listing's own address, one level down.

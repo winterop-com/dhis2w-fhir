@@ -33,7 +33,8 @@ import httpx2
 import pytest
 import respx
 from dhis2w_client.errors import Dhis2ApiError, Dhis2ClientError
-from dhis2w_fhir.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
+from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
+from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_serve import auth as auth_module
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.auth import (
@@ -59,7 +60,6 @@ from dhis2w_fhir_serve.passthrough import (
 from dhis2w_fhir_serve.routes import FACADE_MOUNT_PATH, serve_routers
 from dhis2w_fhir_serve.routes.whoami import TOKEN_CALLER_NAME, WHOAMI_PATH, authenticated_caller
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.spool import ResponseSpool, StoredResponseEnvelope
 from fastapi import APIRouter, FastAPI
 from fastapi.routing import APIRoute
 

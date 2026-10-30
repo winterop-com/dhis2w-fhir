@@ -29,9 +29,9 @@ _RENDER_DIRECTIVE = re.compile(r"^:::\s+(dhis2w_fhir[\w.]*)\s*$", re.MULTILINE)
 _RENDERED_WITHOUT_A_DECLARED_SURFACE = frozenset(
     {
         "dhis2w_fhir_engine.facade.attributes",
-        "dhis2w_fhir.config",
+        "dhis2w_fhir_engine.facade.config",
         "dhis2w_fhir_engine.facade.errors",
-        "dhis2w_fhir.forward_records",
+        "dhis2w_fhir_engine.facade.forward_records",
         "dhis2w_fhir_engine.facade.notes",
     }
 )

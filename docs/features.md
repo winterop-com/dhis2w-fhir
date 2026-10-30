@@ -1255,7 +1255,7 @@ registration form become `Questionnaire` instances.
   Both post, so what decides it is which spelling a client copying a draft
   should learn.
 - **Generating, serving, forwarding and checking a depending guide** all find
-  the units through one resolver (`dhis2w_fhir.registry_package`): the checkout
+  the units through one resolver (`dhis2w_fhir_engine.facade.registry_package`): the checkout
   `[generate.organisation_units.registry] path` names, then a `package.tgz` or
   extracted directory given as `--registry-package`, then a `RegistryMissingError`
   naming both remedies. A guide scaffolded with no `path` names its
@@ -3466,7 +3466,7 @@ IG -> form -> QuestionnaireResponse -> DHIS2. It reads the receipts out of
 
 #### Translation
 
-Each response goes through `dhis2w_fhir.conversion` all-or-nothing.
+Each response goes through `dhis2w_fhir_engine.facade.conversion` all-or-nothing.
 
 - **An aggregate envelope** carries all three DHIS2 keys, with its
   `attributeOptionCombo` resolved off the response's `D2AttributeOptionCombo`
@@ -3863,7 +3863,7 @@ typed phases.
   directions and on renames alike. The worked examples the guide compiled
   beside its profiles are counted and graded nowhere - which instances those
   are is the guide's own word, `definition.resource[]` of the compiled
-  `ImplementationGuide`, read through the same `dhis2w_fhir.implementation_guide`
+  `ImplementationGuide`, read through the same `dhis2w_fhir_engine.facade.implementation_guide`
   that holds them out of what `d2w fhir serve` searches and counts. Warning-class
   throughout: a guide is out of date rather than broken, so drift never exits 1.
   Tracked entity types are
@@ -3962,7 +3962,7 @@ renders each module.
 | Drift between a published guide and the instance | `detect_drift`, `read_published_guide`, `compare_organisation_units`, `compare_option_set`, `compare_form`, `registry_scope_line`, `DriftReport`, `DriftFinding`, `DriftSubject`, `DriftKind`, `PublishedGuide`, `PublishedForm`, `PublishedOptionSet`, `PublishedObject`, `InstanceForm`, `InstanceOptionSet`, `InstanceOption`, `InstanceObject`, `DRIFT_REMEDY` |
 | What a guide calls a worked example | `load_declared_examples`, `declared_examples`, `reference_key`, `DeclaredExamples`, `GuideDocument`, `PublishedResourceKey`, `ImplementationGuideContents`, `ImplementationGuideDefinition`, `ImplementationGuideResource`, `IMPLEMENTATION_GUIDE_RESOURCE_TYPE` |
 | The posture one generate run screens DHIS2 names under | `project_gate`, `HostileNameGate`, `HostileRewrite`, `HostileRewriteConfirmation`, `HostileNamePosture` |
-| Translating a captured response into DHIS2 | The whole `dhis2w_fhir.conversion` surface, name for name: `translate_response`, `translate_responses`, `build_conversion_context`, `build_project_context`, `load_compiled_artifacts`, `ConversionContext`, `ConversionResult`, `ConversionReport`, `ConversionPayload`, `ConversionTargetKind`, `ConversionRefusal`, `ConversionNote`, and the rest |
+| Translating a captured response into DHIS2 | The whole `dhis2w_fhir_engine.facade.conversion` surface, name for name: `translate_response`, `translate_responses`, `build_conversion_context`, `build_project_context`, `load_compiled_artifacts`, `ConversionContext`, `ConversionResult`, `ConversionReport`, `ConversionPayload`, `ConversionTargetKind`, `ConversionRefusal`, `ConversionNote`, and the rest |
 | Refusal records on the spool | `record_refusal`, `read_refusal_record`, `ForwardRefusalRecord`, `RefusalReason`, `SPOOL_RELATIVE_PATH`, `REFUSAL_RECORD_SUFFIX`, `QUARANTINE_REASON_SUFFIX`, `DRAIN_LOCK_FILE_NAME`, `ORPHAN_TEMPORARY_FILE_AGE_SECONDS` |
 | The profile a run resolves | `GenerationProfile`, `resolve_generation_profile` |
 
@@ -3982,7 +3982,7 @@ renders each module.
   the API reference renders exports a name the package does not, so the docs and
   the imports cannot drift apart quietly.
   `test_fhir_conversion_surface.py` holds the conversion layer to the same claim
-  from the other side: every name `dhis2w_fhir.conversion` states it exports is
+  from the other side: every name `dhis2w_fhir_engine.facade.conversion` states it exports is
   on the package root and is the same object, so a caller reads one import path
   rather than guessing which names were re-exported and which were not.
 

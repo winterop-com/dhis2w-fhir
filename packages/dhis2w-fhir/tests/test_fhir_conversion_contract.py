@@ -23,7 +23,7 @@ What the gate proves:
   call it makes - arguments included - at one of those variables rather than at the focus an engine
   happens to hand it.
 - The data value's own value is written one answered `value[x]` type at a time, and the branches are
-  the elements `dhis2w_fhir.conversion.values` serialises.
+  the elements `dhis2w_fhir_engine.facade.conversion.values` serialises.
 
 What the gate does NOT prove:
 
@@ -47,8 +47,8 @@ from typing import Any
 
 import pytest
 from conversion_corpus import AGGREGATE_IDS, aggregate_payloads
-from dhis2w_fhir.conversion.values import ANSWER_VALUE_ELEMENTS
-from dhis2w_fhir.foundation.schemas import DATA_VALUE_SET_ELEMENTS
+from dhis2w_fhir_engine.facade.conversion.values import ANSWER_VALUE_ELEMENTS
+from dhis2w_fhir_engine.facade.foundation.schemas import DATA_VALUE_SET_ELEMENTS
 from pydantic import BaseModel, ConfigDict
 
 _GOLDEN = Path(__file__).parent / "data" / "r4" / "StructureDefinition-d2-data-value-set.json"
@@ -242,7 +242,7 @@ def test_the_value_rules_read_one_answer_type_each_and_cover_what_the_python_ser
 
     `%answerValue.toString()` over the whole choice is untypeable - the validator sees the union
     rather than a primitive - so the value of a data value is written one answered type at a time.
-    The branches are exactly the elements `dhis2w_fhir.conversion.values` serialises: every
+    The branches are exactly the elements `dhis2w_fhir_engine.facade.conversion.values` serialises: every
     `value[x]` R4 declares for an answer bar the attachment, which DHIS2 stores as a file resource
     through a separate upload rather than as a data value.
     """

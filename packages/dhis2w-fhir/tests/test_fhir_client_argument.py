@@ -17,7 +17,8 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import FhirProject, InitOptions, load_project, service
+from dhis2w_fhir import InitOptions, service
+from dhis2w_fhir_engine.facade.config import FhirProject, load_project
 
 if TYPE_CHECKING:
     from dhis2w_client import Dhis2Client

@@ -97,7 +97,7 @@ embedding application is free to replace with its own over the same `guarded` se
 import warnings
 from typing import Any
 
-from dhis2w_fhir.config import ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict

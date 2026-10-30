@@ -12,11 +12,12 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir_serve.capture import CaptureIndexCache, CaptureNaming
+from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
+from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.store import IdentifierToken, ResourceStore, StoreEntry
 from dhis2w_fhir_serve.history.projection import RecordProjection
 from dhis2w_fhir_serve.history.wire import RecordedEvent, RecordedValue, TrackedEntityRecord
-from dhis2w_fhir_serve.store import IdentifierToken, ResourceStore, StoreEntry
 
 CANONICAL = "http://example.org/fhir"
 IDENTIFIER_BASE = "http://dhis2.org/fhir"

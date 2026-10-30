@@ -13,7 +13,7 @@ answer typing from the value-type table, option values resolved to codings throu
 concept assignment plan, event status mapped, timestamps zoned. It is exercised against
 live instances and validated by the IG publisher on every build.
 
-**QR -> DHIS2** ships as `dhis2w_fhir.conversion` behind
+**QR -> DHIS2** ships as `dhis2w_fhir_engine.facade.conversion` behind
 [`d2w fhir forward`](../201-forward.md): `d2w fhir serve`
 stores validated responses as an outbox, and the forwarder drains it. It covers the three
 payload mappings (dataValueSets envelope; event; tracker event), the non-bijective status
@@ -92,7 +92,7 @@ resource carrying the DHIS2 UID and the DHIS2 code out.
 
 **Phase A - the forwarder. SHIPPED.** QR -> DHIS2 is the typed Python translator the
 capture design specifies, draining the serve outbox. The translator is
-`dhis2w_fhir.conversion` (`schemas`, `context`, `values`, `payloads`, `translator`, and
+`dhis2w_fhir_engine.facade.conversion` (`schemas`, `context`, `values`, `payloads`, `translator`, and
 `artifacts` reading a project's published guide into a context); the command that drives it
 is `d2w fhir forward`, whose dry run - the default - posts every payload to the real
 endpoint under that endpoint's own validate-only mode and moves nothing, and whose
@@ -101,7 +101,7 @@ endpoint under that endpoint's own validate-only mode and moves nothing, and who
 
 Every name those modules export is importable from `dhis2w_fhir` itself - the package's
 one stable import surface - so a caller writes `from dhis2w_fhir import translate_response`
-and never has to learn which module a symbol sits in; the `dhis2w_fhir.conversion` path
+and never has to learn which module a symbol sits in; the `dhis2w_fhir_engine.facade.conversion` path
 answers the same objects.
 
 This code is the *reference implementation* the later contract is held against - the same
@@ -328,7 +328,7 @@ in prose beside it:
 - the value branches carry the whole wire-serialisation table: a `TRUE_ONLY` question answered
   false drops the cell, a `MULTI_TEXT` answer is comma-joined, a decimal keeps its lexical
   form, a coded answer resolves through the question's terminology, a zoned timestamp is read
-  to the wall clock. `dhis2w_fhir.conversion.values` is the reference implementation of it.
+  to the wall clock. `dhis2w_fhir_engine.facade.conversion.values` is the reference implementation of it.
 
 `completeDate` carries a fifth note: the substring is the structural claim, and the zone
 arithmetic behind it (DHIS2_ISSUES.md #62) is not.

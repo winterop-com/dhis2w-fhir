@@ -16,16 +16,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionConceptCodeIndex
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir.resources.option_sets.schemas import OptionConceptCodeIndex
 from dhis2w_fhir.resources.questionnaires.program_rules import EnableWhenCondition, ItemEnableWhen
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
+
     from dhis2w_fhir.resources.questionnaires.program_rules import FormProgramRules
-    from dhis2w_fhir.resources.questionnaires.schemas import QuestionnaireSourceIn
 
 __all__ = ["ExampleGate", "asked_question_uids", "form_gates", "settled_question_uids"]
 

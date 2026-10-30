@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 import httpx2
-from dhis2w_fhir_serve.spool import StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.response_spool import StoredResponseEnvelope
 
 CANONICAL = "http://example.org/fhir"
 QUESTIONNAIRE_URL = f"{CANONICAL}/Questionnaire/d2-pr-anc-visit-q"

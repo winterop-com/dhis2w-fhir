@@ -41,13 +41,14 @@ from __future__ import annotations
 
 from _fixture import conversion_context, event_form_id
 from _runner import run_example
-from dhis2w_fhir import ITEM_TYPES_BY_VALUE_TYPE, answer_element
-from dhis2w_fhir.conversion import (
+from dhis2w_fhir import answer_element
+from dhis2w_fhir_engine.facade.conversion import (
     ANSWER_ELEMENTS_BY_ITEM_TYPE,
     ConversionContext,
     QuestionSpec,
     answer_wire_value,
 )
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import ITEM_TYPES_BY_VALUE_TYPE
 from dhis2w_fhir_engine.r4.resources import Attachment, QuestionnaireResponseAnswer, Reference
 
 #: The DHIS2 value type that always binds an option set, and the one whose question repeats.

@@ -5,10 +5,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 
-from dhis2w_fhir.resources.organisation_units.schemas import RegistryDependency
 from dhis2w_fhir.scaffold.project_templates import ProjectTemplate, build_template_files, template_selection
 from dhis2w_fhir.scaffold.schemas import InitOptions, ScaffoldFile, normalize_project_name
 

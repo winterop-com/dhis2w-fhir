@@ -28,6 +28,7 @@ convention = "google"
 "tests/**/*.py" = ["D", "TID251", "S101", "S104", "S105", "S106", "S107", "S108", "S603", "S607"]
 "examples/**/*.py" = ["S101", "S105", "S106", "S603"]
 # `token` here is the FHIR identifier-system token of a DHIS2 object type, not a credential.
+"packages/dhis2w-fhir-engine/src/dhis2w_fhir_engine/facade/foundation/*.py" = ["S105", "S106"]
 "packages/dhis2w-fhir/src/dhis2w_fhir/foundation/*.py" = ["S105", "S106"]
 "**/__init__.py" = ["D104"]
 "**/src/**/*.py" = ["D102", "D105", "D107"]

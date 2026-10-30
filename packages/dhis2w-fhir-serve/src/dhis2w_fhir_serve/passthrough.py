@@ -33,7 +33,7 @@ A loud refusal is the only honest answer to "this caller cannot be authorized he
 
 WHICH READS. Exactly the register reads a caller asks for: the tracked entity read, the identifier
 search, the listing and its counts, the enrollment listing, and the entity `/facade/evaluate` names as its
-context. `dhis2w_fhir_serve.register.wire` takes a `RegisterReader` rather than a `Dhis2Client`
+context. `dhis2w_fhir_engine.facade.register.wire` takes a `RegisterReader` rather than a `Dhis2Client`
 precisely so that one channel can be swapped per request.
 
 WHICH READS ARE NOT. The startup store build, `/facade/uiconfig`'s instance address, and `d2w fhir forward`'s
@@ -67,7 +67,8 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import httpx2
 from dhis2w_client.errors import Dhis2ApiError, Dhis2ClientError
-from dhis2w_fhir.config import ServeAuth
+from dhis2w_fhir_engine.facade.config import ServeAuth
+from dhis2w_fhir_engine.facade.refusals import IssueCode, ServeError
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.requests import Request
 
@@ -78,7 +79,6 @@ from dhis2w_fhir_serve.auth import (
     request_identity,
     require_authenticated,
 )
-from dhis2w_fhir_serve.errors import IssueCode, ServeError
 from dhis2w_fhir_serve.routes.context import caller_client, live_client, serve_context
 
 if TYPE_CHECKING:

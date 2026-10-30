@@ -21,11 +21,12 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir.config import FhirProject, SearchBackend, SearchConfig, ServeAuth, ServeAuthScope
-from dhis2w_fhir_serve import capability as capability_module
+from dhis2w_fhir_engine.facade import capability as capability_module
+from dhis2w_fhir_engine.facade import response_spool as response_spool_module
+from dhis2w_fhir_engine.facade.config import FhirProject, SearchBackend, SearchConfig, ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.refusals import NotFoundError
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.error_handlers import register_error_handlers
-from dhis2w_fhir_serve.errors import NotFoundError
 from dhis2w_fhir_serve.routes import (
     FACADE_MOUNT_PATH,
     accept_head_wherever_get_is_served,
@@ -33,7 +34,6 @@ from dhis2w_fhir_serve.routes import (
     build_facade_api,
     serve_routers,
 )
-from dhis2w_fhir_serve.routes import capture as capture_route_module
 from dhis2w_fhir_serve.routes.negotiation import require_json_is_acceptable
 from dhis2w_fhir_serve.runtime import attach_serve_runtime, open_serve_runtime
 from dhis2w_fhir_serve.settings import ServeSettings
@@ -98,8 +98,8 @@ async def _nothing() -> None:
 def pinned_clock(monkeypatch: pytest.MonkeyPatch) -> None:
     """Pin the two values that are the moment an answer was made rather than what the answer says."""
     monkeypatch.setattr(capability_module, "current_instant", lambda: FIXED_INSTANT)
-    monkeypatch.setattr(capture_route_module, "current_instant", lambda: FIXED_INSTANT)
-    monkeypatch.setattr(capture_route_module, "new_response_id", lambda: FIXED_RESPONSE_ID)
+    monkeypatch.setattr(response_spool_module, "current_instant", lambda: FIXED_INSTANT)
+    monkeypatch.setattr(response_spool_module, "new_response_id", lambda: FIXED_RESPONSE_ID)
 
 
 @asynccontextmanager

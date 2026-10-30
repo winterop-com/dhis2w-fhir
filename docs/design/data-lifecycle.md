@@ -343,7 +343,7 @@ retract belongs to an operator rather than to a submitter, and it is `d2w fhir w
 The drain's own state enum carries the fourth state that route files into:
 
 ```python
-class ResponseLifecycle(StrEnum):  # dhis2w_fhir_serve.spool - what the facade serves
+class ResponseLifecycle(StrEnum):  # dhis2w_fhir_engine.facade.response_spool - what the facade serves
     RECEIVED = "received"
     FORWARDED = "forwarded"
     REJECTED = "rejected"

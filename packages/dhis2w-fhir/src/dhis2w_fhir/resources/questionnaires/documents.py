@@ -21,6 +21,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
+from dhis2w_fhir_engine.facade.foundation.schemas import (
+    DATE_LABEL_ENROLLMENT_SUB_EXTENSION,
+    DATE_LABEL_EVENT_SUB_EXTENSION,
+    DATE_LABEL_INCIDENT_SUB_EXTENSION,
+    PROGRAM_RULE_ACTION_SUB_EXTENSION,
+    PROGRAM_RULE_ASSIGNS_SUB_EXTENSION,
+    PROGRAM_RULE_CONDITION_SUB_EXTENSION,
+    PROGRAM_RULE_DESCRIPTION_SUB_EXTENSION,
+    PROGRAM_RULE_NAME_SUB_EXTENSION,
+    PROGRAM_RULE_UID_SUB_EXTENSION,
+    FoundationNaming,
+)
 from dhis2w_fhir_engine.facade.i18n import (
     TranslationIn,
     description_translations,
@@ -36,83 +48,8 @@ from dhis2w_fhir_engine.facade.notes import (
     pluralize,
     verb_for_count,
 )
-from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
-from dhis2w_fhir_engine.r4.resources import (
-    CodeableConcept,
-    CodeSystem,
-    CodeSystemConcept,
-    CodeSystemConceptDesignation,
-    CodeSystemConceptProperty,
-    CodeSystemProperty,
-    Coding,
-    ConceptMap,
-    ConceptMapGroup,
-    ConceptMapGroupElement,
-    ConceptMapGroupElementTarget,
-    Extension,
-    Identifier,
-    Questionnaire,
-    QuestionnaireItem,
-    QuestionnaireItemEnableWhen,
-    Reference,
-    ValueSet,
-    ValueSetCompose,
-    ValueSetInclude,
-)
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.attribute_values import (
-    attribute_value_extension_url,
-    attribute_value_extensions,
-    attribute_value_identifiers,
-)
-from dhis2w_fhir.foundation.schemas import (
-    DATE_LABEL_ENROLLMENT_SUB_EXTENSION,
-    DATE_LABEL_EVENT_SUB_EXTENSION,
-    DATE_LABEL_INCIDENT_SUB_EXTENSION,
-    PROGRAM_RULE_ACTION_SUB_EXTENSION,
-    PROGRAM_RULE_ASSIGNS_SUB_EXTENSION,
-    PROGRAM_RULE_CONDITION_SUB_EXTENSION,
-    PROGRAM_RULE_DESCRIPTION_SUB_EXTENSION,
-    PROGRAM_RULE_NAME_SUB_EXTENSION,
-    PROGRAM_RULE_UID_SUB_EXTENSION,
-    FoundationNaming,
-)
-from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
-from dhis2w_fhir.resources.option_sets.builders import (
-    code_system_canonical,
-    concept_map_canonical,
-    option_concept_code_index,
-    option_set_identity_index,
-    value_set_canonical,
-)
-from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
-from dhis2w_fhir.resources.questionnaires.builders import (
-    ITEM_CONTROL_CODE_SYSTEM_URL,
-    ITEM_CONTROL_EXTENSION_URL,
-    bound_option_set_uids,
-    collect_referenced_objects,
-    domain_code,
-    enable_behavior_of,
-    form_collects_incident_date,
-    grouping_identifiers,
-    is_disaggregated,
-    is_multi_valued,
-    question_entity_level,
-    search_context_declarations,
-    source_description,
-    value_type_bounds,
-)
-from dhis2w_fhir.resources.questionnaires.program_rules import (
-    EnableWhenCondition,
-    FormProgramRules,
-    ItemEnableWhen,
-    ProgramRuleBound,
-    PublishedProgramRule,
-    merged_bounds,
-    plan_program_rules,
-)
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CATEGORY_OPTION_COMBO_TERMINOLOGY,
     DATA_ELEMENT_TERMINOLOGY,
     DISPLAY_IN_LIST_PROPERTY,
@@ -156,15 +93,82 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     source_display_name,
     source_title_translations,
 )
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.r4.resources import (
+    CodeableConcept,
+    CodeSystem,
+    CodeSystemConcept,
+    CodeSystemConceptDesignation,
+    CodeSystemConceptProperty,
+    CodeSystemProperty,
+    Coding,
+    ConceptMap,
+    ConceptMapGroup,
+    ConceptMapGroupElement,
+    ConceptMapGroupElementTarget,
+    Extension,
+    Identifier,
+    Questionnaire,
+    QuestionnaireItem,
+    QuestionnaireItemEnableWhen,
+    Reference,
+    ValueSet,
+    ValueSetCompose,
+    ValueSetInclude,
+)
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.foundation.attribute_values import (
+    attribute_value_extension_url,
+    attribute_value_extensions,
+    attribute_value_identifiers,
+)
+from dhis2w_fhir.resources.option_sets.builders import (
+    code_system_canonical,
+    concept_map_canonical,
+    option_concept_code_index,
+    option_set_identity_index,
+    value_set_canonical,
+)
+from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
+from dhis2w_fhir.resources.questionnaires.builders import (
+    ITEM_CONTROL_CODE_SYSTEM_URL,
+    ITEM_CONTROL_EXTENSION_URL,
+    bound_option_set_uids,
+    collect_referenced_objects,
+    domain_code,
+    enable_behavior_of,
+    form_collects_incident_date,
+    grouping_identifiers,
+    is_disaggregated,
+    is_multi_valued,
+    question_entity_level,
+    search_context_declarations,
+    source_description,
+    value_type_bounds,
+)
+from dhis2w_fhir.resources.questionnaires.program_rules import (
+    EnableWhenCondition,
+    FormProgramRules,
+    ItemEnableWhen,
+    ProgramRuleBound,
+    PublishedProgramRule,
+    merged_bounds,
+    plan_program_rules,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
+        OptionSetIdentity,
+        OptionSetIdentityPlan,
+        OptionSetIn,
+    )
 
-    from dhis2w_fhir.config import GenerateConfig
     from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
-    from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentity, OptionSetIdentityPlan, OptionSetIn
 
 __all__ = [
     "DataDictionaryDocumentBuild",

@@ -18,7 +18,8 @@ from typing import Any
 
 import pytest
 from dhis2w_client.profile import NoProfileError, Profile
-from dhis2w_fhir.config import (
+from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.config import (
     BasemapSource,
     FhirProject,
     SearchBackend,
@@ -27,11 +28,10 @@ from dhis2w_fhir.config import (
     ServeJwtConfig,
     load_fhir_config,
 )
-from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.store import CompiledIgMissingError
 from dhis2w_fhir_serve import settings as settings_module
 from dhis2w_fhir_serve.auth import SERVE_TOKENS_VARIABLE
 from dhis2w_fhir_serve.settings import ServeInvocation, ServeSettings
-from dhis2w_fhir_serve.store import CompiledIgMissingError
 from pydantic import BaseModel, ConfigDict
 
 PROJECT_HEAD = """

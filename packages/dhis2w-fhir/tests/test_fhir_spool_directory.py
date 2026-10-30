@@ -12,9 +12,10 @@ import json
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir.config import FHIR_CONFIG_FILENAME, ServeConfig, load_fhir_config, load_project
-from dhis2w_fhir.forward_records import ForwardImportRecord
-from dhis2w_fhir.service import read_spool_state, spool_layout
+from dhis2w_fhir.service import read_spool_state
+from dhis2w_fhir_engine.facade.config import FHIR_CONFIG_FILENAME, ServeConfig, load_fhir_config, load_project
+from dhis2w_fhir_engine.facade.forward import spool_layout
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportRecord
 from dhis2w_fhir_engine.facade.spool import (
     REFUSAL_RECORD_SUFFIX,
     SPOOL_RELATIVE_PATH,

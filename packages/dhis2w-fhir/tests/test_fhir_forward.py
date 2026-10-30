@@ -24,50 +24,48 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve
 from dhis2w_fhir import (
-    CodedAnswerMode,
-    ForwardCompletenessKind,
-    ForwardImportIssue,
-    ForwardImportOutcome,
     ForwardOutcome,
     ForwardOutcomeKind,
     ForwardReport,
-    GenerateConfig,
-    OptionSetIn,
-    OverwritePosture,
-    QuestionnaireItemIn,
-    QuestionnaireSourceIn,
     build_attribute_combo_artifacts,
     build_attribute_combo_concept_maps,
     build_example_documents,
     build_questionnaire_documents,
     build_synthetic_responses,
-    load_project,
     option_set_identities,
     service,
 )
-from dhis2w_fhir.conversion import (
+from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
+from dhis2w_fhir_engine.facade import forward
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig, OverwritePosture, load_project
+from dhis2w_fhir_engine.facade.conversion.artifacts import (
     CompiledArtifactReadError,
     CompiledIgMissingError,
-    ConversionNaming,
-    ConversionTargetKind,
     bound_question_uids,
     build_project_context,
     load_compiled_artifacts,
-    receipt_event_uid,
 )
-from dhis2w_fhir.forward_records import ForwardImportRecord
-from dhis2w_fhir.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
-from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.conversion.payloads import receipt_event_uid
+from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode, ConversionNaming, ConversionTargetKind
+from dhis2w_fhir_engine.facade.forward_records import (
+    ForwardCompletenessKind,
+    ForwardImportIssue,
+    ForwardImportOutcome,
+    ForwardImportRecord,
+)
+from dhis2w_fhir_engine.facade.names import is_dhis2_uid
+from dhis2w_fhir_engine.facade.overwrite import build_forwarded_cell_index
+from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,
     ProgramContextIn,
+    QuestionnaireItemIn,
     QuestionnaireSectionIn,
+    QuestionnaireSourceIn,
 )
-from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-from dhis2w_fhir_engine.facade.names import is_dhis2_uid
-from dhis2w_fhir_engine.facade.overwrite import build_forwarded_cell_index
 from dhis2w_fhir_engine.facade.spool import (
     DRAIN_LOCK_FILE_NAME,
     FORWARDED_RESPONSES_RELATIVE_PATH,
@@ -1127,7 +1125,7 @@ def test_a_location_the_publisher_rendered_a_narrative_for_is_read() -> None:
     Left out, the reference falls back to reading its id as the DHIS2 uid - right by accident under
     `naming.source = "id"`, and the wrong organisation unit under `code`.
     """
-    from dhis2w_fhir.conversion.artifacts import SourcedDocument, collect_artifacts
+    from dhis2w_fhir_engine.facade.conversion.artifacts import SourcedDocument, collect_artifacts
 
     narrative = {"status": "generated", "div": '<div xmlns="http://www.w3.org/1999/xhtml"><p>Ngelehun CHC</p></div>'}
     collected = collect_artifacts(
@@ -1191,7 +1189,7 @@ def test_a_project_with_no_compiled_guide_builds_one_off_the_instance(tmp_path: 
     root.mkdir()
     _write_project(root, compiled=False)
 
-    assert service._compiled_artifacts_or_none(load_project(root)) is None
+    assert forward._compiled_artifacts_or_none(load_project(root)) is None
 
 
 def test_turning_the_live_build_off_restores_the_refusal_naming_the_two_commands(tmp_path: Path) -> None:
@@ -1204,12 +1202,12 @@ def test_turning_the_live_build_off_restores_the_refusal_naming_the_two_commands
     )
 
     with pytest.raises(CompiledIgMissingError, match="make sushi"):
-        service._compiled_artifacts_or_none(load_project(root))
+        forward._compiled_artifacts_or_none(load_project(root))
 
 
 def test_a_compiled_guide_is_read_off_disk_rather_than_built(forward_project: Path) -> None:
     """The live build is what a project holding no guide falls to, never what one holding a guide pays for."""
-    artifacts = service._compiled_artifacts_or_none(load_project(forward_project))
+    artifacts = forward._compiled_artifacts_or_none(load_project(forward_project))
 
     assert artifacts is not None
     assert artifacts.questionnaires
@@ -1217,7 +1215,7 @@ def test_a_compiled_guide_is_read_off_disk_rather_than_built(forward_project: Pa
 
 def test_built_documents_are_collected_into_the_five_types_the_translator_reads() -> None:
     """One collection point serves both ways a guide reaches the translator, so neither can drift."""
-    from dhis2w_fhir.conversion.artifacts import SourcedDocument, collect_artifacts
+    from dhis2w_fhir_engine.facade.conversion.artifacts import SourcedDocument, collect_artifacts
 
     collected = collect_artifacts(
         [
@@ -2208,7 +2206,7 @@ async def test_the_report_round_trips_the_unverifiable_outcome_through_json(
     _mock_tracker_instance_answering_the_stage_event(_harvested_absent_enrollment_409("v42"))
 
     report = await _forward(tracker_forward_project)
-    restored = service.ForwardReport.model_validate_json(report.model_dump_json())
+    restored = forward.ForwardReport.model_validate_json(report.model_dump_json())
 
     assert [outcome.kind for outcome in restored.outcomes] == [outcome.kind for outcome in report.outcomes]
     assert len(restored.unverifiable) == 1
@@ -2888,7 +2886,7 @@ async def test_a_tracker_only_drain_reads_no_forwarded_receipt(
     """`forwarded/` is unbounded, and a drain that cannot land on an aggregate value has no cause to read it."""
     _mock_instance()
     await _forward(three_event_project, import_responses=True)
-    layout = service.spool_layout(load_project(three_event_project))
+    layout = forward.spool_layout(load_project(three_event_project))
     # The three receipts are there to be read, and a drain carrying an aggregate payload would read them.
     assert build_forwarded_cell_index(layout).receipts_read == 3
 
@@ -2898,7 +2896,7 @@ async def test_a_tracker_only_drain_reads_no_forwarded_receipt(
         reads.append(read_layout.root)
         raise AssertionError("a tracker-only drain must not read the forwarded receipts")
 
-    monkeypatch.setattr(service, "build_forwarded_cell_index", _record_and_refuse)
+    monkeypatch.setattr(forward, "build_forwarded_cell_index", _record_and_refuse)
     _fill_spool(three_event_project, _event_documents(1))
 
     report = await _forward(three_event_project, import_responses=True)
@@ -3019,7 +3017,7 @@ async def test_refuse_leaves_the_receipt_queued_with_every_covered_value_written
     assert not (forward_project / FORWARDED_RESPONSES_RELATIVE_PATH / "recapture1.json").exists()
     record = _refusal_record(forward_project, "recapture1")
     assert record.attempt_count == 1
-    assert {reason.category for reason in record.reasons} == {service.OVERWRITE_REFUSAL_CATEGORY}
+    assert {reason.category for reason in record.reasons} == {forward.OVERWRITE_REFUSAL_CATEGORY}
     assert {reason.element for reason in record.reasons} == {"De2aaaaaaaa", "De3aaaaaaaa"}
     assert original.id is not None
     assert all(original.id in reason.reason for reason in record.reasons)
@@ -3200,7 +3198,7 @@ async def test_the_drain_and_the_forwarded_index_name_the_same_receipt_as_the_se
 
     await _forward(arrival_order_project, import_responses=True, overwrites=OverwritePosture.ALLOW)
 
-    index = build_forwarded_cell_index(service.spool_layout(load_project(arrival_order_project)))
+    index = build_forwarded_cell_index(forward.spool_layout(load_project(arrival_order_project)))
     assert index.covered
     assert {submission.response_id for submission in index.covered.values()} == {_EARLY_NAME_LATE_ARRIVAL}
 
@@ -3222,7 +3220,7 @@ async def test_refuse_admits_the_earlier_capture_and_queues_the_later_one(
 
 def test_the_queue_listing_reads_in_the_order_the_drain_posts_in(arrival_order_project: Path) -> None:
     """`d2w fhir spool` and a drain agree on what is next, so a listing predicts what a run will do."""
-    layout = service.spool_layout(load_project(arrival_order_project))
+    layout = forward.spool_layout(load_project(arrival_order_project))
 
     listed = [receipt.response_id for receipt in read_spooled_receipts(layout).in_state(SpoolState.RECEIVED)]
     drained = [response.response_id for response in read_received_responses(layout).responses]
@@ -3461,8 +3459,8 @@ async def test_a_drain_killed_after_the_values_landed_leaves_the_claim_owed(
     async def _interrupt(*arguments: Any, **keyword_arguments: Any) -> None:
         raise RuntimeError("the drain was killed after the values landed")
 
-    registering = service._register_completeness
-    monkeypatch.setattr(service, "_register_completeness", _interrupt)
+    registering = forward._register_completeness
+    monkeypatch.setattr(forward, "_register_completeness", _interrupt)
     with pytest.raises(RuntimeError):
         await _forward(one_aggregate_project, import_responses=True)
 
@@ -3472,7 +3470,7 @@ async def test_a_drain_killed_after_the_values_landed_leaves_the_claim_owed(
     assert owed.kind is ForwardCompletenessKind.PENDING
     posted_values = routes["aggregate"].call_count
 
-    monkeypatch.setattr(service, "_register_completeness", registering)
+    monkeypatch.setattr(forward, "_register_completeness", registering)
     report = await _forward(one_aggregate_project, import_responses=True)
 
     assert [retry.outcome.kind for retry in report.completeness_retries] == [ForwardCompletenessKind.REGISTERED]

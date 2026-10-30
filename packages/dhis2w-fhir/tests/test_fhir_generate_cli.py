@@ -16,12 +16,14 @@ from dhis2w_fhir import (
     GenerateReport,
     GenerateSubject,
     LoadSetReport,
+)
+from dhis2w_fhir.validation.schemas import CodeCoverage, SurfaceCodeCoverage, ValidationFinding
+from dhis2w_fhir_engine.facade.config import HostileNamePosture
+from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     UntimelyAttributeOptionCombosSummary,
     UnusableAttributeOptionCombosSummary,
 )
-from dhis2w_fhir.config import HostileNamePosture
-from dhis2w_fhir.validation.schemas import CodeCoverage, SurfaceCodeCoverage, ValidationFinding
-from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory
 from typer.testing import CliRunner
 
 _runner = CliRunner()

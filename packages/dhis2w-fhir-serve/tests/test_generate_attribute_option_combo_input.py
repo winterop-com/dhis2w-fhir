@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx2
-from dhis2w_fhir.config import FhirProject
+from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
 

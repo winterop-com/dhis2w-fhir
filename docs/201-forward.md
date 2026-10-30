@@ -135,7 +135,7 @@ Seven steps, each narrated on stderr:
    fact the compiled IG cannot carry: R4 spells DHIS2's `BOOLEAN` and
    `TRUE_ONLY` as the same `#boolean` item type, and only the value type
    tells them apart.
-4. **Translate** - each response through `dhis2w_fhir.conversion`,
+4. **Translate** - each response through `dhis2w_fhir_engine.facade.conversion`,
    all-or-nothing.
 5. **Post** - one payload per response, **people first and then the payloads
    that create an enrollment**, through the one client the run opened.

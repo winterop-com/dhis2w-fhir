@@ -19,7 +19,9 @@ from typing import Any
 import httpx2
 import pytest
 from dhis2w_client import BasicAuth, Dhis2Client
-from dhis2w_fhir.config import FhirProject, ServeAuth
+from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth
+from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
 from dhis2w_fhir_serve import runtime as runtime_module
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.error_handlers import register_error_handlers
@@ -27,8 +29,6 @@ from dhis2w_fhir_serve.passthrough import FACADE_PROVENANCE_HEADER
 from dhis2w_fhir_serve.routes import register_routes
 from dhis2w_fhir_serve.runtime import ServeContext, ServeRuntime, attach_serve_runtime, open_serve_runtime
 from dhis2w_fhir_serve.settings import ServeSettings
-from dhis2w_fhir_serve.spool import ResponseSpool, StoredResponseEnvelope
-from dhis2w_fhir_serve.store import ResourceStore, StoreEntry
 from fastapi import FastAPI
 
 BASE_URL = "http://serve.test"

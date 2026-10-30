@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE, BadSearchError
 from dhis2w_fhir_engine.r4.resources import Coding, Parameters, ParametersParameter
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict
@@ -25,7 +26,6 @@ from starlette.datastructures import QueryParams
 from starlette.requests import Request
 from starlette.responses import Response
 
-from dhis2w_fhir_serve.errors import FHIR_JSON_MEDIA_TYPE, BadSearchError
 from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:

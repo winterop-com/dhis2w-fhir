@@ -48,13 +48,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir_engine.facade.summary import build_patient_summary
-from fastapi import APIRouter
-from starlette.requests import Request
-from starlette.responses import Response
-
-from dhis2w_fhir_serve.capability import SOFTWARE_NAME
-from dhis2w_fhir_serve.errors import (
+from dhis2w_fhir_engine.facade.capability import SOFTWARE_NAME
+from dhis2w_fhir_engine.facade.refusals import (
     FHIR_JSON_MEDIA_TYPE,
     BadOperationError,
     NotFoundError,
@@ -64,10 +59,16 @@ from dhis2w_fhir_serve.errors import (
     UnsupportedSearchParameterError,
     UpstreamError,
 )
+from dhis2w_fhir_engine.facade.register.projection import PERSON_RESOURCE_TYPES, registered_entity_for
+from dhis2w_fhir_engine.facade.register.wire import upstream_refusal_text
+from dhis2w_fhir_engine.facade.response_spool import current_instant
+from dhis2w_fhir_engine.facade.summary import build_patient_summary
+from fastapi import APIRouter
+from starlette.requests import Request
+from starlette.responses import Response
+
 from dhis2w_fhir_serve.history.projection import RecordProjection
 from dhis2w_fhir_serve.history.wire import fetch_tracked_entity_record
-from dhis2w_fhir_serve.register.projection import PERSON_RESOURCE_TYPES, registered_entity_for
-from dhis2w_fhir_serve.register.wire import upstream_refusal_text
 from dhis2w_fhir_serve.routes.capture import capture_state
 from dhis2w_fhir_serve.routes.context import serve_context
 from dhis2w_fhir_serve.routes.negotiation import FORMAT_PARAMETER
@@ -78,7 +79,6 @@ from dhis2w_fhir_serve.routes.register import (
     register_lookup,
     registered_tracked_entity,
 )
-from dhis2w_fhir_serve.spool import current_instant
 from dhis2w_fhir_serve.summary import SummaryDoses, recorded_doses
 
 if TYPE_CHECKING:

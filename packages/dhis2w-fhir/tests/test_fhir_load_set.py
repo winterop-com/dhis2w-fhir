@@ -15,7 +15,8 @@ import httpx
 import pytest
 import respx
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import InitOptions, load_project, service
+from dhis2w_fhir import InitOptions, service
+from dhis2w_fhir_engine.facade.config import load_project
 
 _HOST = "https://dhis2.example"
 _CANONICAL = "http://example.org/fhir"

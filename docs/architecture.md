@@ -712,7 +712,7 @@ UI](201-capture-ui.md).
 
 ## The conversion layer
 
-`dhis2w_fhir.conversion` is one direction only - a captured
+`dhis2w_fhir_engine.facade.conversion` is one direction only - a captured
 `QuestionnaireResponse` into a DHIS2 import payload. The other direction is the
 generate targets.
 

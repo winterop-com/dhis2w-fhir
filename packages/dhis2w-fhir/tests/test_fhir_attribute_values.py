@@ -16,9 +16,11 @@ import respx
 from dhis2w_client.generated.v43.schemas import OptionSet
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import InitOptions, load_project, service
-from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn
+from dhis2w_fhir import InitOptions, service
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.progress import StepAnnouncer
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitIn
 from pydantic import BaseModel
 
 _HOST = "https://dhis2.example"
@@ -286,7 +288,7 @@ async def test_organisation_unit_attribute_values_survive_the_paged_fetch(
 
     async with open_client(resolve_profile("probe")) as client:
         units = await service._fetch_organisation_units(
-            client, load_project(tmp_path).config.generate, service.GeometryTally(), _TODAY, service._StepAnnouncer()
+            client, load_project(tmp_path).config.generate, service.GeometryTally(), _TODAY, StepAnnouncer()
         )
 
     assert [unit.attribute_values for unit in units] == [_MAPPED_ATTRIBUTE_VALUES]

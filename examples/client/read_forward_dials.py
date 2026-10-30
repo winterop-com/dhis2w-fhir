@@ -23,7 +23,13 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from dhis2w_fhir import CorrectionPosture, ForwardConfig, OverwritePosture, WithdrawalPosture, load_project
+from dhis2w_fhir_engine.facade.config import (
+    CorrectionPosture,
+    ForwardConfig,
+    OverwritePosture,
+    WithdrawalPosture,
+    load_project,
+)
 
 _IG_TABLE = """
 [ig]

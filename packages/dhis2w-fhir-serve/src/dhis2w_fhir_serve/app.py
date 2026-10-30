@@ -9,7 +9,7 @@ runtime, attaches it, and says in one log line what was loaded.
 The spool is the one exception, and deliberately so: it is a path, not a loaded index, and every
 read of it re-reads the directory. `d2w fhir forward` runs as a separate process and moves receipt
 files between the spool's three states while this server is up, so anything cached here would go
-stale within seconds of a drain. See `dhis2w_fhir_serve.spool`.
+stale within seconds of a drain. See `dhis2w_fhir_engine.facade.response_spool`.
 
 The default mode is fully offline: a compiled IG on disk is the whole world, and no DHIS2 client is
 constructed anywhere in this module. `--live` swaps the store for one built from a DHIS2 instance,
@@ -27,10 +27,10 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from dhis2w_fhir_engine.facade.log import LOGGER_NAME
 from fastapi import FastAPI
 
 from dhis2w_fhir_serve.error_handlers import register_error_handlers
-from dhis2w_fhir_serve.log import LOGGER_NAME
 from dhis2w_fhir_serve.request_log import RequestLogMiddleware
 from dhis2w_fhir_serve.routes import register_routes
 from dhis2w_fhir_serve.runtime import attach_serve_runtime, open_serve_runtime, server_version

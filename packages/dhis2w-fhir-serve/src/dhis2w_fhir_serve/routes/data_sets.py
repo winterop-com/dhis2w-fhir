@@ -59,8 +59,22 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from dhis2w_client.errors import Dhis2ClientError
+from dhis2w_fhir_engine.facade.capture.index import CaptureIndex
 from dhis2w_fhir_engine.facade.grouping import ReportedForm, group_data_values
 from dhis2w_fhir_engine.facade.period import parse_period
+from dhis2w_fhir_engine.facade.refusals import (
+    FHIR_JSON_MEDIA_TYPE,
+    BadSearchError,
+    DataSetResponsesDisabledError,
+    MissingSearchParameterError,
+    NotFoundError,
+    NotServedFromCompiledIgError,
+    TooManySearchValuesError,
+    UnsupportedSearchParameterError,
+    UpstreamError,
+)
+from dhis2w_fhir_engine.facade.register.wire import upstream_refusal_text
+from dhis2w_fhir_engine.facade.response_spool import COUNT_PARAMETER, PAGE_PARAMETER, SpoolCursor, requested_cursor
 from dhis2w_fhir_engine.r4.resources import (
     Bundle,
     BundleEntry,
@@ -74,18 +88,6 @@ from pydantic import BaseModel, ConfigDict
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from dhis2w_fhir_serve.capture.index import CaptureIndex
-from dhis2w_fhir_serve.errors import (
-    FHIR_JSON_MEDIA_TYPE,
-    BadSearchError,
-    DataSetResponsesDisabledError,
-    MissingSearchParameterError,
-    NotFoundError,
-    NotServedFromCompiledIgError,
-    TooManySearchValuesError,
-    UnsupportedSearchParameterError,
-    UpstreamError,
-)
 from dhis2w_fhir_serve.history.aggregate import (
     DEFAULT_ATTRIBUTE_OPTION_COMBO,
     RESPONSE_ID_SEPARATOR,
@@ -94,13 +96,11 @@ from dhis2w_fhir_serve.history.aggregate import (
 )
 from dhis2w_fhir_serve.history.data_values import fetch_data_values
 from dhis2w_fhir_serve.passthrough import RegisterReader, register_reader
-from dhis2w_fhir_serve.register.wire import upstream_refusal_text
 from dhis2w_fhir_serve.routes.capture import capture_state
 from dhis2w_fhir_serve.routes.context import serve_context
 from dhis2w_fhir_serve.routes.history import FhirJsonResponse, record_base_url
 from dhis2w_fhir_serve.routes.negotiation import FORMAT_PARAMETER
 from dhis2w_fhir_serve.routes.read import requested_entry_cap
-from dhis2w_fhir_serve.spool import COUNT_PARAMETER, PAGE_PARAMETER, SpoolCursor, requested_cursor
 
 #: Where a data set's responses are served from, under the facade API's mount and under the data set
 #: whose responses they are - the same shape the tracked entity record takes one level down.

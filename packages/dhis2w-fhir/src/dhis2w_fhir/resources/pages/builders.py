@@ -25,6 +25,7 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.schemas import FoundationNaming
 from dhis2w_fhir_engine.facade.i18n import (
     FORM_NAME_PROPERTY,
     NAME_PROPERTY,
@@ -35,28 +36,41 @@ from dhis2w_fhir_engine.facade.names import StemResolution, code_or_uid, flatten
 from dhis2w_fhir_engine.facade.period.parser import parse_period
 from dhis2w_fhir_engine.facade.period.recent import recent_periods
 from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
+    AttributeOptionRestrictions,
+    CategoryOptionValidity,
+    UsableAttributeOptionCombos,
+)
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboIdentity
+from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import ConceptAssignmentPlan
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
+    FORM_KIND_PROFILES,
+    ITEM_TYPES_BY_VALUE_TYPE,
+    CategoryOptionComboIn,
+    FormKind,
+    QuestionnaireItemIn,
+    QuestionnaireNaming,
+    QuestionnaireSourceIn,
+    QuestionnaireStemPlan,
+    form_subject_type,
+    plan_questionnaire_stems,
+    source_display_name,
+)
+from dhis2w_fhir_engine.facade.writer import FshArtifact, FshBuild
 from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation.artifacts import build_naming_system_declarations
-from dhis2w_fhir.foundation.schemas import FoundationNaming
 from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_identities, attribute_combo_sources
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
-    AttributeOptionRestrictions,
-    CategoryOptionValidity,
-    UsableAttributeOptionCombos,
-)
-from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboIdentity
 from dhis2w_fhir.resources.examples.builders import (
     MULTI_VALUE_TYPE,
     STATUS_BY_EVENT_STATUS,
     answer_element,
     example_attribute_combo_assignments,
 )
-from dhis2w_fhir.resources.examples.schemas import SyntheticPlacement
 from dhis2w_fhir.resources.option_sets.builders import option_set_code_fallback, option_set_identities
-from dhis2w_fhir.resources.option_sets.schemas import ConceptAssignmentPlan
 from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming, location_profile_reference
 from dhis2w_fhir.resources.organisation_units.organization import (
     organisation_unit_stem_subjects,
@@ -89,24 +103,13 @@ from dhis2w_fhir.resources.pages.schemas import (
     TranslatedText,
     ValueLiteralRow,
 )
-from dhis2w_fhir.resources.questionnaires.schemas import (
-    FORM_KIND_PROFILES,
-    ITEM_TYPES_BY_VALUE_TYPE,
-    CategoryOptionComboIn,
-    FormKind,
-    QuestionnaireItemIn,
-    QuestionnaireNaming,
-    QuestionnaireSourceIn,
-    QuestionnaireStemPlan,
-    form_subject_type,
-    plan_questionnaire_stems,
-    source_display_name,
-)
-from dhis2w_fhir.writer import FshArtifact, FshBuild
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
+        OrganisationUnitIn,
+        OrganisationUnitLevelNames,
+    )
 
 
 #: Sync directory holding every generated page, relative to `ig/input/`.

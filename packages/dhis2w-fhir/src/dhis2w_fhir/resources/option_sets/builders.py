@@ -59,7 +59,20 @@ from dhis2w_fhir_engine.facade.names import (
     resolve_identity_stems,
 )
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, aggregate_generate_note, generate_note
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
+    ConceptAssignment,
+    ConceptAssignmentPlan,
+    ConceptSourceIn,
+    OptionConceptCodeIndex,
+    OptionConceptCodes,
+    OptionIn,
+    OptionSetIdentity,
+    OptionSetIdentityIndex,
+    OptionSetIdentityPlan,
+    OptionSetIn,
+)
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.facade.writer import JsonArtifact, JsonBuild
 from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
     CodeSystemConcept,
@@ -86,24 +99,10 @@ from dhis2w_fhir.foundation.attribute_values import (
 )
 from dhis2w_fhir.foundation.original_spelling import original_spelling_extension_urls
 from dhis2w_fhir.resources.identifier_terminology import build_identifier_code_system_artifacts
-from dhis2w_fhir.resources.option_sets.schemas import (
-    ConceptAssignment,
-    ConceptAssignmentPlan,
-    ConceptSourceIn,
-    OptionConceptCodeIndex,
-    OptionConceptCodes,
-    OptionIn,
-    OptionSetIdentity,
-    OptionSetIdentityIndex,
-    OptionSetIdentityPlan,
-    OptionSetIn,
-)
-from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 
 class MemberPropertySource(Protocol):

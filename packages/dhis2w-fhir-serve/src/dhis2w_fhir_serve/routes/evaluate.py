@@ -42,13 +42,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
-from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict, Field
-from starlette.concurrency import run_in_threadpool
-from starlette.requests import Request
-
-from dhis2w_fhir_serve.errors import (
+from dhis2w_fhir_engine.facade.refusals import (
     NoPublishedSubjectTypeError,
     NotFoundError,
     NotServedError,
@@ -56,15 +50,22 @@ from dhis2w_fhir_serve.errors import (
     RegisterDisabledError,
     UpstreamError,
 )
+from dhis2w_fhir_engine.facade.register.projection import registered_entity_for
+from dhis2w_fhir_engine.facade.register.wire import fetch_tracked_entity, upstream_refusal_text
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
+from fastapi import APIRouter
+from pydantic import BaseModel, ConfigDict, Field
+from starlette.concurrency import run_in_threadpool
+from starlette.requests import Request
+
 from dhis2w_fhir_serve.evaluation import EvaluationLanguage, EvaluationOutcome, evaluate_source
 from dhis2w_fhir_serve.passthrough import register_reader
-from dhis2w_fhir_serve.register.projection import registered_entity_for
-from dhis2w_fhir_serve.register.wire import fetch_tracked_entity, upstream_refusal_text
 from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:
+    from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+
     from dhis2w_fhir_serve.passthrough import RegisterReader
-    from dhis2w_fhir_serve.register.surface import RegisterSurface
 
 #: Where an evaluation is asked for, under the facade API's mount.
 EVALUATE_PATH = "/evaluate"

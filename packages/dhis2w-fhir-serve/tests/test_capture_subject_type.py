@@ -15,16 +15,13 @@ import json
 from typing import Any
 
 import pytest
+from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache, build_capture_index
+from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
+from dhis2w_fhir_engine.facade.capture.outcome import CaptureRejection
+from dhis2w_fhir_engine.facade.capture.validate import validate_response
+from dhis2w_fhir_engine.facade.store import ResourceStore
+from dhis2w_fhir_engine.facade.synthesize import generate_response
 from dhis2w_fhir_engine.r4.resources import Questionnaire
-from dhis2w_fhir_serve.capture import (
-    CaptureIndexCache,
-    CaptureNaming,
-    CaptureRejection,
-    build_capture_index,
-    validate_response,
-)
-from dhis2w_fhir_serve.store import ResourceStore
-from dhis2w_fhir_serve.synthesize import generate_response
 from fixture_project import CAPTURE_CANONICAL, REGISTRATION_PROGRAM_UID, golden
 
 REGISTRATION_QUESTIONNAIRE = f"{CAPTURE_CANONICAL}/Questionnaire/{REGISTRATION_PROGRAM_UID}"

@@ -30,15 +30,15 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
+from dhis2w_fhir.resources.questionnaires.assignments import ASSIGNMENT_DIRECTORY
+from dhis2w_fhir.scaffold.project_templates import TemplateOrigin, list_templates
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
     ATTRIBUTE_OPTION_VALID_FROM_PROPERTY,
     ATTRIBUTE_OPTION_VALID_TO_PROPERTY,
     CategoryOptionValidity,
 )
-from dhis2w_fhir.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
-from dhis2w_fhir.resources.questionnaires.assignments import ASSIGNMENT_DIRECTORY
-from dhis2w_fhir.scaffold.project_templates import TemplateOrigin, list_templates
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
 
 #: The templates that ride the wheel. The checkout-only ones commit no generated tree to grade.
 BUNDLED = [template for template in list_templates() if template.origin is TemplateOrigin.BUNDLED]

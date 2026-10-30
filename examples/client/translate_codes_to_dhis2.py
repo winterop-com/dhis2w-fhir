@@ -40,8 +40,8 @@ from __future__ import annotations
 
 import httpx2
 from _fixture import conversion_context, served_facade, stage_form_id
-from dhis2w_fhir import ConversionContext, ConversionNaming
-from dhis2w_fhir.conversion import CodedAnswerMode, FormSpec, OptionTable, QuestionSpec, resolve_option
+from dhis2w_fhir_engine.facade.conversion import CodedAnswerMode, FormSpec, OptionTable, QuestionSpec, resolve_option
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext, ConversionNaming
 
 #: How long one `$translate` call waits before this example gives up on the facade.
 FACADE_TIMEOUT_SECONDS = 10.0

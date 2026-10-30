@@ -276,7 +276,7 @@ def test_a_serve_flag_beats_the_table_and_the_table_beats_the_default(
 
 def test_the_basemaps_follow_the_same_three_way_precedence(workdir: Path, recorded_run: _RecordedRun) -> None:
     """One layer by default, the table restates the offer once per project, and the flag beats both."""
-    from dhis2w_fhir.config import DEFAULT_BASEMAP_NAME, DEFAULT_BASEMAP_TEMPLATE
+    from dhis2w_fhir_engine.facade.config import DEFAULT_BASEMAP_NAME, DEFAULT_BASEMAP_TEMPLATE
 
     project = _scaffold(workdir)
     _compile(project)

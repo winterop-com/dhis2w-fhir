@@ -18,9 +18,9 @@ from __future__ import annotations
 
 import re
 
+from dhis2w_fhir_engine.facade.config import FhirProject
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir.config import FhirProject
 from dhis2w_fhir.scaffold import (
     CONFIG_EXAMPLE_RELATIVE_PATH,
     GUIDE_REGISTRY_README_RELATIVE_PATH,

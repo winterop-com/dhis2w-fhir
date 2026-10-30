@@ -31,13 +31,11 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Literal
 
+from dhis2w_fhir_engine.facade.foundation.schemas import PROGRAM_RULE_ACTION_DEFINITIONS
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, generate_note, pluralize, verb_for_count
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_ACTION_DEFINITIONS
-from dhis2w_fhir.resources.option_sets.schemas import OptionConceptCodeIndex
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionConceptCodeIndex
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     BOUND_ELEMENTS_BY_ITEM_TYPE,
     BOUNDS_BY_VALUE_TYPE,
     MAXIMUM_VALUE_EXTENSION_URL,
@@ -49,6 +47,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     item_type,
     source_display_name,
 )
+from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

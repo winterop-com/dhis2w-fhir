@@ -11,9 +11,7 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import InitOptions, load_project, service
-from dhis2w_fhir.config import GenerateConfig
-from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir import InitOptions, service
 from dhis2w_fhir.validation import build_code_validation, render_validation_markdown, usable_code_stem
 from dhis2w_fhir.validation.pdf import render_validation_pdf
 from dhis2w_fhir.validation.report import render_validation_csv
@@ -22,6 +20,8 @@ from dhis2w_fhir.validation.schemas import (
     MetadataItemIn,
     ValidationScope,
 )
+from dhis2w_fhir_engine.facade.config import GenerateConfig, load_project
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
 
 _HOST = "https://dhis2.example"
 _CONFIG = GenerateConfig()

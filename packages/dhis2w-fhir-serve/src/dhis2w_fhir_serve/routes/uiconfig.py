@@ -50,8 +50,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
-from dhis2w_fhir.config import DEFAULT_BASEMAP_TEMPLATE, BasemapSource, ServeAuth, ServeAuthScope
-from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitGeometry
+from dhis2w_fhir_engine.facade.config import DEFAULT_BASEMAP_TEMPLATE, BasemapSource, ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitGeometry
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.requests import Request
@@ -59,7 +59,7 @@ from starlette.requests import Request
 from dhis2w_fhir_serve.routes.context import live_client, serve_context
 
 if TYPE_CHECKING:
-    from dhis2w_fhir_serve.register.surface import RegisterSurface
+    from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 
 #: Where the settings are served from, under the facade API's mount.
 UI_CONFIG_PATH = "/uiconfig"

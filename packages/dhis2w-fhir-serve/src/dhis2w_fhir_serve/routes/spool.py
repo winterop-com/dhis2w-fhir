@@ -24,7 +24,7 @@ process. `dhis2w_fhir_serve.routes` states the mounting and `docs/design/endpoin
 states the rule a new endpoint is placed by.
 
 Every read re-reads the directory. `d2w fhir forward` moves files while this server runs, so a
-listing built from anything else is stale by design; see `dhis2w_fhir_serve.spool`.
+listing built from anything else is stale by design; see `dhis2w_fhir_engine.facade.response_spool`.
 
 THE LISTING IS PAGED, with the same two parameters the register listing uses: `_count` for how many
 rows a page carries and `page` for an opaque cursor a client only ever gets from a `next` or
@@ -37,19 +37,10 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from dhis2w_fhir.conversion.values import location_id_of
-from dhis2w_fhir.forward_records import ForwardImportOutcome, WithdrawalRecord
-from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, QuarantinedFile
-from dhis2w_fhir_engine.r4.resources import Extension, QuestionnaireResponse, QuestionnaireResponseItem
-from fastapi import APIRouter, Query
-from pydantic import BaseModel, ConfigDict, ValidationError
-from starlette.concurrency import run_in_threadpool
-from starlette.requests import Request
-
-from dhis2w_fhir_serve.capture.naming import PERIOD_ISO_SUB_EXTENSION, PERIOD_TYPE_SUB_EXTENSION, CaptureNaming
-from dhis2w_fhir_serve.routes.capture import capture_state
-from dhis2w_fhir_serve.routes.context import serve_context
-from dhis2w_fhir_serve.spool import (
+from dhis2w_fhir_engine.facade.capture.naming import PERIOD_ISO_SUB_EXTENSION, PERIOD_TYPE_SUB_EXTENSION, CaptureNaming
+from dhis2w_fhir_engine.facade.conversion.values import location_id_of
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome, WithdrawalRecord
+from dhis2w_fhir_engine.facade.response_spool import (
     COUNT_PARAMETER,
     PAGE_PARAMETER,
     ResponseLifecycle,
@@ -60,6 +51,15 @@ from dhis2w_fhir_serve.spool import (
     requested_cursor,
     requested_page_size,
 )
+from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, QuarantinedFile
+from dhis2w_fhir_engine.r4.resources import Extension, QuestionnaireResponse, QuestionnaireResponseItem
+from fastapi import APIRouter, Query
+from pydantic import BaseModel, ConfigDict, ValidationError
+from starlette.concurrency import run_in_threadpool
+from starlette.requests import Request
+
+from dhis2w_fhir_serve.routes.capture import capture_state
+from dhis2w_fhir_serve.routes.context import serve_context
 
 #: Where the listing is served from, under the facade API's mount.
 SPOOL_PATH = "/spool"

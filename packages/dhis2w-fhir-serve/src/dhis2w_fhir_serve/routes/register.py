@@ -11,7 +11,7 @@ catch-all routes rather than a pair per resource.
 
 **One implementation, parameterized by resource type.** Nothing below branches on which resource is
 being answered. A `Specimen` is searched by the same identifier grammar, paged by the same cursor,
-and projected by the same rule as a `Patient` - see `dhis2w_fhir_serve.register.projection` for why
+and projected by the same rule as a `Patient` - see `dhis2w_fhir_engine.facade.register.projection` for why
 that projection states no resource-specific element for any of them.
 
 **Whose data this is depends on who asked.** Under `[serve] auth = "dhis2"` every read below carries
@@ -35,7 +35,7 @@ the no-identifier request alone and leaves identifier search exactly as it is. B
 key that produced them, so an operator reading the outcome knows which line to change.
 
 **A request naming no `identifier` is the listing**: a paged searchset over the tracked entity types
-that resource is served over, which `dhis2w_fhir_serve.register.listing` walks and links. `_count` is
+that resource is served over, which `dhis2w_fhir_engine.facade.register.listing` walks and links. `_count` is
 honoured up to `[serve.tracked_entities] page_size_limit` and clamped rather than refused above it,
 and `_count=0` asks how large the register is - answered by counting the instance rather than by
 building a page nobody wants.
@@ -65,7 +65,7 @@ NOTHING ELSE. It narrows the listing, the identifier search, the `_content` sear
 `_count=0` count alike, under either backend, and it rides the listing's `next` and `previous` links
 the way `_tag` does. Which attributes a register filters on is what its types' own published forms
 ask, declared per register at `/metadata` and at `/facade/uiconfig`; an attribute the request names and this
-register does not filter on is a 400 naming the ones it does. `dhis2w_fhir_serve.register.filtering`
+register does not filter on is a 400 naming the ones it does. `dhis2w_fhir_engine.facade.register.filtering`
 argues every part of that, including why there is no config dial narrowing the set.
 
 **A parameter this surface cannot apply is refused, and that is the whole reason `search_register`
@@ -145,13 +145,8 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir.config import SearchBackend
-from dhis2w_fhir_engine.r4.resources import Bundle, BundleEntry, BundleEntrySearch, BundleLink, json_resource
-from pydantic import BaseModel, ConfigDict
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-
-from dhis2w_fhir_serve.errors import (
+from dhis2w_fhir_engine.facade.config import SearchBackend
+from dhis2w_fhir_engine.facade.refusals import (
     FHIR_JSON_MEDIA_TYPE,
     BadSearchError,
     NoPublishedSubjectTypeError,
@@ -165,6 +160,30 @@ from dhis2w_fhir_serve.errors import (
     UnsupportedSearchParameterError,
     UpstreamError,
 )
+from dhis2w_fhir_engine.facade.register.filtering import (
+    ATTRIBUTE_FILTER_PARAMETER,
+    AttributeFilter,
+    holds_every_filter,
+    requested_attribute_filters,
+    wire_filters,
+)
+from dhis2w_fhir_engine.facade.register.listing import (
+    COUNT_PARAMETER,
+    PAGE_PARAMETER,
+    ListingCursor,
+    RegisterListingPage,
+    count_listing_total,
+    read_listing_page,
+)
+from dhis2w_fhir_engine.facade.register.projection import attribute_values, registered_entity_for
+from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.register.wire import fetch_tracked_entity, upstream_refusal_text
+from dhis2w_fhir_engine.facade.store import IdentifierToken
+from dhis2w_fhir_engine.r4.resources import Bundle, BundleEntry, BundleEntrySearch, BundleLink, json_resource
+from pydantic import BaseModel, ConfigDict
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
+
 from dhis2w_fhir_serve.passthrough import RegisterReader, register_reader
 from dhis2w_fhir_serve.projection.base import (
     NameQuery,
@@ -175,24 +194,6 @@ from dhis2w_fhir_serve.projection.base import (
 )
 from dhis2w_fhir_serve.projection.factory import build_name_search_index
 from dhis2w_fhir_serve.projection.serving import as_of_entry, as_of_headers
-from dhis2w_fhir_serve.register.filtering import (
-    ATTRIBUTE_FILTER_PARAMETER,
-    AttributeFilter,
-    holds_every_filter,
-    requested_attribute_filters,
-    wire_filters,
-)
-from dhis2w_fhir_serve.register.listing import (
-    COUNT_PARAMETER,
-    PAGE_PARAMETER,
-    ListingCursor,
-    RegisterListingPage,
-    count_listing_total,
-    read_listing_page,
-)
-from dhis2w_fhir_serve.register.projection import attribute_values, registered_entity_for
-from dhis2w_fhir_serve.register.surface import RegisterSurface
-from dhis2w_fhir_serve.register.wire import fetch_tracked_entity, upstream_refusal_text
 from dhis2w_fhir_serve.routes.context import projection_store, serve_context
 from dhis2w_fhir_serve.routes.negotiation import FORMAT_PARAMETER
 from dhis2w_fhir_serve.routes.read import (
@@ -204,7 +205,6 @@ from dhis2w_fhir_serve.routes.read import (
     requested_entry_cap,
     total_only_response,
 )
-from dhis2w_fhir_serve.store import IdentifierToken
 
 if TYPE_CHECKING:
     from dhis2w_client.generated.v43.oas import TrackerTrackedEntity

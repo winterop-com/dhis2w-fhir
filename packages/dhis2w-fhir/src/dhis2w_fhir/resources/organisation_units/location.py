@@ -23,9 +23,12 @@ from dhis2w_fhir.resources.organisation_units.naming import organisation_unit_le
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
+        OrganisationUnitIn,
+        OrganisationUnitLevelNames,
+    )
 
     from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitInstanceUrls
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
 
 #: The media type the GeoJSON Feature travels under inside the boundary attachment.
 BOUNDARY_CONTENT_TYPE = "application/geo+json"

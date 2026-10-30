@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir.resources.questionnaires.schemas import CAPTURED_FORM_KINDS
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import CAPTURED_FORM_KINDS
 from dhis2w_fhir_engine.r4.resources import (
     Bundle,
     CapabilityStatement,

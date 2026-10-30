@@ -9,7 +9,7 @@ stand on. `tests/test_generate_endpoint.py` holds that invariant per form kind.
 
 The spool is read as part of answering: a generated stage response answers against the tracked entity
 and the enrollment a spooled registration of the same program minted, so the operation's output is a
-function of the project's receipts as well as its forms - see `dhis2w_fhir_serve.synthesize`.
+function of the project's receipts as well as its forms - see `dhis2w_fhir_engine.facade.synthesize`.
 
 Three inputs steer the draw. `seed` makes it reproducible; `subject` pins the organisation unit the
 response reports from; `attributeOptionCombo` pins what it is filed under. The two pins are one rule
@@ -34,13 +34,16 @@ import datetime
 import json
 from typing import Any
 
-from dhis2w_fhir.conversion.values import location_id_of
-from dhis2w_fhir.foundation.schemas import (
+from dhis2w_fhir_engine.facade.capture.index import QUESTIONNAIRE_RESOURCE_TYPE, UnreadableQuestionnaireError
+from dhis2w_fhir_engine.facade.conversion.values import location_id_of
+from dhis2w_fhir_engine.facade.foundation.schemas import (
     GENERATE_ATTRIBUTE_OPTION_COMBO_PARAMETER,
     GENERATE_SEED_PARAMETER,
     GENERATE_SUBJECT_PARAMETER,
 )
 from dhis2w_fhir_engine.facade.names import is_valid_fhir_id
+from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE, BadOperationError, NotFoundError, ServeError
+from dhis2w_fhir_engine.facade.synthesize import MAXIMUM_SEED, UngeneratableCaptureError, draw_seed, generate_response
 from dhis2w_fhir_engine.r4.resources import Parameters, ParametersParameter, Questionnaire
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -48,16 +51,8 @@ from starlette.datastructures import QueryParams
 from starlette.requests import Request
 from starlette.responses import Response
 
-from dhis2w_fhir_serve.capture.index import QUESTIONNAIRE_RESOURCE_TYPE, UnreadableQuestionnaireError
-from dhis2w_fhir_serve.errors import FHIR_JSON_MEDIA_TYPE, BadOperationError, NotFoundError, ServeError
 from dhis2w_fhir_serve.routes.capture import capture_state
 from dhis2w_fhir_serve.routes.context import serve_context
-from dhis2w_fhir_serve.synthesize import (
-    MAXIMUM_SEED,
-    UngeneratableCaptureError,
-    draw_seed,
-    generate_response,
-)
 
 #: The path the operation is served at; `capability.py` declares it by the name R4 gives it.
 GENERATE_PATH = f"/{QUESTIONNAIRE_RESOURCE_TYPE}/{{resource_id}}/$generate"

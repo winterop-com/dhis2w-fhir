@@ -39,7 +39,8 @@ from _runner import run_example
 from dhis2w_client import Dhis2ApiError, Dhis2Client, Dhis2ClientError, Profile
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve
-from dhis2w_fhir import ConversionContext, translate_response
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,

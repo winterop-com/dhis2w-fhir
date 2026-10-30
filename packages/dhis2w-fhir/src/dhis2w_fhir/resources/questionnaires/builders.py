@@ -38,26 +38,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir_engine.facade.i18n import (
-    TRANSLATION_EXTENSION_URL,
-    TranslationIn,
-    description_translations,
-    name_translations,
-    text_translations,
-)
-from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace, page_text, quote, quote_verbatim
-from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, aggregate_generate_note, pluralize, verb_for_count
-from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
-from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.attribute_values import (
-    ATTRIBUTE_CODE_SUB_EXTENSION,
-    ATTRIBUTE_ID_SUB_EXTENSION,
-    ATTRIBUTE_VALUE_SUB_EXTENSION,
-    attribute_value_identifier_system,
-)
-from dhis2w_fhir.foundation.schemas import (
+from dhis2w_fhir_engine.facade.foundation.schemas import (
     DATE_LABEL_ENROLLMENT_SUB_EXTENSION,
     DATE_LABEL_EVENT_SUB_EXTENSION,
     DATE_LABEL_INCIDENT_SUB_EXTENSION,
@@ -69,26 +50,22 @@ from dhis2w_fhir.foundation.schemas import (
     PROGRAM_RULE_UID_SUB_EXTENSION,
     FoundationNaming,
 )
-from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
-from dhis2w_fhir.resources.option_sets.builders import (
-    code_system_canonical,
-    option_concept_code_index,
-    option_set_identity_index,
+from dhis2w_fhir_engine.facade.i18n import (
+    TRANSLATION_EXTENSION_URL,
+    TranslationIn,
+    description_translations,
+    name_translations,
+    text_translations,
 )
-from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentity, OptionSetIdentityPlan, OptionSetIn
-from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
-from dhis2w_fhir.resources.questionnaires.program_rules import (
-    ComputedQuestionsSummary,
-    EnableWhenCondition,
-    FormProgramRules,
-    ItemEnableWhen,
-    ProgramRuleBound,
-    PublishedProgramRule,
-    merged_bounds,
-    plan_program_rules,
-    value_type_bound,
+from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace, page_text, quote, quote_verbatim
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, aggregate_generate_note, pluralize, verb_for_count
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
+    OptionSetIdentity,
+    OptionSetIdentityPlan,
+    OptionSetIn,
 )
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     BOUND_ELEMENTS_BY_ITEM_TYPE,
     BOUNDS_BY_VALUE_TYPE,
     CATEGORY_OPTION_COMBO_TERMINOLOGY,
@@ -134,14 +111,41 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     source_title_translations,
     unmapped_tracked_entity_type_notes,
 )
-from dhis2w_fhir.writer import FshArtifact, FshBuild
+from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.facade.writer import FshArtifact, FshBuild
+from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.foundation.attribute_values import (
+    ATTRIBUTE_CODE_SUB_EXTENSION,
+    ATTRIBUTE_ID_SUB_EXTENSION,
+    ATTRIBUTE_VALUE_SUB_EXTENSION,
+    attribute_value_identifier_system,
+)
+from dhis2w_fhir.resources.option_sets.builders import (
+    code_system_canonical,
+    option_concept_code_index,
+    option_set_identity_index,
+)
+from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
+from dhis2w_fhir.resources.questionnaires.program_rules import (
+    ComputedQuestionsSummary,
+    EnableWhenCondition,
+    FormProgramRules,
+    ItemEnableWhen,
+    ProgramRuleBound,
+    PublishedProgramRule,
+    merged_bounds,
+    plan_program_rules,
+    value_type_bound,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
-    from dhis2w_fhir.config import GenerateConfig
     from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
 
 

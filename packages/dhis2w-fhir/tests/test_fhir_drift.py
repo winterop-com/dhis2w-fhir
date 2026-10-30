@@ -19,7 +19,6 @@ import httpx
 import pytest
 import respx
 from dhis2w_client.profile import Profile
-from dhis2w_fhir.config import load_project
 from dhis2w_fhir.doctor import (
     DoctorOptions,
     DoctorOutcome,
@@ -50,6 +49,7 @@ from dhis2w_fhir.drift import (
     registry_scope_line,
 )
 from dhis2w_fhir.service import GenerationProfile
+from dhis2w_fhir_engine.facade.config import load_project
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -524,8 +524,8 @@ def test_the_registry_scope_is_stated_in_the_words_the_selection_uses(
     root: str | None, max_level: int | None, expected: str
 ) -> None:
     """The evidence line names the slice the guide claims to publish, however the selection narrows it."""
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitSelection
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import OrganisationUnitSelection
 
     config = GenerateConfig(organisation_units=OrganisationUnitSelection(root=root, max_level=max_level))
 

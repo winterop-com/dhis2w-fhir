@@ -25,18 +25,8 @@ from dhis2w_core.cli_errors import CliUserError
 from dhis2w_core.cli_output import ColumnSpec, DetailRow, is_json_output, render_detail, render_list
 from dhis2w_core.progress import animated_progress, make_reporter
 from dhis2w_core.rich_console import STDERR_CONSOLE
-from dhis2w_fhir_engine.facade.errors import FhirUserError
-from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
-from dhis2w_fhir_engine.facade.spool import MALFORMED_RESPONSES_RELATIVE_PATH
-from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
-from pydantic import BaseModel, ConfigDict
-from typer.core import TyperGroup
-
-from dhis2w_fhir import (
-    DEFAULT_LOAD_SET_PER_TARGET,
-    DEFAULT_SUSHI_TIMEOUT_SECONDS,
+from dhis2w_fhir_engine.facade.config import (
     CorrectionPosture,
-    GenerateReport,
     HostileNamePosture,
     OverwritePosture,
     ServeAuth,
@@ -44,32 +34,39 @@ from dhis2w_fhir import (
     WithdrawalPosture,
     load_project,
 )
-from dhis2w_fhir.doctor import DEFAULT_ORACLE_SAMPLES
-from dhis2w_fhir.resources.attribute_combos.restrictions import (
+from dhis2w_fhir_engine.facade.errors import FhirUserError
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
+from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     UNTIMELY_ATTRIBUTE_OPTION_COMBO_REMEDY,
     UNUSABLE_ATTRIBUTE_OPTION_COMBO_REMEDY,
 )
+from dhis2w_fhir_engine.facade.spool import MALFORMED_RESPONSES_RELATIVE_PATH
+from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
+from pydantic import BaseModel, ConfigDict
+from typer.core import TyperGroup
+
+from dhis2w_fhir import DEFAULT_LOAD_SET_PER_TARGET, DEFAULT_SUSHI_TIMEOUT_SECONDS, GenerateReport
+from dhis2w_fhir.doctor import DEFAULT_ORACLE_SAMPLES
 from dhis2w_fhir.resources.questionnaires.assignments import EMPTY_ASSIGNMENT_REMEDY
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
     from dhis2w_core.progress import ProgressReporter
+    from dhis2w_fhir_engine.facade.config import FhirProject, ProjectionConfig
+    from dhis2w_fhir_engine.facade.forward import ForwardOutcome, ForwardReport
     from dhis2w_fhir_engine.facade.notes import GenerateNote
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
 
     # Type-only, exactly as `d2w fhir serve` and `d2w fhir sync` import the package itself: the serve
     # extra may not be installed, and a name used in an annotation costs no import at runtime.
     from dhis2w_fhir_serve import ServeSettings, SyncReport
 
-    from dhis2w_fhir.config import FhirProject, ProjectionConfig
     from dhis2w_fhir.doctor import DoctorReport
     from dhis2w_fhir.hostile_names import HostileNameGate, HostileRewrite
-    from dhis2w_fhir.resources.organisation_units.schemas import RegistryDependency
     from dhis2w_fhir.scaffold.project_templates import ProjectTemplate
     from dhis2w_fhir.scaffold.schemas import ScaffoldReport
     from dhis2w_fhir.service import (
-        ForwardOutcome,
-        ForwardReport,
         GenerateFullReport,
         GenerationProfile,
         LoadSetReport,
@@ -943,7 +940,7 @@ def _registry_dependency(
     `--registry-*` flags nor a data set or program; a guide naming a registry needs at least the
     package id and its canonical, since both go into `sushi-config.yaml` and every reference.
     """
-    from dhis2w_fhir.resources.organisation_units.schemas import RegistryDependency
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
 
     given = {
         "--registry-id": registry_id is not None,
@@ -1091,7 +1088,8 @@ def _reject_scaffold_flags(
 
 def _refresh_project(directory: Path) -> None:
     """Refresh an existing project's scaffold-managed files and render what each one did."""
-    from dhis2w_fhir.config import FHIR_CONFIG_FILENAME
+    from dhis2w_fhir_engine.facade.config import FHIR_CONFIG_FILENAME
+
     from dhis2w_fhir.scaffold.refresh import refresh_project
 
     report = refresh_project(directory)
@@ -1368,7 +1366,7 @@ def _write_generate_notes(
     """
     from datetime import UTC, datetime
 
-    from dhis2w_fhir import REPORTS_DIRECTORY
+    from dhis2w_fhir_engine.facade.config import REPORTS_DIRECTORY
 
     directory = project_root / REPORTS_DIRECTORY
     directory.mkdir(parents=True, exist_ok=True)
@@ -1913,9 +1911,10 @@ def validate_command(
     """
     from datetime import UTC, datetime
 
+    from dhis2w_fhir_engine.facade.config import REPORTS_DIRECTORY, find_project_fhir_config
     from dhis2w_fhir_engine.facade.notes import pluralize
 
-    from dhis2w_fhir import REPORTS_DIRECTORY, VALIDATE_CODES_STEPS, find_project_fhir_config, service
+    from dhis2w_fhir import VALIDATE_CODES_STEPS, service
     from dhis2w_fhir.validation.pdf import render_validation_pdf
     from dhis2w_fhir.validation.report import render_validation_csv, render_validation_markdown
 
@@ -2623,7 +2622,8 @@ def serve_command(
     `d2w fhir forward` drains, which is why one project states it once rather than per invocation.
     """
     try:
-        from dhis2w_fhir_serve import ServeAuthConfigurationError, ServeSettings, configure_logging, create_app
+        from dhis2w_fhir_engine.facade.log import configure_logging
+        from dhis2w_fhir_serve import ServeAuthConfigurationError, ServeSettings, create_app
 
         # The stamp exists so the capture UI can be told apart from the last one built, which keeps it
         # off the serve package's library surface: it is read from its own module, not the package root.
@@ -2689,7 +2689,7 @@ def _serve_surface(*, capture: bool, ui: bool, publishes: str | None = None) -> 
     A package says what it publishes rather than what it receives: it holds no form, so "receiving
     no submissions" would read as a dial somebody turned off rather than as the shape of the project.
     """
-    from dhis2w_fhir_serve import package_subject
+    from dhis2w_fhir_engine.facade.refusals import package_subject
 
     surface = ("FHIR endpoint + capture UI" if capture else "FHIR endpoint + screens") if ui else "FHIR endpoint"
     if publishes is not None:
@@ -2871,7 +2871,7 @@ def _completeness_cell(value: Any) -> str:
 
 def _render_completeness(report: ForwardReport) -> None:
     """State what every aggregate response of the run claimed about completeness, and what came of it."""
-    from dhis2w_fhir.forward_records import ForwardCompletenessKind
+    from dhis2w_fhir_engine.facade.forward_records import ForwardCompletenessKind
 
     outcomes = report.completeness_outcomes
     if not outcomes:
@@ -2960,7 +2960,7 @@ def _render_forward_outcomes(report: ForwardReport) -> None:
 
 def _completeness_report_lines(report: ForwardReport) -> list[str]:
     """The written report's completeness section: the tuple every aggregate response claimed, and its answer."""
-    from dhis2w_fhir.forward_records import ForwardCompletenessKind
+    from dhis2w_fhir_engine.facade.forward_records import ForwardCompletenessKind
 
     outcomes = report.completeness_outcomes
     if not outcomes:
@@ -3079,7 +3079,7 @@ def _write_forward_report(report: ForwardReport, generation: GenerationProfile) 
     """Write every response's outcome to `reports/fhir-forward-report.md`, grouped by what became of it."""
     from datetime import UTC, datetime
 
-    from dhis2w_fhir import REPORTS_DIRECTORY
+    from dhis2w_fhir_engine.facade.config import REPORTS_DIRECTORY
 
     directory = report.project_root / REPORTS_DIRECTORY
     directory.mkdir(parents=True, exist_ok=True)
@@ -3237,7 +3237,7 @@ def _render_overwrite_hints(report: ForwardReport) -> None:
 
 def _render_completeness_hints(report: ForwardReport) -> None:
     """Say what a completeness refusal means for the values, which is the one thing a reader must not guess."""
-    from dhis2w_fhir.forward_records import ForwardCompletenessKind
+    from dhis2w_fhir_engine.facade.forward_records import ForwardCompletenessKind
 
     refused = report.completeness_of(ForwardCompletenessKind.REFUSED)
     if refused:
@@ -3494,8 +3494,9 @@ def forward_command(
     Outcomes land in reports/fhir-forward-report.md on every run, `--details` or not; `--details`
     prints them here as well.
     """
+    from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode
+
     from dhis2w_fhir import FORWARD_STEPS, service
-    from dhis2w_fhir.conversion import CodedAnswerMode
 
     project = load_project(directory)
     generation = service.resolve_generation_profile(project)
@@ -3833,15 +3834,9 @@ async def _sync(
     A second way of deciding what a tracked entity is in FHIR would be a second answer to that
     question, and the two would disagree on the first mapping change.
     """
-    from dhis2w_fhir_serve import (
-        RegisterSurface,
-        TrackedEntityIndex,
-        build_store,
-        open_live_client,
-        open_projection_store,
-        projection_path,
-        run_sync,
-    )
+    from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+    from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+    from dhis2w_fhir_serve import build_store, open_live_client, open_projection_store, projection_path, run_sync
 
     async with open_live_client(project, settings) as client:
         store = await build_store(settings, project, client)
@@ -4172,7 +4167,8 @@ def _render_doctor_report(report: DoctorReport) -> None:
 
 def _write_doctor_report(report: DoctorReport) -> Path:
     """Write one run's markdown report where a handover reads it, and say where that is."""
-    from dhis2w_fhir import REPORTS_DIRECTORY
+    from dhis2w_fhir_engine.facade.config import REPORTS_DIRECTORY
+
     from dhis2w_fhir.doctor import DOCTOR_REPORT_STEM, render_doctor_markdown
 
     root = report.workspace if report.options.workspace is not None else Path.cwd()

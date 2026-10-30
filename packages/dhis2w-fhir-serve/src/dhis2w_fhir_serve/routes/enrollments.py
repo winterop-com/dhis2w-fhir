@@ -45,25 +45,24 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from dhis2w_client.errors import Dhis2ClientError
-from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict, Field
-from starlette.requests import Request
-
-from dhis2w_fhir_serve.errors import (
+from dhis2w_fhir_engine.facade.refusals import (
     NoPublishedSubjectTypeError,
     NotFoundError,
     NotServedFromCompiledIgError,
     RegisterDisabledError,
     UpstreamError,
 )
+from dhis2w_fhir_engine.facade.register.wire import fetch_tracked_entity, upstream_refusal_text
+from fastapi import APIRouter
+from pydantic import BaseModel, ConfigDict, Field
+from starlette.requests import Request
+
 from dhis2w_fhir_serve.passthrough import register_reader
-from dhis2w_fhir_serve.register.wire import fetch_tracked_entity, upstream_refusal_text
 from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:
     from dhis2w_client.generated.v43.oas import TrackerEnrollment
-
-    from dhis2w_fhir_serve.register.index import TrackedEntityIndex
+    from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 
 #: Where the listing is served from, under the facade API's mount.
 TRACKED_ENTITY_ENROLLMENTS_PATH = "/tracked-entities/{tracked_entity_uid}/enrollments"

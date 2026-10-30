@@ -9,7 +9,7 @@ capture that arrives while the instance is down simply waits for the pass that f
 The spool is not reimplemented here. It is the same tree `d2w fhir serve` writes and `d2w fhir
 forward` drains, through the same published primitives:
 
-- `dhis2w_fhir_serve.spool.ResponseSpool` is the write side: `save` lands a receipt through a
+- `dhis2w_fhir_engine.facade.response_spool.ResponseSpool` is the write side: `save` lands a receipt through a
   temporary sibling, an `fsync`, a rename, and an `fsync` of the directory - which is the whole
   reason a `201` from this facade is a promise rather than a hope.
 - `dhis2w_fhir_engine.facade.spool` is the drain side: `read_received_responses` reads the queue,
@@ -51,16 +51,13 @@ from dhis2w_client import Dhis2ApiError, Dhis2Client, Dhis2ClientError, Profile
 from dhis2w_client.generated.v43.oas import ImportSummary
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve
-from dhis2w_fhir import (
-    ConversionContext,
-    ConversionResult,
-    ForwardImportIssue,
-    ForwardImportOutcome,
-    ForwardImportRecord,
-    translate_response,
-)
+from dhis2w_fhir_engine.facade import response_spool as spool_writer
 from dhis2w_fhir_engine.facade import spool as spool_queue
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext, ConversionResult
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
+from dhis2w_fhir_engine.facade.forward_records import ForwardImportIssue, ForwardImportOutcome, ForwardImportRecord
 from dhis2w_fhir_engine.facade.overwrite import aggregate_cells
+from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle
 from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason, SpoolLayout
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
@@ -69,8 +66,6 @@ from dhis2w_fhir_engine.r4.resources import (
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir_serve import spool as spool_writer
-from dhis2w_fhir_serve.spool import ResponseLifecycle
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict

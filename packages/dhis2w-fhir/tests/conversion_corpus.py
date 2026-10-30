@@ -19,10 +19,6 @@ from typing import Any
 
 from dhis2w_client.generated.v43.oas import DataValueSet
 from dhis2w_fhir import (
-    AttributeComboPlan,
-    GenerateConfig,
-    OptionSetIn,
-    QuestionnaireSourceIn,
     build_attribute_combo_artifacts,
     build_attribute_combo_concept_maps,
     build_example_documents,
@@ -30,17 +26,17 @@ from dhis2w_fhir import (
     build_synthetic_responses,
     option_set_identities,
 )
-from dhis2w_fhir.conversion import (
-    ConversionContext,
-    ConversionNaming,
-    ConversionReport,
-    build_conversion_context,
-    translate_responses,
-)
-from dhis2w_fhir.resources.examples.schemas import ExampleResponseIn
 from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
 from dhis2w_fhir.resources.questionnaires.builders import source_items
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.conversion.context import build_conversion_context
+from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext, ConversionNaming, ConversionReport
+from dhis2w_fhir_engine.facade.conversion.translator import translate_responses
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
+from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleResponseIn
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
 from dhis2w_fhir_engine.r4.resources import CodeSystem, Identifier, Location, ValueSet
 
 SOURCE_DIRECTORY = Path(__file__).parent / "data" / "questionnaire-sources"

@@ -26,6 +26,7 @@ import random
 import re
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.schemas import FoundationNaming
 from dhis2w_fhir_engine.facade.names import StemResolution, fsh_code, page_text, quote
 from dhis2w_fhir_engine.facade.notes import (
     GenerateNote,
@@ -37,21 +38,8 @@ from dhis2w_fhir_engine.facade.notes import (
 from dhis2w_fhir_engine.facade.period.parser import parse_period
 from dhis2w_fhir_engine.facade.period.recent import recent_periods
 from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
-from dhis2w_fhir_engine.r4.primitives import (
-    is_fhir_date,
-    is_fhir_date_time,
-    is_fhir_time,
-    seconds_precision,
-    zoned_date_time,
-)
-from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.schemas import FoundationNaming
-from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_sources
-from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
-from dhis2w_fhir.resources.examples.enablement import settled_question_uids
-from dhis2w_fhir.resources.examples.schemas import (
+from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
+from dhis2w_fhir_engine.facade.resources.examples.schemas import (
     MULTI_VALUE_SEPARATOR,
     ExampleAnswer,
     ExampleAnswerIn,
@@ -65,7 +53,7 @@ from dhis2w_fhir.resources.examples.schemas import (
     SyntheticCapture,
     SyntheticPlacement,
 )
-from dhis2w_fhir.resources.examples.synthetic import (
+from dhis2w_fhir_engine.facade.resources.examples.synthetic import (
     _SYNTHETIC_URL_HOST,
     INTEGER_VALUE_TYPES,
     UNSYNTHESIZABLE_VALUE_TYPES,
@@ -75,12 +63,7 @@ from dhis2w_fhir.resources.examples.synthetic import (
     seeded_format_constrained_value,
     synthetic_uid,
 )
-from dhis2w_fhir.resources.option_sets.builders import (
-    concept_assignments,
-    option_concept_code_index,
-    option_set_identity_index,
-)
-from dhis2w_fhir.resources.option_sets.schemas import (
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
     ConceptAssignmentPlan,
     OptionConceptCodeIndex,
     OptionIn,
@@ -88,18 +71,7 @@ from dhis2w_fhir.resources.option_sets.schemas import (
     OptionSetIdentityPlan,
     OptionSetIn,
 )
-from dhis2w_fhir.resources.questionnaires.builders import (
-    bound_option_set_uids,
-    is_disaggregated,
-    source_items,
-    value_type_bounds,
-)
-from dhis2w_fhir.resources.questionnaires.program_rules import (
-    FormProgramRules,
-    merged_bounds,
-    plan_program_rules,
-)
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     MAXIMUM_VALUE_EXTENSION_URL,
     MINIMUM_VALUE_EXTENSION_URL,
     FormKind,
@@ -112,10 +84,38 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     source_display_name,
     source_program,
 )
-from dhis2w_fhir.writer import FshArtifact, FshBuild
+from dhis2w_fhir_engine.facade.writer import FshArtifact, FshBuild
+from dhis2w_fhir_engine.r4.primitives import (
+    is_fhir_date,
+    is_fhir_date_time,
+    is_fhir_time,
+    seconds_precision,
+    zoned_date_time,
+)
+from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_sources
+from dhis2w_fhir.resources.examples.enablement import settled_question_uids
+from dhis2w_fhir.resources.option_sets.builders import (
+    concept_assignments,
+    option_concept_code_index,
+    option_set_identity_index,
+)
+from dhis2w_fhir.resources.questionnaires.builders import (
+    bound_option_set_uids,
+    is_disaggregated,
+    source_items,
+    value_type_bounds,
+)
+from dhis2w_fhir.resources.questionnaires.program_rules import (
+    FormProgramRules,
+    merged_bounds,
+    plan_program_rules,
+)
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 
 #: Sync directory holding one QuestionnaireResponse per example.

@@ -40,9 +40,8 @@ from typing import TYPE_CHECKING
 
 from dhis2w_client.errors import Dhis2ApiError
 from dhis2w_client.generated.v43.oas import Event, TrackerTrackedEntity
+from dhis2w_fhir_engine.facade.register.wire import TRACKED_ENTITIES_PATH, is_tracked_entity_uid
 from pydantic import BaseModel, ConfigDict
-
-from dhis2w_fhir_serve.register.wire import TRACKED_ENTITIES_PATH, is_tracked_entity_uid
 
 if TYPE_CHECKING:
     from dhis2w_fhir_serve.passthrough import RegisterReader

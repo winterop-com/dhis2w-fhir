@@ -17,27 +17,29 @@ from typing import Any
 
 from dhis2w_client.generated.v43.schemas import DataSet
 from dhis2w_fhir import (
+    build_data_dictionary_documents,
+    build_questionnaire_artifacts,
+    build_questionnaire_documents,
+    option_set_identities,
+)
+from dhis2w_fhir.service import _data_set_source
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.notes import GenerateNote
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryAxisIn,
     CategoryComboIn,
     CategoryOptionComboIn,
-    GenerateConfig,
     ProgramContextIn,
     QuestionnaireItemIn,
     QuestionnaireSectionIn,
     QuestionnaireSourceIn,
-    build_data_dictionary_documents,
-    build_questionnaire_artifacts,
-    build_questionnaire_documents,
     form_date_labels,
     form_period_type,
     form_repeatable,
-    option_set_identities,
     ordered_option_combos,
     question_read_only,
 )
-from dhis2w_fhir.service import _data_set_source
-from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-from dhis2w_fhir_engine.facade.notes import GenerateNote
 from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _CANONICAL = "http://example.org/fhir"

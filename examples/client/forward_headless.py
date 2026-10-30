@@ -35,7 +35,9 @@ from pathlib import Path
 from _fixture import example_project
 from _runner import run_example
 from dhis2w_core.client_context import open_client
-from dhis2w_fhir import CodedAnswerMode, OverwritePosture, load_project, service
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade.config import OverwritePosture, load_project
+from dhis2w_fhir_engine.facade.conversion.schemas import CodedAnswerMode
 
 RECEIPTS_LISTED = 10
 """How many per-receipt rows this example prints, so a hundred-receipt spool stays readable."""

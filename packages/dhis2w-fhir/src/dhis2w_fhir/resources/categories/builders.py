@@ -54,7 +54,9 @@ from dhis2w_fhir_engine.facade.names import (
     resolve_identity_stems,
 )
 from dhis2w_fhir_engine.facade.notes import GenerateNote
+from dhis2w_fhir_engine.facade.resources.categories.schemas import CategoryIdentity, CategoryIdentityPlan, CategoryIn
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
+from dhis2w_fhir_engine.facade.writer import JsonArtifact, JsonBuild
 from dhis2w_fhir_engine.r4.resources import (
     CodeSystem,
     CodeSystemConcept,
@@ -77,11 +79,6 @@ from dhis2w_fhir.foundation.attribute_values import (
     attribute_value_extensions,
     attribute_value_identifiers,
 )
-from dhis2w_fhir.resources.categories.schemas import (
-    CategoryIdentity,
-    CategoryIdentityPlan,
-    CategoryIn,
-)
 from dhis2w_fhir.resources.identifier_terminology import build_identifier_code_system_artifacts
 from dhis2w_fhir.resources.option_sets.builders import (
     CONCEPT_MAP_DIRECTORY,
@@ -91,13 +88,11 @@ from dhis2w_fhir.resources.option_sets.builders import (
     concept_map_canonical,
     value_set_canonical,
 )
-from dhis2w_fhir.writer import JsonArtifact, JsonBuild
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-
-    from dhis2w_fhir.config import GenerateConfig
-    from dhis2w_fhir.resources.option_sets.schemas import ConceptAssignment, ConceptAssignmentPlan
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
+    from dhis2w_fhir_engine.facade.resources.option_sets.schemas import ConceptAssignment, ConceptAssignmentPlan
 
 
 #: The `ig/input/resources/` subdirectory the category pairs own outright - one JSON file per resource.

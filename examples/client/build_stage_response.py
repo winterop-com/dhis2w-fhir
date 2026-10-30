@@ -36,7 +36,9 @@ from __future__ import annotations
 from _fixture import FixtureError, conversion_context, example_project, form_canonical, stage_form_id
 from _runner import run_example
 from dhis2w_core.client_context import open_client
-from dhis2w_fhir import load_project, service, translate_response
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.r4.resources import (
     Extension,
     Identifier,

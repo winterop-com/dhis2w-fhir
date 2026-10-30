@@ -41,9 +41,8 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
+from dhis2w_fhir_engine.facade.register.filtering import AttributeFilter
 from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir_serve.register.filtering import AttributeFilter
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

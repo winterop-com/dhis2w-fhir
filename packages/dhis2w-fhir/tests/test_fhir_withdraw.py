@@ -22,10 +22,10 @@ import pytest
 import respx
 from dhis2w_cli.main import build_app
 from dhis2w_core.profile import resolve
-from dhis2w_fhir import load_project, service
-from dhis2w_fhir.config import WithdrawalPosture
-from dhis2w_fhir.conversion import receipt_event_uid
-from dhis2w_fhir.forward_records import WithdrawalRecord
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade.config import WithdrawalPosture, load_project
+from dhis2w_fhir_engine.facade.conversion.payloads import receipt_event_uid
+from dhis2w_fhir_engine.facade.forward_records import WithdrawalRecord
 from dhis2w_fhir_engine.facade.spool import (
     FORWARDED_RESPONSES_RELATIVE_PATH,
     IMPORT_REPORT_SUFFIX,

@@ -26,13 +26,13 @@ import httpx2
 import pytest
 import respx
 from dhis2w_client.errors import Dhis2ApiError
-from dhis2w_fhir.config import FhirProject, TrackedEntitiesConfig
+from dhis2w_fhir_engine.facade.config import FhirProject, TrackedEntitiesConfig
+from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
+from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.projection.base import ProjectionQuery
 from dhis2w_fhir_serve.projection.sqlite_store import SqliteProjectionStore
 from dhis2w_fhir_serve.projection.sync import run_sync
-from dhis2w_fhir_serve.register.index import TrackedEntityIndex
-from dhis2w_fhir_serve.register.surface import RegisterSurface
-from dhis2w_fhir_serve.store import load_compiled_store
 from fixture_many_types import (
     ASSET_TAG_ATTRIBUTE,
     FRIDGE_TYPE,

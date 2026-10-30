@@ -13,23 +13,21 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from dhis2w_cli.main import build_app
-from dhis2w_fhir import (
+from dhis2w_fhir import ForwardOutcome, ForwardOutcomeKind, ForwardReport
+from dhis2w_fhir_engine.facade.config import CorrectionPosture, OverwritePosture, WithdrawalPosture
+from dhis2w_fhir_engine.facade.conversion.schemas import (
     CodedAnswerMode,
     ConversionNote,
     ConversionNoteCategory,
     ConversionRefusal,
     ConversionRefusalCategory,
     ConversionTargetKind,
-    CorrectionPosture,
+)
+from dhis2w_fhir_engine.facade.forward_records import (
     ForwardCompletenessKind,
     ForwardCompletenessOutcome,
     ForwardImportIssue,
     ForwardImportOutcome,
-    ForwardOutcome,
-    ForwardOutcomeKind,
-    ForwardReport,
-    OverwritePosture,
-    WithdrawalPosture,
 )
 from dhis2w_fhir_engine.facade.overwrite import AggregateCell, OverwrittenValue
 from typer.testing import CliRunner

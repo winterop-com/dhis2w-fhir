@@ -3,7 +3,7 @@
 `[ig] status` is the single dial: it is the `status` of `sushi-config.yaml`, the
 publication `status` of every generated definitional artifact, and - through
 `experimental_for_status` - their `experimental` flag. This module is a leaf so
-every emitter can import it without reaching for `dhis2w_fhir.config`.
+every emitter can import it without reaching for `dhis2w_fhir_engine.facade.config`.
 """
 
 from __future__ import annotations

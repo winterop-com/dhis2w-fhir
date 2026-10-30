@@ -44,8 +44,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from dhis2w_client import Dhis2Client
-    from dhis2w_fhir.config import GenerateConfig
     from dhis2w_fhir.validation.schemas import ValidationFinding, ValidationScope
+    from dhis2w_fhir_engine.facade.config import GenerateConfig
 
 #: What a compiled run answers, in the words a first-time reader can act on. A compiled guide is a
 #: directory of resources with no instance behind it, so there is no metadata to grade - and saying

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir.config import (
+from dhis2w_fhir_engine.facade.config import (
     FhirProjectConfig,
     GenerateConfig,
     IgConfig,

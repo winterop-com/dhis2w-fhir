@@ -32,21 +32,20 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    GenerateConfig,
-    OptionSetIn,
-    QuestionnaireSourceIn,
     build_attribute_combo_artifacts,
     build_example_documents,
     build_synthetic_responses,
     option_set_identities,
 )
-from dhis2w_fhir.resources.option_sets.schemas import OptionIn
-from dhis2w_fhir.resources.questionnaires.schemas import (
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,
     ProgramContextIn,
     QuestionnaireItemIn,
     QuestionnaireSectionIn,
+    QuestionnaireSourceIn,
 )
 from dhis2w_fhir_engine.r4.resources import FhirBase, QuestionnaireResponse
 

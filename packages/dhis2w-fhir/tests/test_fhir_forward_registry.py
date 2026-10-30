@@ -22,9 +22,10 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import CompiledArtifacts, load_project, service
-from dhis2w_fhir.conversion import load_compiled_artifacts
-from dhis2w_fhir.registry_package import RegistryMissingError
+from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade.config import load_project
+from dhis2w_fhir_engine.facade.conversion.artifacts import CompiledArtifacts, load_compiled_artifacts
+from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
 
 _HOST = "https://dhis2.example"
 

@@ -49,7 +49,7 @@ beside its profiles so a reader of the published pages can see what one looks li
 organisation unit among them carries the identifier `d2-example`, which belongs to no organisation
 unit in any instance. Grading it would report a removal every run, forever, that nobody can act on.
 Which instances are examples is the guide's own word - `definition.resource[]` of the compiled
-`ImplementationGuide`, read through `dhis2w_fhir.implementation_guide` - so this report and the
+`ImplementationGuide`, read through `dhis2w_fhir_engine.facade.implementation_guide` - so this report and the
 served store hold out exactly the same set.
 
 The remedy is the same sentence for every finding, which is why it is stated once on the phase rather
@@ -64,19 +64,20 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 from dhis2w_fhir_engine.facade.coded import DHIS2_ID_PROPERTY
+from dhis2w_fhir_engine.facade.conversion.artifacts import load_compiled_artifacts
+from dhis2w_fhir_engine.facade.implementation_guide import load_declared_examples
 from dhis2w_fhir_engine.facade.names import flatten_whitespace
+from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import FORM_KIND_PROFILES, FormKind, QuestionnaireNaming
 from dhis2w_fhir_engine.facade.substitution import substitute_build_aborting_text
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir.conversion.artifacts import load_compiled_artifacts
-from dhis2w_fhir.implementation_guide import load_declared_examples
 from dhis2w_fhir.resources.option_sets.builders import code_system_canonical
-from dhis2w_fhir.resources.questionnaires.schemas import FORM_KIND_PROFILES, FormKind, QuestionnaireNaming
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from dhis2w_client import Dhis2Client
+    from dhis2w_fhir_engine.facade.config import FhirProject, GenerateConfig
     from dhis2w_fhir_engine.r4.resources import (
         CodeSystem,
         CodeSystemConcept,
@@ -85,8 +86,6 @@ if TYPE_CHECKING:
         Questionnaire,
         QuestionnaireItem,
     )
-
-    from dhis2w_fhir.config import FhirProject, GenerateConfig
 
 __all__ = [
     "DRIFT_REMEDY",

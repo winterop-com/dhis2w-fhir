@@ -54,7 +54,7 @@ from pathlib import Path
 import httpx2
 from _fixture import example_project
 from _runner import run_example
-from dhis2w_fhir import ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
 from dhis2w_fhir_serve import (
     FACADE_MOUNT_PATH,
     ServeSettings,
