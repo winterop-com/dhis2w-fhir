@@ -44,7 +44,7 @@ found (`docs/design/ips.md` section 4, "Value-shape validation"). The map from a
 translation without holding this file, but what the server performs it reads from the file - the
 nominations the map depends on are not published, and half a dial read from an artifact and half
 from a file would be worse than either. `[ips.sections]` is read the same way and for the same
-reason, by `dhis2w_fhir_serve.routes.summary` rather than here: a section mapping says what a
+reason, by `dhis2w_fhir_engine.facade.api.routes.summary` rather than here: a section mapping says what a
 summary carries and nothing about the register.
 """
 

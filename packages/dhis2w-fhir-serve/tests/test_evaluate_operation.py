@@ -13,10 +13,10 @@ from __future__ import annotations
 from typing import Any
 
 import httpx2
+from dhis2w_fhir_engine.facade.api.routes.evaluate_operation import EVALUATE_OPERATION_PATH
 from dhis2w_fhir_engine.facade.capability import EVALUATE_OPERATION_DEFINITION
 from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE
 from dhis2w_fhir_engine.r4.resources import Parameters
-from dhis2w_fhir_serve.routes.evaluate_operation import EVALUATE_OPERATION_PATH
 
 #: A resource with nothing to do with DHIS2, which is the point: the evaluator takes any FHIR JSON.
 PATIENT: dict[str, Any] = {

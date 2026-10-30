@@ -22,13 +22,13 @@ from typing import Any
 
 import httpx2
 import pytest
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capture.naming import GENERATE_SEED_IDENTIFIER_SEGMENT
 from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_engine.facade.period import parse_period
 from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle, ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.synthesize import DEFAULT_PERIOD_TYPE, MAXIMUM_SEED, TrackerPair
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.settings import ServeSettings
 from fixture_project import (
     COLLECTS_INCIDENT_DATE_EXTENSION,
     COVERAGE_LINK_THRESHOLD,

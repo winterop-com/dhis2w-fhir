@@ -55,6 +55,7 @@ from dhis2w_fhir_engine.facade.resources.examples.schemas import (
 )
 from dhis2w_fhir_engine.facade.resources.examples.synthetic import (
     _SYNTHETIC_URL_HOST,
+    COMPLETED_STATUS,
     INTEGER_VALUE_TYPES,
     UNSYNTHESIZABLE_VALUE_TYPES,
     URI_VALUE_TYPE,
@@ -120,20 +121,6 @@ if TYPE_CHECKING:
 
 #: Sync directory holding one QuestionnaireResponse per example.
 EXAMPLES_DIRECTORY = "examples"
-
-#: The response status a captured DHIS2 data value set carries - a reported period is complete.
-COMPLETED_STATUS = "completed"
-
-#: How a DHIS2 event status reads as a `QuestionnaireResponse.status`. A scheduled, overdue, or
-#: visited event has still been captured against the form, so it reads as completed too.
-STATUS_BY_EVENT_STATUS = {
-    "COMPLETED": COMPLETED_STATUS,
-    "ACTIVE": "in-progress",
-    "SKIPPED": "stopped",
-    "SCHEDULE": COMPLETED_STATUS,
-    "OVERDUE": COMPLETED_STATUS,
-    "VISITED": COMPLETED_STATUS,
-}
 
 
 #: DHIS2 value types answered as a FHIR decimal.
@@ -227,13 +214,6 @@ _ENVIRONMENT = Environment(
     trim_blocks=True,
     lstrip_blocks=True,
 )
-
-
-def response_status_code(event_status: str | None) -> str:
-    """The `QuestionnaireResponse.status` one DHIS2 event status maps onto, defaulting to completed."""
-    if event_status is None:
-        return COMPLETED_STATUS
-    return STATUS_BY_EVENT_STATUS.get(event_status.upper(), COMPLETED_STATUS)
 
 
 class _PeriodExtensionView(BaseModel):

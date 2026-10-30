@@ -15,9 +15,9 @@ import pytest
 from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
 from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.history.projection import RecordProjection
+from dhis2w_fhir_engine.facade.history.wire import RecordedEvent, RecordedValue, TrackedEntityRecord
 from dhis2w_fhir_engine.facade.store import IdentifierToken, ResourceStore, StoreEntry
-from dhis2w_fhir_serve.history.projection import RecordProjection
-from dhis2w_fhir_serve.history.wire import RecordedEvent, RecordedValue, TrackedEntityRecord
 
 CANONICAL = "http://example.org/fhir"
 IDENTIFIER_BASE = "http://dhis2.org/fhir"

@@ -33,10 +33,10 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_fhir.service import generate_full, resolve_generation_profile
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.store import ResourceStore
 from dhis2w_fhir_serve.live import build_live_store
-from dhis2w_fhir_serve.settings import ServeSettings
 
 _HOST = "https://dhis2.example"
 

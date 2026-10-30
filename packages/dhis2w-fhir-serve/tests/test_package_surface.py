@@ -153,15 +153,15 @@ def test_the_ui_names_the_surface_keeps_are_the_refusals() -> None:
 
 def test_the_projection_seams_are_importable_in_one_import() -> None:
     """What somebody putting another backend behind a register search needs: the Protocols and the factory."""
-    from dhis2w_fhir_serve import (
-        Dhis2NameSearchIndex,
+    from dhis2w_fhir_engine.facade.projection.base import (
         NameMatch,
         NameMatches,
         NameQuery,
         NameSearchIndex,
         ProjectionStore,
-        build_name_search_index,
     )
+    from dhis2w_fhir_engine.facade.projection.dhis2_names import Dhis2NameSearchIndex
+    from dhis2w_fhir_engine.facade.projection.search import build_name_search_index
 
     assert isinstance(Dhis2NameSearchIndex, type)
     assert {NameMatch, NameMatches, NameQuery} != set()
@@ -171,20 +171,14 @@ def test_the_projection_seams_are_importable_in_one_import() -> None:
 
 def test_the_composition_contract_is_importable_in_one_import() -> None:
     """What an embedding application needs: a runtime, the state, the routers, and the error handlers."""
-    from dhis2w_fhir_serve import (
-        ServeRouters,
-        ServeRuntime,
-        ServeSettings,
-        attach_serve_runtime,
-        live_client,
-        open_serve_runtime,
-        register_error_handlers,
-        require_json_is_acceptable,
-        serve_context,
-        serve_routers,
-    )
+    from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
+    from dhis2w_fhir_engine.facade.api.routes.context import live_client, serve_context
+    from dhis2w_fhir_engine.facade.api.routes.mounting import ServeRouters
+    from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
+    from dhis2w_fhir_engine.facade.api.runtime import ServeRuntime, attach_serve_runtime
+    from dhis2w_fhir_serve import open_serve_runtime
+    from dhis2w_fhir_serve.routes import serve_routers
 
-    assert ServeSettings.resolve is not None
     assert {ServeRouters, ServeRuntime} != set()
     assert all(
         callable(name)

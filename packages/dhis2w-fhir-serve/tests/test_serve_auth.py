@@ -33,33 +33,34 @@ import httpx2
 import pytest
 import respx
 from dhis2w_client.errors import Dhis2ApiError, Dhis2ClientError
-from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
-from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
-from dhis2w_fhir_serve import auth as auth_module
-from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.auth import (
+from dhis2w_fhir_engine.facade.api import auth as auth_module
+from dhis2w_fhir_engine.facade.api.auth import (
     AUTHENTICATION_REALM,
     BROWSER_SAFE_BASIC_SCHEME,
     SERVE_TOKENS_VARIABLE,
     AuthState,
     RequestIdentity,
-    ServeAuthConfigurationError,
     challenge_for,
     credential_key,
     matches_a_serve_token,
-    preflight_auth,
     read_serve_tokens,
     validate_with_dhis2,
 )
-from dhis2w_fhir_serve.passthrough import (
+from dhis2w_fhir_engine.facade.api.passthrough import (
     FACADE_PROVENANCE_HEADER,
     CallerCredentialReader,
     UpstreamRefusalError,
     open_pass_through_client,
 )
-from dhis2w_fhir_serve.routes import FACADE_MOUNT_PATH, serve_routers
-from dhis2w_fhir_serve.routes.whoami import TOKEN_CALLER_NAME, WHOAMI_PATH, authenticated_caller
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
+from dhis2w_fhir_engine.facade.api.routes.whoami import TOKEN_CALLER_NAME, WHOAMI_PATH, authenticated_caller
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
+from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
+from dhis2w_fhir_serve.app import create_app
+from dhis2w_fhir_serve.auth_setup import ServeAuthConfigurationError, preflight_auth
+from dhis2w_fhir_serve.routes import serve_routers
+from dhis2w_fhir_serve.settings import resolve_serve_settings
 from fastapi import APIRouter, FastAPI
 from fastapi.routing import APIRoute
 
@@ -206,7 +207,7 @@ def test_the_resolve_preflight_is_the_one_the_command_and_an_embedder_share(tmp_
     project = FhirProject(config=load_fhir_config(config_path), config_path=config_path.resolve())
 
     with pytest.raises(ServeAuthConfigurationError):
-        ServeSettings.resolve(project, host="0.0.0.0")
+        resolve_serve_settings(project, host="0.0.0.0")
 
 
 _PROJECT_CONFIG = """

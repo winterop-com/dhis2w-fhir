@@ -41,10 +41,7 @@ import json
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import delete, func, select
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
-
-from dhis2w_fhir_serve.projection.base import (
+from dhis2w_fhir_engine.facade.projection.base import (
     IndexedName,
     ProjectedResource,
     ProjectionBatch,
@@ -54,6 +51,9 @@ from dhis2w_fhir_serve.projection.base import (
     ProjectionQuery,
     ProjectionWatermarks,
 )
+from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
 from dhis2w_fhir_serve.projection.schema import (
     NO_IDENTIFIER_SYSTEM,
     ProjectedIdentifierRow,
@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
     from pathlib import Path
 
+    from dhis2w_fhir_engine.facade.projection.base import NameSearchIndex
     from sqlalchemy.ext.asyncio import AsyncSession
 
 #: The permissions the projection file is held at once it exists.
@@ -89,6 +90,12 @@ class SqliteProjectionStore:
         self._engine = open_projection_engine(database_path)
         self._sessions = projection_sessions(self._engine)
         self._created = False
+
+    def name_search_index(self) -> NameSearchIndex:
+        """The name index over this file; imported here because that module reads this store's rows."""
+        from dhis2w_fhir_serve.projection.sqlite_names import SqliteNameSearchIndex
+
+        return SqliteNameSearchIndex(self)
 
     @property
     def database_path(self) -> Path:

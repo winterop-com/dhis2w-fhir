@@ -17,13 +17,13 @@ from typing import Any
 
 import httpx2
 import pytest
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.store import ResourceStore, load_compiled_store
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.settings import ServeSettings
 from fastapi import FastAPI
 from fixture_project import (
     AGGREGATE_RESPONSE_FILE,

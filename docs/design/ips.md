@@ -166,7 +166,7 @@ one read of the tracked entity per request, the events nested under the enrollme
 they belong to, no program ever named (DHIS2_ISSUES.md 72 and 91) and no organisation-unit
 scope (DHIS2_ISSUES.md 69). What the record does not carry is a clinical vocabulary: an item's
 coding is a DHIS2 option in this guide's own CodeSystem, so a section's semantics still
-come from a mapping somebody writes. `dhis2w_fhir_serve.history` is the module; a stage
+come from a mapping somebody writes. `dhis2w_fhir_engine.facade.history` is the module; a stage
 the guide publishes no form for is counted and named rather than served as something
 else.
 

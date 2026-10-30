@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from pydantic import ValidationError
 
 

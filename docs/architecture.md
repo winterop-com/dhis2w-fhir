@@ -594,12 +594,12 @@ it opens a third way into DHIS2.
   the same reason: DHIS2 marks no data element as an immunisation, so
   `[ips.sections.immunizations]` naming the stages and the dose data elements is
   the instance's own statement or there is nothing to carry.
-- **The doses are read in `dhis2w_fhir_serve.summary`**, through the very
+- **The doses are read in `dhis2w_fhir_engine.facade.patient_summary`**, through the very
   `RecordProjection` that `GET /facade/tracked-entities/{uid}/events` runs on, so a
   value can never be typed one way in the record and another inside a summary. A
   mapped stage the guide publishes no form for contributes no dose and is named
   in the section's own narrative.
-- **The routes are `dhis2w_fhir_serve.routes.summary`**, mounting the IPS's own
+- **The routes are `dhis2w_fhir_engine.facade.api.routes.summary`**, mounting the IPS's own
   two addresses and gating in the order the gates cost something: `[ips] enabled`
   first, then the register's gates, then `[serve.tracked_entities] events` and
   only where a clinical section is mapped.

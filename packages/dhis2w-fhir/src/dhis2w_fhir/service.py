@@ -99,6 +99,7 @@ from dhis2w_fhir_engine.facade.resources.examples.schemas import (
     ExampleSelection,
     SyntheticPlacement,
 )
+from dhis2w_fhir_engine.facade.resources.examples.synthetic import COMPLETED_STATUS, response_status_code
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import (
     ConceptSourceIn,
     OptionIn,
@@ -179,11 +180,9 @@ from dhis2w_fhir.resources.categories.builders import (
 )
 from dhis2w_fhir.resources.categories.decomposition import build_category_decomposition
 from dhis2w_fhir.resources.examples.builders import (
-    COMPLETED_STATUS,
     EXAMPLES_DIRECTORY,
     build_example_artifacts,
     build_synthetic_responses,
-    response_status_code,
     synthetic_period,
 )
 from dhis2w_fhir.resources.examples.documents import build_example_documents

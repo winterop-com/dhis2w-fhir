@@ -11,7 +11,7 @@ every choice in it.
 
 **IT IS A LIBRARY AND NOT A ROUTE.** Everything below is a pure function of what somebody already
 read: the person as the register projects them, and the doses as the record surface projected them.
-`dhis2w_fhir_serve.routes.summary` is one caller and `d2w fhir` is free to be another - nothing here
+`dhis2w_fhir_engine.facade.api.routes.summary` is one caller and `d2w fhir` is free to be another - nothing here
 opens a connection, reads a store, or knows what a request is.
 
 **THREE REQUIRED SECTIONS, AND WHAT THEY SAY WHEN NOTHING IS MAPPED.** Problems, Allergies and
@@ -35,7 +35,7 @@ comply with the Creator (IPS) actor obligations" - two claims, and this toolchai
 make each separately (R5). So the document says so itself, in `Composition.text`: R4's own
 human-readable rendering of a resource, which every reader of a document sees and which survives
 being saved to a file. `summary_caveat` is the same sentence as text, for a caller that states it
-beside the response as well - the two-place idiom `dhis2w_fhir_serve.projection.serving` argues for
+beside the response as well - the two-place idiom `dhis2w_fhir_engine.facade.projection.serving` argues for
 the projection's as-of instant, and for the same reason: one fact, stated where resources are read
 and stated again where responses are.
 

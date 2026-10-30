@@ -29,7 +29,7 @@ WHAT `reader` IS HERE IS THE POINT OF THE PARAMETER. Every read below takes a `R
 raw GET answering parsed JSON - and never a `Dhis2Client`, because whose credentials a register read
 runs under is settled per request rather than per process. Under `[serve] auth = "dhis2"` it is the
 caller's own header on the process's credential-free pool; under `none` and `token` it is the
-runtime's client, which `Dhis2Client` satisfies as it stands. `dhis2w_fhir_serve.passthrough` states
+runtime's client, which `Dhis2Client` satisfies as it stands. `dhis2w_fhir_engine.facade.api.passthrough` states
 which is which, and nothing in this module branches on the answer.
 """
 
@@ -46,7 +46,7 @@ from pydantic import BaseModel, ConfigDict
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from dhis2w_fhir_serve.passthrough import RegisterReader
+    from dhis2w_fhir_engine.facade.register.reader import RegisterReader
 
 #: The tracker endpoint a lookup reads, and the one-entity form of it.
 TRACKED_ENTITIES_PATH = "/api/tracker/trackedEntities"

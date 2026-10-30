@@ -14,12 +14,12 @@ import sys
 
 import httpx2
 import pytest
+from dhis2w_fhir_engine.facade.api.routes.context import SERVE_CONTEXT_ATTRIBUTE
+from dhis2w_fhir_engine.facade.api.runtime import ServeContext
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject
 from dhis2w_fhir_engine.facade.log import LOGGER_NAME, configure_logging
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.routes.context import SERVE_CONTEXT_ATTRIBUTE
-from dhis2w_fhir_serve.runtime import ServeContext
-from dhis2w_fhir_serve.settings import ServeSettings
 
 #: What the starting line states, as the two counts a reader compares against `/metadata`.
 STARTING_LINE = re.compile(

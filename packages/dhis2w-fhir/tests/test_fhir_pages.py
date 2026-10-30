@@ -13,7 +13,6 @@ from dhis2w_fhir import (
     build_organisation_unit_instances,
     build_questionnaire_artifacts,
 )
-from dhis2w_fhir.resources.examples.builders import STATUS_BY_EVENT_STATUS
 from dhis2w_fhir.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir.resources.pages.builders import (
     INTRO_SUFFIX,
@@ -34,6 +33,7 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     OrganisationUnitPaths,
 )
 from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
+from dhis2w_fhir_engine.facade.resources.examples.synthetic import STATUS_BY_EVENT_STATUS
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,

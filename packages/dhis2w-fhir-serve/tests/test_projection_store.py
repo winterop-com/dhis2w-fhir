@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from dhis2w_fhir_serve.projection.base import (
+from dhis2w_fhir_engine.facade.projection.base import (
     IndexedName,
     NameQuery,
     NameSearchIndex,

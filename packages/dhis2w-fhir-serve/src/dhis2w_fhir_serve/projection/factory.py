@@ -16,18 +16,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir_engine.facade.config import ProjectionBackend, SearchBackend
-from dhis2w_fhir_engine.facade.refusals import ProjectionNotConfiguredError
+from dhis2w_fhir_engine.facade.config import ProjectionBackend
 
-from dhis2w_fhir_serve.projection.dhis2_names import Dhis2NameSearchIndex
-from dhis2w_fhir_serve.projection.sqlite_names import SqliteNameSearchIndex
 from dhis2w_fhir_serve.projection.sqlite_store import SqliteProjectionStore
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import ProjectionConfig
-
-    from dhis2w_fhir_serve.passthrough import RegisterReader
-    from dhis2w_fhir_serve.projection.base import NameSearchIndex, ProjectionStore
+    from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 
 
 def projection_path(config: ProjectionConfig, *, project_root: Path) -> Path:
@@ -47,23 +42,3 @@ def build_projection_store(config: ProjectionConfig, *, project_root: Path) -> P
             return None
         case ProjectionBackend.SQLITE:
             return SqliteProjectionStore(projection_path(config, project_root=project_root))
-
-
-def build_name_search_index(
-    backend: SearchBackend, *, reader: RegisterReader, store: ProjectionStore | None = None
-) -> NameSearchIndex:
-    """Build the index one register search runs through, over the connection or the store it reads.
-
-    The `projection` backend is refused when this process holds no store, rather than answered as the
-    instance: a server told to search a projection and quietly searching DHIS2 instead would answer
-    every lookup with a different search than the one its `fhir.toml` states, and the caller reading
-    the cursor would find none. `fhir.toml` refuses that pair before the socket opens; this refusal is
-    what a runtime assembled by hand meets.
-    """
-    match backend:
-        case SearchBackend.DHIS2:
-            return Dhis2NameSearchIndex(reader=reader)
-        case SearchBackend.PROJECTION:
-            if not isinstance(store, SqliteProjectionStore):
-                raise ProjectionNotConfiguredError
-            return SqliteNameSearchIndex(store)

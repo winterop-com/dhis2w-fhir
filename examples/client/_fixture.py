@@ -190,9 +190,9 @@ def capture_store() -> Any:
     without a server and without a SUSHI compile. `load_compiled_store` reads
     `ig/fsh-generated/resources`, which this fixture deliberately never writes.
     """
+    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import load_project
     from dhis2w_fhir_serve.live import build_live_store, open_live_client
-    from dhis2w_fhir_serve.settings import ServeSettings
 
     project_root = example_project()
 

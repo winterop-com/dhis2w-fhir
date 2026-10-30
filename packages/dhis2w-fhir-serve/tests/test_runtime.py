@@ -19,16 +19,17 @@ from typing import Any
 import httpx2
 import pytest
 from dhis2w_client import BasicAuth, Dhis2Client
+from dhis2w_fhir_engine.facade.api.error_handlers import register_error_handlers
+from dhis2w_fhir_engine.facade.api.passthrough import FACADE_PROVENANCE_HEADER
+from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
 from dhis2w_fhir_serve import runtime as runtime_module
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.error_handlers import register_error_handlers
-from dhis2w_fhir_serve.passthrough import FACADE_PROVENANCE_HEADER
 from dhis2w_fhir_serve.routes import register_routes
-from dhis2w_fhir_serve.runtime import ServeContext, ServeRuntime, attach_serve_runtime, open_serve_runtime
-from dhis2w_fhir_serve.settings import ServeSettings
+from dhis2w_fhir_serve.runtime import open_serve_runtime
 from fastapi import FastAPI
 
 BASE_URL = "http://serve.test"
@@ -222,7 +223,7 @@ async def test_the_pass_through_connection_is_open_inside_the_context_and_closed
         assert str(pool.base_url) == f"{INSTANCE_URL}/"
         assert pool.auth is None
         assert "authorization" not in pool.headers
-        assert pool.headers[FACADE_PROVENANCE_HEADER].startswith("dhis2w-fhir-serve/")
+        assert pool.headers[FACADE_PROVENANCE_HEADER].startswith("dhis2w-fhir-engine/")
 
     assert pool.is_closed
 

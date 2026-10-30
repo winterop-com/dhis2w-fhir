@@ -207,3 +207,26 @@ def _seeded_account_name(generator: random.Random) -> str:
 _SEEDED_ACCOUNT_PREFIX = "user"
 
 _SEEDED_ACCOUNT_DIGITS = 6
+
+
+def response_status_code(event_status: str | None) -> str:
+    """The `QuestionnaireResponse.status` one DHIS2 event status maps onto, defaulting to completed."""
+    if event_status is None:
+        return COMPLETED_STATUS
+    return STATUS_BY_EVENT_STATUS.get(event_status.upper(), COMPLETED_STATUS)
+
+
+#: The response status a captured DHIS2 data value set carries - a reported period is complete.
+COMPLETED_STATUS = "completed"
+
+
+#: How a DHIS2 event status reads as a `QuestionnaireResponse.status`. A scheduled, overdue, or
+#: visited event has still been captured against the form, so it reads as completed too.
+STATUS_BY_EVENT_STATUS = {
+    "COMPLETED": COMPLETED_STATUS,
+    "ACTIVE": "in-progress",
+    "SKIPPED": "stopped",
+    "SCHEDULE": COMPLETED_STATUS,
+    "OVERDUE": COMPLETED_STATUS,
+    "VISITED": COMPLETED_STATUS,
+}

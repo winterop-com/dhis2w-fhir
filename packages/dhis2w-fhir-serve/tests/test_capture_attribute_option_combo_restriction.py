@@ -21,6 +21,7 @@ from typing import Any
 
 import httpx2
 import pytest
+from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
 from dhis2w_fhir_engine.facade.capture.outcome import CaptureIssue, CaptureRejection
@@ -28,7 +29,6 @@ from dhis2w_fhir_engine.facade.capture.validate import ValidatedCapture, validat
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.store import ResourceStore, StoreEntry
 from dhis2w_fhir_serve.app import create_app
-from dhis2w_fhir_serve.settings import ServeSettings
 from fixture_project import ATTRIBUTE_COMBO_CODE_SYSTEM
 
 #: The form on the non-default category combo, and the concept its golden response is filed under.

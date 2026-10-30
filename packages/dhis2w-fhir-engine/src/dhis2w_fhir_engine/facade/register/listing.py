@@ -58,7 +58,7 @@ from dhis2w_fhir_engine.facade.register.wire import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from dhis2w_fhir_serve.passthrough import RegisterReader
+    from dhis2w_fhir_engine.facade.register.reader import RegisterReader
 
 #: The search parameter carrying the cursor, and the FHIR-defined one carrying the page size.
 PAGE_PARAMETER = "page"

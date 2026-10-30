@@ -13,7 +13,7 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir_serve.evaluation import EvaluationLanguage, evaluate_source, json_safe
+from dhis2w_fhir_engine.facade.evaluation import EvaluationLanguage, evaluate_source, json_safe
 
 #: A resource with nothing to do with DHIS2, which is the point: the evaluator serves any FHIR JSON.
 PATIENT: dict[str, Any] = {

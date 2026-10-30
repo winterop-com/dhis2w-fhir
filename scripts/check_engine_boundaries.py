@@ -27,14 +27,20 @@ PARTS = {
     "dhis2w_fhir_engine.evaluation": (*NEVER, *WEB, "dhis2w_client"),
     "dhis2w_fhir_engine.r4": (*NEVER, *WEB, "dhis2w_client"),
     "dhis2w_fhir_engine.facade": (*NEVER, *WEB),
+    "dhis2w_fhir_engine.facade.api": NEVER,
 }
 
 _PROBE = """
 import importlib, pkgutil, sys
 root = importlib.import_module(sys.argv[1])
-for found in pkgutil.walk_packages(root.__path__, root.__name__ + "."):
-    if ".api" not in found.name:
-        importlib.import_module(found.name)
+def walk(package):
+    for found in pkgutil.iter_modules(package.__path__, package.__name__ + "."):
+        if found.name.endswith(".api") and not root.__name__.endswith(".api"):
+            continue
+        module = importlib.import_module(found.name)
+        if found.ispkg:
+            walk(module)
+walk(root)
 forbidden = sys.argv[2:]
 loaded = sorted(name for name in forbidden if name in sys.modules)
 if loaded:

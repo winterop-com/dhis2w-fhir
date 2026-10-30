@@ -116,6 +116,7 @@ if TYPE_CHECKING:
 
     from dhis2w_client import Dhis2Client
     from dhis2w_fhir.resources.organisation_units.documents import OrganisationUnitTerminologyBuild
+    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import FhirProject, GenerateConfig
     from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
     from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
@@ -125,8 +126,6 @@ if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
     from dhis2w_fhir_engine.facade.status import IgStatus
     from dhis2w_fhir_engine.r4.resources import CodeSystem, ConceptMap, Questionnaire, ValueSet
-
-    from dhis2w_fhir_serve.settings import ServeSettings
 
 #: What a live entry names as its source, where a compiled entry names the file it was read from.
 LIVE_SOURCE = "live"
