@@ -252,7 +252,7 @@ framework and no command line.
 ### Opening a facade
 
 `open_facade` loads one guide into a `Facade` you hold: from a `FacadeConfig`, with no `fhir.toml`, or from a project
-on disk. `validate`, `capture`, `translate`, `post`, and `drain` are the functions `d2w fhir serve` and
+on disk. `validate_capture`, `capture`, `translate`, `post`, and `drain` are the functions `d2w fhir serve` and
 `d2w fhir forward` run.
 
 ::: dhis2w_fhir_engine.facade.assembly

@@ -62,7 +62,7 @@ async def test_a_body_the_guide_refuses_raises_the_rejection(capture_project: Fh
     """A refusal is typed, so a service can answer it however it answers refusals."""
     async with open_facade(capture_project) as facade:
         with pytest.raises(CaptureRejection):
-            facade.validate(b"{}")
+            facade.validate_capture(b"{}")
 
 
 async def test_a_translation_posts_to_the_endpoint_its_shape_names(capture_project: FhirProject) -> None:
