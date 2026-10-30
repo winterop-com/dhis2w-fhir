@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import Any
 
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     OptionSetIn,
     build_data_dictionary_documents,
@@ -33,7 +32,6 @@ from dhis2w_fhir import (
 from dhis2w_fhir.config import FhirProjectConfig, IgConfig
 from dhis2w_fhir.foundation.response_profiles import build_response_profile_declarations
 from dhis2w_fhir.foundation.schemas import FoundationNaming
-from dhis2w_fhir.r4 import FhirBase
 from dhis2w_fhir.resources.examples.builders import build_synthetic_responses
 from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
 from dhis2w_fhir.resources.questionnaires.builders import (
@@ -52,6 +50,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSourceIn,
     ReferencedObjects,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _GOLDEN_DIRECTORY = Path(__file__).parent / "data" / "r4"
 

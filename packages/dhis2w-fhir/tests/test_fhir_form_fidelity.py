@@ -17,7 +17,6 @@ from typing import Any
 
 from dhis2w_client.generated.v43.schemas import DataSet
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     CategoryAxisIn,
     CategoryComboIn,
     CategoryOptionComboIn,
@@ -36,9 +35,10 @@ from dhis2w_fhir import (
     ordered_option_combos,
     question_read_only,
 )
-from dhis2w_fhir.notes import GenerateNote
-from dhis2w_fhir.r4 import FhirBase
 from dhis2w_fhir.service import _data_set_source
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.notes import GenerateNote
+from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _CANONICAL = "http://example.org/fhir"
 

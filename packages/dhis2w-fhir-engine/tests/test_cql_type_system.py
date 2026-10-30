@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.types import (
+from dhis2w_fhir_engine.evaluation.cql.types import (
     CQLCode,
     CQLConcept,
     CQLInterval,
@@ -18,7 +18,7 @@ from dhis2w_fhir_engine.engine.cql.types import (
     cql_type_name,
     is_cql_type,
 )
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, Quantity
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, Quantity
 
 
 def make_interval(

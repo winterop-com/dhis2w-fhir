@@ -15,7 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from dhis2w_fhir_engine.engine.cql.evaluator import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.cql.evaluator import CQLEvaluator
 
 
 class ComplianceExpectedOutput(BaseModel):

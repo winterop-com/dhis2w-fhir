@@ -75,17 +75,17 @@ from typing import Any, Final, Literal, cast
 
 from dhis2w_fhir.config import CorrectionPosture, FhirProject, WithdrawalPosture
 from dhis2w_fhir.conversion.schemas import COMBO_REFUSAL_CODES, ComboRefusalCodes
-from dhis2w_fhir.names import DHIS2_UID_LENGTH, is_dhis2_uid
-from dhis2w_fhir.period import parse_period
-from dhis2w_fhir.period.schemas import PeriodValue
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir.resources.questionnaires.schemas import FormKind
+from dhis2w_fhir_engine.facade.names import DHIS2_UID_LENGTH, is_dhis2_uid
+from dhis2w_fhir_engine.facade.period import parse_period
+from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
+from dhis2w_fhir_engine.r4.primitives import is_fhir_date, is_fhir_date_time, is_fhir_time
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
     QuestionnaireResponseAnswer,
     QuestionnaireResponseItem,
 )
-from dhis2w_fhir.r4.primitives import is_fhir_date, is_fhir_date_time, is_fhir_time
-from dhis2w_fhir.resources.questionnaires.schemas import FormKind
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 
 from dhis2w_fhir_serve.capture.index import (

@@ -12,11 +12,11 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.functions import aggregate, conversion
-from dhis2w_fhir_engine.engine.cql.functions.registry import get_registry
-from dhis2w_fhir_engine.engine.cql.types import CQLCode, CQLConcept
-from dhis2w_fhir_engine.engine.exceptions import CQLError
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.cql.functions import aggregate, conversion
+from dhis2w_fhir_engine.evaluation.cql.functions.registry import get_registry
+from dhis2w_fhir_engine.evaluation.cql.types import CQLCode, CQLConcept
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 
 
 class TestToString:

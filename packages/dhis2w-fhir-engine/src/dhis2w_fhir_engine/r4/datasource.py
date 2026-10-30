@@ -13,13 +13,13 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 from ..binding import FhirVersionBinding
-from ..engine.cql.types import CQLCode, CQLConcept, CQLInterval
-from ..engine.exceptions import CQLError
+from ..evaluation.cql.types import CQLCode, CQLConcept, CQLInterval
+from ..evaluation.exceptions import CQLError
 from ..ingest import ResourceInput, as_resource_dict, as_resource_dicts
 from .binding import R4_BINDING
 
 if TYPE_CHECKING:
-    from ..engine.cql.context import CQLContext
+    from ..evaluation.cql.context import CQLContext
 
 
 class FHIRDataSource:
@@ -218,7 +218,7 @@ class FHIRDataSource:
         Returns:
             True if the resource's date falls within the range
         """
-        from ..engine.types import FHIRDate, FHIRDateTime
+        from ..evaluation.types import FHIRDate, FHIRDateTime
 
         date_value = self._get_nested_value(resource, date_path)
         if date_value is None:
@@ -675,7 +675,7 @@ class PatientBundleDataSource(BundleDataSource):
         """
         # Create a context with patient if not provided
         if context is None and self._patient:
-            from ..engine.cql.context import PatientContext
+            from ..evaluation.cql.context import PatientContext
 
             context = PatientContext(resource=self._patient)
 

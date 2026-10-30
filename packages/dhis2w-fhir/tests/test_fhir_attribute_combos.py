@@ -16,7 +16,6 @@ import datetime
 import json
 from typing import Any
 
-from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
 from dhis2w_fhir.resources.attribute_combos.builders import (
     AttributeComboBuild,
@@ -39,6 +38,7 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireItemIn,
     QuestionnaireSourceIn,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 
 _CANONICAL = "http://example.org/fhir"
 

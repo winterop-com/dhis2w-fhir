@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import datetime
 
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation.schemas import NamingSystemDeclaration
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIn
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitGeometry,

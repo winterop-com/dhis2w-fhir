@@ -56,7 +56,8 @@ from dhis2w_client import Dhis2ApiError
 from dhis2w_client.generated.v43.oas import TrackerTrackedEntity
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import profile_from_env
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.primitives import zoned_date_time
+from dhis2w_fhir_engine.r4.resources import (
     DATA_ABSENT_REASON_EXTENSION_URL,
     AllergyIntolerance,
     Bundle,
@@ -76,7 +77,6 @@ from dhis2w_fhir.r4 import (
     Patient,
     Reference,
     json_resource,
-    zoned_date_time,
 )
 from pydantic import BaseModel, ConfigDict
 

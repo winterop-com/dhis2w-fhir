@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator, PatientContext
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator, PatientContext
 from dhis2w_fhir_engine.r4 import BundleDataSource, MeasureEvaluator
 
 _ABSOLUTE_BASE = "http://example.org/fhir"

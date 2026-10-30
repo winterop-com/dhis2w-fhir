@@ -20,11 +20,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
+from dhis2w_fhir_engine.facade.names import StemResolution
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory, generate_note
+from dhis2w_fhir_engine.r4.resources import Identifier, ListEntry, Reference, ResourceList
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.names import StemResolution
-from dhis2w_fhir.notes import GenerateNoteCategory, generate_note
-from dhis2w_fhir.r4 import Identifier, ListEntry, Reference, ResourceList
 from dhis2w_fhir.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,
     FormKind,

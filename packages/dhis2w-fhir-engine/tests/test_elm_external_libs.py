@@ -2,8 +2,8 @@
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.context import CQLContext
-from dhis2w_fhir_engine.engine.elm.models.library import (
+from dhis2w_fhir_engine.evaluation.cql.context import CQLContext
+from dhis2w_fhir_engine.evaluation.elm.models.library import (
     ELMDefinition,
     ELMFunctionDef,
     ELMIdentifier,
@@ -12,7 +12,7 @@ from dhis2w_fhir_engine.engine.elm.models.library import (
     ELMOperandDef,
     ELMStatements,
 )
-from dhis2w_fhir_engine.engine.elm.visitor import ELMExpressionVisitor
+from dhis2w_fhir_engine.evaluation.elm.visitor import ELMExpressionVisitor
 
 
 class TestExternalLibraryReferences:
@@ -218,7 +218,7 @@ class TestExternalLibraryReferences:
             "libraryName": "NonExistent",
         }
 
-        from dhis2w_fhir_engine.engine.elm.exceptions import ELMExecutionError, ELMReferenceError
+        from dhis2w_fhir_engine.evaluation.elm.exceptions import ELMExecutionError, ELMReferenceError
 
         # Error may be wrapped in ELMExecutionError
         with pytest.raises((ELMReferenceError, ELMExecutionError)):
@@ -236,7 +236,7 @@ class TestExternalLibraryReferences:
             "operand": [],
         }
 
-        from dhis2w_fhir_engine.engine.elm.exceptions import ELMExecutionError, ELMReferenceError
+        from dhis2w_fhir_engine.evaluation.elm.exceptions import ELMExecutionError, ELMReferenceError
 
         # Error may be wrapped in ELMExecutionError
         with pytest.raises((ELMReferenceError, ELMExecutionError)):

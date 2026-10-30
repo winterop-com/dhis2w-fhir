@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.names import join_id_tokens, page_text, quote
+from dhis2w_fhir_engine.r4.resources import (
+    DEFAULT_SUBJECT_RESOURCE_TYPE,
+    SUBJECT_RESOURCE_TYPES,
+    CodeSystemPropertyType,
+)
 from pydantic import BaseModel, ConfigDict
-
-from dhis2w_fhir.names import join_id_tokens, page_text, quote
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE, SUBJECT_RESOURCE_TYPES, CodeSystemPropertyType
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

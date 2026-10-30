@@ -19,7 +19,6 @@ from typing import Any
 
 from dhis2w_client.generated.v43.oas import DataValueSet
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     AttributeComboPlan,
     GenerateConfig,
     OptionSetIn,
@@ -38,10 +37,11 @@ from dhis2w_fhir.conversion import (
     build_conversion_context,
     translate_responses,
 )
-from dhis2w_fhir.r4 import CodeSystem, Identifier, Location, ValueSet
 from dhis2w_fhir.resources.examples.schemas import ExampleResponseIn
 from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
 from dhis2w_fhir.resources.questionnaires.builders import source_items
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import CodeSystem, Identifier, Location, ValueSet
 
 SOURCE_DIRECTORY = Path(__file__).parent / "data" / "questionnaire-sources"
 

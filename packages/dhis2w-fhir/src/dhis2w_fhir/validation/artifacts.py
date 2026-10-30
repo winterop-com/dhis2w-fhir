@@ -83,13 +83,13 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Literal
 
+from dhis2w_fhir_engine.facade.period import PERIOD_TYPE_NAMES
+from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.facade.period.recent import recent_periods
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from dhis2w_fhir.config import FHIR_CONFIG_FILENAME
 from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_ASSIGNS_SUB_EXTENSION, FoundationNaming
-from dhis2w_fhir.period import PERIOD_TYPE_NAMES
-from dhis2w_fhir.period.parser import parse_period
-from dhis2w_fhir.period.recent import recent_periods
 from dhis2w_fhir.registry_package import RegistryMissingError, load_registry_documents
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     ATTRIBUTE_OPTION_RESTRICTION_PROPERTY,
@@ -115,8 +115,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
 
+    from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
+
     from dhis2w_fhir.config import FhirProject
-    from dhis2w_fhir.period.schemas import PeriodValue
 
 __all__ = [
     "ArtifactCheckReport",

@@ -10,9 +10,9 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.cql.evaluator import compile_library, evaluate
-from dhis2w_fhir_engine.engine.cql.library import (
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.cql.evaluator import compile_library, evaluate
+from dhis2w_fhir_engine.evaluation.cql.library import (
     CodeDefinition,
     CodeSystemDefinition,
     ConceptDefinition,
@@ -25,10 +25,10 @@ from dhis2w_fhir_engine.engine.cql.library import (
     UsingDefinition,
     ValueSetDefinition,
 )
-from dhis2w_fhir_engine.engine.cql.library_resolver import InMemoryLibraryResolver
-from dhis2w_fhir_engine.engine.cql.plugins import CQLPluginRegistry
-from dhis2w_fhir_engine.engine.cql.types import CQLCode, CQLConcept
-from dhis2w_fhir_engine.engine.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.cql.library_resolver import InMemoryLibraryResolver
+from dhis2w_fhir_engine.evaluation.cql.plugins import CQLPluginRegistry
+from dhis2w_fhir_engine.evaluation.cql.types import CQLCode, CQLConcept
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
 
 DEPENDENCY_SOURCE = "library Dep version '1' define Answer: 42"
 

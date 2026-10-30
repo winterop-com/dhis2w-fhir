@@ -39,8 +39,8 @@ from typing import Annotated
 
 from dhis2w_fhir.conversion.values import location_id_of
 from dhis2w_fhir.forward_records import ForwardImportOutcome, WithdrawalRecord
-from dhis2w_fhir.r4 import Extension, QuestionnaireResponse, QuestionnaireResponseItem
-from dhis2w_fhir.spool import ForwardRefusalRecord, QuarantinedFile
+from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, QuarantinedFile
+from dhis2w_fhir_engine.r4.resources import Extension, QuestionnaireResponse, QuestionnaireResponseItem
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, ConfigDict, ValidationError
 from starlette.concurrency import run_in_threadpool

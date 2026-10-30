@@ -12,8 +12,8 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
 
 
 @pytest.fixture

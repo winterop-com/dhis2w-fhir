@@ -38,7 +38,7 @@ import os
 from _fixture import aggregate_form_id, served_facade
 from _runner import run_example
 from dhis2w_fhir import BearerToken, FacadeClient, FacadeError
-from dhis2w_fhir.r4 import CapabilityStatementSecurity
+from dhis2w_fhir_engine.r4.resources import CapabilityStatementSecurity
 
 #: The token this example's own facade accepts. A real deployment's token is a long random value
 #: nobody committed; this one exists for the length of one process and guards nothing real.

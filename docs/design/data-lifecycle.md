@@ -350,7 +350,7 @@ class ResponseLifecycle(StrEnum):  # dhis2w_fhir_serve.spool - what the facade s
     WITHDRAWN = "withdrawn"
 
 
-class SpoolState(StrEnum):  # dhis2w_fhir.spool - what the drain and the withdrawal file
+class SpoolState(StrEnum):  # dhis2w_fhir_engine.facade.spool - what the drain and the withdrawal file
     RECEIVED = "received"
     FORWARDED = "forwarded"
     REJECTED = "rejected"

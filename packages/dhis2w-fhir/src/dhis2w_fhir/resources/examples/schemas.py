@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Literal
 
+from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.period.schemas import PeriodValue
 from dhis2w_fhir.resources.questionnaires.schemas import FormKind
 
 #: Where an example response's answers come from: generated locally, or read off the instance.

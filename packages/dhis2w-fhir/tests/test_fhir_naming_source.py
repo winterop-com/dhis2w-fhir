@@ -18,18 +18,14 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import (
-    AttributeCodeIndex,
-    CodeStemError,
     ExampleAnswerIn,
     ExampleResponseIn,
     GenerateConfig,
     InitOptions,
-    NamingSource,
     OrganisationUnitIn,
     PagesIn,
     QuestionnaireItemIn,
     QuestionnaireSourceIn,
-    StemResolution,
     build_example_artifacts,
     build_example_documents,
     build_organisation_unit_instances,
@@ -45,6 +41,8 @@ from dhis2w_fhir import (
 )
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelNames
 from dhis2w_fhir.resources.questionnaires.schemas import ProgramContextIn
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.names import CodeStemError, NamingSource, StemResolution
 
 _CANONICAL = "http://example.org/fhir"
 _HOST = "https://dhis2.example"

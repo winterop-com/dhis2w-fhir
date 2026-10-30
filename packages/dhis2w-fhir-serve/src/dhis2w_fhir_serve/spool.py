@@ -1,7 +1,7 @@
 """The response spool: every QuestionnaireResponse the facade received, and which lifecycle state it is in.
 
 The spool is a directory tree under `.serve/responses` - or wherever `[serve] spool_dir` points this
-project's, resolved through `dhis2w_fhir.spool.resolve_spool_root` so the forwarder reads the same
+project's, resolved through `dhis2w_fhir_engine.facade.spool.resolve_spool_root` so the forwarder reads the same
 answer - with one subdirectory per state:
 
     `received/`   captured, not yet forwarded - the queue.
@@ -57,7 +57,7 @@ from pathlib import Path
 from typing import Any
 
 from dhis2w_fhir.forward_records import ForwardImportOutcome, WithdrawalRecord
-from dhis2w_fhir.spool import (
+from dhis2w_fhir_engine.facade.spool import (
     QUARANTINE_REASON_SUFFIX,
     ForwardRefusalRecord,
     QuarantinedFile,
@@ -145,7 +145,7 @@ class ResponseLifecycle(StrEnum):
     `withdrawn/`, with the record of the delete beside it - which is what `withdrawal_record` reads.
     It is terminal, because DHIS2 burns the UID it deletes.
 
-    The same four states as `dhis2w_fhir.spool.SpoolState`, which is the drain's own name for the
+    The same four states as `dhis2w_fhir_engine.facade.spool.SpoolState`, which is the drain's own name for the
     layout. Two enums for one directory tree, because the two packages read it for different reasons
     and neither depends on the other's vocabulary; `tests/test_spool_directory.py` pins them level.
 
@@ -297,9 +297,9 @@ class ResponseSpool(BaseModel):
         """The spool of one project, creating the receiving directory so a first capture has somewhere to land.
 
         `spool_dir` is `[serve] spool_dir` - relative to the project root unless it is absolute - and
-        it is resolved through `dhis2w_fhir.spool.resolve_spool_root`, which is the same resolution
+        it is resolved through `dhis2w_fhir_engine.facade.spool.resolve_spool_root`, which is the same resolution
         `d2w fhir forward` reads the key through. The layout under the root is stated in this module
-        and in `dhis2w_fhir.spool` alike, for the reason that module gives; where the root is, is not.
+        and in `dhis2w_fhir_engine.facade.spool` alike, for the reason that module gives; where the root is, is not.
 
         The orphan sweep runs here rather than per write: an abandoned temporary file is what a
         killed process leaves behind, and process start is exactly when there is a new process to

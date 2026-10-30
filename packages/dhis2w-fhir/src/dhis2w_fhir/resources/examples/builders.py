@@ -26,28 +26,28 @@ import random
 import re
 from typing import TYPE_CHECKING
 
-from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.schemas import FoundationNaming
-from dhis2w_fhir.names import StemResolution, fsh_code, page_text, quote
-from dhis2w_fhir.notes import (
+from dhis2w_fhir_engine.facade.names import StemResolution, fsh_code, page_text, quote
+from dhis2w_fhir_engine.facade.notes import (
     GenerateNote,
     GenerateNoteCategory,
     aggregate_generate_note,
     pluralize,
     verb_for_count,
 )
-from dhis2w_fhir.period.parser import parse_period
-from dhis2w_fhir.period.recent import recent_periods
-from dhis2w_fhir.period.schemas import PeriodValue
-from dhis2w_fhir.r4.primitives import (
+from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.facade.period.recent import recent_periods
+from dhis2w_fhir_engine.facade.period.schemas import PeriodValue
+from dhis2w_fhir_engine.r4.primitives import (
     is_fhir_date,
     is_fhir_date_time,
     is_fhir_time,
     seconds_precision,
     zoned_date_time,
 )
+from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir.foundation.schemas import FoundationNaming
 from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_sources
 from dhis2w_fhir.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir.resources.examples.enablement import settled_question_uids

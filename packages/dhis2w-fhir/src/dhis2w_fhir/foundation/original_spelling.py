@@ -13,7 +13,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir.coded import OriginalSpellingExtensionUrls
+from dhis2w_fhir_engine.facade.coded import OriginalSpellingExtensionUrls
+
 from dhis2w_fhir.foundation.schemas import FoundationNaming
 
 if TYPE_CHECKING:

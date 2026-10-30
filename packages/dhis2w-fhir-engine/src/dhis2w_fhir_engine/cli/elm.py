@@ -12,8 +12,8 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.table import Table
 
-from ..engine.elm import ELMEvaluator, ELMSerializer
-from ..engine.elm.exceptions import ELMError, ELMExecutionError, ELMValidationError
+from ..evaluation.elm import ELMEvaluator, ELMSerializer
+from ..evaluation.elm.exceptions import ELMError, ELMExecutionError, ELMValidationError
 from .cql import format_result
 from .data import DATA_OPTION_HELP, load_evaluation_data
 

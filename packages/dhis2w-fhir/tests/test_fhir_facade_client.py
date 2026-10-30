@@ -27,7 +27,7 @@ from dhis2w_fhir import (
     ResourceQuery,
     UsernamePassword,
 )
-from dhis2w_fhir.r4 import QuestionnaireResponse
+from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 
 FACADE_URL = "http://facade.test"
 FHIR_JSON = "application/fhir+json"

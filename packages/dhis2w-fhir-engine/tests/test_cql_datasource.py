@@ -4,12 +4,12 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import (
+from dhis2w_fhir_engine.evaluation.cql import (
     CQLCode,
     CQLEvaluator,
     PatientContext,
 )
-from dhis2w_fhir_engine.engine.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
 from dhis2w_fhir_engine.r4 import (
     BundleDataSource,
     InMemoryDataSource,

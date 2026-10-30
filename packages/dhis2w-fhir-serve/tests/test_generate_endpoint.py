@@ -23,7 +23,7 @@ from typing import Any
 import httpx2
 import pytest
 from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir.period import parse_period
+from dhis2w_fhir_engine.facade.period import parse_period
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.capture.naming import GENERATE_SEED_IDENTIFIER_SEGMENT
 from dhis2w_fhir_serve.settings import ServeSettings

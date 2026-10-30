@@ -29,7 +29,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir.r4 import BundleEntry, BundleEntrySearch, OperationOutcome, OperationOutcomeIssue, json_resource
+from dhis2w_fhir_engine.r4.resources import (
+    BundleEntry,
+    BundleEntrySearch,
+    OperationOutcome,
+    OperationOutcomeIssue,
+    json_resource,
+)
 
 if TYPE_CHECKING:
     from dhis2w_fhir_serve.projection.base import ProjectionCursor

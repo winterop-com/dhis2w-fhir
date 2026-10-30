@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from dhis2w_fhir_engine.facade.notes import GenerateNote
 from pydantic import BaseModel, ConfigDict, Field
 
-from dhis2w_fhir.notes import GenerateNote
 from dhis2w_fhir.resources.option_sets.schemas import ConceptSourceIn
 
 #: The name DHIS2 reserves for its built-in default category - the placeholder every instance

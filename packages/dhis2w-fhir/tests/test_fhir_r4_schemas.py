@@ -13,7 +13,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir.resources.questionnaires.schemas import CAPTURED_FORM_KINDS
+from dhis2w_fhir_engine.r4.resources import (
     Bundle,
     CapabilityStatement,
     CodeSystem,
@@ -25,7 +26,6 @@ from dhis2w_fhir.r4 import (
     ValueSet,
     json_resource,
 )
-from dhis2w_fhir.resources.questionnaires.schemas import CAPTURED_FORM_KINDS
 
 _DATA_DIRECTORY = Path(__file__).parent / "data" / "r4"
 

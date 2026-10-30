@@ -28,7 +28,6 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     build_questionnaire_documents,
     option_set_identities,
@@ -36,7 +35,6 @@ from dhis2w_fhir import (
     unmapped_tracked_entity_type_notes,
 )
 from dhis2w_fhir.foundation.schemas import TrackerSubjectTypes
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
 from dhis2w_fhir.resources.questionnaires.builders import registration_subject, source_description
 from dhis2w_fhir.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir.resources.questionnaires.schemas import (
@@ -47,6 +45,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
 )
 from dhis2w_fhir.validation import build_code_validation
 from dhis2w_fhir.validation.schemas import MetadataCollectionIn, MetadataItemIn
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 
 _CANONICAL = "http://example.org/fhir"
 

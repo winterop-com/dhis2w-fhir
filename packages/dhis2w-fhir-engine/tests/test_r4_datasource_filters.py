@@ -5,10 +5,10 @@ from typing import Any
 import pytest
 
 from dhis2w_fhir_engine.binding import FhirVersionBinding
-from dhis2w_fhir_engine.engine.cql import CQLCode, CQLContext, PatientContext
-from dhis2w_fhir_engine.engine.cql.types import CQLConcept, CQLInterval
-from dhis2w_fhir_engine.engine.exceptions import CQLError
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime
+from dhis2w_fhir_engine.evaluation.cql import CQLCode, CQLContext, PatientContext
+from dhis2w_fhir_engine.evaluation.cql.types import CQLConcept, CQLInterval
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime
 from dhis2w_fhir_engine.r4 import BundleDataSource, InMemoryDataSource, PatientBundleDataSource
 from dhis2w_fhir_engine.r4.binding import R4_BINDING
 from dhis2w_fhir_engine.r4.datasource import FHIRDataSource

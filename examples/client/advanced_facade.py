@@ -54,25 +54,26 @@ from dhis2w_fhir import (
     CodedAnswerMode,
     ConversionContext,
     ConversionResult,
-    ForwardedCellIndex,
-    ForwardedSubmission,
     ForwardImportIssue,
     ForwardImportOutcome,
     ForwardImportRecord,
-    SpoolLayout,
-    aggregate_cells,
-    build_forwarded_cell_index,
     translate_response,
 )
-from dhis2w_fhir import spool as spool_queue
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade import spool as spool_queue
+from dhis2w_fhir_engine.facade.overwrite import (
+    ForwardedCellIndex,
+    ForwardedSubmission,
+    aggregate_cells,
+    build_forwarded_cell_index,
+)
+from dhis2w_fhir_engine.facade.spool import ForwardRefusalRecord, RefusalReason, SpoolLayout
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     QuestionnaireResponse,
     QuestionnaireResponseAnswer,
     QuestionnaireResponseItem,
     Reference,
 )
-from dhis2w_fhir.spool import ForwardRefusalRecord, RefusalReason
 from dhis2w_fhir_serve import spool as spool_writer
 from dhis2w_fhir_serve.spool import ResponseLifecycle
 from fastapi import FastAPI

@@ -25,17 +25,16 @@ the greenfield voice: describe what the code does now, never how it got there.
 
 Three packages in one uv workspace, every one version-neutral across DHIS2 v41, v42, v43 and v44:
 
-- `dhis2w-fhir-engine` - FHIRPath, CQL and ELM evaluation and quality measures. The FHIR
-  foundation of the pack: it owns the R4 resource models at `dhis2w_fhir_engine.r4.resources`
-  and carries no DHIS2 dependency. The grammar, parser, AST and evaluator are FHIR-version-neutral;
-  everything bound to a FHIR release lives in a version subpackage (`r4/`, later `r5/`) and reaches
-  the core as a `FhirVersionBinding` value. A new release is a new subpackage, never an edit to the
-  evaluator. Its public entry points accept `dict | BaseModel` and dump a model once on entry
-  (`dhis2w_fhir_engine.ingest`); evaluation below that boundary stays dict-based.
+- `dhis2w-fhir-engine` - what a FHIR-to-DHIS2 service installs. `evaluation/` is FHIRPath, CQL and ELM
+  with quality measures, FHIR-version-neutral and free of DHIS2 as code; everything bound to a FHIR release
+  lives in a version subpackage (`r4/`, later `r5/`), which owns the R4 resource models at
+  `dhis2w_fhir_engine.r4.resources` and reaches the evaluator as a `FhirVersionBinding` value. `facade/` is the
+  library a facade is built from. `scripts/check_engine_boundaries.py` states what each part may load, and
+  `make check-engine-install` runs it against the wheel installed alone. Public evaluation entry points accept
+  `dict | BaseModel` and dump a model once on entry (`dhis2w_fhir_engine.ingest`); evaluation below that
+  boundary stays dict-based.
 - `dhis2w-fhir` - the `d2w fhir` plugin: `init`, `validate`, `generate`, `doctor`, `forward` and
-  the rest. `dhis2w_fhir.r4` is the capture-facing facade re-exporting the engine's resource
-  models, so a name is defined once.
-- `dhis2w-fhir-serve` - the FHIR facade (`d2w fhir serve`) and the capture UI, a React app under
+  the rest. - `dhis2w-fhir-serve` - the FHIR facade (`d2w fhir serve`) and the capture UI, a React app under
   `packages/dhis2w-fhir-serve/frontend/` whose bundle `make ui` builds into
   `dhis2w_fhir_serve/static/`. The bundle is never committed; the publish workflow builds it into
   the wheel.

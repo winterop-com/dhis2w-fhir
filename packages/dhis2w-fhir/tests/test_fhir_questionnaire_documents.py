@@ -15,8 +15,6 @@ from dhis2w_fhir import (
     FORM_KIND_PROFILES,
     ITEM_TYPES_BY_VALUE_TYPE,
     PROGRAM_IDENTIFIER_SEGMENT,
-    AttributeCodeIndex,
-    AttributeValueIn,
     CategoryComboIn,
     CategoryOptionComboIn,
     GenerateConfig,
@@ -32,8 +30,9 @@ from dhis2w_fhir import (
     build_questionnaire_documents,
     option_set_identities,
 )
-from dhis2w_fhir.r4 import FhirBase, Questionnaire, QuestionnaireItem
-from dhis2w_fhir.status import IgStatus
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
+from dhis2w_fhir_engine.facade.status import IgStatus
+from dhis2w_fhir_engine.r4.resources import FhirBase, Questionnaire, QuestionnaireItem
 
 _CANONICAL = "http://example.org/fhir"
 _IDENTIFIER_BASE = "http://dhis2.org/fhir/id"

@@ -1,7 +1,7 @@
 """Tests for FHIRPath conformsTo function."""
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.fhir import fn_conforms_to
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.fhir import fn_conforms_to
 
 
 class TestConformsTo:

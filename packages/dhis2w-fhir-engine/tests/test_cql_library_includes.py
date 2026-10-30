@@ -10,8 +10,8 @@ Tests cover:
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.cql.library_resolver import InMemoryLibraryResolver
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.cql.library_resolver import InMemoryLibraryResolver
 
 
 class TestCQLLibraryIncludes:

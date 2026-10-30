@@ -13,8 +13,8 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.exceptions import FHIRPathError
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.exceptions import FHIRPathError
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 from tests.compliance.test_runner import (
     ComplianceTestCase,
     get_test_statistics,
@@ -61,7 +61,7 @@ def evaluate_fhirpath_expression(
     resource: dict[str, Any] | None = None,
 ) -> list[Any]:
     """Evaluate a FHIRPath expression and return the result."""
-    from dhis2w_fhir_engine.engine.fhirpath.evaluator import FHIRPathEvaluator
+    from dhis2w_fhir_engine.evaluation.fhirpath.evaluator import FHIRPathEvaluator
 
     evaluator = FHIRPathEvaluator()
     return evaluator.evaluate(expression, resource)

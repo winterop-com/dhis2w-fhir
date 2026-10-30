@@ -6,8 +6,8 @@ from typing import Any
 import pytest
 
 from dhis2w_fhir_engine import FHIRPathEvaluator
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.boolean import (
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.boolean import (
     fn_converts_to_boolean,
     fn_converts_to_date,
     fn_converts_to_datetime,
@@ -25,7 +25,7 @@ from dhis2w_fhir_engine.engine.fhirpath.functions.boolean import (
     fn_to_string,
     fn_to_time,
 )
-from dhis2w_fhir_engine.engine.fhirpath.functions.math import (
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.math import (
     fn_abs,
     fn_ceiling,
     fn_exp,
@@ -40,8 +40,8 @@ from dhis2w_fhir_engine.engine.fhirpath.functions.math import (
     fn_sqrt,
     fn_truncate,
 )
-from dhis2w_fhir_engine.engine.fhirpath.visitor import _PrimitiveWithExtension
-from dhis2w_fhir_engine.engine.types import Quantity
+from dhis2w_fhir_engine.evaluation.fhirpath.visitor import _PrimitiveWithExtension
+from dhis2w_fhir_engine.evaluation.types import Quantity
 
 PATIENT: dict[str, Any] = {
     "resourceType": "Patient",

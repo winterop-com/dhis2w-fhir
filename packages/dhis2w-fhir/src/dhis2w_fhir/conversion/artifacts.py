@@ -26,12 +26,12 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
+from dhis2w_fhir_engine.r4.resources import CodeSystem, ConceptMap, Location, Questionnaire, ValueSet
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from dhis2w_fhir.conversion.context import build_conversion_context, build_form_spec
 from dhis2w_fhir.conversion.schemas import CodedAnswerMode, ConversionNaming
 from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_NAME_SUB_EXTENSION, PROGRAM_RULE_UID_SUB_EXTENSION
-from dhis2w_fhir.r4 import CodeSystem, ConceptMap, Location, Questionnaire, ValueSet
 from dhis2w_fhir.registry_package import load_registry_documents
 
 if TYPE_CHECKING:

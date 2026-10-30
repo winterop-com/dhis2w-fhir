@@ -51,7 +51,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlencode
 
-from dhis2w_fhir.r4 import Bundle, BundleEntry, BundleEntrySearch, BundleLink, JsonResource
+from dhis2w_fhir_engine.r4.resources import Bundle, BundleEntry, BundleEntrySearch, BundleLink, JsonResource
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool

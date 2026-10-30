@@ -52,8 +52,9 @@ from dhis2w_fhir.resources.examples.schemas import MULTI_VALUE_SEPARATOR
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from dhis2w_fhir_engine.r4.resources import QuestionnaireResponseAnswer
+
     from dhis2w_fhir.conversion.schemas import ConversionContext, QuestionSpec
-    from dhis2w_fhir.r4 import QuestionnaireResponseAnswer
 
 __all__ = [
     "ANSWER_VALUE_ELEMENTS",

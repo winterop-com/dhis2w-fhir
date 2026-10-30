@@ -35,12 +35,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir.summary import RecordedDose
+from dhis2w_fhir_engine.facade.summary import RecordedDose
 from pydantic import BaseModel, ConfigDict
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.ips import ImmunizationsMapping
-    from dhis2w_fhir.r4 import QuestionnaireResponseAnswer, QuestionnaireResponseItem
+    from dhis2w_fhir_engine.facade.ips import ImmunizationsMapping
+    from dhis2w_fhir_engine.r4.resources import QuestionnaireResponseAnswer, QuestionnaireResponseItem
 
     from dhis2w_fhir_serve.history.projection import RecordProjection
     from dhis2w_fhir_serve.history.wire import TrackedEntityRecord

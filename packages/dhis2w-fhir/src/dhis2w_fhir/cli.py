@@ -25,13 +25,16 @@ from dhis2w_core.cli_errors import CliUserError
 from dhis2w_core.cli_output import ColumnSpec, DetailRow, is_json_output, render_detail, render_list
 from dhis2w_core.progress import animated_progress, make_reporter
 from dhis2w_core.rich_console import STDERR_CONSOLE
+from dhis2w_fhir_engine.facade.errors import FhirUserError
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
+from dhis2w_fhir_engine.facade.spool import MALFORMED_RESPONSES_RELATIVE_PATH
+from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
 from pydantic import BaseModel, ConfigDict
 from typer.core import TyperGroup
 
 from dhis2w_fhir import (
     DEFAULT_LOAD_SET_PER_TARGET,
     DEFAULT_SUSHI_TIMEOUT_SECONDS,
-    MALFORMED_RESPONSES_RELATIVE_PATH,
     CorrectionPosture,
     GenerateReport,
     HostileNamePosture,
@@ -42,19 +45,17 @@ from dhis2w_fhir import (
     load_project,
 )
 from dhis2w_fhir.doctor import DEFAULT_ORACLE_SAMPLES
-from dhis2w_fhir.errors import FhirUserError
-from dhis2w_fhir.notes import GenerateNoteCategory
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     UNTIMELY_ATTRIBUTE_OPTION_COMBO_REMEDY,
     UNUSABLE_ATTRIBUTE_OPTION_COMBO_REMEDY,
 )
 from dhis2w_fhir.resources.questionnaires.assignments import EMPTY_ASSIGNMENT_REMEDY
-from dhis2w_fhir.status import ORGANISATION_UNIT_PACKAGE
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
     from dhis2w_core.progress import ProgressReporter
+    from dhis2w_fhir_engine.facade.notes import GenerateNote
 
     # Type-only, exactly as `d2w fhir serve` and `d2w fhir sync` import the package itself: the serve
     # extra may not be installed, and a name used in an annotation costs no import at runtime.
@@ -63,7 +64,6 @@ if TYPE_CHECKING:
     from dhis2w_fhir.config import FhirProject, ProjectionConfig
     from dhis2w_fhir.doctor import DoctorReport
     from dhis2w_fhir.hostile_names import HostileNameGate, HostileRewrite
-    from dhis2w_fhir.notes import GenerateNote
     from dhis2w_fhir.resources.organisation_units.schemas import RegistryDependency
     from dhis2w_fhir.scaffold.project_templates import ProjectTemplate
     from dhis2w_fhir.scaffold.schemas import ScaffoldReport
@@ -281,7 +281,7 @@ def _print_hostile_name_warning(rewrites: list[HostileRewrite]) -> None:
 
 def _print_hostile_name_finding(names: list[HostileRewrite]) -> None:
     """State what a DHIS2 name carrying '<' costs the guide's build."""
-    from dhis2w_fhir.notes import pluralize, verb_for_count
+    from dhis2w_fhir_engine.facade.notes import pluralize, verb_for_count
 
     _line(
         f"{pluralize(len(names), 'selected DHIS2 name')} "
@@ -294,7 +294,7 @@ def _print_hostile_name_finding(names: list[HostileRewrite]) -> None:
 
 def _print_hostile_code_finding(codes: list[HostileRewrite]) -> None:
     """State what a DHIS2 code carrying a space costs the guide and everything downstream of it."""
-    from dhis2w_fhir.notes import pluralize, verb_for_count
+    from dhis2w_fhir_engine.facade.notes import pluralize, verb_for_count
 
     _line(
         f"{pluralize(len(codes), 'selected DHIS2 code')} "
@@ -759,14 +759,14 @@ def _print_force_discards(report: ScaffoldReport) -> None:
 
 def _derived_ig_name(ig_id: str) -> str:
     """The SUSHI name `--id` yields on its own: PascalCase, bounded to the 255 characters FHIR allows."""
-    from dhis2w_fhir.names import FHIR_NAME_MAX_LENGTH, pascal
+    from dhis2w_fhir_engine.facade.names import FHIR_NAME_MAX_LENGTH, pascal
 
     return pascal(ig_id)[:FHIR_NAME_MAX_LENGTH]
 
 
 def _require_fhir_name(value: str, *, flag: str) -> None:
     """Refuse a SUSHI name outside the FHIR computer-friendly shape, stating the rule and what SUSHI does."""
-    from dhis2w_fhir.names import is_fhir_name
+    from dhis2w_fhir_engine.facade.names import is_fhir_name
 
     if is_fhir_name(value):
         return
@@ -790,7 +790,7 @@ def _require_parseable_page_text(flag: str, value: str) -> None:
 
 def _require_uid_shape(flag: str, uids: list[str] | None) -> None:
     """Refuse a selection UID outside the DHIS2 shape, so a typo is caught here rather than as an empty guide."""
-    from dhis2w_fhir.names import is_dhis2_uid
+    from dhis2w_fhir_engine.facade.names import is_dhis2_uid
 
     malformed = [uid for uid in uids or [] if not is_dhis2_uid(uid)]
     if not malformed:
@@ -1913,8 +1913,9 @@ def validate_command(
     """
     from datetime import UTC, datetime
 
+    from dhis2w_fhir_engine.facade.notes import pluralize
+
     from dhis2w_fhir import REPORTS_DIRECTORY, VALIDATE_CODES_STEPS, find_project_fhir_config, service
-    from dhis2w_fhir.notes import pluralize
     from dhis2w_fhir.validation.pdf import render_validation_pdf
     from dhis2w_fhir.validation.report import render_validation_csv, render_validation_markdown
 

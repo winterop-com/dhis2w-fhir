@@ -11,8 +11,8 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql.functions import list_funcs
-from dhis2w_fhir_engine.engine.cql.functions.intervals import (
+from dhis2w_fhir_engine.evaluation.cql.functions import list_funcs
+from dhis2w_fhir_engine.evaluation.cql.functions.intervals import (
     _are_adjacent,
     collapse_intervals,
     get_successor,
@@ -20,10 +20,10 @@ from dhis2w_fhir_engine.engine.cql.functions.intervals import (
     interval_timing,
     point_interval_timing,
 )
-from dhis2w_fhir_engine.engine.cql.functions.registry import get_registry
-from dhis2w_fhir_engine.engine.cql.types import CQLInterval
-from dhis2w_fhir_engine.engine.exceptions import CQLError
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.cql.functions.registry import get_registry
+from dhis2w_fhir_engine.evaluation.cql.types import CQLInterval
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 
 
 def make_interval(

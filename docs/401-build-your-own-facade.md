@@ -93,7 +93,7 @@ disk instead, and both produce the same thing.
 async def capture(response: QuestionnaireResponse) -> JSONResponse:
 ```
 
-`dhis2w_fhir.r4.QuestionnaireResponse` is a pydantic model, so FastAPI parses and
+`dhis2w_fhir_engine.r4.resources.QuestionnaireResponse` is a pydantic model, so FastAPI parses and
 validates the body before the function runs. Every R4 model here is closed: an
 unknown key, or a `value[x]` the element does not have, is FastAPI's own 422 and
 never reaches the translator.
@@ -281,7 +281,7 @@ published primitives:
 | Side | Module | What the example uses |
 | --- | --- | --- |
 | write | `dhis2w_fhir_serve.spool` | `ResponseSpool.save`, `get`, `import_report`, `refusal_record` |
-| drain | `dhis2w_fhir.spool` | `read_received_responses`, `move_to_forwarded`, `move_to_rejected`, `record_refusal`, `drain_lock` |
+| drain | `dhis2w_fhir_engine.facade.spool` | `read_received_responses`, `move_to_forwarded`, `move_to_rejected`, `record_refusal`, `drain_lock` |
 
 `ResponseSpool.save` writes through a temporary sibling, `fsync`s the file,
 renames it, and `fsync`s the directory. That ordering is the whole reason a

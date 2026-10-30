@@ -19,7 +19,6 @@ from dhis2w_fhir import (
     load_project,
     service,
 )
-from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
 from dhis2w_fhir.resources.questionnaires.builders import collect_referenced_objects, link_id_collisions
@@ -36,7 +35,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     TargetSelection,
     source_display_name,
 )
-from dhis2w_fhir.status import IgStatus
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.status import IgStatus
 from typer.testing import CliRunner
 
 _HOST = "https://dhis2.example"

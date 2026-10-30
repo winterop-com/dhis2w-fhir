@@ -24,7 +24,6 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     PublishedTrackedEntityType,
     build_questionnaire_artifacts,
@@ -35,9 +34,6 @@ from dhis2w_fhir import (
 )
 from dhis2w_fhir.config import NamingConfig
 from dhis2w_fhir.doctor import DoctorOutcome, DoctorPhase, generate_findings, grade
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.notes import GenerateNoteCategory
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE, FhirBase
 from dhis2w_fhir.resources.questionnaires.builders import DATA_DICTIONARY_DIRECTORY
 from dhis2w_fhir.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir.resources.questionnaires.schemas import (
@@ -47,6 +43,10 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSourceIn,
     form_subject_type,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE, FhirBase
 
 _GOLDEN_DIRECTORY = Path(__file__).parent / "data" / "r4"
 

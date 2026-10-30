@@ -25,17 +25,22 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.i18n import (
+    FORM_NAME_PROPERTY,
+    NAME_PROPERTY,
+    TranslationIn,
+    stored_property_translations,
+)
+from dhis2w_fhir_engine.facade.names import StemResolution, code_or_uid, flatten_whitespace, markdown_text
+from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.facade.period.recent import recent_periods
+from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation.artifacts import build_naming_system_declarations
 from dhis2w_fhir.foundation.schemas import FoundationNaming
-from dhis2w_fhir.i18n import FORM_NAME_PROPERTY, NAME_PROPERTY, TranslationIn, stored_property_translations
-from dhis2w_fhir.names import StemResolution, code_or_uid, flatten_whitespace, markdown_text
-from dhis2w_fhir.period.parser import parse_period
-from dhis2w_fhir.period.recent import recent_periods
-from dhis2w_fhir.period.schemas import PERIOD_TYPE_DEFINITIONS
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
 from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_identities, attribute_combo_sources
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     AttributeOptionRestrictions,

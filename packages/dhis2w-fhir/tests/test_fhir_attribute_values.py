@@ -17,8 +17,8 @@ from dhis2w_client.generated.v43.schemas import OptionSet
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, load_project, service
-from dhis2w_fhir.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
 from pydantic import BaseModel
 
 _HOST = "https://dhis2.example"

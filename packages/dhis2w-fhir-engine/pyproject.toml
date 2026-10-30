@@ -1,7 +1,7 @@
 [project]
 name = "dhis2w-fhir-engine"
 version = "1.33.4"
-description = "FHIRPath, CQL, and ELM evaluation over FHIR data, with clinical quality measure evaluation. Version-neutral grammar and evaluator core with the FHIR release bound in as a value."
+description = "What a FHIR-to-DHIS2 service runs on: FHIRPath, CQL, and ELM evaluation, the R4 resource models, and the facade library."
 readme = "README.md"
 authors = [{ name = "Morten Hansen", email = "morten@winterop.com" }]
 requires-python = ">=3.13"
@@ -19,12 +19,13 @@ classifiers = [
 ]
 dependencies = [
     "antlr4-python3-runtime>=4.13.2",
+    "dhis2w-client==1.33.4",
     "httpx2>=2.12.0",
     "pydantic>=2.13",
 ]
 
-# No dhis2w-* runtime dependency: the engine evaluates FHIRPath and CQL over FHIR-shaped JSON and
-# knows nothing about DHIS2. The DHIS2 binding lives in the tests (dev-only) and in consumers.
+# The evaluator is free of DHIS2 as code, which tests/test_import_boundaries.py holds it to. The facade
+# library beside it reads and writes DHIS2 through dhis2w-client.
 
 [project.scripts]
 d2w-fhir-engine = "dhis2w_fhir_engine.entry:main"
@@ -57,7 +58,3 @@ source-include = ["src/dhis2w_fhir_engine/grammars/*.g4", "src/dhis2w_fhir_engin
 extend = "../../pyproject.toml"
 extend-exclude = ["src/dhis2w_fhir_engine/generated"]
 
-[dependency-groups]
-dev = [
-    "dhis2w-client==1.33.4",
-]

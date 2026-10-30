@@ -11,8 +11,8 @@ Tests cover:
 
 from typing import Any
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.cql.context import CQLContext, DataSource
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.cql.context import CQLContext, DataSource
 
 
 class MockDataSource(DataSource):

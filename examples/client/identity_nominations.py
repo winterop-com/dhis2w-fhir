@@ -56,8 +56,8 @@ from typing import Any
 from _runner import run_example
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import profile_from_env
-from dhis2w_fhir.ips import IdentityNominations, ServedIdentity, served_identity
-from dhis2w_fhir.r4 import DATA_ABSENT_REASON_EXTENSION_URL
+from dhis2w_fhir_engine.facade.ips import IdentityNominations, ServedIdentity, served_identity
+from dhis2w_fhir_engine.r4.resources import DATA_ABSENT_REASON_EXTENSION_URL
 
 IDENTITY_TABLE = """
 given_name = "w75KJ2mc4zz"

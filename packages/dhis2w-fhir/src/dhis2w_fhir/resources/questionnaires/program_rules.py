@@ -31,11 +31,11 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Literal
 
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, generate_note, pluralize, verb_for_count
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_ACTION_DEFINITIONS
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.notes import GenerateNote, GenerateNoteCategory, generate_note, pluralize, verb_for_count
 from dhis2w_fhir.resources.option_sets.schemas import OptionConceptCodeIndex
 from dhis2w_fhir.resources.questionnaires.schemas import (
     BOUND_ELEMENTS_BY_ITEM_TYPE,

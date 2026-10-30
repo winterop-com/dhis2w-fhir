@@ -5,10 +5,9 @@ from __future__ import annotations
 import base64
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir.foundation.attribute_values import attribute_value_extensions, attribute_value_identifiers
-from dhis2w_fhir.i18n import name_translations, translated_element
-from dhis2w_fhir.names import StemResolution, code_or_uid, flatten_whitespace
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.facade.i18n import name_translations, translated_element
+from dhis2w_fhir_engine.facade.names import StemResolution, code_or_uid, flatten_whitespace
+from dhis2w_fhir_engine.r4.resources import (
     BOUNDARY_EXTENSION_URL,
     Attachment,
     Extension,
@@ -18,10 +17,13 @@ from dhis2w_fhir.r4 import (
     Meta,
     Reference,
 )
+
+from dhis2w_fhir.foundation.attribute_values import attribute_value_extensions, attribute_value_identifiers
 from dhis2w_fhir.resources.organisation_units.naming import organisation_unit_level_coding
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+
     from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitInstanceUrls
     from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitIn, OrganisationUnitLevelNames
 

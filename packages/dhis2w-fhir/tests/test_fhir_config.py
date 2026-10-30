@@ -22,7 +22,7 @@ from dhis2w_fhir.config import (
     load_project,
     write_fhir_config,
 )
-from dhis2w_fhir.ips import IdentityNominations, ImmunizationsMapping, SectionMappings
+from dhis2w_fhir_engine.facade.ips import IdentityNominations, ImmunizationsMapping, SectionMappings
 from pydantic import ValidationError
 
 _MINIMAL_TOML = """

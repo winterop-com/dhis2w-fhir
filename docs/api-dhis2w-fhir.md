@@ -7,10 +7,9 @@ option-set terminology, and the category terminology - and the DHIS2 period gram
 share. It mounts onto the CLI
 through the `dhis2w.plugins.v1` entry point, and every component symbol
 re-exports from the top-level package, so
-`from dhis2w_fhir import GenerateConfig, parse_period` keeps working however
-the components are arranged internally. The R4 resource models are the one exception: they
-live in `dhis2w_fhir.r4`, which is FHIR's own vocabulary rather than part of the plugin
-surface.
+`from dhis2w_fhir import GenerateConfig` keeps working however the components are
+arranged internally. What a service is built from - the R4 models, periods, the spool - lives in
+[`dhis2w_fhir_engine`](api-dhis2w-fhir-engine.md).
 
 ## When to reach for it
 
@@ -23,14 +22,14 @@ surface.
 - Build FSH artifacts without the CLI (`build_foundation_artifacts`,
   `build_questionnaire_artifacts`, `build_page_artifacts`) and sync them to disk
   (`sync_artifacts`).
-- Build the pre-built R4 documents - the registry (`dhis2w_fhir.r4.Organization`,
-  `dhis2w_fhir.r4.Location`), the option-set terminology
+- Build the pre-built R4 documents - the registry (`dhis2w_fhir_engine.r4.resources.Organization`,
+  `dhis2w_fhir_engine.r4.resources.Location`), the option-set terminology
   (`build_option_set_artifacts`), and the category terminology
-  (`build_category_artifacts`), the last two on `dhis2w_fhir.r4.CodeSystem` and
-  `dhis2w_fhir.r4.ValueSet` - and sync them to disk (`sync_json_artifacts`), one
+  (`build_category_artifacts`), the last two on `dhis2w_fhir_engine.r4.resources.CodeSystem` and
+  `dhis2w_fhir_engine.r4.resources.ValueSet` - and sync them to disk (`sync_json_artifacts`), one
   owned directory per source.
 - Map an option set's generated concept codes back to the DHIS2 option UID and
-  option code (`build_option_set_concept_maps` for the `dhis2w_fhir.r4.ConceptMap`
+  option code (`build_option_set_concept_maps` for the `dhis2w_fhir_engine.r4.resources.ConceptMap`
   models, `build_option_set_concept_map_artifacts` for the JSON files that land in
   `CONCEPT_MAP_DIRECTORY`).
 - Generate one target, or the whole guide, without the command
@@ -85,7 +84,8 @@ one connection rather than one per call.
 ```python
 import datetime
 
-from dhis2w_fhir import parse_period, recent_periods
+from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.facade.period.recent import recent_periods
 
 parse_period("2024BiW2")
 # PeriodValue(iso='2024BiW2', period_type='BiWeekly',
@@ -97,81 +97,9 @@ recent_periods("Monthly", 3, datetime.date(2026, 8, 2))
 
 ## Reference
 
-### Periods
-
-::: dhis2w_fhir.period
-
 ### Project configuration
 
 ::: dhis2w_fhir.config
-
-::: dhis2w_fhir.errors
-
-### The patient summary
-
-The `[ips]` tables and the document they reach. `dhis2w_fhir.ips` holds the two
-nominations an instance makes about a person - which tracked entity attribute carries
-their name, birth date, and sex, and which recorded values are doses - because DHIS2
-states neither and a guess would be indistinguishable from a fact.
-`dhis2w_fhir.summary` assembles those into the IPS document Bundle, as a pure function
-of what a caller already read, and states in the document itself what it is and is not.
-The section mapping is published beside the vocabularies it maps, as `D2Section_CM`, so a
-consumer audits the assignment without ever holding the project's `fhir.toml` -
-[Terminology and ConceptMaps](401-terminology-and-conceptmaps.md#the-sections-a-recorded-value-feeds)
-covers the shape, and `build_section_concept_map` and
-`build_section_concept_map_artifacts` are the builders behind it.
-
-::: dhis2w_fhir.ips
-
-::: dhis2w_fhir.summary
-
-### DHIS2 attribute values
-
-The projection every generated resource carries its DHIS2 attribute values on, plus
-the `uid -> code` index a generate run resolves once against `/api/attributes` and
-every emitter joins against. DHIS2 sends an attribute value as an attribute UID and a
-string, so the code is a lookup rather than part of the value.
-
-::: dhis2w_fhir.attributes
-
-### Generate notes
-
-What a generate target has to say about a run, as a model rather than a sentence. A
-`GenerateNote` carries the kind of decision it records (`GenerateNoteCategory`) beside
-the human text, and `echoes_validate` says whether the kind only restates a finding
-[`d2w fhir validate`](201-validate.md) reports on the instance - which is
-what lets a bare run count those apart from what generation itself found.
-
-::: dhis2w_fhir.notes
-
-### FHIR R4 resource schemas
-
-`dhis2w_fhir.r4` is the capture-facing surface over the R4 resource models, which
-`dhis2w_fhir_engine` owns and defines at
-[`dhis2w_fhir_engine.r4.resources`](api-dhis2w-fhir-engine.md#fhir-r4-resource-models). The
-engine is the FHIR foundation package, so one `Patient` and one `Bundle` serve the
-generator, the evaluator, and the server alike; this module re-exports that family
-under the path capture code imports it from, and every name below is the engine's own
-class object rather than a copy of it. `import dhis2w_fhir.r4` keeps working exactly as
-written, and a model built through it is an instance of the engine's class.
-
-That family covers the models every pre-built JSON document is serialised from -
-`Organization` and `Location` for the registry, `CodeSystem` and `ValueSet` for the
-option-set and category terminology, `ConceptMap` for both families' mappings back to
-DHIS2. Beside them are the resources a summary document is assembled out of -
-`Composition` and its flat `CompositionSection`, `Patient`, `Condition`,
-`AllergyIntolerance`, and `Observation`, with `Bundle` carrying the `identifier`
-and `timestamp` a document requires; see
-[`examples/client/ips_document.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/ips_document.py)
-and [the IPS working paper](design/ips.md).
-Every one is frozen, alias-aware, and closed to unknown keys, so
-`Model.model_validate(payload).model_dump_json(exclude_none=True, by_alias=True)`
-reproduces the input document key for key.
-
-The R4 primitive checks under `dhis2w_fhir.r4.primitives` stay this package's own, and
-arrive under the same `dhis2w_fhir.r4` name.
-
-::: dhis2w_fhir.r4.schemas
 
 ### Conversion: QuestionnaireResponse to DHIS2
 
@@ -259,25 +187,6 @@ grades - the exemplar organisation unit carries an identifier no DHIS2 instance 
 grading it would report a removal nobody can act on.
 
 ::: dhis2w_fhir.implementation_guide
-
-### The capture spool
-
-Where `d2w fhir serve` writes a receipt and where `d2w fhir forward` moves it next. The
-layout is duplicated rather than imported - `dhis2w-fhir` is a dependency of
-`dhis2w-fhir-serve`, so the arrow only points one way and the forwarder reads the files
-directly under the same conventions.
-
-::: dhis2w_fhir.spool
-
-::: dhis2w_fhir.forward_records
-
-### Values a previous submission already sent
-
-The identity of an aggregate data value, and the index a drain reads out of `forwarded/` to
-say that a value it is about to send is one an earlier submission already sent. DHIS2 counts
-that write exactly as it counts a first entry, so the spool is where the answer lives.
-
-::: dhis2w_fhir.overwrite
 
 ### A client for a running facade
 

@@ -2,8 +2,8 @@
 
 import pytest
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.filtering import (
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.filtering import (
     fn_of_type,
     fn_repeat,
     fn_select,

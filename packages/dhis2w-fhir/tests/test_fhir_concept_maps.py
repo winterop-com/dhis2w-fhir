@@ -10,8 +10,6 @@ from pathlib import Path
 from typing import Any
 
 from dhis2w_fhir.config import GenerateConfig, NamingConfig
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.r4 import ConceptMap
 from dhis2w_fhir.resources.categories.builders import (
     build_category_concept_map_artifacts,
     build_category_concept_maps,
@@ -28,7 +26,9 @@ from dhis2w_fhir.resources.option_sets.builders import (
     option_set_identities,
 )
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
-from dhis2w_fhir.status import IgStatus
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.status import IgStatus
+from dhis2w_fhir_engine.r4.resources import ConceptMap
 
 _CODE_STEMS = GenerateConfig(naming=NamingConfig(source="code"))
 _CANONICAL = "http://example.org/fhir"

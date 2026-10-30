@@ -25,8 +25,10 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
 from dhis2w_fhir.conversion.values import location_id_of
-from dhis2w_fhir.period import PERIOD_TYPE_NAMES
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir.resources.attribute_combos.restrictions import CategoryOptionValidity
+from dhis2w_fhir.resources.questionnaires.schemas import CAPTURED_FORM_KINDS, FormKind
+from dhis2w_fhir_engine.facade.period import PERIOD_TYPE_NAMES
+from dhis2w_fhir_engine.r4.resources import (
     DEFAULT_SUBJECT_RESOURCE_TYPE,
     CodeSystem,
     CodeSystemConcept,
@@ -38,8 +40,6 @@ from dhis2w_fhir.r4 import (
     ResourceList,
     ValueSet,
 )
-from dhis2w_fhir.resources.attribute_combos.restrictions import CategoryOptionValidity
-from dhis2w_fhir.resources.questionnaires.schemas import CAPTURED_FORM_KINDS, FormKind
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError
 
 from dhis2w_fhir_serve.capture.naming import CaptureNaming

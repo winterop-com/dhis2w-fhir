@@ -57,6 +57,7 @@ from dhis2w_client.generated.v43.oas import (
 )
 from dhis2w_client.generated.v43.tracker import TrackerEvent
 from dhis2w_client.v43.aggregate import CompleteDataSetRegistration
+from dhis2w_fhir_engine.facade.period import parse_period
 from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir.conversion.schemas import (
@@ -82,14 +83,14 @@ from dhis2w_fhir.foundation.schemas import (
     PERIOD_RANGE_SUB_EXTENSION,
     PERIOD_TYPE_SUB_EXTENSION,
 )
-from dhis2w_fhir.period import parse_period
 from dhis2w_fhir.resources.examples.synthetic import derived_seed, synthetic_uid
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from dhis2w_fhir_engine.r4.resources import Extension, QuestionnaireResponse, QuestionnaireResponseItem
+
     from dhis2w_fhir.conversion.schemas import ConversionContext, FormSpec
-    from dhis2w_fhir.r4 import Extension, QuestionnaireResponse, QuestionnaireResponseItem
 
 __all__ = [
     "COMPLETED_EVENT_STATUSES",

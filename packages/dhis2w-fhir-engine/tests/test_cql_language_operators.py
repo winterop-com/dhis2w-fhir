@@ -10,9 +10,9 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLCode, CQLConcept, CQLEvaluator, CQLInterval, CQLRatio, CQLTuple
-from dhis2w_fhir_engine.engine.exceptions import CQLError
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.cql import CQLCode, CQLConcept, CQLEvaluator, CQLInterval, CQLRatio, CQLTuple
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 
 PATIENT_BORN_1990: dict[str, Any] = {"resourceType": "Patient", "id": "p1", "birthDate": "1990-01-01"}
 

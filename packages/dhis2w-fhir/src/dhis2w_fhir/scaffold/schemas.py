@@ -5,11 +5,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from dhis2w_fhir_engine.facade.names import strip_trailing_slash
+from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE, IgStatus, PackageContent, ProjectKind
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from dhis2w_fhir.names import strip_trailing_slash
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitGeometry, RegistryDependency
-from dhis2w_fhir.status import ORGANISATION_UNIT_PACKAGE, IgStatus, PackageContent, ProjectKind
 
 _NON_PROJECT_NAME_CHARACTERS = re.compile(r"[^a-z0-9]+")
 

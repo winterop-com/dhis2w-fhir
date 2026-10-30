@@ -43,9 +43,9 @@ from typing import Any
 
 from dhis2w_fhir.config import FhirProject
 from dhis2w_fhir.implementation_guide import DeclaredExamples, GuideDocument, declared_examples
-from dhis2w_fhir.r4 import ConceptMap
 from dhis2w_fhir.registry_package import load_registry_documents
 from dhis2w_fhir.resources.organisation_units.schemas import RegistryDependency
+from dhis2w_fhir_engine.r4.resources import ConceptMap
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError
 
 from dhis2w_fhir_serve.log import LOGGER_NAME

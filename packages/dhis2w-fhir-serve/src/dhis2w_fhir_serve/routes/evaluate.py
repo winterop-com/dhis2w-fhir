@@ -42,7 +42,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir.r4.schemas import DEFAULT_SUBJECT_RESOURCE_TYPE
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.concurrency import run_in_threadpool

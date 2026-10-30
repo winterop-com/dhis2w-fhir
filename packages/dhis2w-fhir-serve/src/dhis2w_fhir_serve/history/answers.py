@@ -20,17 +20,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
 
-from dhis2w_fhir import zoned_date_time
-from dhis2w_fhir.names import flatten_whitespace
-from dhis2w_fhir.r4 import (
-    Coding,
-    QuestionnaireResponseAnswer,
-    QuestionnaireResponseItem,
-    Reference,
-    is_fhir_date,
-    is_fhir_date_time,
-    is_fhir_time,
-)
+from dhis2w_fhir_engine.facade.names import flatten_whitespace
+from dhis2w_fhir_engine.r4.primitives import is_fhir_date, is_fhir_date_time, is_fhir_time, zoned_date_time
+from dhis2w_fhir_engine.r4.resources import Coding, QuestionnaireResponseAnswer, QuestionnaireResponseItem, Reference
 
 from dhis2w_fhir_serve.capture.resolve import CodingResolutionError, CodingResolverSet
 

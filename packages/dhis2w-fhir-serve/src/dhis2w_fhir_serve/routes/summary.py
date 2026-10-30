@@ -40,7 +40,7 @@ one.
 **THE CAVEAT RIDES TWICE.** The document says what it is and is not in `Composition.text`, and the
 response says the same sentence in a header beside it - the two-place idiom
 `dhis2w_fhir_serve.projection.serving` argues for the projection's as-of instant, for the same
-reason. `dhis2w_fhir.summary` is where the sentence is written and why.
+reason. `dhis2w_fhir_engine.facade.summary` is where the sentence is written and why.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dhis2w_client.errors import Dhis2ClientError
-from dhis2w_fhir.summary import build_patient_summary
+from dhis2w_fhir_engine.facade.summary import build_patient_summary
 from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import Response

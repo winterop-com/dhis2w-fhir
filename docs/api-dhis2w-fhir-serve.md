@@ -524,7 +524,7 @@ it - so the shape a client reads back is the shape a client would post.
 addresses, answered on the register resources R4 gives a person and refused by name on the rest.
 A summary reads nothing new: the subject is the resource the register already serves, and the
 doses come off the very record projection above, read through the immunisation mapping
-`[ips.sections.immunizations]` states. `dhis2w_fhir.summary` assembles the document; these two
+`[ips.sections.immunizations]` states. `dhis2w_fhir_engine.facade.summary` assembles the document; these two
 modules are what finds the doses and what answers the request, with the document's caveat riding
 the response as well as `Composition.text`.
 

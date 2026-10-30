@@ -37,12 +37,12 @@ from dhis2w_fhir import (
     build_organisation_unit_terminology_documents,
 )
 from dhis2w_fhir.foundation.documents import FoundationTerminologyBuild
-from dhis2w_fhir.r4 import FhirBase
 from dhis2w_fhir.resources.organisation_units.documents import OrganisationUnitTerminologyBuild
 from dhis2w_fhir.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,
 )
+from dhis2w_fhir_engine.r4.resources import FhirBase
 
 _SOURCE_DIRECTORY = Path(__file__).parent / "data" / "organisation-unit-sources"
 _GOLDEN_DIRECTORY = Path(__file__).parent / "data" / "r4"

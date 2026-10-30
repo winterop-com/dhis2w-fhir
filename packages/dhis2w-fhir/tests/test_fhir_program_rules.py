@@ -17,7 +17,6 @@ from dhis2w_client.generated.v41.enums import ProgramRuleActionType as ProgramRu
 from dhis2w_client.generated.v43.enums import ProgramRuleActionType as ProgramRuleActionTypeV42
 from dhis2w_client.generated.v43.enums import ProgramRuleActionType as ProgramRuleActionTypeV43
 from dhis2w_fhir import (
-    AttributeCodeIndex,
     GenerateConfig,
     QuestionnaireItemIn,
     QuestionnaireSourceIn,
@@ -29,8 +28,6 @@ from dhis2w_fhir.conversion.artifacts import CompiledArtifacts, program_rule_nam
 from dhis2w_fhir.conversion.schemas import CodedAnswerMode, ConversionNaming
 from dhis2w_fhir.forward_records import ForwardImportIssue, ForwardImportOutcome
 from dhis2w_fhir.foundation.schemas import PROGRAM_RULE_ACTION_DEFINITIONS
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.r4 import Questionnaire
 from dhis2w_fhir.resources.option_sets.builders import option_concept_code_index
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir.resources.questionnaires.program_rules import (
@@ -44,6 +41,9 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     ProgramRuleVariableIn,
 )
 from dhis2w_fhir.service import ForwardOutcome, ForwardOutcomeKind, ForwardReport
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.r4.resources import Questionnaire
 
 _CANONICAL = "http://example.org/fhir"
 _PROGRAM_RULE_URL = f"{_CANONICAL}/StructureDefinition/d2-program-rule"

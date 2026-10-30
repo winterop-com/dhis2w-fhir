@@ -13,8 +13,8 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.tree import Tree
 
-from ..engine.exceptions import FHIRPathError
-from ..engine.fhirpath import FHIRPathEvaluator, unwrap_primitives
+from ..evaluation.exceptions import FHIRPathError
+from ..evaluation.fhirpath import FHIRPathEvaluator, unwrap_primitives
 from ..generated.fhirpath.fhirpathLexer import fhirpathLexer
 from ..generated.fhirpath.fhirpathParser import fhirpathParser
 

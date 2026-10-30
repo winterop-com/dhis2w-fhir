@@ -5,8 +5,8 @@ from typing import Any
 
 import pytest
 
-from dhis2w_fhir_engine.engine.context import EvaluationContext
-from dhis2w_fhir_engine.engine.fhirpath.functions.comparison import (
+from dhis2w_fhir_engine.evaluation.context import EvaluationContext
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.comparison import (
     _compare_datetime_to_precision,
     _compare_time_to_precision,
     _get_datetime_precision,
@@ -17,15 +17,15 @@ from dhis2w_fhir_engine.engine.fhirpath.functions.comparison import (
     equivalent,
     fn_comparable,
 )
-from dhis2w_fhir_engine.engine.fhirpath.functions.filtering import (
+from dhis2w_fhir_engine.evaluation.fhirpath.functions.filtering import (
     _get_type_name,
     fn_as,
     fn_is,
     fn_of_type,
     fn_type,
 )
-from dhis2w_fhir_engine.engine.fhirpath.visitor import _PrimitiveWithExtension
-from dhis2w_fhir_engine.engine.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
+from dhis2w_fhir_engine.evaluation.fhirpath.visitor import _PrimitiveWithExtension
+from dhis2w_fhir_engine.evaluation.types import FHIRDate, FHIRDateTime, FHIRTime, Quantity
 
 
 @pytest.fixture

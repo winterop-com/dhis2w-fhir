@@ -17,9 +17,7 @@ from dhis2w_fhir import (
     build_category_decomposition,
     build_data_dictionary_documents,
 )
-from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.config import NamingConfig
-from dhis2w_fhir.r4 import CodeSystem
 from dhis2w_fhir.resources.categories.schemas import CategoryIn
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn
 from dhis2w_fhir.resources.questionnaires.schemas import (
@@ -29,6 +27,8 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireItemIn,
     QuestionnaireSourceIn,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.r4.resources import CodeSystem
 
 _CANONICAL = "http://localhost:8080/fhir"
 

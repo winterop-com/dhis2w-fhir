@@ -33,17 +33,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from dhis2w_fhir import response_status_code, zoned_date_time
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir import response_status_code
+from dhis2w_fhir.resources.questionnaires.schemas import FormKind
+from dhis2w_fhir_engine.r4.primitives import is_fhir_date_time, zoned_date_time
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     Identifier,
     Meta,
     QuestionnaireResponse,
     QuestionnaireResponseItem,
     Reference,
-    is_fhir_date_time,
 )
-from dhis2w_fhir.resources.questionnaires.schemas import FormKind
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from dhis2w_fhir_serve.capture.index import CaptureIndex, CaptureIndexCache, UnreadableQuestionnaireError

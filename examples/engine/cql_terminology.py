@@ -28,7 +28,7 @@ from _bundle import (
     clinic_bundle,
 )
 from dhis2w_fhir_engine import CQLEvaluator
-from dhis2w_fhir_engine.engine.cql import CQLCode
+from dhis2w_fhir_engine.evaluation.cql import CQLCode
 from dhis2w_fhir_engine.r4 import (
     BundleDataSource,
     InMemoryTerminologyService,

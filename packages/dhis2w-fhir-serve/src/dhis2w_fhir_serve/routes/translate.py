@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir.r4 import Coding, Parameters, ParametersParameter
+from dhis2w_fhir_engine.r4.resources import Coding, Parameters, ParametersParameter
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict
 from starlette.datastructures import QueryParams
@@ -29,7 +29,7 @@ from dhis2w_fhir_serve.errors import FHIR_JSON_MEDIA_TYPE, BadSearchError
 from dhis2w_fhir_serve.routes.context import serve_context
 
 if TYPE_CHECKING:
-    from dhis2w_fhir.r4 import ConceptMap
+    from dhis2w_fhir_engine.r4.resources import ConceptMap
 
 #: The path the operation is served at; `capability.py` declares it by the name R4 gives it.
 TRANSLATE_PATH = "/ConceptMap/$translate"

@@ -18,11 +18,7 @@ from dhis2w_fhir import (
     build_organisation_unit_instances,
     build_questionnaire_artifacts,
 )
-from dhis2w_fhir.attributes import AttributeCodeIndex
 from dhis2w_fhir.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS
-from dhis2w_fhir.i18n import TranslationIn
-from dhis2w_fhir.names import markdown_text
-from dhis2w_fhir.period.schemas import PERIOD_TYPE_DEFINITIONS
 from dhis2w_fhir.resources.attribute_combos.restrictions import (
     AttributeOptionRestrictions,
     CategoryOptionValidity,
@@ -48,6 +44,10 @@ from dhis2w_fhir.resources.questionnaires.schemas import (
     QuestionnaireSectionIn,
     QuestionnaireSourceIn,
 )
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.i18n import TranslationIn
+from dhis2w_fhir_engine.facade.names import markdown_text
+from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
 from translated_pages import baseline_pages, render_pages, translated_pages_input
 
 _CANONICAL = "http://example.org/fhir"

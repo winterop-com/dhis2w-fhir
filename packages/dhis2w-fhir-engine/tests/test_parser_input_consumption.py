@@ -7,9 +7,9 @@ evaluating a prefix of itself while a diagnostic goes to stderr.
 
 import pytest
 
-from dhis2w_fhir_engine.engine.cql import CQLEvaluator
-from dhis2w_fhir_engine.engine.exceptions import CQLError, FHIRPathError
-from dhis2w_fhir_engine.engine.fhirpath import FHIRPathEvaluator
+from dhis2w_fhir_engine.evaluation.cql import CQLEvaluator
+from dhis2w_fhir_engine.evaluation.exceptions import CQLError, FHIRPathError
+from dhis2w_fhir_engine.evaluation.fhirpath import FHIRPathEvaluator
 
 
 @pytest.fixture

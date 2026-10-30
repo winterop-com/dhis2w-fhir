@@ -1,7 +1,7 @@
 """CQL libraries shipped with the FHIR R4 binding, chiefly FHIRHelpers 4.0.1."""
 
 from ...binding import FhirVersionBinding
-from ...engine.cql.library_resolver import InMemoryLibraryResolver
+from ...evaluation.cql.library_resolver import InMemoryLibraryResolver
 
 
 def builtin_resolver(binding: FhirVersionBinding) -> InMemoryLibraryResolver:

@@ -22,7 +22,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, Literal
 
-from dhis2w_fhir.r4 import CodeSystem, CodeSystemConcept
+from dhis2w_fhir_engine.r4.resources import CodeSystem, CodeSystemConcept
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 
 from dhis2w_fhir_serve.store import ResourceStore

@@ -15,8 +15,8 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.tree import Tree
 
-from ..engine.cql import CQLEvaluator
-from ..engine.exceptions import CQLError
+from ..evaluation.cql import CQLEvaluator
+from ..evaluation.exceptions import CQLError
 from ..generated.cql.cqlLexer import cqlLexer
 from ..generated.cql.cqlParser import cqlParser
 from ..r4 import MeasureEvaluator

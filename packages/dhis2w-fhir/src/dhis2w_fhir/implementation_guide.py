@@ -23,10 +23,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
+from dhis2w_fhir_engine.r4.resources import Reference
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from dhis2w_fhir.conversion.artifacts import COMPILED_RESOURCES_RELATIVE_PATH
-from dhis2w_fhir.r4 import Reference
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

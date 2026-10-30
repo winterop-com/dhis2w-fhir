@@ -135,9 +135,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict
-
-from dhis2w_fhir.coded import (
+from dhis2w_fhir_engine.facade.coded import (
     CodeCollision,
     carries_spaced_code,
     carries_substitutable_code,
@@ -145,13 +143,8 @@ from dhis2w_fhir.coded import (
     published_codes,
     substituted_code,
 )
-from dhis2w_fhir.config import HostileNamePosture
-from dhis2w_fhir.foundation.attribute_values import (
-    ATTRIBUTE_CODE_SUB_EXTENSION,
-    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
-)
-from dhis2w_fhir.i18n import SUBSTITUTED_TRANSLATION_PROPERTIES, TranslationIn, name_translations
-from dhis2w_fhir.names import (
+from dhis2w_fhir_engine.facade.i18n import SUBSTITUTED_TRANSLATION_PROPERTIES, TranslationIn, name_translations
+from dhis2w_fhir_engine.facade.names import (
     FHIR_ID_MAX_LENGTH,
     StemSubject,
     describe_code_defect,
@@ -159,7 +152,22 @@ from dhis2w_fhir.names import (
     is_valid_fhir_code,
     usable_code_stem,
 )
-from dhis2w_fhir.r4 import DEFAULT_SUBJECT_RESOURCE_TYPE
+from dhis2w_fhir_engine.facade.substitution import (
+    XML_EXPRESSIBLE_CONTROL_CHARACTERS,
+    control_character_name,
+    first_control_character,
+    first_invisible_character,
+    invisible_character_name,
+    substitute_build_aborting_text,
+)
+from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
+from pydantic import BaseModel, ConfigDict
+
+from dhis2w_fhir.config import HostileNamePosture
+from dhis2w_fhir.foundation.attribute_values import (
+    ATTRIBUTE_CODE_SUB_EXTENSION,
+    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
+)
 from dhis2w_fhir.resources.categories.builders import max_category_slug_length
 from dhis2w_fhir.resources.option_sets.builders import max_slug_length
 from dhis2w_fhir.resources.option_sets.schemas import OptionIn, OptionSetIn
@@ -174,14 +182,6 @@ from dhis2w_fhir.validation.schemas import (
     SurfaceCodeCoverage,
     ValidationFinding,
     ValidationScope,
-)
-from dhis2w_fhir.validation.substitution import (
-    XML_EXPRESSIBLE_CONTROL_CHARACTERS,
-    control_character_name,
-    first_control_character,
-    first_invisible_character,
-    invisible_character_name,
-    substitute_build_aborting_text,
 )
 
 if TYPE_CHECKING:

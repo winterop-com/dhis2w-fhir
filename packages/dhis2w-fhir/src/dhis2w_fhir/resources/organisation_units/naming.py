@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.names import join_id_tokens
+from dhis2w_fhir_engine.r4.resources import Coding
 from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir.foundation.schemas import FoundationNaming
-from dhis2w_fhir.names import join_id_tokens
-from dhis2w_fhir.r4 import Coding
 from dhis2w_fhir.resources.organisation_units.schemas import OrganisationUnitLevelNames
 
 if TYPE_CHECKING:

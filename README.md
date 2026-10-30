@@ -6,7 +6,7 @@ FHIR for DHIS2, as one [dhis2w](https://github.com/winterop-com/dhis2w) plugin p
 | --- | --- |
 | [`dhis2w-fhir`](packages/dhis2w-fhir) | The `d2w fhir` commands: scaffold a FHIR Implementation Guide project, validate an instance's codes, generate FSH from DHIS2 metadata, and forward captures back into DHIS2. |
 | [`dhis2w-fhir-serve`](packages/dhis2w-fhir-serve) | The FHIR facade behind `d2w fhir serve`, with the capture UI built into its wheel. |
-| [`dhis2w-fhir-engine`](packages/dhis2w-fhir-engine) | FHIRPath, CQL and ELM evaluation and quality measures over FHIR data, with no DHIS2 dependency. |
+| [`dhis2w-fhir-engine`](packages/dhis2w-fhir-engine) | What a FHIR-to-DHIS2 service installs: FHIRPath, CQL and ELM evaluation with quality measures, the R4 models, and the facade library. |
 
 `dhis2w-fhir` registers `d2w fhir` through the `dhis2w.plugins.v1` entry point, so installing it
 next to `dhis2w-cli` is all it takes.

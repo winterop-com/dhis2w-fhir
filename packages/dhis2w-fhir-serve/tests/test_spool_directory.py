@@ -2,7 +2,7 @@
 
 The key belongs to `[serve]` because the server is what writes the tree, and `d2w fhir forward`
 follows the project's declaration rather than carrying one of its own. Both sides resolve it through
-`dhis2w_fhir.spool.resolve_spool_root`, so the agreement is a shared function rather than two
+`dhis2w_fhir_engine.facade.spool.resolve_spool_root`, so the agreement is a shared function rather than two
 implementations that happen to match today - which is what the last test here holds.
 """
 
@@ -17,7 +17,7 @@ from typing import Any
 import httpx2
 import pytest
 from dhis2w_fhir.config import FhirProject
-from dhis2w_fhir.spool import SPOOL_RELATIVE_PATH, SpoolLayout, SpoolState
+from dhis2w_fhir_engine.facade.spool import SPOOL_RELATIVE_PATH, SpoolLayout, SpoolState
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.settings import ServeSettings
 from dhis2w_fhir_serve.spool import ResponseLifecycle, ResponseSpool
@@ -123,7 +123,7 @@ async def test_a_receipt_is_a_whole_envelope_wherever_it_lands(
 def test_the_server_and_the_forwarder_resolve_one_directory(tmp_path: Path, spool_dir: str) -> None:
     """The invariant the whole key rests on: a receipt this server writes is one that drain finds.
 
-    Two packages hold the layout under the root - the duplication `dhis2w_fhir.spool` explains - so
+    Two packages hold the layout under the root - the duplication `dhis2w_fhir_engine.facade.spool` explains - so
     the one thing that cannot be duplicated is where the root is. A disagreement here is a receipt
     nothing ever forwards, which is the failure a capture surface must not have.
     """

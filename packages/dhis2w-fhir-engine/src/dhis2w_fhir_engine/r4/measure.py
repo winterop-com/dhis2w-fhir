@@ -17,16 +17,16 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..engine.elm.exceptions import ELMError
-from ..engine.exceptions import FHIRPathError
-from ..engine.units.ucum import UCUMError
+from ..evaluation.elm.exceptions import ELMError
+from ..evaluation.exceptions import FHIRPathError
+from ..evaluation.units.ucum import UCUMError
 from ..ingest import ResourceInput, as_resource_dict, as_resource_dicts
 from .resources import Extension, OperationOutcome, OperationOutcomeIssue, Reference
 
 if TYPE_CHECKING:
-    from ..engine.cql.context import DataSource
-    from ..engine.cql.evaluator import CQLEvaluator
-    from ..engine.cql.library import CQLLibrary
+    from ..evaluation.cql.context import DataSource
+    from ..evaluation.cql.evaluator import CQLEvaluator
+    from ..evaluation.cql.library import CQLLibrary
 
 EVALUATION_ERROR_EXTENSION_URL = (
     "https://winterop-com.github.io/dhis2w/fhir/StructureDefinition/measure-evaluation-errors"
@@ -412,7 +412,7 @@ class MeasureEvaluator:
         if cql_evaluator:
             self._evaluator = cql_evaluator
         else:
-            from ..engine.cql.evaluator import CQLEvaluator
+            from ..evaluation.cql.evaluator import CQLEvaluator
 
             self._evaluator = CQLEvaluator(data_source=data_source)
 

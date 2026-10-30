@@ -38,7 +38,7 @@ from _fixture import conversion_context, form_canonical, person_form_id
 from _runner import run_example
 from dhis2w_client import generate_uid
 from dhis2w_fhir import translate_response
-from dhis2w_fhir.r4 import (
+from dhis2w_fhir_engine.r4.resources import (
     Extension,
     Identifier,
     QuestionnaireResponse,
