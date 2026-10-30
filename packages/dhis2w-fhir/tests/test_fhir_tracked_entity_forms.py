@@ -21,26 +21,25 @@ import json
 from pathlib import Path
 from typing import Any
 
-from dhis2w_fhir import (
-    build_data_dictionary_documents,
-    build_questionnaire_artifacts,
-    build_questionnaire_documents,
-    option_set_identities,
-)
+from dhis2w_fhir import build_questionnaire_artifacts
 from dhis2w_fhir.resources.examples.builders import build_synthetic_responses
-from dhis2w_fhir.resources.questionnaires.assignments import AssignmentPlan
-from dhis2w_fhir.resources.questionnaires.builders import (
-    TRACKED_ENTITY_TYPE_DIRECTORY,
-    collect_referenced_objects,
-    question_code_system,
-    question_entity_level,
-    search_context_declarations,
-)
+from dhis2w_fhir.resources.questionnaires.builders import TRACKED_ENTITY_TYPE_DIRECTORY, question_code_system
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import FhirProjectConfig, GenerateConfig, IgConfig
 from dhis2w_fhir_engine.facade.foundation.response_profiles import build_response_profile_declarations
 from dhis2w_fhir_engine.facade.foundation.schemas import FoundationNaming
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import AssignmentPlan
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import (
+    build_data_dictionary_documents,
+    build_questionnaire_documents,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.forms import (
+    collect_referenced_objects,
+    question_entity_level,
+    search_context_declarations,
+)
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CAPTURED_FORM_KINDS,
     FORM_KIND_PROFILES,

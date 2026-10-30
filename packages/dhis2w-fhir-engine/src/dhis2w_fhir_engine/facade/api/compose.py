@@ -23,10 +23,10 @@ from dhis2w_fhir_engine.facade.api.routes.mounting import (
 )
 from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime, server_version
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.assembly import Facade

@@ -11,8 +11,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pydantic import BaseModel, ConfigDict, Field
+
+from dhis2w_fhir_engine.facade.foundation.documents import build_terminology_pair
 from dhis2w_fhir_engine.facade.i18n import name_translations
 from dhis2w_fhir_engine.facade.names import flatten_whitespace
+from dhis2w_fhir_engine.facade.resources.organisation_units.naming import OrganisationUnitNaming
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     ORGANISATION_UNIT_CONCEPT_PROPERTIES,
     ORGANISATION_UNIT_LEVEL_TERMINOLOGY,
@@ -30,10 +34,6 @@ from dhis2w_fhir_engine.r4.resources import (
     CodeSystemProperty,
     ValueSet,
 )
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.foundation.documents import build_terminology_pair
-from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

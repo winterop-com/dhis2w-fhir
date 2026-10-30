@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from dhis2w_fhir_engine.facade.i18n import TranslationIn, name_translations
 from dhis2w_fhir_engine.facade.names import quote
+from dhis2w_fhir_engine.facade.resources.organisation_units.naming import OrganisationUnitNaming
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     ORGANISATION_UNIT_CONCEPT_PROPERTIES,
     ORGANISATION_UNIT_LEVEL_TERMINOLOGY,
@@ -23,8 +24,6 @@ from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from dhis2w_fhir_engine.facade.writer import FshArtifact
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

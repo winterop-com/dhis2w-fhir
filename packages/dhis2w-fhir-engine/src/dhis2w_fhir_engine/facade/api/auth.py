@@ -83,7 +83,7 @@ from dhis2w_fhir_engine.facade.config import ServeAuth
 from dhis2w_fhir_engine.facade.refusals import ServeError
 
 if TYPE_CHECKING:
-    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+    from dhis2w_fhir_engine.facade.settings import ServeSettings
 
 #: The request header every posture reads, and the two schemes the DHIS2 posture replays.
 AUTHORIZATION_HEADER = "authorization"

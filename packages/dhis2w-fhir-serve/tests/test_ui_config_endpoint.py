@@ -17,10 +17,10 @@ from collections.abc import AsyncIterator
 import httpx2
 import pytest
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import DEFAULT_BASEMAP_TEMPLATE, BasemapSource, FhirProject, TrackedEntitiesConfig
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import load_compiled_store
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.routes.uiconfig import (

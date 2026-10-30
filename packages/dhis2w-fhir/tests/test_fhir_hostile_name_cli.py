@@ -15,7 +15,7 @@ import pytest
 from dhis2w_cli.main import build_app
 from dhis2w_core.cli_errors import CliUserError
 from dhis2w_fhir import GenerateFullReport, GenerateReport
-from dhis2w_fhir.hostile_names import HostileNameGate
+from dhis2w_fhir_engine.facade.hostile_names import HostileNameGate
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
 from typer.testing import CliRunner
 

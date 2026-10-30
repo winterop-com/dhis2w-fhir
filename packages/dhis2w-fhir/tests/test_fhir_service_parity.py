@@ -14,6 +14,7 @@ import httpx
 import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, service
+from dhis2w_fhir_engine.facade import live_inputs
 from dhis2w_fhir_engine.facade.config import load_project
 from dhis2w_fhir_engine.facade.writer import GENERATED_HEADER, GENERATED_MARKDOWN_HEADER, clean_generated_files
 
@@ -699,7 +700,7 @@ async def test_generate_pages_spares_the_hand_authored_index(
 def test_polygon_centroid_of_a_square() -> None:
     """A square ring's area-weighted centroid is its middle."""
     ring = [[0, 0], [4, 0], [4, 2], [0, 2], [0, 0]]
-    centroid = service._polygon_centroid("Polygon", [ring], [])
+    centroid = live_inputs._polygon_centroid("Polygon", [ring], [])
     assert centroid.longitude == 2.0
     assert centroid.latitude == 1.0
 
@@ -707,7 +708,7 @@ def test_polygon_centroid_of_a_square() -> None:
 def test_polygon_centroid_of_an_l_shape_is_not_the_bounding_box_midpoint() -> None:
     """An L-shaped ring (area 6) pulls the shoelace centroid off the bounding-box midpoint (2.0, 1.5)."""
     ring = [[0, 0], [4, 0], [4, 1], [1, 1], [1, 3], [0, 3], [0, 0]]
-    centroid = service._polygon_centroid("Polygon", [ring], [])
+    centroid = live_inputs._polygon_centroid("Polygon", [ring], [])
     assert centroid.longitude == 1.5
     assert centroid.latitude == 1.0
 
@@ -716,7 +717,7 @@ def test_polygon_centroid_uses_the_largest_outer_ring() -> None:
     """A MultiPolygon takes the centroid of the outer ring with the largest absolute area."""
     small = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]
     large = [[10, 10], [14, 10], [14, 12], [10, 12], [10, 10]]
-    centroid = service._polygon_centroid("MultiPolygon", [[small], [large]], [])
+    centroid = live_inputs._polygon_centroid("MultiPolygon", [[small], [large]], [])
     assert centroid.longitude == 12.0
     assert centroid.latitude == 11.0
 
@@ -724,7 +725,7 @@ def test_polygon_centroid_uses_the_largest_outer_ring() -> None:
 def test_degenerate_ring_falls_back_to_the_vertex_mean() -> None:
     """A zero-area ring has no shoelace centroid, so its vertices are averaged."""
     ring = [[0, 0], [2, 2], [4, 4], [0, 0]]
-    centroid = service._polygon_centroid("Polygon", [ring], [])
+    centroid = live_inputs._polygon_centroid("Polygon", [ring], [])
     assert centroid.longitude == 1.5
     assert centroid.latitude == 1.5
 

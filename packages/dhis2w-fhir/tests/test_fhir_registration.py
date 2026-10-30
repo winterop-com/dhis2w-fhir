@@ -18,24 +18,26 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir import (
-    build_data_dictionary_documents,
-    build_questionnaire_artifacts,
-    build_questionnaire_documents,
-    option_set_identities,
+from dhis2w_fhir import build_questionnaire_artifacts
+from dhis2w_fhir.resources.questionnaires.builders import REGISTRATION_FILE_STEM, question_code_system
+from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
+from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import (
+    assignment_container,
+    assignment_container_uid,
 )
-from dhis2w_fhir.resources.questionnaires.assignments import assignment_container, assignment_container_uid
-from dhis2w_fhir.resources.questionnaires.builders import (
-    REGISTRATION_FILE_STEM,
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import (
+    build_data_dictionary_documents,
+    build_questionnaire_documents,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.forms import (
     bound_option_set_uids,
     form_collects_incident_date,
     grouping_identifiers,
-    question_code_system,
     question_entity_level,
 )
-from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
-from dhis2w_fhir_engine.facade.config import GenerateConfig
-from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIn
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CAPTURED_FORM_KINDS,
     FORM_KIND_PROFILES,

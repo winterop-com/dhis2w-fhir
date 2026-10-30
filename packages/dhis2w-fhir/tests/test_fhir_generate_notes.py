@@ -37,44 +37,64 @@ _NOTE_CONSTRUCTORS = frozenset({"generate_note", "aggregate_generate_note"})
 #: and recorded here, and a note that quietly changes kind fails the run. Adding a line is the point,
 #: not an obstacle - it is where the author of a new note decides whether validate already says it.
 _EMISSION_INVENTORY: dict[str, dict[GenerateNoteCategory, int]] = {
-    "hostile_names.py": {GenerateNoteCategory.NAME_SUBSTITUTION: 1, GenerateNoteCategory.CODE_SUBSTITUTION: 1},
-    "names.py": {GenerateNoteCategory.STEM_FALLBACK: 1},
+    "hostile_names.py": {
+        GenerateNoteCategory.CODE_SUBSTITUTION: 1,
+        GenerateNoteCategory.NAME_SUBSTITUTION: 1,
+    },
+    "live_inputs.py": {
+        GenerateNoteCategory.FORM_STRUCTURE: 2,
+        GenerateNoteCategory.INSTANCE_DATA_GAP: 3,
+        GenerateNoteCategory.REFUSED_FORM: 1,
+        GenerateNoteCategory.SELECTION_CLOSURE: 1,
+        GenerateNoteCategory.SELECTION_MISMATCH: 1,
+    },
+    "names.py": {
+        GenerateNoteCategory.STEM_FALLBACK: 1,
+    },
+    "resources/categories/decomposition.py": {
+        GenerateNoteCategory.SELECTION_GAP: 1,
+    },
     "resources/examples/builders.py": {
         GenerateNoteCategory.ANSWER_FALLBACK: 1,
         GenerateNoteCategory.INSTANCE_DATA_GAP: 5,
         GenerateNoteCategory.SELECTION_GAP: 1,
         GenerateNoteCategory.SKIPPED_QUESTION: 8,
     },
-    "resources/categories/decomposition.py": {GenerateNoteCategory.SELECTION_GAP: 1},
-    "resources/examples/documents.py": {GenerateNoteCategory.SELECTION_GAP: 1},
+    "resources/examples/documents.py": {
+        GenerateNoteCategory.SELECTION_GAP: 1,
+    },
     "resources/option_sets/builders.py": {
         GenerateNoteCategory.CODE_COLLISION: 2,
         GenerateNoteCategory.CODE_FALLBACK: 1,
     },
-    "resources/organisation_units/organization.py": {GenerateNoteCategory.SELECTION_GAP: 1},
-    "resources/questionnaires/assignments.py": {GenerateNoteCategory.SELECTION_GAP: 1},
+    "resources/organisation_units/instances.py": {
+        GenerateNoteCategory.SELECTION_GAP: 1,
+    },
+    "resources/questionnaires/assignments.py": {
+        GenerateNoteCategory.SELECTION_GAP: 1,
+    },
     "resources/questionnaires/builders.py": {
         GenerateNoteCategory.REFUSED_FORM: 1,
         GenerateNoteCategory.SELECTION_GAP: 1,
     },
-    "resources/questionnaires/documents.py": {GenerateNoteCategory.SELECTION_GAP: 1},
+    "resources/questionnaires/documents.py": {
+        GenerateNoteCategory.SELECTION_GAP: 1,
+    },
     "resources/questionnaires/program_rules.py": {
         GenerateNoteCategory.FORM_STRUCTURE: 1,
         GenerateNoteCategory.SKIPPED_QUESTION: 1,
     },
-    "resources/questionnaires/schemas.py": {GenerateNoteCategory.SELECTION_GAP: 1},
+    "resources/questionnaires/schemas.py": {
+        GenerateNoteCategory.SELECTION_GAP: 1,
+    },
     "service.py": {
         GenerateNoteCategory.BUILD_COST: 1,
         GenerateNoteCategory.COMPILE_REMOVED: 1,
         GenerateNoteCategory.EMPTY_SELECTION: 4,
-        GenerateNoteCategory.FORM_STRUCTURE: 2,
-        GenerateNoteCategory.INSTANCE_DATA_GAP: 4,
-        GenerateNoteCategory.REFUSED_FORM: 1,
+        GenerateNoteCategory.INSTANCE_DATA_GAP: 1,
         GenerateNoteCategory.REGISTRY_DEPENDENCY: 2,
-        GenerateNoteCategory.SELECTION_CLOSURE: 1,
-        GenerateNoteCategory.SELECTION_GAP: 5,
         GenerateNoteCategory.SCAFFOLD_DRIFT: 1,
-        GenerateNoteCategory.SELECTION_MISMATCH: 1,
+        GenerateNoteCategory.SELECTION_GAP: 5,
     },
 }
 

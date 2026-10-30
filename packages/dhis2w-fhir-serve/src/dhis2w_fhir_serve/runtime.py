@@ -46,16 +46,17 @@ from dhis2w_client import Dhis2Client
 from dhis2w_fhir_engine.facade.api.metadata import build_served_metadata
 from dhis2w_fhir_engine.facade.api.passthrough import open_pass_through_client
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, facade_provenance, server_version
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, load_project
+from dhis2w_fhir_engine.facade.live import build_live_store
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, attach_builtin_conformance, load_compiled_store
 
 from dhis2w_fhir_serve.auth_setup import open_jwt_verifier
-from dhis2w_fhir_serve.live import build_live_store, open_live_client
+from dhis2w_fhir_serve.live import open_live_client
 from dhis2w_fhir_serve.projection.factory import build_projection_store
 
 if TYPE_CHECKING:

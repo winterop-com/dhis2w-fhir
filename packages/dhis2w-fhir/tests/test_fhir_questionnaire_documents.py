@@ -11,16 +11,16 @@ import json
 from typing import Any
 
 import pytest
-from dhis2w_fhir import (
-    PROGRAM_IDENTIFIER_SEGMENT,
-    build_data_dictionary_documents,
-    build_foundation_artifacts,
-    build_questionnaire_documents,
-    option_set_identities,
-)
+from dhis2w_fhir import build_foundation_artifacts
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import (
+    build_data_dictionary_documents,
+    build_questionnaire_documents,
+)
+from dhis2w_fhir_engine.facade.resources.questionnaires.forms import PROGRAM_IDENTIFIER_SEGMENT
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,
     ITEM_TYPES_BY_VALUE_TYPE,

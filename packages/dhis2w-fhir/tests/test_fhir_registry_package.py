@@ -26,8 +26,6 @@ from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, service
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts, build_registry_foundation_artifacts
 from dhis2w_fhir.resources.examples.builders import location_reference
-from dhis2w_fhir.resources.organisation_units.naming import location_profile_reference
-from dhis2w_fhir.resources.organisation_units.organization import plan_organisation_unit_stems
 from dhis2w_fhir.resources.pages.builders import PAGES_DIRECTORY, build_page_artifacts, build_registry_page_artifacts
 from dhis2w_fhir.resources.pages.schemas import PagesIn
 from dhis2w_fhir.scaffold import build_scaffold_files
@@ -40,6 +38,8 @@ from dhis2w_fhir_engine.facade.names import StemResolution, StemSubject
 from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
 from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
 from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import plan_organisation_unit_stems
+from dhis2w_fhir_engine.facade.resources.organisation_units.naming import location_profile_reference
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitSelection,

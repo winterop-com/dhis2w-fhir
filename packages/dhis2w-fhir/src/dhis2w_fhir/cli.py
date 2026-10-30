@@ -40,6 +40,7 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     UNTIMELY_ATTRIBUTE_OPTION_COMBO_REMEDY,
     UNUSABLE_ATTRIBUTE_OPTION_COMBO_REMEDY,
 )
+from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import EMPTY_ASSIGNMENT_REMEDY
 from dhis2w_fhir_engine.facade.spool import MALFORMED_RESPONSES_RELATIVE_PATH
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
 from dhis2w_fhir_serve.settings import resolve_serve_settings
@@ -48,24 +49,23 @@ from typer.core import TyperGroup
 
 from dhis2w_fhir import DEFAULT_LOAD_SET_PER_TARGET, DEFAULT_SUSHI_TIMEOUT_SECONDS, GenerateReport
 from dhis2w_fhir.doctor import DEFAULT_ORACLE_SAMPLES
-from dhis2w_fhir.resources.questionnaires.assignments import EMPTY_ASSIGNMENT_REMEDY
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
     from dhis2w_core.progress import ProgressReporter
+    from dhis2w_fhir_engine.facade.config import FhirProject, ProjectionConfig
+    from dhis2w_fhir_engine.facade.forward import ForwardOutcome, ForwardReport
+    from dhis2w_fhir_engine.facade.hostile_names import HostileNameGate, HostileRewrite
+    from dhis2w_fhir_engine.facade.notes import GenerateNote
+    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
 
     # Type-only, exactly as `d2w fhir serve` and `d2w fhir sync` import the package itself: the serve
     # extra may not be installed, and a name used in an annotation costs no import at runtime.
-    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
-    from dhis2w_fhir_engine.facade.config import FhirProject, ProjectionConfig
-    from dhis2w_fhir_engine.facade.forward import ForwardOutcome, ForwardReport
-    from dhis2w_fhir_engine.facade.notes import GenerateNote
-    from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import RegistryDependency
+    from dhis2w_fhir_engine.facade.settings import ServeSettings
     from dhis2w_fhir_serve import SyncReport
 
     from dhis2w_fhir.doctor import DoctorReport
-    from dhis2w_fhir.hostile_names import HostileNameGate, HostileRewrite
     from dhis2w_fhir.scaffold.project_templates import ProjectTemplate
     from dhis2w_fhir.scaffold.schemas import ScaffoldReport
     from dhis2w_fhir.service import (
@@ -224,7 +224,7 @@ def _generate_decisions(ctx: typer.Context) -> GenerateDecisions:
 
 def _hostile_name_gate(ctx: typer.Context, project: FhirProject) -> HostileNameGate:
     """The gate this run screens DHIS2 names through: the flag's answer, else the project's, else a question."""
-    from dhis2w_fhir.hostile_names import project_gate
+    from dhis2w_fhir_engine.facade.hostile_names import project_gate
 
     return project_gate(project, override=_generate_decisions(ctx).hostile_names, confirmation=_confirm_hostile_names)
 
@@ -3783,7 +3783,7 @@ def sync_command(
     `\[serve.projection] store` - a project that names none is refused here, naming the key.
     """
     try:
-        from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+        from dhis2w_fhir_engine.facade.settings import ServeSettings
         from dhis2w_fhir_serve import SYNC_STEPS
     except ImportError as error:
         raise LookupError(_serve_package_missing("sync")) from error

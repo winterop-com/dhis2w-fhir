@@ -36,6 +36,10 @@ from dhis2w_fhir_engine.facade.names import StemResolution, code_or_uid, flatten
 from dhis2w_fhir_engine.facade.period.parser import parse_period
 from dhis2w_fhir_engine.facade.period.recent import recent_periods
 from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import (
+    attribute_combo_identities,
+    attribute_combo_sources,
+)
 from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     AttributeOptionRestrictions,
     CategoryOptionValidity,
@@ -44,7 +48,16 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
 from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboIdentity
 from dhis2w_fhir_engine.facade.resources.examples.schemas import SyntheticPlacement
 from dhis2w_fhir_engine.facade.resources.examples.synthetic import STATUS_BY_EVENT_STATUS
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_code_fallback, option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import ConceptAssignmentPlan
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import (
+    organisation_unit_stem_subjects,
+    plan_organisation_unit_stems,
+)
+from dhis2w_fhir_engine.facade.resources.organisation_units.naming import (
+    OrganisationUnitNaming,
+    location_profile_reference,
+)
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     FORM_KIND_PROFILES,
     ITEM_TYPES_BY_VALUE_TYPE,
@@ -64,17 +77,10 @@ from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescap
 from pydantic import BaseModel, ConfigDict, Field
 
 from dhis2w_fhir.foundation.artifacts import build_naming_system_declarations
-from dhis2w_fhir.resources.attribute_combos.builders import attribute_combo_identities, attribute_combo_sources
 from dhis2w_fhir.resources.examples.builders import (
     MULTI_VALUE_TYPE,
     answer_element,
     example_attribute_combo_assignments,
-)
-from dhis2w_fhir.resources.option_sets.builders import option_set_code_fallback, option_set_identities
-from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming, location_profile_reference
-from dhis2w_fhir.resources.organisation_units.organization import (
-    organisation_unit_stem_subjects,
-    plan_organisation_unit_stems,
 )
 from dhis2w_fhir.resources.pages.schemas import (
     PERIOD_EXAMPLE_REFERENCE_DATE,

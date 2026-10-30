@@ -8,7 +8,7 @@ publishes is passed over, because nothing in the QR -> DHIS2 direction consults 
 Two ways a guide reaches it. `load_compiled_artifacts` reads the two trees `d2w fhir serve` serves as
 one: `ig/fsh-generated/resources`, which SUSHI compiled from the emitted FSH, and `ig/input/resources`,
 the predefined registry, terminology, and ConceptMap tree the generate targets wrote as JSON. A project
-that has never run SUSHI has neither, and `dhis2w_fhir.service.fetch_live_artifacts` builds the same
+that has never run SUSHI has neither, and `dhis2w_fhir_engine.facade.live_inputs.fetch_live_artifacts` builds the same
 documents off the instance instead - the same builders `d2w fhir serve --live` answers reads from - so
 a capture UI that needed no build step drains through a forward that needs none either.
 

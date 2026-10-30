@@ -20,15 +20,7 @@ from __future__ import annotations
 import datetime
 
 import pytest
-from dhis2w_fhir import (
-    build_attribute_combo_artifacts,
-    build_attribute_combo_concept_maps,
-    build_example_documents,
-    build_questionnaire_documents,
-    option_set_identities,
-)
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, build_option_set_concept_maps
-from dhis2w_fhir.resources.questionnaires.builders import source_items
+from dhis2w_fhir import build_example_documents
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig
 from dhis2w_fhir_engine.facade.conversion.context import build_conversion_context, build_option_table
@@ -47,9 +39,20 @@ from dhis2w_fhir_engine.facade.conversion.schemas import (
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response, translate_responses
 from dhis2w_fhir_engine.facade.conversion.values import decimal_wire_value, wall_clock_reading
 from dhis2w_fhir_engine.facade.period.parser import parse_period
+from dhis2w_fhir_engine.facade.resources.attribute_combos.builders import (
+    build_attribute_combo_artifacts,
+    build_attribute_combo_concept_maps,
+)
 from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import AttributeComboPlan
 from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import (
+    build_option_set_artifacts,
+    build_option_set_concept_maps,
+    option_set_identities,
+)
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_questionnaire_documents
+from dhis2w_fhir_engine.facade.resources.questionnaires.forms import source_items
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,

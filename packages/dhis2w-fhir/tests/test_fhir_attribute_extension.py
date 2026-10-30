@@ -21,12 +21,12 @@ import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, service
 from dhis2w_fhir.foundation.artifacts import build_foundation_artifacts
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts
-from dhis2w_fhir.resources.organisation_units.organization import build_organisation_unit_instances
 from dhis2w_fhir.resources.questionnaires.builders import build_questionnaire_artifacts
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig, load_project
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import build_option_set_artifacts
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionSetIdentityPlan, OptionSetIn
+from dhis2w_fhir_engine.facade.resources.organisation_units.instances import build_organisation_unit_instances
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,

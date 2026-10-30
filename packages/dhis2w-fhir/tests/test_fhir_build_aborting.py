@@ -18,9 +18,9 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, service
-from dhis2w_fhir.hostile_names import HostileNameGate
 from dhis2w_fhir.validation import build_aborting_code, build_aborting_name
 from dhis2w_fhir_engine.facade.config import HostileNamePosture, load_project
+from dhis2w_fhir_engine.facade.hostile_names import HostileNameGate
 
 _HOST = "https://dhis2.example"
 

@@ -54,9 +54,9 @@ from dhis2w_fhir_engine.facade.api.passthrough import (
 )
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
 from dhis2w_fhir_engine.facade.api.routes.whoami import TOKEN_CALLER_NAME, WHOAMI_PATH, authenticated_caller
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.auth_setup import ServeAuthConfigurationError, preflight_auth
 from dhis2w_fhir_serve.routes import serve_routers

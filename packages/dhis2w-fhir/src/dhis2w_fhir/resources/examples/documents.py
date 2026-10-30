@@ -38,7 +38,14 @@ from dhis2w_fhir_engine.facade.resources.examples.schemas import (
     TRACKER_ENROLLMENT_IDENTIFIER_SEGMENT,
     ExampleAnswerRules,
 )
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import (
+    code_system_canonical,
+    option_concept_code_index,
+    option_set_identity_index,
+)
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionConceptCodeIndex
+from dhis2w_fhir_engine.facade.resources.questionnaires.forms import bound_option_set_uids
+from dhis2w_fhir_engine.facade.resources.questionnaires.program_rules import FormProgramRules, plan_program_rules
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     QuestionnaireStemPlan,
     form_subject_type,
@@ -70,13 +77,6 @@ from dhis2w_fhir.resources.examples.builders import (
     example_tracker_context,
     location_reference,
 )
-from dhis2w_fhir.resources.option_sets.builders import (
-    code_system_canonical,
-    option_concept_code_index,
-    option_set_identity_index,
-)
-from dhis2w_fhir.resources.questionnaires.builders import bound_option_set_uids
-from dhis2w_fhir.resources.questionnaires.program_rules import FormProgramRules, plan_program_rules
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

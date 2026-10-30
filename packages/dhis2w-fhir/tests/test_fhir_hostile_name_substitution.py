@@ -21,11 +21,11 @@ import pytest
 import respx
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, service
-from dhis2w_fhir.hostile_names import HostileNameGate, HostileRewrite
 from dhis2w_fhir.validation import build_aborting_name
 from dhis2w_fhir.validation.artifacts import ArtifactCheckReport, ArtifactFinding, check_publishable_artifacts
 from dhis2w_fhir_engine.facade.coded import CodeCollision, CodeSubstitutionCollisionError
 from dhis2w_fhir_engine.facade.config import HostileNamePosture, load_project
+from dhis2w_fhir_engine.facade.hostile_names import HostileNameGate, HostileRewrite
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn

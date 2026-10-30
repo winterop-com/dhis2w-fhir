@@ -21,9 +21,9 @@ from dhis2w_fhir_engine.facade.capability import build_server_capability
 from dhis2w_fhir_engine.facade.refusals import FHIR_JSON_MEDIA_TYPE
 
 if TYPE_CHECKING:
-    from dhis2w_fhir_engine.facade.api.settings import ServeSettings
     from dhis2w_fhir_engine.facade.config import FhirProject
     from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+    from dhis2w_fhir_engine.facade.settings import ServeSettings
     from dhis2w_fhir_engine.facade.store import StoreSummary
 
 router = APIRouter()

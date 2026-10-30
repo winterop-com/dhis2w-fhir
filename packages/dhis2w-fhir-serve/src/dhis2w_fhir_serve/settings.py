@@ -6,7 +6,6 @@ from pathlib import Path
 
 from dhis2w_client.profile import NoProfileError
 from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import (
     FhirProject,
     ServeAuth,
@@ -14,6 +13,7 @@ from dhis2w_fhir_engine.facade.config import (
     basemaps_from_options,
 )
 from dhis2w_fhir_engine.facade.registry_package import resolve_registry_source
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import COMPILED_RESOURCES_RELATIVE_PATH, CompiledIgMissingError
 from pydantic import BaseModel, ConfigDict
 

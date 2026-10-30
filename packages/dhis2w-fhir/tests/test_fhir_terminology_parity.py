@@ -30,14 +30,16 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir import (
+from dhis2w_fhir_engine.facade.config import GenerateConfig
+from dhis2w_fhir_engine.facade.foundation.documents import (
+    FoundationTerminologyBuild,
     build_foundation_terminology_documents,
+)
+from dhis2w_fhir_engine.facade.resources.organisation_units.documents import (
+    OrganisationUnitTerminologyBuild,
     build_organisation_unit_level_terminology_documents,
     build_organisation_unit_terminology_documents,
 )
-from dhis2w_fhir.foundation.documents import FoundationTerminologyBuild
-from dhis2w_fhir.resources.organisation_units.documents import OrganisationUnitTerminologyBuild
-from dhis2w_fhir_engine.facade.config import GenerateConfig
 from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
     OrganisationUnitIn,
     OrganisationUnitLevelNames,

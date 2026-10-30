@@ -144,6 +144,10 @@ from dhis2w_fhir_engine.facade.coded import (
     substituted_code,
 )
 from dhis2w_fhir_engine.facade.config import HostileNamePosture
+from dhis2w_fhir_engine.facade.foundation.attribute_values import (
+    ATTRIBUTE_CODE_SUB_EXTENSION,
+    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
+)
 from dhis2w_fhir_engine.facade.i18n import SUBSTITUTED_TRANSLATION_PROPERTIES, TranslationIn, name_translations
 from dhis2w_fhir_engine.facade.names import (
     FHIR_ID_MAX_LENGTH,
@@ -153,6 +157,8 @@ from dhis2w_fhir_engine.facade.names import (
     is_valid_fhir_code,
     usable_code_stem,
 )
+from dhis2w_fhir_engine.facade.resources.categories.builders import max_category_slug_length
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import max_slug_length
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     QUESTIONNAIRE_STEM_SURFACE,
@@ -169,12 +175,6 @@ from dhis2w_fhir_engine.facade.substitution import (
 from dhis2w_fhir_engine.r4.resources import DEFAULT_SUBJECT_RESOURCE_TYPE
 from pydantic import BaseModel, ConfigDict
 
-from dhis2w_fhir.foundation.attribute_values import (
-    ATTRIBUTE_CODE_SUB_EXTENSION,
-    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
-)
-from dhis2w_fhir.resources.categories.builders import max_category_slug_length
-from dhis2w_fhir.resources.option_sets.builders import max_slug_length
 from dhis2w_fhir.validation.report import display_code, render_validation_markdown
 from dhis2w_fhir.validation.schemas import (
     SCOPE_SURFACE_FIELDS,

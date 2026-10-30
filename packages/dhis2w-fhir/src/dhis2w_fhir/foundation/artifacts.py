@@ -58,6 +58,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.attribute_values import (
+    ATTRIBUTE_CODE_SUB_EXTENSION,
+    ATTRIBUTE_ID_SUB_EXTENSION,
+    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
+    ATTRIBUTE_VALUE_SUB_EXTENSION,
+)
+from dhis2w_fhir_engine.facade.foundation.original_spelling import ORIGINAL_SPELLING_CONTEXT_RESOURCE_TYPES
 from dhis2w_fhir_engine.facade.foundation.response_profiles import (
     CAPTURE_SERVER_READ_RESOURCE_TYPES,
     _identifier_system,
@@ -101,20 +108,13 @@ from dhis2w_fhir_engine.facade.foundation.tracked_entity_attribute_values import
 )
 from dhis2w_fhir_engine.facade.names import page_text
 from dhis2w_fhir_engine.facade.period.schemas import PERIOD_TYPE_DEFINITIONS
+from dhis2w_fhir_engine.facade.resources.organisation_units.naming import (
+    OrganisationUnitNaming,
+    location_profile_reference,
+)
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from dhis2w_fhir_engine.facade.writer import FshArtifact
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
-
-from dhis2w_fhir.foundation.attribute_values import (
-    ATTRIBUTE_CODE_SUB_EXTENSION,
-    ATTRIBUTE_ID_SUB_EXTENSION,
-    ATTRIBUTE_VALUE_CONTEXT_RESOURCE_TYPES,
-    ATTRIBUTE_VALUE_SUB_EXTENSION,
-)
-from dhis2w_fhir.foundation.original_spelling import (
-    ORIGINAL_SPELLING_CONTEXT_RESOURCE_TYPES,
-)
-from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitNaming, location_profile_reference
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

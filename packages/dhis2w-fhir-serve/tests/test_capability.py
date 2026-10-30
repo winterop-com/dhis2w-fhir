@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dhis2w_fhir_engine.facade.api.metadata import build_served_metadata
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.capability import (
     EVALUATE_OPERATION_DEFINITION,
     SECURITY_SERVICE_SYSTEM,
@@ -12,6 +11,7 @@ from dhis2w_fhir_engine.facade.capability import (
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, StoreSummary
 from dhis2w_fhir_engine.r4.resources import CapabilityStatement, CapabilityStatementSecurity
 

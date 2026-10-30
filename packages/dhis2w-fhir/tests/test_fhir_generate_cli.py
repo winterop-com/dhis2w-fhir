@@ -8,15 +8,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from dhis2w_cli.main import build_app
-from dhis2w_fhir import (
-    ComputedQuestionsSummary,
-    EmptyAssignmentSummary,
-    FhirValidationReport,
-    GenerateFullReport,
-    GenerateReport,
-    GenerateSubject,
-    LoadSetReport,
-)
+from dhis2w_fhir import FhirValidationReport, GenerateFullReport, GenerateReport, GenerateSubject, LoadSetReport
 from dhis2w_fhir.validation.schemas import CodeCoverage, SurfaceCodeCoverage, ValidationFinding
 from dhis2w_fhir_engine.facade.config import HostileNamePosture
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory
@@ -24,6 +16,8 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     UntimelyAttributeOptionCombosSummary,
     UnusableAttributeOptionCombosSummary,
 )
+from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import EmptyAssignmentSummary
+from dhis2w_fhir_engine.facade.resources.questionnaires.program_rules import ComputedQuestionsSummary
 from typer.testing import CliRunner
 
 _runner = CliRunner()

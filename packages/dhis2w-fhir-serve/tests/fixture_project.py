@@ -45,8 +45,8 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import typer
-from dhis2w_fhir import build_option_set_concept_map_artifacts
 from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import build_option_set_concept_map_artifacts
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIn
 from dhis2w_fhir_engine.facade.response_spool import SPOOL_RELATIVE_PATH
 from pydantic import BaseModel, ConfigDict
@@ -812,7 +812,7 @@ SPECIMEN_RESOURCE_TYPE = "Specimen"
 SPECIMEN_QUESTIONNAIRE = f"{CAPTURE_CANONICAL}/Questionnaire/{SPECIMEN_TRACKED_ENTITY_TYPE_UID}"
 
 #: The tracked-entity-type vocabulary and the map onto FHIR resource types, as
-#: `dhis2w_fhir.resources.questionnaires.documents` emits the pair for a run publishing two types.
+#: `dhis2w_fhir_engine.facade.resources.questionnaires.documents` emits the pair for a run publishing two types.
 TRACKED_ENTITY_TYPE_CODE_SYSTEM = f"{CAPTURE_CANONICAL}/CodeSystem/d2-tet-cs"
 TRACKED_ENTITY_TYPE_VALUE_SET = f"{CAPTURE_CANONICAL}/ValueSet/d2-tet-vs"
 TRACKED_ENTITY_TYPE_RESOURCE_MAP = f"{CAPTURE_CANONICAL}/ConceptMap/d2-tet-cm"
@@ -1017,7 +1017,7 @@ app = typer.Typer(add_completion=False, help="Write the capture fixture project 
 
 
 def build_location(unit: OrgUnitFixture) -> dict[str, Any]:
-    """One Location, in the shape `dhis2w_fhir.resources.organisation_units.location` emits it."""
+    """One Location, in the shape `dhis2w_fhir_engine.facade.resources.organisation_units.location` emits it."""
     extensions: list[dict[str, Any]] = []
     geometry = unit.boundary
     if unit.point_attachment is not None:

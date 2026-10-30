@@ -54,7 +54,6 @@ from typing import TYPE_CHECKING, Any, Literal
 import httpx2
 from dhis2w_client.errors import Dhis2ClientError
 from dhis2w_core.client_context import open_client
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import (
     FhirProject,
     MalformedFhirConfigError,
@@ -65,12 +64,13 @@ from dhis2w_fhir_engine.facade.config import (
 )
 from dhis2w_fhir_engine.facade.conversion.artifacts import CompiledArtifactReadError, CompiledIgMissingError
 from dhis2w_fhir_engine.facade.foundation.response_profiles import CAPTURE_SERVER_READ_RESOURCE_TYPES
+from dhis2w_fhir_engine.facade.hostile_names import project_gate
 from dhis2w_fhir_engine.facade.names import code_or_uid, flatten_whitespace, pascal
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir import service
 from dhis2w_fhir.drift import detect_drift
-from dhis2w_fhir.hostile_names import project_gate
 from dhis2w_fhir.scaffold.schemas import DEFAULT_SUSHI_TIMEOUT_SECONDS, InitOptions
 from dhis2w_fhir.service import GenerationProfile
 
@@ -1057,7 +1057,7 @@ class _DoctorRun:
         started = time.perf_counter()
         project = self._require_project()
         try:
-            from dhis2w_fhir_engine.facade.api.settings import ServeSettings
+            from dhis2w_fhir_engine.facade.settings import ServeSettings
             from dhis2w_fhir_serve import create_app
         except ImportError:
             self._record(DoctorPhase.SERVE, DoctorOutcome.SKIPPED, "", started, reason=_SERVE_PACKAGE_MISSING)
@@ -1586,7 +1586,8 @@ async def _materialise_live_store(project: FhirProject, client: Dhis2Client | No
     `client` is the run's own connection, which the builders read through and which stays open for
     the phases after this one; with none, a live client is opened and closed around the build.
     """
-    from dhis2w_fhir_serve.live import build_live_store, open_live_client  # noqa: PLC0415
+    from dhis2w_fhir_engine.facade.live import build_live_store
+    from dhis2w_fhir_serve.live import open_live_client
 
     settings = ServeSettings(project_dir=project.project_root, live=True)
     if client is not None:

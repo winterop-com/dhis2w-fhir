@@ -23,14 +23,15 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dhis2w_fhir import build_questionnaire_artifacts, option_set_identities
+from dhis2w_fhir import build_questionnaire_artifacts
 from dhis2w_fhir.doctor import DoctorOutcome, DoctorPhase, generate_findings, grade
 from dhis2w_fhir.resources.questionnaires.builders import DATA_DICTIONARY_DIRECTORY
-from dhis2w_fhir.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
 from dhis2w_fhir_engine.facade.i18n import TranslationIn
 from dhis2w_fhir_engine.facade.notes import GenerateNoteCategory
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import option_set_identities
+from dhis2w_fhir_engine.facade.resources.questionnaires.documents import build_data_dictionary_documents
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     ProgramContextIn,
     PublishedTrackedEntityType,

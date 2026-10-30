@@ -99,15 +99,15 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     CategoryOptionValidity,
 )
 from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import ATTRIBUTE_COMBO_DIRECTORY
-from dhis2w_fhir_engine.facade.writer import generated_header, is_generated_file
-from pydantic import BaseModel, ConfigDict, Field, computed_field
-
-from dhis2w_fhir.resources.pages.builders import PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY
-from dhis2w_fhir.resources.questionnaires.assignments import (
+from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import (
     ASSIGNMENT_DIRECTORY,
     ASSIGNMENT_LIST_RESOURCE_TYPE,
     EMPTY_ASSIGNMENT_REMEDY,
 )
+from dhis2w_fhir_engine.facade.writer import generated_header, is_generated_file
+from pydantic import BaseModel, ConfigDict, Field, computed_field
+
+from dhis2w_fhir.resources.pages.builders import PAGES_BASE_SUBDIRECTORY, PAGES_DIRECTORY
 from dhis2w_fhir.scaffold import SUSHI_CONFIG_RELATIVE_PATH
 from dhis2w_fhir.validation import build_aborting_code, build_aborting_name
 

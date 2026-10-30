@@ -22,13 +22,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pydantic import BaseModel, ConfigDict
+
 from dhis2w_fhir_engine.facade.coded import DHIS2_CODE_PROPERTY, CodeSubstitutions
 from dhis2w_fhir_engine.facade.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS, FoundationNaming
 from dhis2w_fhir_engine.facade.names import join_id_tokens
 from dhis2w_fhir_engine.facade.status import experimental_for_status
 from dhis2w_fhir_engine.facade.writer import JsonArtifact
 from dhis2w_fhir_engine.r4.resources import CodeSystem, CodeSystemConcept, CodeSystemConceptProperty, CodeSystemProperty
-from pydantic import BaseModel, ConfigDict
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig

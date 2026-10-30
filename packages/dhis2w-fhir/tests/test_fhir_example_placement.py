@@ -17,7 +17,6 @@ from __future__ import annotations
 import datetime
 
 from dhis2w_fhir.resources.examples.builders import build_synthetic_responses
-from dhis2w_fhir.resources.questionnaires.assignments import AssignmentIndex
 from dhis2w_fhir.service import (
     _plan_example_placements,
     _untimely_attribute_option_combos,
@@ -31,6 +30,7 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
     OrganisationUnitPaths,
     UsableAttributeOptionCombos,
 )
+from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import AssignmentIndex
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import (
     CategoryComboIn,
     CategoryOptionComboIn,

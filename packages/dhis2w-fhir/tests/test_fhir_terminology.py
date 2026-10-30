@@ -6,7 +6,6 @@ from typing import Any
 
 import pytest
 from dhis2w_fhir.resources.examples.builders import build_example_artifacts
-from dhis2w_fhir.resources.option_sets.builders import build_option_set_artifacts, option_set_identities
 from dhis2w_fhir.resources.questionnaires.builders import build_questionnaire_artifacts
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
 from dhis2w_fhir_engine.facade.config import GenerateConfig, NamingConfig
@@ -14,6 +13,7 @@ from dhis2w_fhir_engine.facade.i18n import TranslationIn
 from dhis2w_fhir_engine.facade.names import CodeStemError
 from dhis2w_fhir_engine.facade.period.parser import parse_period
 from dhis2w_fhir_engine.facade.resources.examples.schemas import ExampleAnswerIn, ExampleResponseIn
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import build_option_set_artifacts, option_set_identities
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn, OptionSetIdentityPlan, OptionSetIn
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireItemIn, QuestionnaireSourceIn
 from dhis2w_fhir_engine.facade.status import IgStatus

@@ -32,9 +32,9 @@ from dhis2w_fhir_engine.facade.api.routes.mounting import (
 )
 from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
 from dhis2w_fhir_engine.facade.api.runtime import attach_serve_runtime
-from dhis2w_fhir_engine.facade.api.settings import ServeSettings
 from dhis2w_fhir_engine.facade.config import FhirProject, SearchBackend, SearchConfig, ServeAuth, ServeAuthScope
 from dhis2w_fhir_engine.facade.refusals import NotFoundError
+from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve.app import create_app
 from dhis2w_fhir_serve.routes import serve_routers
 from dhis2w_fhir_serve.runtime import open_serve_runtime

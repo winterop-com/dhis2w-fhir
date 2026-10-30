@@ -22,7 +22,7 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
-from dhis2w_fhir import service
+from dhis2w_fhir_engine.facade import live_inputs
 from dhis2w_fhir_engine.facade.config import load_project
 from dhis2w_fhir_engine.facade.conversion.artifacts import CompiledArtifacts, load_compiled_artifacts
 from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
@@ -180,7 +180,7 @@ def _compiled_guide(root: Path) -> Path:
 async def _live_artifacts(root: Path, *, registry_package: Path | None = None) -> CompiledArtifacts:
     """Build the forward-side artifacts off the mocked instance, the way a drain with no build does."""
     async with open_client(resolve_profile("probe")) as client:
-        return await service.fetch_live_artifacts(client, load_project(root), registry_package=registry_package)
+        return await live_inputs.fetch_live_artifacts(client, load_project(root), registry_package=registry_package)
 
 
 def _location_ids(artifacts: CompiledArtifacts) -> list[str]:

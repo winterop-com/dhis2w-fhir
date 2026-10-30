@@ -5,8 +5,13 @@ from __future__ import annotations
 import base64
 from typing import TYPE_CHECKING
 
+from dhis2w_fhir_engine.facade.foundation.attribute_values import (
+    attribute_value_extensions,
+    attribute_value_identifiers,
+)
 from dhis2w_fhir_engine.facade.i18n import name_translations, translated_element
 from dhis2w_fhir_engine.facade.names import StemResolution, code_or_uid, flatten_whitespace
+from dhis2w_fhir_engine.facade.resources.organisation_units.naming import organisation_unit_level_coding
 from dhis2w_fhir_engine.r4.resources import (
     BOUNDARY_EXTENSION_URL,
     Attachment,
@@ -18,17 +23,13 @@ from dhis2w_fhir_engine.r4.resources import (
     Reference,
 )
 
-from dhis2w_fhir.foundation.attribute_values import attribute_value_extensions, attribute_value_identifiers
-from dhis2w_fhir.resources.organisation_units.naming import organisation_unit_level_coding
-
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex
+    from dhis2w_fhir_engine.facade.resources.organisation_units.naming import OrganisationUnitInstanceUrls
     from dhis2w_fhir_engine.facade.resources.organisation_units.schemas import (
         OrganisationUnitIn,
         OrganisationUnitLevelNames,
     )
-
-    from dhis2w_fhir.resources.organisation_units.naming import OrganisationUnitInstanceUrls
 
 #: The media type the GeoJSON Feature travels under inside the boundary attachment.
 BOUNDARY_CONTENT_TYPE = "application/geo+json"

@@ -17,6 +17,7 @@ from dhis2w_client.generated.v43.schemas import OptionSet
 from dhis2w_core.client_context import open_client
 from dhis2w_core.profile import resolve_profile
 from dhis2w_fhir import InitOptions, service
+from dhis2w_fhir_engine.facade import live_inputs
 from dhis2w_fhir_engine.facade.attributes import AttributeCodeIndex, AttributeValueIn
 from dhis2w_fhir_engine.facade.config import load_project
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
@@ -89,7 +90,7 @@ def _event_program(schemas: ModuleType, **extra: Any) -> Any:
 
 def _mapped_organisation_unit(model: Any) -> OrganisationUnitIn:
     """Map one organisation unit, asserting it survived the mapper."""
-    mapped = service._organisation_unit_input(model, service.GeometryTally(), _TODAY)
+    mapped = live_inputs._organisation_unit_input(model, live_inputs.GeometryTally(), _TODAY)
     assert mapped is not None
     return mapped
 
@@ -116,33 +117,33 @@ def test_organisation_unit_attribute_values_reach_the_projection(schemas: Module
 
 def test_option_set_attribute_values_reach_the_projection(schemas: ModuleType) -> None:
     """An option set's attribute values arrive on the projection, in wire order, on every major."""
-    mapped = service._option_set_input(_option_set(schemas, attributeValues=_WIRE_ATTRIBUTE_VALUES))
+    mapped = live_inputs._option_set_input(_option_set(schemas, attributeValues=_WIRE_ATTRIBUTE_VALUES))
     assert mapped.attribute_values == _MAPPED_ATTRIBUTE_VALUES
 
 
 def test_data_set_attribute_values_reach_the_projection(schemas: ModuleType) -> None:
     """A data set's attribute values arrive on the questionnaire projection, in wire order, on every major."""
-    mapped = service._data_set_source(_data_set(schemas, attributeValues=_WIRE_ATTRIBUTE_VALUES), [])
+    mapped = live_inputs._data_set_source(_data_set(schemas, attributeValues=_WIRE_ATTRIBUTE_VALUES), [])
     assert mapped.attribute_values == _MAPPED_ATTRIBUTE_VALUES
 
 
 def test_event_program_attribute_values_reach_the_projection(schemas: ModuleType) -> None:
     """An event program's attribute values arrive on the questionnaire projection, in wire order, on every major."""
-    mapped = service._event_program_source(_event_program(schemas, attributeValues=_WIRE_ATTRIBUTE_VALUES), [])
+    mapped = live_inputs._event_program_source(_event_program(schemas, attributeValues=_WIRE_ATTRIBUTE_VALUES), [])
     assert mapped.attribute_values == _MAPPED_ATTRIBUTE_VALUES
 
 
 def test_objects_without_attribute_values_project_an_empty_list(schemas: ModuleType) -> None:
     """Every projection defaults to no attribute values - most DHIS2 objects carry none."""
     assert _mapped_organisation_unit(_organisation_unit(schemas)).attribute_values == []
-    assert service._option_set_input(_option_set(schemas)).attribute_values == []
-    assert service._data_set_source(_data_set(schemas), []).attribute_values == []
-    assert service._event_program_source(_event_program(schemas), []).attribute_values == []
+    assert live_inputs._option_set_input(_option_set(schemas)).attribute_values == []
+    assert live_inputs._data_set_source(_data_set(schemas), []).attribute_values == []
+    assert live_inputs._event_program_source(_event_program(schemas), []).attribute_values == []
 
 
 def test_an_attribute_value_carries_a_whole_geojson_document(schemas: ModuleType) -> None:
     """DHIS2 sends every value as a string whatever its value type, a GeoJSON document included."""
-    mapped = service._option_set_input(
+    mapped = live_inputs._option_set_input(
         _option_set(schemas, attributeValues=[{"attribute": {"id": "ihn1wb9eho8"}, "value": _GEOJSON_VALUE}])
     )
     assert mapped.attribute_values == [AttributeValueIn(attribute_uid="ihn1wb9eho8", value=_GEOJSON_VALUE)]
@@ -166,7 +167,7 @@ def test_an_incomplete_attribute_value_is_dropped(entry: object) -> None:
     way to the mapper. The v41 tree refuses the same entry at `model_validate`, so a half-formed pair
     never reaches the projection there either.
     """
-    mapped = service._option_set_input(OptionSet.model_validate({"id": "Xa1b2c3d4e5", "attributeValues": [entry]}))
+    mapped = live_inputs._option_set_input(OptionSet.model_validate({"id": "Xa1b2c3d4e5", "attributeValues": [entry]}))
     assert mapped.attribute_values == []
 
 
@@ -251,7 +252,7 @@ async def test_attribute_values_survive_the_whole_fetch_path(
     respx.get(f"{_HOST}/api/programRules").mock(return_value=httpx.Response(200, json={"programRules": []}))
 
     async with open_client(resolve_profile("probe")) as client:
-        sources = await service._fetch_questionnaire_sources(client, load_project(tmp_path).config.generate, [])
+        sources = await live_inputs._fetch_questionnaire_sources(client, load_project(tmp_path).config.generate, [])
 
     by_uid = {source.uid: source for source in sources}
     assert by_uid["BfMAe6Itzgt"].attribute_values == _MAPPED_ATTRIBUTE_VALUES
@@ -287,8 +288,8 @@ async def test_organisation_unit_attribute_values_survive_the_paged_fetch(
     )
 
     async with open_client(resolve_profile("probe")) as client:
-        units = await service._fetch_organisation_units(
-            client, load_project(tmp_path).config.generate, service.GeometryTally(), _TODAY, StepAnnouncer()
+        units = await live_inputs._fetch_organisation_units(
+            client, load_project(tmp_path).config.generate, live_inputs.GeometryTally(), _TODAY, StepAnnouncer()
         )
 
     assert [unit.attribute_values for unit in units] == [_MAPPED_ATTRIBUTE_VALUES]
@@ -297,7 +298,7 @@ async def test_organisation_unit_attribute_values_survive_the_paged_fetch(
 async def _resolve_index(route: respx.Route) -> AttributeCodeIndex:
     """Resolve the attribute code index against a mocked instance."""
     async with open_client(resolve_profile("probe")) as client:
-        index = await service.resolve_attribute_code_index(client)
+        index = await live_inputs.resolve_attribute_code_index(client)
     assert route.called
     return index
 

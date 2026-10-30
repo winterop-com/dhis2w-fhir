@@ -39,13 +39,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
+from pydantic import BaseModel, ConfigDict
+
 from dhis2w_fhir_engine.facade.coded import CodedProjectionIn, CodeSubstituter, CodeSubstitutionCollisionError
 from dhis2w_fhir_engine.facade.config import HostileNamePosture
 from dhis2w_fhir_engine.facade.i18n import SUBSTITUTED_TRANSLATION_PROPERTIES, TranslationIn
 from dhis2w_fhir_engine.facade.notes import GenerateNote, GenerateNoteCategory, generate_note
 from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import ProgramRuleIn, ProgramRuleVariableIn
 from dhis2w_fhir_engine.facade.substitution import first_control_character, substitute_build_aborting_text
-from pydantic import BaseModel, ConfigDict
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

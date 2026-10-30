@@ -38,6 +38,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from dhis2w_fhir_engine.facade.coded import (
     DHIS2_CODE_PROPERTY,
     DHIS2_ID_PROPERTY,
@@ -70,6 +72,15 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.schemas import (
     AttributeComboIn,
     AttributeComboPlan,
 )
+from dhis2w_fhir_engine.facade.resources.identifier_terminology import build_identifier_code_system_artifacts
+from dhis2w_fhir_engine.facade.resources.option_sets.builders import (
+    CONCEPT_MAP_DIRECTORY,
+    build_concepts,
+    code_system_canonical,
+    concept_assignments,
+    concept_map_canonical,
+    value_set_canonical,
+)
 from dhis2w_fhir_engine.facade.resources.option_sets.schemas import OptionIn
 from dhis2w_fhir_engine.facade.status import IgStatus, experimental_for_status
 from dhis2w_fhir_engine.facade.writer import JsonArtifact, JsonBuild
@@ -88,25 +99,13 @@ from dhis2w_fhir_engine.r4.resources import (
     ValueSetCompose,
     ValueSetInclude,
 )
-from pydantic import BaseModel, ConfigDict, Field
-
-from dhis2w_fhir.resources.identifier_terminology import build_identifier_code_system_artifacts
-from dhis2w_fhir.resources.option_sets.builders import (
-    CONCEPT_MAP_DIRECTORY,
-    build_concepts,
-    code_system_canonical,
-    concept_assignments,
-    concept_map_canonical,
-    value_set_canonical,
-)
 
 if TYPE_CHECKING:
     from dhis2w_fhir_engine.facade.config import GenerateConfig
     from dhis2w_fhir_engine.facade.notes import GenerateNote
+    from dhis2w_fhir_engine.facade.resources.categories.decomposition import CategoryDecomposition
     from dhis2w_fhir_engine.facade.resources.option_sets.schemas import ConceptAssignment, ConceptAssignmentPlan
     from dhis2w_fhir_engine.facade.resources.questionnaires.schemas import QuestionnaireSourceIn
-
-    from dhis2w_fhir.resources.categories.decomposition import CategoryDecomposition
 
 
 # The longest emitted id is `<id-stem><slug>-cs`/`-vs`, so the slug is bounded against the
