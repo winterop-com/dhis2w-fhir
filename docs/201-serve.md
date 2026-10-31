@@ -585,9 +585,9 @@ answer says what became of it:
 | `201 Created` | DHIS2 has the data, and the receipt is filed as `forwarded` | Nothing |
 | A refusal, with DHIS2's reasons | DHIS2 refused it, and nothing is stored. Usually a `409` | Fix the form and send it again |
 | `202 Accepted` | Not yet sent to DHIS2, or sent and not yet confirmed because its answer was lost. The receipt is in `received/`, and the first issue says what happens next | Nothing, where it says this server keeps trying. Otherwise see [Repair the capture queue](201-forward.md) |
-| `200 OK` | Under `--delivery validate-only`, DHIS2 graded it and would take it. Nothing is written or stored | Nothing |
+| `200 OK` | Under `--delivery validate-only`, DHIS2 graded it and would take it. Nothing is written or stored. Otherwise, DHIS2 already had this capture from an earlier send under the same `identifier` | Nothing |
 | `502 Bad Gateway` | DHIS2 could not be reached under the caller's own credentials, or under `validate-only`. Nothing is stored | Send it again |
-| `504 Gateway Timeout` | Under the caller's own credentials, DHIS2 did not answer, so it may already have it. This server stored nothing | Read the event the answer names before sending it again, because sending an event again makes a second one |
+| `504 Gateway Timeout` | Under the caller's own credentials, DHIS2 did not answer, so it may already have it. This server stored nothing | Send it again where it carries an `identifier`: DHIS2 keeps one event. Otherwise read the event the answer names first, because sending an event again makes a second one |
 
 **Where it goes depends on who asked and which DHIS2 this run knows:**
 

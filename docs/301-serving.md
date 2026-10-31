@@ -545,9 +545,15 @@ its sender has gone: it is filed under `rejected/`, logged, and counted in
 write landed. Under this run's profile the capture answers `202`, not yet confirmed, and
 the retry carries the same identity, so DHIS2 answering "already exists" counts as that
 attempt having landed and nothing is written twice. Under the caller's own credentials
-nothing is kept to retry, so the answer is a `504` saying DHIS2 may already have it. For an
-event it names the event to read first, because a client sending it again makes a second
-event.
+nothing is kept to retry, so the answer is a `504` saying DHIS2 may already have it.
+
+**A capture carrying an `identifier` can be sent again safely.** Its event is named from the
+form and the identifier, so every send of it names the same event. Where DHIS2 answers
+"already exists", the server reads that event back: holding the same answers, it is this
+capture landing, answered `200`; holding others, the identifier was reused, and the capture
+is refused with `409` and nothing stored. Each submission needs its own identifier. A
+capture without one names an event per receipt, so the `504` names the event to read first,
+because sending it again makes a second event.
 
 **A server only sends what it took on sending.** A capture it held because DHIS2 could
 not be reached says so on its file, and a restart goes on trying it. Anything else in the

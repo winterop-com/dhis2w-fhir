@@ -22,7 +22,9 @@ FHIR_JSON_MEDIA_TYPE = "application/fhir+json"
 IssueSeverity = Literal["fatal", "error", "warning", "information"]
 """The `OperationOutcome.issue.severity` values the facade uses."""
 
-IssueCode = Literal["invalid", "not-found", "not-supported", "exception", "processing", "login", "forbidden", "timeout"]
+IssueCode = Literal[
+    "invalid", "not-found", "not-supported", "exception", "processing", "login", "forbidden", "timeout", "duplicate"
+]
 """The `OperationOutcome.issue.code` values the facade uses.
 
 `login` is R4's own code for "the user or system was not able to be authenticated", which is what a
@@ -367,14 +369,35 @@ class CaptureOutcomeUnknownError(ServeError):
     status_code = 504
     issue_code = "timeout"
 
-    def __init__(self, event_uid: str | None) -> None:
-        check = (
-            "Sending it again is safe: DHIS2 refuses or replaces what it already holds."
-            if event_uid is None
-            else f"Its event is `{event_uid}`: read that first, because sending this again makes a second event."
-        )
+    def __init__(self, event_uid: str | None, identifier: str | None = None) -> None:
+        if event_uid is None:
+            check = "Sending it again is safe: DHIS2 refuses or replaces what it already holds."
+        elif identifier is not None:
+            check = (
+                f"Sending it again is safe: it carries identifier `{identifier}`, so DHIS2 keeps one event "
+                f"(`{event_uid}`)."
+            )
+        else:
+            check = (
+                f"Its event is `{event_uid}`: read that first, because sending this again makes a second event. "
+                "A capture that carries an `identifier` can be sent again safely."
+            )
         super().__init__(
             f"DHIS2 did not answer, so it may already have this capture. This server stored nothing. {check}"
+        )
+
+
+class CaptureIdentifierTakenError(ServeError):
+    """DHIS2 already holds a different event under the UID this capture names, so it was refused and nothing stored."""
+
+    status_code = 409
+    issue_code = "duplicate"
+
+    def __init__(self, event_uid: str, identifier: str | None) -> None:
+        named = f"identifier `{identifier}`" if identifier is not None else "this capture's identity"
+        super().__init__(
+            f"DHIS2 already holds event `{event_uid}` under {named}, with answers that differ from this capture, so "
+            "nothing was sent or stored. Each submission needs its own identifier."
         )
 
 

@@ -199,8 +199,10 @@ def _answered(request: Request, outcome: DeliveryOutcome, validated: ValidatedCa
     base_url = (stated if stated is not None else str(request.base_url)).rstrip("/")
     location = f"{base_url}/{QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE}/{response_id}"
     if outcome.kind is DeliveryKind.SENT:
-        body = sent_outcome(response_id, validated.subject, validated.warnings, replaced=replaced)
-        return _outcome_response(201, body, location)
+        body = sent_outcome(
+            response_id, validated.subject, validated.warnings, replaced=replaced, already_held=outcome.already_held
+        )
+        return _outcome_response(200 if outcome.already_held else 201, body, location)
     body = held_outcome(
         response_id,
         validated.subject,

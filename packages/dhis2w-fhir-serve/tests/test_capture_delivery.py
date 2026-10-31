@@ -424,6 +424,26 @@ def _event_posted(route: respx.Route, call: int) -> str:
     return str(json.loads(route.calls[call].request.content)["events"][0]["event"])
 
 
+def _reads_back(router: respx.MockRouter, route: respx.Route, *, changed: bool = False) -> respx.Route:
+    """DHIS2 holding the event `/api/tracker` was last sent, as its read answers it, or holding other answers."""
+
+    def held(request: httpx.Request) -> httpx.Response:
+        posted = json.loads(route.calls.last.request.content)["events"][0]
+        values = posted["dataValues"]
+        if changed:
+            values = [{**value, "value": "different"} for value in values]
+        held_event = {key: posted[key] for key in ("event", "programStage", "orgUnit") if key in posted}
+        held_event |= {"occurredAt": f"{posted['occurredAt'][:10]}T00:00:00.000", "dataValues": values}
+        return httpx.Response(200, json=held_event)
+
+    return router.get(url__regex=rf"{_INSTANCE}/api/tracker/events/\w+").mock(side_effect=held)
+
+
+def _with_identifier(body: dict[str, Any], value: str = "visit-0001") -> dict[str, Any]:
+    """The same capture, naming its submission by an identifier the client keeps."""
+    return {**body, "identifier": {"system": "urn:example:clinic-app", "value": value}}
+
+
 async def _submit_event(
     client: httpx2.AsyncClient, body: dict[str, Any], *, authorization: str | None = None
 ) -> httpx2.Response:
@@ -448,6 +468,7 @@ async def test_a_lost_answer_under_one_connection_is_retried_as_the_same_event_a
             assert "will not send it twice" in _stated(answer)
             held_id = answer.headers["location"].rsplit("/", 1)[-1]
         route.mock(side_effect=None, return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        _reads_back(router, route)
         async with _connection() as connection, open_facade(capture_project, client=connection) as facade:
             deliverer = facade.deliverer()
             await deliverer.attempt()
@@ -458,18 +479,92 @@ async def test_a_lost_answer_under_one_connection_is_retried_as_the_same_event_a
     assert deliverer.status().refused == 0
 
 
-async def test_already_exists_on_a_first_attempt_is_still_a_refusal(
+async def test_a_retry_meeting_another_capture_under_its_event_is_a_refusal_not_a_landing(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
 ) -> None:
-    """Only this server's own earlier attempt explains it, so anywhere else it is the submitter's to hear."""
+    """A reused identifier names an event that holds another submission, and counting that as landed loses this one."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(side_effect=httpx2.ReadTimeout("no answer"))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _submit_event(client, _with_identifier(event_response))
+            held_id = answer.headers["location"].rsplit("/", 1)[-1]
+        route.mock(side_effect=None, return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        _reads_back(router, route, changed=True)
+        async with _connection() as connection, open_facade(capture_project, client=connection) as facade:
+            deliverer = facade.deliverer()
+            await deliverer.attempt()
+    held = facade.spool.get(held_id)
+    assert held is not None
+    assert held.lifecycle is not ResponseLifecycle.FORWARDED
+    assert deliverer.status().refused == 1
+
+
+async def test_already_exists_with_other_answers_on_a_first_attempt_is_refused_and_names_the_identifier(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """The event holds another submission, so this one never reached DHIS2 and its submitter has to hear that."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        _reads_back(router, route, changed=True)
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _submit_event(client, _with_identifier(event_response))
+    assert answer.status_code == 409
+    assert answer.json()["issue"][0]["code"] == "duplicate"
+    assert "`urn:example:clinic-app|visit-0001`" in _stated(answer)
+    assert "Each submission needs its own identifier" in _stated(answer)
+    assert _receipts_on_disk(capture_project) == []
+
+
+async def test_already_exists_on_an_event_that_cannot_be_read_back_is_refused(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """An event nobody could compare is not counted as this capture."""
     with respx.mock(assert_all_called=False) as router:
         _instance(router)
         router.post(_TRACKER).mock(return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        router.get(url__regex=rf"{_INSTANCE}/api/tracker/events/\w+").mock(return_value=httpx.Response(404, json={}))
         async with _serving(_service(capture_project, monkeypatch)) as client:
             answer = await _submit_event(client, event_response)
     assert answer.status_code == 409
-    assert "E1030" in _stated(answer)
     assert _receipts_on_disk(capture_project) == []
+
+
+async def test_a_capture_sent_twice_under_one_identifier_lands_once_and_is_answered_as_delivered(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """The second send names the same event, DHIS2 holds it with the same answers, and the client hears 200."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(return_value=httpx.Response(200, json=_TRACKER_TOOK_IT))
+        _reads_back(router, route)
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            first = await _submit_event(client, _with_identifier(event_response))
+            route.mock(return_value=httpx.Response(409, json=_EVENT_EXISTS))
+            second = await _submit_event(client, _with_identifier(event_response))
+    assert first.status_code == 201
+    assert second.status_code == 200
+    assert _stated(second).startswith("DHIS2 already had this capture from an earlier send")
+    assert _event_posted(route, 0) == _event_posted(route, 1)
+    assert second.headers["location"] == first.headers["location"]
+    assert len(_receipts_on_disk(capture_project)) == 1
+
+
+async def test_two_submissions_under_different_identifiers_name_different_events(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """The identifier is what names the event, so a new submission names a new one."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(return_value=httpx.Response(200, json=_TRACKER_TOOK_IT))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            await _submit_event(client, _with_identifier(event_response, "visit-0001"))
+            await _submit_event(client, _with_identifier(event_response, "visit-0002"))
+            await _submit_event(client, event_response)
+            await _submit_event(client, event_response)
+    named = {_event_posted(route, call) for call in range(4)}
+    assert len(named) == 4
 
 
 async def test_a_retry_refused_for_another_reason_is_still_a_refusal(
@@ -502,6 +597,26 @@ async def test_a_lost_answer_as_the_caller_says_dhis2_may_have_it_and_names_the_
     assert f"`{_event_posted(route, 0)}`" in _stated(answer)
     assert "send it again" not in _stated(answer)
     assert _receipts_on_disk(capture_project) == []
+
+
+async def test_a_lost_answer_as_the_caller_on_an_identified_capture_says_resending_is_safe_and_the_resend_lands_once(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """With an identifier the resend names the same event, so a 504 is followed by one event and a 200."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        route = router.post(_TRACKER).mock(side_effect=httpx2.ReadTimeout(""))
+        _reads_back(router, route)
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            lost = await _submit_event(client, _with_identifier(event_response), authorization=_CALLER)
+            route.mock(side_effect=None, return_value=httpx.Response(409, json=_EVENT_EXISTS))
+            again = await _submit_event(client, _with_identifier(event_response), authorization=_CALLER)
+    assert lost.status_code == 504
+    assert "Sending it again is safe: it carries identifier `urn:example:clinic-app|visit-0001`" in _stated(lost)
+    assert again.status_code == 200
+    assert _event_posted(route, 0) == _event_posted(route, 1)
+    assert len(_receipts_on_disk(capture_project)) == 1
 
 
 async def test_a_lost_answer_on_an_aggregate_capture_says_resending_is_safe(

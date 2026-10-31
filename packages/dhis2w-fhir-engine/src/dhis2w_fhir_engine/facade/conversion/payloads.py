@@ -101,7 +101,9 @@ __all__ = [
     "WITHDRAWAL_RESPONSE_STATUS",
     "TranslatedAnswer",
     "TranslatedAnswers",
+    "capture_identifier_label",
     "receipt_event_uid",
+    "response_event_uid",
     "translate_aggregate_response",
     "translate_event_response",
     "translate_tracked_entity_response",
@@ -641,15 +643,33 @@ def _tracker_data_values(translated: TranslatedAnswers) -> list[TrackerDataValue
     ]
 
 
-def _event_identity(response: QuestionnaireResponse) -> str | None:
-    """The event UID one response names, or None for a response carrying no logical id to name it with.
+def response_event_uid(response: QuestionnaireResponse) -> str | None:
+    """The event UID one response is imported under: from its `identifier` where it carries one, else from its id.
 
-    A receipt off the capture spool is a file named after its own id and a resource carrying that
-    id, so the None branch is a response handed straight to the translator by a caller who minted
-    no identity for it - and a payload nothing can name is one DHIS2 mints the UID of, exactly as
-    it does for every other identity such a response does not state.
+    An `identifier` is the client's name for one submission, so the same submission sent twice names the same event,
+    and DHIS2 answers the second post with "already exists" instead of filing a second copy of one visit. It is read
+    together with the form it answers, so two forms that happen to number their submissions alike name two events.
+    A response with neither is one DHIS2 mints the UID of, exactly as it does for every other identity a response
+    does not state.
     """
+    label = capture_identifier_label(response)
+    if label is not None:
+        form = (response.questionnaire or "").split("|", 1)[0]
+        return receipt_event_uid(f"identifier|{form}|{label}")
     return receipt_event_uid(response.id) if response.id else None
+
+
+def capture_identifier_label(response: QuestionnaireResponse) -> str | None:
+    """The `identifier` a response names its submission by, as `system|value`, or None where it carries no value."""
+    identifier = response.identifier
+    if identifier is None or not identifier.value:
+        return None
+    return f"{identifier.system or ''}|{identifier.value}"
+
+
+def _event_identity(response: QuestionnaireResponse) -> str | None:
+    """The event UID one response names, or None for a response carrying nothing to name it with."""
+    return response_event_uid(response)
 
 
 def _period(
