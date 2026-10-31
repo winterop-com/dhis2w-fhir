@@ -75,12 +75,21 @@ def rejection_outcome(issues: tuple[CaptureIssue, ...]) -> OperationOutcome:
 
 
 def sent_outcome(
-    response_id: str, subject: CaptureSubject, warnings: tuple[CaptureIssue, ...], *, replaced: tuple[str, ...] = ()
+    response_id: str,
+    subject: CaptureSubject,
+    warnings: tuple[CaptureIssue, ...],
+    *,
+    replaced: tuple[str, ...] = (),
+    already_held: bool = False,
 ) -> OperationOutcome:
     """The body a capture DHIS2 took answers with: what was stored, what it replaced, and what the server noted."""
+    standing = (
+        f"DHIS2 already had this capture from an earlier send, so nothing was written twice: response {response_id}"
+        if already_held
+        else f"sent to DHIS2 and stored as response {response_id}"
+    )
     return _accepted_outcome(
-        f"sent to DHIS2 and stored as response {response_id}, holding {capture_subject_sentence(subject)}; "
-        f"{RECEIPT_NOTE}",
+        f"{standing}, holding {capture_subject_sentence(subject)}; {RECEIPT_NOTE}",
         warnings,
         replaced,
     )

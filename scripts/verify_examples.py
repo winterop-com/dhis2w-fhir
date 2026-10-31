@@ -74,6 +74,9 @@ SKIP_BY_DEFAULT: frozenset[str] = frozenset(
         # The withdrawal story binds the same port and makes two committing writes of its own: one
         # creates an event in the instance, the other deletes it.
         "cli/withdraw.sh",
+        # Sends one identified event twice and a second submission under its identifier, then withdraws the event: a
+        # committing write and a delete, on the same bound port.
+        "cli/resend_with_identifier.sh",
         # Creates three tracked entity types, a tracked entity attribute, three registration
         # programmes, and a tracked entity apiece on the instance, then removes all of it -
         # including a `d2w maintenance cleanup tracked-entities` purge, which hard-removes every

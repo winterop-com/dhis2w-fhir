@@ -329,7 +329,9 @@ two receipts collide:   False
 
 The guarantee that holds is *one receipt names one event*. The guarantee that does **not**
 hold is *one encounter names one event*. Re-forwarding the same receipt collides loudly, by
-design. Re-capturing the same visit does not collide at all: it creates a second event.
+design. Re-capturing the same visit does not collide at all: it creates a second event,
+unless the response carries an `identifier`, which names the event in place of the
+receipt id (`response_event_uid`), so every send of that submission names one event.
 Registrations are worse, because `$generate` mints new tracked-entity and enrollment UIDs,
 so a corrected registration produces a duplicate person.
 

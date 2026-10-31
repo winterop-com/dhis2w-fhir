@@ -32,7 +32,7 @@ from dhis2w_fhir_engine.facade.config import (
 from dhis2w_fhir_engine.facade.conversion.artifacts import (
     CompiledArtifacts,
 )
-from dhis2w_fhir_engine.facade.conversion.payloads import receipt_event_uid
+from dhis2w_fhir_engine.facade.conversion.payloads import receipt_event_uid, response_event_uid
 from dhis2w_fhir_engine.facade.conversion.schemas import (
     CodedAnswerMode,
 )
@@ -4065,8 +4065,9 @@ async def withdraw_responses(
     lands beside it holding what DHIS2 answered the delete. The import report that recorded what the
     receipt landed stays behind in `forwarded/`, because it is still true of that import.
 
-    THE IDENTITY IS RECOMPUTED, NOT LOOKED UP. An event's DHIS2 UID is derived from the receipt's own
-    logical id, so the object to delete is `receipt_event_uid(<the receipt's id>)` and the run needs
+    THE IDENTITY IS RECOMPUTED, NOT LOOKED UP. An event's DHIS2 UID is derived from the response's
+    `identifier` where it carries one and from the receipt's own logical id otherwise, so the object to
+    delete is `response_event_uid(<the stored response>)` and the run needs
     no guide, no metadata read, and no translation to know it - which is what makes a withdrawal
     answerable about a project whose IG was never compiled.
 
@@ -4137,7 +4138,7 @@ async def _withdraw_one(
     client: Dhis2Client, spooled: SpooledResponse, project: FhirProject, *, dry_run: bool
 ) -> WithdrawnReceipt:
     """Post one event's delete, then file the receipt under `withdrawn/` when DHIS2 took it."""
-    event_uid = receipt_event_uid(spooled.response.id or spooled.response_id)
+    event_uid = response_event_uid(spooled.response) or receipt_event_uid(spooled.response_id)
     params = {**_TRACKER_DELETE_PARAMS, **(_TRACKER_DRY_RUN_PARAMS if dry_run else {})}
     body: dict[str, Any] = {_TRACKER_EVENTS_KEY: [{"event": event_uid}]}
     outcome = _tracker_import_outcome(await _post_body(client, _TRACKER_PATH, body, params))

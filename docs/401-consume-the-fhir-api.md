@@ -1503,15 +1503,23 @@ An accepted capture goes to DHIS2 where the server is asked to send it, and the 
 | --- | --- |
 | `201 Created` | DHIS2 has the data. `Location` names where the receipt is served from |
 | `202 Accepted` | Not yet sent to DHIS2. This server holds it, `Location` names where the receipt is served from, and the first issue says what happens next |
-| `200 OK` | The server runs with `delivery = "validate-only"`. DHIS2 graded it, and nothing was written or stored |
-| `409`, or DHIS2's own status | DHIS2 refused it, or `[forward] overwrites = "refuse"` did, and nothing was stored. The issues say why, and the sender is the one who can fix it |
+| `200 OK` | The server runs with `delivery = "validate-only"`. DHIS2 graded it, and nothing was written or stored. Otherwise, DHIS2 already had this capture from an earlier send under the same `identifier`, and nothing was written twice |
+| `409`, or DHIS2's own status | DHIS2 refused it, or `[forward] overwrites = "refuse"` did, and nothing was stored. The issues say why, and the sender is the one who can fix it. Issue code `duplicate` means DHIS2 holds a different capture under the same `identifier` |
 | `422` with `could not be translated` | The form is valid and the translator cannot turn it into a DHIS2 payload, and nothing was sent or stored |
 | `502` | DHIS2 could not take it, and this server cannot try again for you, because it posts under your own credentials or under `validate-only`. Nothing was stored, so send it again |
-| `504` | DHIS2 did not answer a capture posted under your own credentials, so it may already have it. This server stored nothing. For an event the answer names its UID: read it before sending this again, because a resend makes a second event. For anything else, sending it again is safe |
+| `504` | DHIS2 did not answer a capture posted under your own credentials, so it may already have it. This server stored nothing. Sending it again is safe for an event that carries an `identifier`, and for anything that is not an event. For an event without one the answer names its UID: read it before sending this again, because a resend makes a second event |
 
-**A `201` is the only answer that means DHIS2 has it,** so a client should not treat a
-`202` as done. `/metadata` says which of these a server gives, in
-`rest.documentation`: [`delivery`](301-serving.md#delivery) has the settings.
+**A `201` is the only answer that means DHIS2 has it,** apart from the `200` that says an
+earlier send already landed, so a client should not treat a `202` as done. `/metadata` says
+which of these a server gives, in `rest.documentation`: [`delivery`](301-serving.md#delivery)
+has the settings.
+
+**Name each submission with an `identifier` to make sending it again safe.** A form that sets
+`QuestionnaireResponse.identifier` (a `system` and a `value` the client keeps, one per
+submission) names the same DHIS2 event every time it is sent, so a resend after a lost answer
+cannot make a second visit. Reusing an identifier for another submission is refused with
+`409`, because DHIS2 already holds different answers under it. A worked run is at
+[`examples/cli/resend_with_identifier.sh`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/cli/resend_with_identifier.sh).
 
 ```console
 $ curl -s 'localhost:8389/Questionnaire/BfMAe6Itzgt/$generate?seed=4242' -o response.json
@@ -1765,7 +1773,7 @@ $ curl -s localhost:8389/facade/uiconfig | jq .
       "attribution": "&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noreferrer\">OpenStreetMap</a> contributors"
     }
   ],
-  "dhis2_base_url": "https://play.dhis2.org/40",
+  "dhis2_base_url": "https://play.dhis2.org/2.43",
   "tracked_entities": {
     "enabled": true,
     "listing": true,

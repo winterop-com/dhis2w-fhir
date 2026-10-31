@@ -6,6 +6,7 @@ import re
 from collections import Counter
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
@@ -158,8 +159,11 @@ _TRACKER_PARAMS = {"importStrategy": "CREATE", "async": "false"}
 #: What `/api/tracker` answers when told to create a person, an enrollment, or an event it already holds.
 _ALREADY_EXISTS_CODES = frozenset({"E1002", "E1030", "E1080"})
 
-#: What a held capture's import report says where an earlier attempt landed and only its answer was lost.
-_ALREADY_LANDED_MESSAGE = "DHIS2 already holds this capture: an earlier attempt landed, and its answer never arrived"
+#: What an import report says where an earlier send of the same capture landed, and only its answer was lost.
+_ALREADY_LANDED_MESSAGE = "DHIS2 already holds this capture: an earlier send of it landed"
+
+#: What reading back an event a capture names asks DHIS2 for: enough to tell one submission from another.
+_HELD_EVENT_FIELDS = "event,programStage,orgUnit,occurredAt,dataValues[dataElement,value]"
 
 #: The status an accepted import report carries.
 _ACCEPTED_IMPORT_STATUS = "OK"
@@ -269,6 +273,10 @@ class ImportPoster(Protocol):
 
     async def post_raw(self, path: str, body: Any = None, *, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """POST one document, answering parsed JSON and raising `Dhis2ApiError` for a refusal."""
+        ...
+
+    async def get_raw(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        """GET one document, answering parsed JSON: how a post DHIS2 says it already holds is read back."""
         ...
 
 
@@ -1099,11 +1107,8 @@ async def _post_translations(
                     filing_issues=tuple(issues),
                     stopped=_non_verdict_stop(entry, imported),
                 )
-            if entry.held_for_retry and _only_says_it_exists(imported):
-                # The identity is this receipt's own, so this is the earlier attempt landing rather than a refusal.
-                imported = imported.model_copy(
-                    update={"status": _ACCEPTED_IMPORT_STATUS, "issues": (), "message": _ALREADY_LANDED_MESSAGE}
-                )
+            if only_says_it_exists(imported) and await _earlier_send_landed(client, entry, result):
+                imported = already_landed(imported)
             imports[entry.response_id] = imported
             if cells and imported.is_accepted:
                 if already_sent:
@@ -1132,9 +1137,99 @@ async def _post_translations(
     )
 
 
-def _only_says_it_exists(imported: ForwardImportOutcome) -> bool:
+def only_says_it_exists(imported: ForwardImportOutcome) -> bool:
     """Whether DHIS2's only objection to this payload is that it already holds what the payload creates."""
     return bool(imported.issues) and all(issue.error_code in _ALREADY_EXISTS_CODES for issue in imported.issues)
+
+
+def already_landed(imported: ForwardImportOutcome) -> ForwardImportOutcome:
+    """The answer an "already exists" refusal stands for once it is known to be an earlier send of this capture."""
+    return imported.model_copy(
+        update={
+            "status": _ACCEPTED_IMPORT_STATUS,
+            "issues": (),
+            "message": _ALREADY_LANDED_MESSAGE,
+            "http_status": None,
+        }
+    )
+
+
+async def event_already_holds(reader: ImportPoster, event: TrackerEvent) -> bool:
+    """Whether the event DHIS2 holds under this payload's UID is this payload: same stage, unit, date and values.
+
+    "Already exists" says only that the UID is taken. A client sending one submission twice names the same UID with the
+    same answers, and a client reusing an `identifier` for another submission names it with different ones, and only
+    the first is an earlier send landing. Counting the second as delivered would tell a submitter DHIS2 has a capture
+    it never received, so an event that differs, or that cannot be read back, is not this one.
+    """
+    if event.event is None:
+        return False
+    try:
+        held = await reader.get_raw(f"/api/tracker/events/{event.event}", params={"fields": _HELD_EVENT_FIELDS})
+        stored = TrackerEvent.model_validate(held)
+    except (Dhis2ClientError, httpx2.HTTPError, ValidationError):
+        return False
+    return _EventFingerprint.of(event).found_in(_EventFingerprint.of(stored))
+
+
+class _EventFingerprint(BaseModel):
+    """What tells one submitted event from another, in a form both the payload and DHIS2's copy of it reduce to."""
+
+    model_config = ConfigDict(frozen=True)
+
+    program_stage: str | None
+    organisation_unit: str | None
+    occurred_on: str
+    values: frozenset[tuple[str, str]]
+
+    def found_in(self, held: _EventFingerprint) -> bool:
+        """Whether DHIS2's copy holds everything this payload states. DHIS2 fills in what a payload leaves out.
+
+        An event program's payload names no stage, and DHIS2 stores its one stage, so a field the payload leaves
+        empty is not compared.
+        """
+        return (
+            self.program_stage in (None, held.program_stage)
+            and self.organisation_unit in (None, held.organisation_unit)
+            and self.occurred_on in ("", held.occurred_on)
+            and self.values == held.values
+        )
+
+    @classmethod
+    def of(cls, event: TrackerEvent) -> _EventFingerprint:
+        """Reduce one event to its stage, organisation unit, date and answered values."""
+        occurred = event.model_dump(mode="json", include={"occurredAt"}).get("occurredAt") or ""
+        return cls(
+            program_stage=event.programStage,
+            organisation_unit=event.orgUnit,
+            occurred_on=str(occurred)[:10],
+            values=frozenset(
+                (value.dataElement or "", _comparable_value(value.value))
+                for value in event.dataValues or ()
+                if value.value not in (None, "")
+            ),
+        )
+
+
+def _comparable_value(value: str | None) -> str:
+    """One answer as DHIS2 and the payload both spell it: a number in its plainest form, anything else trimmed."""
+    text = (value or "").strip()
+    try:
+        number = Decimal(text)
+    except InvalidOperation:
+        return text
+    return format(number.normalize(), "f") if number.is_finite() else text
+
+
+async def _earlier_send_landed(reader: ImportPoster, entry: SpooledResponse, result: ConversionResult) -> bool:
+    """Whether an "already exists" answer is this receipt's own earlier send landing rather than a refusal.
+
+    An event is read back and compared, because its UID can come from an `identifier` another submission reused. Any
+    other payload carries this receipt's own identity, so it counts only for a receipt this server held for retry.
+    """
+    if result.event is not None:
+        return await event_already_holds(reader, result.event)
+    return entry.held_for_retry
 
 
 def _owed_claim_outcome(

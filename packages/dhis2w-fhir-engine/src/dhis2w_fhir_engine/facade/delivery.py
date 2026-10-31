@@ -19,8 +19,9 @@ server, upgrading one, or turning off `hold` must not write those to whichever D
 AN ANSWER CAN BE LOST AFTER DHIS2 HAS SAVED. A timeout says nothing about whether the write landed, so it is never
 reported as nothing having been stored. One capture carries one identity on every attempt, so a retry DHIS2 answers with
 "already exists" is that earlier attempt landing rather than a refusal. Under the caller's credentials nothing is kept
-to retry, and a client resending mints a new receipt and so a new event, which the answer warns about by naming the
-event to read first.
+to retry, so the client sends it again. A capture carrying an `identifier` names the same event on every send, and a
+resend DHIS2 already holds is answered as delivered once the event read back matches it. One without an identifier
+mints a new receipt and so a new event, which the answer warns about by naming the event to read first.
 
 A retried capture can still be refused, and by then its submitter has gone. That refusal is filed under `rejected/`,
 logged, and counted by `status`, which is what the capture UI and `GET /facade/delivery` read.
@@ -60,14 +61,18 @@ from dhis2w_fhir_engine.facade.conversion.artifacts import (
     build_project_context,
     load_compiled_artifacts,
 )
+from dhis2w_fhir_engine.facade.conversion.payloads import capture_identifier_label
 from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext, ConversionNaming, ConversionResult
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
 from dhis2w_fhir_engine.facade.forward import (
     ImportPoster,
+    already_landed,
     claim_completeness,
     configured_coded_answer_mode,
     drain_responses,
+    event_already_holds,
     fetch_value_types,
+    only_says_it_exists,
     post_translation,
     spool_layout,
 )
@@ -76,6 +81,7 @@ from dhis2w_fhir_engine.facade.live_inputs import fetch_live_artifacts
 from dhis2w_fhir_engine.facade.overwrite import OverwrittenValue, aggregate_cells, build_forwarded_cell_index
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
 from dhis2w_fhir_engine.facade.refusals import (
+    CaptureIdentifierTakenError,
     CaptureNotTranslatedError,
     CaptureOutcomeUnknownError,
     CaptureOverwriteRefusedError,
@@ -157,6 +163,9 @@ class DeliveryOutcome(BaseModel):
     may_have_arrived: bool = False
     """Whether DHIS2 may already have this held capture, because the post went out and its answer never came back."""
 
+    already_held: bool = False
+    """Whether DHIS2 already had this sent capture from an earlier send of it, so nothing was written twice."""
+
 
 class DeliveryStatus(BaseModel):
     """What a running facade says about the captures it has not landed in DHIS2."""
@@ -188,9 +197,10 @@ class _NoVerdictError(Dhis2ClientError):
 class _AnswerLostError(Dhis2ClientError):
     """A post went out and no answer about it came back, so DHIS2 may or may not have taken it."""
 
-    def __init__(self, problem: str, event_uid: str | None) -> None:
+    def __init__(self, problem: str, event_uid: str | None, identifier: str | None) -> None:
         super().__init__(problem)
         self.event_uid = event_uid
+        self.identifier = identifier
 
 
 def _never_arrived(error: BaseException) -> bool:
@@ -360,8 +370,10 @@ class CaptureDeliverer(BaseModel):
     ) -> DeliveryOutcome:
         """Post one capture under whoever `poster` is, and file it only if DHIS2 took it."""
         guide = await self._guide_over(client)
-        # The receipt's copy, stamped with its id: that id names the event, so every attempt at it is the same event.
-        result = translate_response(QuestionnaireResponse.model_validate(envelope.response), guide.conversion)
+        # The receipt's copy, stamped with its id: that id, or the capture's own identifier, names the event, so every
+        # attempt at it is the same event.
+        response = QuestionnaireResponse.model_validate(envelope.response)
+        result = translate_response(response, guide.conversion)
         if result.is_refused:
             raise CaptureNotTranslatedError(tuple(refusal.reason for refusal in result.refusals))
         overwritten = await asyncio.to_thread(self._replaced_values, result)
@@ -372,15 +384,26 @@ class CaptureDeliverer(BaseModel):
             if validate_only or _never_arrived(error):
                 raise
             raise _AnswerLostError(
-                str(error) or type(error).__name__, None if result.event is None else result.event.event
+                str(error) or type(error).__name__,
+                None if result.event is None else result.event.event,
+                capture_identifier_label(response),
             ) from error
         if answer.verdict is ForwardImportVerdict.NONE:
             raise _NoVerdictError(f"DHIS2 answered {answer.http_status} with no verdict about this capture")
+        already_held = False
+        if answer.verdict is ForwardImportVerdict.REJECTED and result.event is not None and only_says_it_exists(answer):
+            if not await event_already_holds(poster, result.event):
+                raise CaptureIdentifierTakenError(result.event.event or "", capture_identifier_label(response))
+            answer, already_held = already_landed(answer), True
         if answer.verdict is ForwardImportVerdict.REJECTED:
             reasons = tuple(issue.line for issue in answer.issues) or (answer.message or "no reason stated",)
             raise CaptureRefusedByInstanceError(answer.http_status or 409, reasons)
         if validate_only:
             return DeliveryOutcome(kind=DeliveryKind.VALIDATED, envelope=envelope, overwritten=overwritten)
+        if already_held:
+            earlier = await asyncio.to_thread(self._earlier_receipt, response)
+            if earlier is not None:
+                return DeliveryOutcome(kind=DeliveryKind.SENT, envelope=earlier, already_held=True)
         claim = result.completeness if self.project.config.forward.register_completeness else None
         record = ForwardImportRecord(
             **answer.model_dump(),
@@ -390,7 +413,9 @@ class CaptureDeliverer(BaseModel):
             completeness=None if claim is None else await claim_completeness(poster, claim),
         )
         await asyncio.to_thread(self.spool.save_forwarded, envelope, record)
-        return DeliveryOutcome(kind=DeliveryKind.SENT, envelope=envelope, overwritten=overwritten)
+        return DeliveryOutcome(
+            kind=DeliveryKind.SENT, envelope=envelope, overwritten=overwritten, already_held=already_held
+        )
 
     async def _could_not_reach(
         self, envelope: StoredResponseEnvelope, problem: str, *, caller: ImportPoster | None
@@ -409,7 +434,7 @@ class CaptureDeliverer(BaseModel):
     ) -> DeliveryOutcome:
         """Answer a capture that may have landed: never as stored nowhere, or with an invitation to duplicate it."""
         if caller is not None:
-            raise CaptureOutcomeUnknownError(error.event_uid) from error
+            raise CaptureOutcomeUnknownError(error.event_uid, error.identifier) from error
         note = HELD_ANSWER_LOST if self._worker is not None else self.held_note
         held = await self._held(envelope, note, retrying=self.retries, may_have_arrived=True)
         self._note_could_not_reach(str(error))
@@ -459,6 +484,23 @@ class CaptureDeliverer(BaseModel):
         if replaced and self.project.config.forward.overwrites is OverwritePosture.REFUSE:
             raise CaptureOverwriteRefusedError(tuple(value.line for value in replaced))
         return replaced
+
+    def _earlier_receipt(self, response: QuestionnaireResponse) -> StoredResponseEnvelope | None:
+        """The receipt this server already holds for the submission a resend names, so one event keeps one receipt.
+
+        It reads the queue and the forwarded receipts, which only a resend DHIS2 already holds pays for. A resend this
+        server has no receipt of, because the first send went out under the caller's credentials and its answer was
+        lost, is filed as its own.
+        """
+        label = capture_identifier_label(response)
+        if label is None:
+            return None
+        form = (response.questionnaire or "").split("|", 1)[0]
+        for receipt in self.spool.receipts((ResponseLifecycle.FORWARDED, ResponseLifecycle.RECEIVED)):
+            held = QuestionnaireResponse.model_validate(receipt.response)
+            if capture_identifier_label(held) == label and (held.questionnaire or "").split("|", 1)[0] == form:
+                return receipt
+        return None
 
     def _retrying(self) -> int:
         """How many queued captures this server took on sending, leaving out those a drain has already refused."""
