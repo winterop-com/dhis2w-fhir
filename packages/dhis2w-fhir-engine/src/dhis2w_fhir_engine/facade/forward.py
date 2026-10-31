@@ -155,6 +155,15 @@ _DATA_VALUE_SETS_DRY_RUN_PARAMS = {"dryRun": "true"}
 #: `async=false` makes the answer the import report itself rather than a job reference to poll.
 _TRACKER_PARAMS = {"importStrategy": "CREATE", "async": "false"}
 
+#: What `/api/tracker` answers when told to create a person, an enrollment, or an event it already holds.
+_ALREADY_EXISTS_CODES = frozenset({"E1002", "E1030", "E1080"})
+
+#: What a held capture's import report says where an earlier attempt landed and only its answer was lost.
+_ALREADY_LANDED_MESSAGE = "DHIS2 already holds this capture: an earlier attempt landed, and its answer never arrived"
+
+#: The status an accepted import report carries.
+_ACCEPTED_IMPORT_STATUS = "OK"
+
 
 #: What a dry run adds to a tracker post. v42 has no `dryRun` on `/api/tracker`; the endpoint's own
 #: validate-only mode is `importMode=VALIDATE`, which runs the whole validation pass and persists nothing.
@@ -728,6 +737,7 @@ async def drain_spool(
     corrections: CorrectionPosture,
     withdrawals: WithdrawalPosture,
     reporter: ProgressReporter | None,
+    only_held_for_retry: bool = False,
 ) -> ForwardReport:
     """Run one drain, with the spool lock already held - the body `forward_responses` documents.
 
@@ -740,7 +750,7 @@ async def drain_spool(
     layout = spool_layout(project)
     sweep_orphan_temporary_files(layout)
     reading = read_received_responses(layout)
-    spooled = reading.responses
+    spooled = tuple(entry for entry in reading.responses if entry.held_for_retry or not only_held_for_retry)
     quarantined_note = f", {len(reading.quarantined):,} moved to malformed/" if reading.quarantined else ""
     progress.complete(f"{len(spooled):,} pending response(s){quarantined_note}")
 
@@ -1089,6 +1099,11 @@ async def _post_translations(
                     filing_issues=tuple(issues),
                     stopped=_non_verdict_stop(entry, imported),
                 )
+            if entry.held_for_retry and _only_says_it_exists(imported):
+                # The identity is this receipt's own, so this is the earlier attempt landing rather than a refusal.
+                imported = imported.model_copy(
+                    update={"status": _ACCEPTED_IMPORT_STATUS, "issues": (), "message": _ALREADY_LANDED_MESSAGE}
+                )
             imports[entry.response_id] = imported
             if cells and imported.is_accepted:
                 if already_sent:
@@ -1115,6 +1130,11 @@ async def _post_translations(
         overwrite_refused=frozenset(refused),
         filing_issues=tuple(issues),
     )
+
+
+def _only_says_it_exists(imported: ForwardImportOutcome) -> bool:
+    """Whether DHIS2's only objection to this payload is that it already holds what the payload creates."""
+    return bool(imported.issues) and all(issue.error_code in _ALREADY_EXISTS_CODES for issue in imported.issues)
 
 
 def _owed_claim_outcome(
@@ -1940,12 +1960,14 @@ async def drain_responses(
     corrections: CorrectionPosture | None = None,
     withdrawals: WithdrawalPosture | None = None,
     reporter: ProgressReporter | None = None,
+    only_held_for_retry: bool = False,
 ) -> ForwardReport:
     """Drain a project's capture spool through a connection the caller holds, against a guide it already read.
 
     A dry run is the default, under each endpoint's own validate-only mode. Every dial left as None falls
     to what the project's configuration says. The connection stays open afterwards: its lifetime is the
     caller's. The lock, the filing, and the stop on a server error are the same ones `d2w fhir forward` runs.
+    `only_held_for_retry` sends what a server took on sending, and leaves the rest of the queue where it is.
     """
 
     @asynccontextmanager
@@ -1969,6 +1991,7 @@ async def drain_responses(
             corrections=corrections if corrections is not None else forward_config.corrections,
             withdrawals=withdrawals if withdrawals is not None else forward_config.withdrawals,
             reporter=reporter,
+            only_held_for_retry=only_held_for_retry,
         )
 
 

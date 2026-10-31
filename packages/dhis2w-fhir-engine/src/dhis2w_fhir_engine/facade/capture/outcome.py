@@ -87,11 +87,17 @@ def sent_outcome(
 
 
 def held_outcome(
-    response_id: str, subject: CaptureSubject, warnings: tuple[CaptureIssue, ...], *, note: str
+    response_id: str,
+    subject: CaptureSubject,
+    warnings: tuple[CaptureIssue, ...],
+    *,
+    note: str,
+    may_have_arrived: bool = False,
 ) -> OperationOutcome:
-    """The body a capture this server holds answers with: that it has not been sent, and what happens next."""
+    """The body a capture this server holds answers with: where it stands with DHIS2, and what happens next."""
+    standing = "not yet confirmed by DHIS2" if may_have_arrived else "not yet sent to DHIS2"
     return _accepted_outcome(
-        f"not yet sent to DHIS2: stored as response {response_id}, holding {capture_subject_sentence(subject)}; {note}",
+        f"{standing}: stored as response {response_id}, holding {capture_subject_sentence(subject)}; {note}",
         warnings,
         (),
     )

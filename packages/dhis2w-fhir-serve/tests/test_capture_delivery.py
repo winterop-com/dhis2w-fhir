@@ -14,8 +14,8 @@ import httpx2
 import pytest
 import respx
 from dhis2w_client import BasicAuth, Dhis2Client
-from dhis2w_core.profile import Profile, ResolvedProfile
-from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
+from dhis2w_core.profile import Profile
+from dhis2w_fhir.service import GenerationProfile
 from dhis2w_fhir_engine.facade import CaptureDeliverer, CaptureDelivery, DeliveryKind, open_facade
 from dhis2w_fhir_engine.facade import assembly as assembly_module
 from dhis2w_fhir_engine.facade import forward as forward_module
@@ -174,15 +174,16 @@ async def test_a_capture_dhis2_refuses_is_answered_with_why_and_stores_nothing(
 
 
 @pytest.mark.parametrize(
-    "failure",
+    ("failure", "standing"),
     [
-        pytest.param(httpx2.ConnectError("no route"), id="unreachable"),
-        pytest.param(httpx.Response(500, json={"status": "ERROR"}), id="failing"),
-        pytest.param(httpx.Response(401, json={"message": "Unauthorized"}), id="no-verdict"),
+        pytest.param(httpx2.ConnectError("no route"), "not yet sent to DHIS2", id="unreachable"),
+        pytest.param(httpx.Response(401, json={"message": "Unauthorized"}), "not yet sent to DHIS2", id="no-verdict"),
+        pytest.param(httpx.Response(500, json={"status": "ERROR"}), "not yet confirmed by DHIS2", id="failing"),
+        pytest.param(httpx2.ReadTimeout("no answer"), "not yet confirmed by DHIS2", id="answer-lost"),
     ],
 )
 async def test_dhis2_being_away_holds_the_capture_and_says_it_has_not_been_sent(
-    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, failure: Any
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, failure: Any, standing: str
 ) -> None:
     """DHIS2 never ruled on it, so it is kept, and the answer is not a 201 that would read as done."""
     with respx.mock(assert_all_called=False) as router:
@@ -192,8 +193,8 @@ async def test_dhis2_being_away_holds_the_capture_and_says_it_has_not_been_sent(
             answer = await _capture(client)
             status = (await client.get("/facade/delivery")).json()
     assert answer.status_code == 202
-    assert _stated(answer).startswith("not yet sent to DHIS2: stored as response ")
-    assert _stated(answer).endswith("; this server keeps trying")
+    assert _stated(answer).startswith(f"{standing}: stored as response ")
+    assert "keeps trying" in _stated(answer)
     assert answer.headers["location"].startswith("http://service/QuestionnaireResponse/")
     assert status["waiting"] == 1
     assert status["last_problem"]
@@ -322,8 +323,8 @@ async def test_a_worker_is_not_stopped_by_an_error_nobody_expected(
     assert deliverer.status().waiting == 1
 
 
-def _spool_holding_one(project: FhirProject) -> ResponseSpool:
-    """The project's spool with one capture in its queue, held by a facade with no connection."""
+def _spool_holding_one(project: FhirProject, *, held_for_retry: bool = True) -> ResponseSpool:
+    """The project's spool with one capture in its queue, which a server either took on sending or merely found."""
     spool = ResponseSpool.at(project.project_root)
     validated = validate_response(
         json.dumps(golden(AGGREGATE_RESPONSE_FILE)).encode(),
@@ -332,13 +333,203 @@ def _spool_holding_one(project: FhirProject) -> ResponseSpool:
         load_compiled_store(project),
         False,
     )
-    spool.save(mint_receipt(validated))
+    spool.save(mint_receipt(validated).model_copy(update={"held_for_retry": held_for_retry}))
     return spool
 
 
 async def _a_moment() -> None:
     """Let the worker run."""
     await asyncio.sleep(0.01)
+
+
+async def test_starting_a_server_does_not_send_what_it_found_in_the_queue(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Old test submissions can be sitting there, and a restart or an upgrade must not write them to a real DHIS2."""
+    _spool_holding_one(capture_project, held_for_retry=False)
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        posted = router.post(_DATA_VALUE_SETS).mock(return_value=httpx.Response(200, json=_ACCEPTED))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            await asyncio.sleep(0.05)
+            status = (await client.get("/facade/delivery")).json()
+    assert not posted.called
+    assert status["waiting"] == 1
+    assert status["retrying"] == 0
+    on_disk = _receipts_on_disk(capture_project)
+    assert len(on_disk) == 1 and on_disk[0].startswith("received/")
+
+
+async def test_what_a_server_found_does_not_hold_up_a_new_capture(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A new capture goes at once, and the old one stays exactly where it was."""
+    _spool_holding_one(capture_project, held_for_retry=False)
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        posted = router.post(_DATA_VALUE_SETS).mock(return_value=httpx.Response(200, json=_ACCEPTED))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _capture(client)
+    assert answer.status_code == 201
+    assert posted.call_count == 1
+    assert sorted(path.split("/")[0] for path in _receipts_on_disk(capture_project)) == ["forwarded", "received"]
+
+
+async def test_a_held_capture_says_so_on_its_file_and_a_restart_goes_on_trying_it(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A restart during an outage must not strand what the last run took on, and must still leave the rest alone."""
+    _spool_holding_one(capture_project, held_for_retry=False)
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_DATA_VALUE_SETS).mock(side_effect=httpx2.ConnectError("no route"))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            held = await _capture(client)
+        assert held.status_code == 202
+        held_id = held.headers["location"].rsplit("/", 1)[-1]
+
+        route.mock(side_effect=None, return_value=httpx.Response(200, json=_ACCEPTED))
+        async with _connection() as connection, open_facade(capture_project, client=connection) as facade:
+            deliverer = facade.deliverer()
+            assert deliverer.status().retrying == 1
+            await deliverer.attempt()
+    assert route.call_count >= 1
+    sent = facade.spool.get(held_id)
+    assert sent is not None
+    assert sent.lifecycle is ResponseLifecycle.FORWARDED
+    assert deliverer.status().waiting == 1
+    assert deliverer.status().retrying == 0
+
+
+_TRACKER = f"{_INSTANCE}/api/tracker"
+_EVENT_EXISTS = {
+    "status": "ERROR",
+    "validationReport": {
+        "errorReports": [
+            {"errorCode": "E1030", "message": "Event already exists.", "trackerType": "EVENT", "uid": "x"}
+        ],
+        "warningReports": [],
+    },
+    "stats": {"created": 0, "updated": 0, "deleted": 0, "ignored": 1, "total": 1},
+}
+_TRACKER_TOOK_IT = {
+    "status": "OK",
+    "validationReport": {"errorReports": [], "warningReports": []},
+    "stats": {"created": 1, "updated": 0, "deleted": 0, "ignored": 0, "total": 1},
+}
+
+
+def _event_posted(route: respx.Route, call: int) -> str:
+    """The event UID one call to `/api/tracker` named."""
+    return str(json.loads(route.calls[call].request.content)["events"][0]["event"])
+
+
+async def _submit_event(
+    client: httpx2.AsyncClient, body: dict[str, Any], *, authorization: str | None = None
+) -> httpx2.Response:
+    """Submit one tracker event capture."""
+    headers = {"content-type": _FHIR_JSON}
+    if authorization is not None:
+        headers["Authorization"] = authorization
+    return await client.post("/QuestionnaireResponse", content=json.dumps(body), headers=headers)
+
+
+async def test_a_lost_answer_under_one_connection_is_retried_as_the_same_event_and_counts_as_landed(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """DHIS2 saved it and never said so: a retry must not make a second event, and must not read as a refusal."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(side_effect=httpx2.ReadTimeout("no answer"))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _submit_event(client, event_response)
+            assert answer.status_code == 202
+            assert _stated(answer).startswith("not yet confirmed by DHIS2: stored as response ")
+            assert "will not send it twice" in _stated(answer)
+            held_id = answer.headers["location"].rsplit("/", 1)[-1]
+        route.mock(side_effect=None, return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        async with _connection() as connection, open_facade(capture_project, client=connection) as facade:
+            deliverer = facade.deliverer()
+            await deliverer.attempt()
+    assert _event_posted(route, 0) == _event_posted(route, route.call_count - 1)
+    sent = facade.spool.get(held_id)
+    assert sent is not None
+    assert sent.lifecycle is ResponseLifecycle.FORWARDED
+    assert deliverer.status().refused == 0
+
+
+async def test_already_exists_on_a_first_attempt_is_still_a_refusal(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """Only this server's own earlier attempt explains it, so anywhere else it is the submitter's to hear."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.post(_TRACKER).mock(return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _submit_event(client, event_response)
+    assert answer.status_code == 409
+    assert "E1030" in _stated(answer)
+    assert _receipts_on_disk(capture_project) == []
+
+
+async def test_a_retry_refused_for_another_reason_is_still_a_refusal(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Being told it already exists is the one thing that means landed."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_DATA_VALUE_SETS).mock(side_effect=httpx2.ReadTimeout("no answer"))
+        async with _connection() as client:
+            deliverer = await _held_deliverer(capture_project, monkeypatch, client)
+            route.mock(side_effect=None, return_value=httpx.Response(409, json=_REFUSED))
+            await deliverer.attempt()
+    assert deliverer.status().refused == 1
+
+
+async def test_a_lost_answer_as_the_caller_says_dhis2_may_have_it_and_names_the_event_to_check(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """Saying nothing was stored and to send it again is how one visit becomes two."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        route = router.post(_TRACKER).mock(side_effect=httpx2.ReadTimeout(""))
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            answer = await _submit_event(client, event_response, authorization=_CALLER)
+    assert answer.status_code == 504
+    assert answer.json()["issue"][0]["code"] == "timeout"
+    assert "may already have this capture" in _stated(answer)
+    assert f"`{_event_posted(route, 0)}`" in _stated(answer)
+    assert "send it again" not in _stated(answer)
+    assert _receipts_on_disk(capture_project) == []
+
+
+async def test_a_lost_answer_on_an_aggregate_capture_says_resending_is_safe(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """DHIS2 keeps one value per cell, so there is no second copy to make."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        router.post(_DATA_VALUE_SETS).mock(side_effect=httpx2.ReadTimeout(""))
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            answer = await _capture(client, authorization=_CALLER)
+    assert answer.status_code == 504
+    assert "Sending it again is safe" in _stated(answer)
+
+
+async def test_a_connection_that_never_opened_can_be_sent_again_plainly(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """Nothing went out, so there is nothing to be unsure about."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        router.post(_TRACKER).mock(side_effect=httpx2.ConnectError("no route"))
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            answer = await _submit_event(client, event_response, authorization=_CALLER)
+    assert answer.status_code == 502
+    assert "send it again" in _stated(answer)
 
 
 async def test_stopping_leaves_the_queue_and_no_worker_behind(
@@ -408,7 +599,9 @@ async def test_a_server_with_no_connection_holds_the_capture_and_says_so(capture
         answer = await _capture(client)
         status = (await client.get("/facade/delivery")).json()
     assert answer.status_code == 202
-    assert _stated(answer).endswith("; nothing sends it until `d2w fhir forward` or `drain` runs")
+    assert _stated(answer).endswith(
+        '; nothing sends it until `d2w fhir forward` runs, and `[serve] delivery = "at-once"` posts new captures'
+    )
     assert status["posts_as"] == "nobody"
     assert status["waiting"] == 1
 
@@ -516,10 +709,10 @@ def test_metadata_says_what_a_capture_will_do_on_this_server(
     assert _rest_documentation(ServeSettings(project_dir=capture_project.project_root, **settings)) == expected
 
 
-def _found_profile(named: bool) -> GenerationProfile:
-    """A profile resolved for a run, somebody having named it or this machine having fallen back to it."""
+def _found_profile() -> GenerationProfile:
+    """A profile resolved for a run, which is enough to read metadata from it."""
     profile = Profile(base_url=_INSTANCE, auth="basic", username="someone", password="its-own")
-    return GenerationProfile(name="found", origin="test", profile=profile, named=named)
+    return GenerationProfile(name="found", origin="fhir.toml", profile=profile)
 
 
 def _with_serve(project: FhirProject, **keys: Any) -> FhirProject:
@@ -529,36 +722,33 @@ def _with_serve(project: FhirProject, **keys: Any) -> FhirProject:
 
 
 @pytest.mark.parametrize(
-    ("named", "stated", "expected", "held_for_it"),
+    ("stated", "expected", "held_until_asked"),
     [
-        pytest.param(True, None, CaptureDelivery.AT_ONCE, False, id="named-posts-at-once"),
-        pytest.param(False, None, CaptureDelivery.HOLD, True, id="found-holds-so-a-test-submit-writes-nothing"),
-        pytest.param(False, CaptureDelivery.AT_ONCE, CaptureDelivery.AT_ONCE, False, id="found-and-asked-for-posts"),
-        pytest.param(True, CaptureDelivery.HOLD, CaptureDelivery.HOLD, False, id="named-and-asked-to-hold-holds"),
+        pytest.param(None, CaptureDelivery.HOLD, True, id="a-profile-alone-writes-nothing"),
+        pytest.param(CaptureDelivery.AT_ONCE, CaptureDelivery.AT_ONCE, False, id="asking-posts"),
+        pytest.param(CaptureDelivery.HOLD, CaptureDelivery.HOLD, False, id="asking-to-hold-holds"),
+        pytest.param(CaptureDelivery.VALIDATE_ONLY, CaptureDelivery.VALIDATE_ONLY, False, id="asking-to-grade-grades"),
     ],
 )
-def test_a_run_only_posts_at_once_to_a_dhis2_somebody_named(
+def test_naming_a_profile_is_not_permission_to_write_to_it(
     capture_project: FhirProject,
     monkeypatch: pytest.MonkeyPatch,
-    named: bool,
     stated: CaptureDelivery | None,
     expected: CaptureDelivery,
-    held_for_it: bool,
+    held_until_asked: bool,
 ) -> None:
-    """Profiles are discovered, and the one found could be an administrator's login to anything."""
-    monkeypatch.setattr(
-        "dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile(named)
-    )
+    """`profile` says which DHIS2 to read metadata from, and a project can point it at a national instance."""
+    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile())
     invocation = resolve_serve_settings(capture_project, delivery=stated)
     assert invocation.settings.capture_delivery is expected
-    assert invocation.held_for_an_unnamed_profile is held_for_it
+    assert invocation.held_until_asked is held_until_asked
 
 
 def test_delivery_comes_off_the_project_and_a_flag_beats_it(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A deployment states it once, and one run may state otherwise."""
-    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile(True))
+    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile())
     holding = _with_serve(capture_project, delivery=CaptureDelivery.HOLD)
     assert resolve_serve_settings(holding).settings.capture_delivery is CaptureDelivery.HOLD
     stated = resolve_serve_settings(holding, delivery=CaptureDelivery.VALIDATE_ONLY)
@@ -570,35 +760,15 @@ def test_a_settings_object_posts_nothing_until_told(capture_project: FhirProject
     assert ServeSettings(project_dir=capture_project.project_root).capture_delivery is CaptureDelivery.HOLD
 
 
-def test_a_caller_presenting_their_own_account_needs_no_named_profile(
+def test_a_caller_presenting_their_own_account_needs_nothing_stated(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Their credentials say which DHIS2 they mean, and DHIS2 applies their rights rather than an administrator's."""
-    monkeypatch.setattr(
-        "dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile(False)
-    )
+    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile())
     monkeypatch.setattr("dhis2w_fhir_serve.settings.preflight_auth", lambda **_keys: None)
     invocation = resolve_serve_settings(capture_project, auth=ServeAuth.DHIS2, live=True)
     assert invocation.settings.capture_delivery is CaptureDelivery.AT_ONCE
-    assert not invocation.held_for_an_unnamed_profile
-
-
-def test_a_profile_says_whether_somebody_named_it(
-    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Falling back to a machine's default is the one case that names nothing."""
-    found = ResolvedProfile(
-        name="found",
-        profile=Profile(base_url=_INSTANCE, auth="basic", username="someone", password="its-own"),
-        source="global-toml",
-        layer="global-toml",
-    )
-    monkeypatch.setattr("dhis2w_fhir.service.resolve", lambda _name: found)
-    monkeypatch.delenv("DHIS2_PROFILE", raising=False)
-    assert not resolve_generation_profile(capture_project).named
-    assert resolve_generation_profile(capture_project, "found").named
-    monkeypatch.setenv("DHIS2_PROFILE", "found")
-    assert resolve_generation_profile(capture_project).named
+    assert not invocation.held_until_asked
 
 
 async def test_a_compiled_run_with_a_profile_posts_through_a_connection_it_opens_per_attempt(

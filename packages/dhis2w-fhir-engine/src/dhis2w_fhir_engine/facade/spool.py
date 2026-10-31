@@ -273,6 +273,9 @@ class SpooledResponse(BaseModel):
     `storedBy` on the instance is DHIS2's own stamp of that profile.
     """
 
+    held_for_retry: bool = False
+    """Whether this server took on sending it, which is all a retry may send. See `StoredResponseEnvelope`."""
+
     layout: SpoolLayout
     """The spool this receipt came off, which is the one that files it - see `SpoolLayout`."""
 
@@ -794,6 +797,7 @@ def _read_receipt(path: Path, layout: SpoolLayout) -> SpooledResponse:
         form_kind=str(raw.get("form_kind") or ""),
         questionnaire=str(raw.get("questionnaire") or response.questionnaire or ""),
         submitted_by=_submitted_by(raw),
+        held_for_retry=raw.get("held_for_retry") is True,
         layout=layout,
         path=path,
         response=response,

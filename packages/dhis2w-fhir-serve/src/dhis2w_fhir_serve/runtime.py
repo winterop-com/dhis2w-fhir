@@ -47,7 +47,7 @@ from dhis2w_client import Dhis2Client
 from dhis2w_fhir_engine.facade.api.metadata import build_served_metadata
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, load_project
-from dhis2w_fhir_engine.facade.delivery import CaptureDeliverer, holding_connection
+from dhis2w_fhir_engine.facade.delivery import HELD_UNTIL_ASKED, CaptureDeliverer, holding_connection
 from dhis2w_fhir_engine.facade.live import build_live_store
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 from dhis2w_fhir_engine.facade.provenance import facade_provenance, server_version
@@ -119,6 +119,7 @@ async def open_serve_runtime(
             posts_as_caller=settings.forwards_credentials,
             connect=_delivery_connection(project, settings, live),
             retry_seconds=settings.delivery_retry_seconds,
+            held_note=HELD_UNTIL_ASKED,
         )
         if settings.capture:
             delivery.start()

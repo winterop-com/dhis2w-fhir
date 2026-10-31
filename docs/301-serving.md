@@ -541,27 +541,37 @@ to is one DHIS2 refuses. A capture the server retries can still be refused, and 
 its sender has gone: it is filed under `rejected/`, logged, and counted in
 `GET /facade/delivery` and on the capture screens.
 
+**An answer can be lost after DHIS2 has saved.** A timeout says nothing about whether the
+write landed. Under this run's profile the capture answers `202`, not yet confirmed, and
+the retry carries the same identity, so DHIS2 answering "already exists" counts as that
+attempt having landed and nothing is written twice. Under the caller's own credentials
+nothing is kept to retry, so the answer is a `504` saying DHIS2 may already have it. For an
+event it names the event to read first, because a client sending it again makes a second
+event.
+
+**A server only sends what it took on sending.** A capture it held because DHIS2 could
+not be reached says so on its file, and a restart goes on trying it. Anything else in the
+queue stays there until [`d2w fhir forward`](201-forward.md) runs, so changing this key,
+naming a profile, or upgrading writes nothing that was already waiting.
+
 **Whose rights DHIS2 applies.** Under [`auth = "dhis2"`](#auth), and `"jwt"` with
 [`forward_bearer`](#jwt-forward_bearer), a capture goes under the caller's own
 credentials. This server keeps no password, so it cannot try again later, which is why
 that row answers `502`. Under every other posture it goes as this run's profile.
 
-**If you leave it out, it depends on which DHIS2 this run found.** Captures go at once
-to a DHIS2 somebody named: [`profile`](301-identity.md#profile) in this file,
-`d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with credentials. They go at once too where
-each caller presents their own account. A profile this machine merely fell back to could
-be an administrator's login to anything, so one test submission must not be able to
-write to it: captures stay on the server, and the line the server starts with says why
-and how to name it. That includes a default profile in the project's own
-`.dhis2/profiles.toml`, because a default is what was found rather than what was named.
-With no profile at all they stay on the server too.
+**If you leave it out, captures stay on this server.** [`profile`](301-identity.md#profile)
+says which DHIS2 to read metadata from, and a project can point it at a national instance
+to build a guide, so one test submission must not be able to write there. Writing as this
+run's one account has to be asked for, here or with `--delivery at-once`, and the line the
+server starts with says how. They go at once anyway where each caller presents their own
+account, because their credentials say which DHIS2 they mean and DHIS2 applies their rights.
 
-**When you would change it.** `"validate-only"` to try a guide or a client out against a
+**When you would change it.** `"at-once"` once this project should write to its DHIS2, so
+submitters hear its answer. `"validate-only"` to try a guide or a client out against a
 real instance. `"hold"` where captures must be reviewed or sent on a schedule, accepting
 that nobody hears DHIS2's answer until then. Under `dhis2`, `"hold"` also means
 `d2w fhir forward` posts as its own profile, so DHIS2 judges that profile and not the
-person who submitted. `"at-once"` written down to post to a profile you do not want to
-name in this file.
+person who submitted.
 
 **Example.**
 

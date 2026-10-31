@@ -1497,7 +1497,7 @@ $ curl -s -X POST localhost:8389/QuestionnaireResponse \
 {"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"not-supported","diagnostics":"this endpoint accepts one QuestionnaireResponse per request; post each response on its own request","expression":["Bundle"]}]}
 ```
 
-An accepted capture goes to DHIS2 at once, and the answer says what became of it:
+An accepted capture goes to DHIS2 where the server is asked to send it, and the answer says what became of it:
 
 | Answer | What it means |
 | --- | --- |
@@ -1507,6 +1507,7 @@ An accepted capture goes to DHIS2 at once, and the answer says what became of it
 | `409`, or DHIS2's own status | DHIS2 refused it, or `[forward] overwrites = "refuse"` did, and nothing was stored. The issues say why, and the sender is the one who can fix it |
 | `422` with `could not be translated` | The form is valid and the translator cannot turn it into a DHIS2 payload, and nothing was sent or stored |
 | `502` | DHIS2 could not take it, and this server cannot try again for you, because it posts under your own credentials or under `validate-only`. Nothing was stored, so send it again |
+| `504` | DHIS2 did not answer a capture posted under your own credentials, so it may already have it. This server stored nothing. For an event the answer names its UID: read it before sending this again, because a resend makes a second event. For anything else, sending it again is safe |
 
 **A `201` is the only answer that means DHIS2 has it,** so a client should not treat a
 `202` as done. `/metadata` says which of these a server gives, in
@@ -1722,7 +1723,7 @@ UI's notices read, and what a monitoring check should watch. Plain `application/
 
 ```console
 $ curl -s localhost:8389/facade/delivery
-{"delivery":"at-once","posts_as":"connection","waiting":2,"refused":1,"last_attempt_at":"2026-08-10T19:50:02.114Z","last_problem":"no route to host"}
+{"delivery":"at-once","posts_as":"connection","waiting":2,"retrying":2,"refused":1,"last_attempt_at":"2026-08-10T19:50:02.114Z","last_problem":"no route to host"}
 ```
 
 | Field | What it says |
@@ -1730,6 +1731,7 @@ $ curl -s localhost:8389/facade/delivery
 | `delivery` | `at-once`, `validate-only`, or `hold`: how this run sends captures |
 | `posts_as` | `caller`, `connection`, or `nobody`: whose rights DHIS2 applies. `nobody` is a run holding captures |
 | `waiting` | captures that have not reached DHIS2, and that nothing has refused |
+| `retrying` | how many of those this server is sending on its own. The rest stay until `d2w fhir forward` runs |
 | `refused` | captures refused after their sender had gone, which someone has to look at |
 | `last_attempt_at` | when this server last tried its queue, and null where it has not since it started |
 | `last_problem` | why that attempt could not reach DHIS2, and null where it did |

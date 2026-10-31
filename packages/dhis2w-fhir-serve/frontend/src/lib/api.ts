@@ -416,6 +416,11 @@ export function captureDeliveryOf(status: number): CaptureDelivery {
     return status === 200 ? 'validated' : 'held'
 }
 
+/** Whether DHIS2 may already have a held capture, because the post went out and its answer never came back. */
+export function mayHaveArrived(outcome: OperationOutcome | null): boolean {
+    return outcome?.issue[0]?.diagnostics?.startsWith('not yet confirmed by DHIS2') ?? false
+}
+
 /** What an accepted capture answered with - what became of it, the receipt it was stored as, and what the server noted. */
 export interface CaptureReceipt {
     /** What became of it. */

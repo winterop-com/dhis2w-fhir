@@ -635,7 +635,8 @@ def _statement_description(
 #: What this server says where each capture reaches DHIS2 under the caller's own credentials.
 CAPTURE_AS_CALLER_REST_DOCUMENTATION = (
     "Every request presents the caller's own DHIS2 credentials. Reads and captures reach DHIS2 under them, so DHIS2 "
-    "applies that caller's rights. A capture answers 201 only once DHIS2 has taken it, and a refusal stores nothing."
+    "applies that caller's rights. A capture answers 201 only once DHIS2 has taken it, and a refusal stores nothing. "
+    "A 504 means DHIS2 did not answer and may already have it."
 )
 
 #: What this server says where captures reach DHIS2 under its one connection, while the submitter waits.

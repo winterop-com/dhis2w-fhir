@@ -406,6 +406,7 @@ describe('deliveryNotices', () => {
         delivery: 'at-once',
         posts_as: 'connection',
         waiting: 0,
+        retrying: 0,
         refused: 0,
         last_attempt_at: null,
         last_problem: null,
@@ -416,7 +417,7 @@ describe('deliveryNotices', () => {
     })
 
     it('says a server trying on its own asks nothing of the reader, and what stopped the last attempt', () => {
-        const [notice] = deliveryNotices({ ...quiet, waiting: 2, last_problem: 'connection refused' })
+        const [notice] = deliveryNotices({ ...quiet, waiting: 2, retrying: 2, last_problem: 'connection refused' })
         expect(notice.lifecycle).toBe('received')
         expect(notice.title).toBe('2 submissions not yet sent to this DHIS2 instance')
         expect(notice.detail).toBe('This server keeps trying. The last attempt failed: connection refused.')
@@ -425,7 +426,9 @@ describe('deliveryNotices', () => {
     it('names the command where nothing is sending them', () => {
         const [notice] = deliveryNotices({ ...quiet, delivery: 'hold', posts_as: 'nobody', waiting: 1 })
         expect(notice.title).toBe('1 submission not yet sent to this DHIS2 instance')
-        expect(notice.detail).toBe('Nothing sends it until d2w fhir forward runs.')
+        expect(notice.detail).toBe(
+            'Nothing sends it until d2w fhir forward runs. To post new submissions as they arrive, state delivery = "at-once" under [serve] in fhir.toml.',
+        )
     })
 
     it('says a refusal nobody heard about is the instance speaking, and how to read it', () => {
@@ -439,5 +442,10 @@ describe('deliveryNotices', () => {
             'received',
             'rejected',
         ])
+    })
+
+    it('tells apart what this server is sending from what it found and is leaving alone', () => {
+        const details = deliveryNotices({ ...quiet, waiting: 5, retrying: 2 }).map((notice) => notice.detail)
+        expect(details).toEqual(['This server keeps trying.', 'Nothing sends them until d2w fhir forward runs.'])
     })
 })

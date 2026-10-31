@@ -353,7 +353,6 @@ async def test_a_capture_dhis2_refuses_the_caller_is_refused_and_nothing_is_stor
 @pytest.mark.parametrize(
     "failure",
     [
-        pytest.param(httpx.Response(500, json={"status": "ERROR"}), id="dhis2-failing"),
         pytest.param(httpx2.ConnectError("no route"), id="dhis2-away"),
     ],
 )

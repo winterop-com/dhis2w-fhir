@@ -507,6 +507,8 @@ export interface DeliveryStatus {
     delivery: 'at-once' | 'validate-only' | 'hold'
     posts_as: 'caller' | 'connection' | 'nobody'
     waiting: number
+    /** How many of those this server is sending on its own. The rest stay until d2w fhir forward runs. */
+    retrying: number
     refused: number
     last_attempt_at: string | null
     last_problem: string | null
@@ -527,20 +529,27 @@ function submissions(count: number): string {
 /**
  * What a status comes to in words, and nothing where nothing is wrong.
  *
- * Whether this server is trying decides the sentence: a queue it is working through asks nothing of
- * the reader, and one nothing is sending has to name the command that would.
+ * A queue this server is working through asks nothing of the reader, and one nothing is sending has to
+ * name the command that would. Both can be true at once: a server only sends what it took on sending.
  */
 export function deliveryNotices(status: DeliveryStatus): DeliveryNoticeText[] {
     const notices: DeliveryNoticeText[] = []
-    if (status.waiting > 0) {
-        const retrying = status.delivery === 'at-once' && status.posts_as === 'connection'
+    if (status.retrying > 0) {
         const problem = status.last_problem === null ? '' : ` The last attempt failed: ${status.last_problem}.`
         notices.push({
             lifecycle: 'received',
-            title: `${submissions(status.waiting)} not yet sent to this DHIS2 instance`,
-            detail: retrying
-                ? `This server keeps trying.${problem}`
-                : `Nothing sends ${status.waiting === 1 ? 'it' : 'them'} until d2w fhir forward runs.`,
+            title: `${submissions(status.retrying)} not yet sent to this DHIS2 instance`,
+            detail: `This server keeps trying.${problem}`,
+        })
+    }
+    const untended = status.waiting - status.retrying
+    if (untended > 0) {
+        notices.push({
+            lifecycle: 'received',
+            title: `${submissions(untended)} not yet sent to this DHIS2 instance`,
+            detail: `Nothing sends ${untended === 1 ? 'it' : 'them'} until d2w fhir forward runs.${
+                status.delivery === 'hold' ? ' To post new submissions as they arrive, state delivery = "at-once" under [serve] in fhir.toml.' : ''
+            }`,
         })
     }
     if (status.refused > 0) {

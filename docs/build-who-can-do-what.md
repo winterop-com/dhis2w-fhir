@@ -42,8 +42,10 @@ A capture goes to DHIS2 while the caller waits, under their own credentials, and
   approvals.
 - DHIS2's own record names the clerk, as `storedBy`, rather than the service's account.
 - A 201 means DHIS2 has the data, and a refusal stores nothing.
-- If DHIS2 is away, the capture fails with a 502 and nothing is stored, so **the client must send it again**. A service
-  cannot try again later as the clerk without keeping the clerk's password.
+- If DHIS2 cannot be reached, the capture fails with a 502 and nothing is stored, so **the client must send it again**. A
+  service cannot try again later as the clerk without keeping the clerk's password.
+- If DHIS2 does not answer, the capture fails with a 504, because DHIS2 may already have it. For an event the answer names
+  the event to read first, because **sending an event again makes a second one**.
 
 A deployment that has to take captures while DHIS2 is unreachable needs `authentication=`, where the server holds them
 and keeps trying, and accepts what follows from it.
@@ -91,8 +93,9 @@ see [Pluggable auth](https://winterop-com.github.io/dhis2w/architecture/auth/).
 
 `d2w fhir serve` follows the same rules, and asks one thing more. Its
 [`dhis2` posture](201-secure.md#under-dhis2-the-register-is-read-as-you) is `read_as_caller`, and `token` is your own
-`authentication=`. It will not bind beyond loopback until a posture is stated. And it only posts as its own account to a
-DHIS2 somebody named: a profile it merely found on the machine could be anybody's, so captures stay on the server. See
+`authentication=`. It will not bind beyond loopback until a posture is stated. And it only writes as its own account where
+`[serve] delivery = "at-once"` asks it to, because `profile` says which DHIS2 to read and a project can point that at a
+national instance to build a guide. A service you compose has asked already, by handing `open_facade` a connection. See
 [`delivery`](301-serving.md#delivery).
 
 Next: [Choose where the guide comes from](build-choose-a-guide.md).

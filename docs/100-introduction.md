@@ -125,10 +125,10 @@ What it keeps is a **receipt**: `forwarded` once DHIS2 took it, `received` while
 waits, `rejected` if DHIS2 refused it after its sender had gone, and `withdrawn` if
 a forwarded one is later retracted.
 
-**A run only writes to a DHIS2 somebody named.** A profile the server merely found
-on this machine could be anybody's, so captures stay on the server until the project
-names it, and the line the server starts with says which DHIS2 it posts to. See
-[`delivery`](301-serving.md#delivery).
+**A run only writes to a DHIS2 you asked it to.** `profile` says which DHIS2 to read
+metadata from, and a project can point it at a national instance to build a guide, so
+captures stay on the server until `delivery = "at-once"` is stated. The line the server
+starts with says which of these it is. See [`delivery`](301-serving.md#delivery).
 
 ![The Responses table: the lifecycle states as a filter row carrying their own counts, and a row per receipt with what it answers and where it is now](img/capture-ui-responses.png)
 

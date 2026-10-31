@@ -84,7 +84,9 @@ async def test_each_form_kind_is_created_and_then_served_from_its_location(
     assert read.json() == {**body, "id": response_id}
     stated = created.json()["issue"][0]["diagnostics"]
     assert stated.startswith(f"not yet sent to DHIS2: stored as response {response_id}, holding ")
-    assert stated.endswith("; nothing sends it until `d2w fhir forward` or `drain` runs")
+    assert stated.endswith(
+        '; nothing sends it until `d2w fhir forward` runs, and `[serve] delivery = "at-once"` posts new captures'
+    )
     assert _spooled(capture_project, response_id)["form_kind"] == form_kind
 
 
