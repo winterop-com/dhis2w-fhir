@@ -541,6 +541,14 @@ to is one DHIS2 refuses. A capture the server retries can still be refused, and 
 its sender has gone: it is filed under `rejected/`, logged, and counted in
 `GET /facade/delivery` and on the capture screens.
 
+**An answer can be lost after DHIS2 has saved.** A timeout says nothing about whether the
+write landed. Under this run's profile the capture answers `202`, not yet confirmed, and
+the retry carries the same identity, so DHIS2 answering "already exists" counts as that
+attempt having landed and nothing is written twice. Under the caller's own credentials
+nothing is kept to retry, so the answer is a `504` saying DHIS2 may already have it. For an
+event it names the event to read first, because a client sending it again makes a second
+event.
+
 **A server only sends what it took on sending.** A capture it held because DHIS2 could
 not be reached says so on its file, and a restart goes on trying it. Anything else in the
 queue stays there until [`d2w fhir forward`](201-forward.md) runs, so changing this key,

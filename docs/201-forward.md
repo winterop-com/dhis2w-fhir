@@ -50,6 +50,10 @@ graph LR
 | Nothing asked the server to send it: no `[serve] delivery`, or no DHIS2 profile at all | `d2w fhir forward`. Stating `delivery = "at-once"` posts new captures and leaves these here |
 | You put a refused receipt back with `d2w fhir requeue` | `d2w fhir forward`, or the server if it was already retrying that capture |
 
+**A retry cannot write a capture twice.** A capture carries one identity on every attempt,
+so where an earlier attempt landed and its answer was lost, DHIS2 answers "already exists"
+and the receipt is filed as `forwarded` rather than `rejected`.
+
 **A server only sends what it took on sending.** A receipt it held because DHIS2 could
 not be reached says so on its file, and a restart goes on trying it. Everything else
 stays put, however the server is started: old test submissions may be sitting here, and

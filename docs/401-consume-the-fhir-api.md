@@ -1507,6 +1507,7 @@ An accepted capture goes to DHIS2 where the server is asked to send it, and the 
 | `409`, or DHIS2's own status | DHIS2 refused it, or `[forward] overwrites = "refuse"` did, and nothing was stored. The issues say why, and the sender is the one who can fix it |
 | `422` with `could not be translated` | The form is valid and the translator cannot turn it into a DHIS2 payload, and nothing was sent or stored |
 | `502` | DHIS2 could not take it, and this server cannot try again for you, because it posts under your own credentials or under `validate-only`. Nothing was stored, so send it again |
+| `504` | DHIS2 did not answer a capture posted under your own credentials, so it may already have it. This server stored nothing. For an event the answer names its UID: read it before sending this again, because a resend makes a second event. For anything else, sending it again is safe |
 
 **A `201` is the only answer that means DHIS2 has it,** so a client should not treat a
 `202` as done. `/metadata` says which of these a server gives, in

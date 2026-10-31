@@ -34,7 +34,7 @@ import {
     registerResourceForSubjectType,
     trackedEntitySettings,
 } from '@/lib/uiconfig'
-import { FhirRequestError, generateResponse, postQuestionnaireResponse, readResource } from '@/lib/api'
+import { FhirRequestError, mayHaveArrived, generateResponse, postQuestionnaireResponse, readResource } from '@/lib/api'
 import { reloadedEnrollment, type EnrollmentOption } from '@/lib/enrollments'
 import {
     attributeOptionCombosOf,
@@ -721,7 +721,10 @@ export function FormFill() {
             if (receipt.delivery === 'sent') {
                 toast.success('Sent to this DHIS2 instance', { description: stored, action: open })
             } else {
-                toast.warning('Not yet sent to this DHIS2 instance', { description: stored, action: open })
+                const standing = mayHaveArrived(receipt.outcome)
+                    ? 'Not yet confirmed by this DHIS2 instance'
+                    : 'Not yet sent to this DHIS2 instance'
+                toast.warning(standing, { description: stored, action: open })
             }
             navigate('/responses')
         } catch (failure: unknown) {
@@ -729,7 +732,9 @@ export function FormFill() {
                 setIssues(failure.outcome.issue)
                 // A 5xx is about reaching the instance rather than about this form, and nothing was kept.
                 toast.error(
-                    failure.status >= 500
+                    failure.status === 504
+                        ? 'This DHIS2 instance did not answer, and it may already have this submission.'
+                        : failure.status >= 500
                         ? 'This DHIS2 instance could not take this submission, and nothing was stored. Send it again.'
                         : `This submission was refused, and nothing was stored (${failure.outcome.issue.length} ${
                               failure.outcome.issue.length === 1 ? 'issue' : 'issues'

@@ -6,6 +6,7 @@ import {
     apiConfiguration,
     apiFetch,
     captureDeliveryOf,
+    mayHaveArrived,
     checkCredential,
     checkReachability,
     configureApi,
@@ -600,5 +601,18 @@ describe('captureDeliveryOf', () => {
         expect(captureDeliveryOf(201)).toBe('sent')
         expect(captureDeliveryOf(202)).toBe('held')
         expect(captureDeliveryOf(200)).toBe('validated')
+    })
+})
+
+describe('mayHaveArrived', () => {
+    const outcome = (diagnostics: string) => ({
+        resourceType: 'OperationOutcome' as const,
+        issue: [{ severity: 'information' as const, code: 'informational' as const, diagnostics }],
+    })
+
+    it('tells a capture whose answer was lost from one that never went', () => {
+        expect(mayHaveArrived(outcome('not yet confirmed by DHIS2: stored as response x'))).toBe(true)
+        expect(mayHaveArrived(outcome('not yet sent to DHIS2: stored as response x'))).toBe(false)
+        expect(mayHaveArrived(null)).toBe(false)
     })
 })

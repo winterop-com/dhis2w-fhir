@@ -174,15 +174,16 @@ async def test_a_capture_dhis2_refuses_is_answered_with_why_and_stores_nothing(
 
 
 @pytest.mark.parametrize(
-    "failure",
+    ("failure", "standing"),
     [
-        pytest.param(httpx2.ConnectError("no route"), id="unreachable"),
-        pytest.param(httpx.Response(500, json={"status": "ERROR"}), id="failing"),
-        pytest.param(httpx.Response(401, json={"message": "Unauthorized"}), id="no-verdict"),
+        pytest.param(httpx2.ConnectError("no route"), "not yet sent to DHIS2", id="unreachable"),
+        pytest.param(httpx.Response(401, json={"message": "Unauthorized"}), "not yet sent to DHIS2", id="no-verdict"),
+        pytest.param(httpx.Response(500, json={"status": "ERROR"}), "not yet confirmed by DHIS2", id="failing"),
+        pytest.param(httpx2.ReadTimeout("no answer"), "not yet confirmed by DHIS2", id="answer-lost"),
     ],
 )
 async def test_dhis2_being_away_holds_the_capture_and_says_it_has_not_been_sent(
-    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, failure: Any
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, failure: Any, standing: str
 ) -> None:
     """DHIS2 never ruled on it, so it is kept, and the answer is not a 201 that would read as done."""
     with respx.mock(assert_all_called=False) as router:
@@ -192,8 +193,8 @@ async def test_dhis2_being_away_holds_the_capture_and_says_it_has_not_been_sent(
             answer = await _capture(client)
             status = (await client.get("/facade/delivery")).json()
     assert answer.status_code == 202
-    assert _stated(answer).startswith("not yet sent to DHIS2: stored as response ")
-    assert _stated(answer).endswith("; this server keeps trying")
+    assert _stated(answer).startswith(f"{standing}: stored as response ")
+    assert "keeps trying" in _stated(answer)
     assert answer.headers["location"].startswith("http://service/QuestionnaireResponse/")
     assert status["waiting"] == 1
     assert status["last_problem"]
@@ -398,6 +399,137 @@ async def test_a_held_capture_says_so_on_its_file_and_a_restart_goes_on_trying_i
     assert sent.lifecycle is ResponseLifecycle.FORWARDED
     assert deliverer.status().waiting == 1
     assert deliverer.status().retrying == 0
+
+
+_TRACKER = f"{_INSTANCE}/api/tracker"
+_EVENT_EXISTS = {
+    "status": "ERROR",
+    "validationReport": {
+        "errorReports": [
+            {"errorCode": "E1030", "message": "Event already exists.", "trackerType": "EVENT", "uid": "x"}
+        ],
+        "warningReports": [],
+    },
+    "stats": {"created": 0, "updated": 0, "deleted": 0, "ignored": 1, "total": 1},
+}
+_TRACKER_TOOK_IT = {
+    "status": "OK",
+    "validationReport": {"errorReports": [], "warningReports": []},
+    "stats": {"created": 1, "updated": 0, "deleted": 0, "ignored": 0, "total": 1},
+}
+
+
+def _event_posted(route: respx.Route, call: int) -> str:
+    """The event UID one call to `/api/tracker` named."""
+    return str(json.loads(route.calls[call].request.content)["events"][0]["event"])
+
+
+async def _submit_event(
+    client: httpx2.AsyncClient, body: dict[str, Any], *, authorization: str | None = None
+) -> httpx2.Response:
+    """Submit one tracker event capture."""
+    headers = {"content-type": _FHIR_JSON}
+    if authorization is not None:
+        headers["Authorization"] = authorization
+    return await client.post("/QuestionnaireResponse", content=json.dumps(body), headers=headers)
+
+
+async def test_a_lost_answer_under_one_connection_is_retried_as_the_same_event_and_counts_as_landed(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """DHIS2 saved it and never said so: a retry must not make a second event, and must not read as a refusal."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(side_effect=httpx2.ReadTimeout("no answer"))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _submit_event(client, event_response)
+            assert answer.status_code == 202
+            assert _stated(answer).startswith("not yet confirmed by DHIS2: stored as response ")
+            assert "will not send it twice" in _stated(answer)
+            held_id = answer.headers["location"].rsplit("/", 1)[-1]
+        route.mock(side_effect=None, return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        async with _connection() as connection, open_facade(capture_project, client=connection) as facade:
+            deliverer = facade.deliverer()
+            await deliverer.attempt()
+    assert _event_posted(route, 0) == _event_posted(route, route.call_count - 1)
+    sent = facade.spool.get(held_id)
+    assert sent is not None
+    assert sent.lifecycle is ResponseLifecycle.FORWARDED
+    assert deliverer.status().refused == 0
+
+
+async def test_already_exists_on_a_first_attempt_is_still_a_refusal(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """Only this server's own earlier attempt explains it, so anywhere else it is the submitter's to hear."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.post(_TRACKER).mock(return_value=httpx.Response(409, json=_EVENT_EXISTS))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _submit_event(client, event_response)
+    assert answer.status_code == 409
+    assert "E1030" in _stated(answer)
+    assert _receipts_on_disk(capture_project) == []
+
+
+async def test_a_retry_refused_for_another_reason_is_still_a_refusal(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Being told it already exists is the one thing that means landed."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_DATA_VALUE_SETS).mock(side_effect=httpx2.ReadTimeout("no answer"))
+        async with _connection() as client:
+            deliverer = await _held_deliverer(capture_project, monkeypatch, client)
+            route.mock(side_effect=None, return_value=httpx.Response(409, json=_REFUSED))
+            await deliverer.attempt()
+    assert deliverer.status().refused == 1
+
+
+async def test_a_lost_answer_as_the_caller_says_dhis2_may_have_it_and_names_the_event_to_check(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """Saying nothing was stored and to send it again is how one visit becomes two."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        route = router.post(_TRACKER).mock(side_effect=httpx2.ReadTimeout(""))
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            answer = await _submit_event(client, event_response, authorization=_CALLER)
+    assert answer.status_code == 504
+    assert answer.json()["issue"][0]["code"] == "timeout"
+    assert "may already have this capture" in _stated(answer)
+    assert f"`{_event_posted(route, 0)}`" in _stated(answer)
+    assert "send it again" not in _stated(answer)
+    assert _receipts_on_disk(capture_project) == []
+
+
+async def test_a_lost_answer_on_an_aggregate_capture_says_resending_is_safe(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """DHIS2 keeps one value per cell, so there is no second copy to make."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        router.post(_DATA_VALUE_SETS).mock(side_effect=httpx2.ReadTimeout(""))
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            answer = await _capture(client, authorization=_CALLER)
+    assert answer.status_code == 504
+    assert "Sending it again is safe" in _stated(answer)
+
+
+async def test_a_connection_that_never_opened_can_be_sent_again_plainly(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """Nothing went out, so there is nothing to be unsure about."""
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
+        router.post(_TRACKER).mock(side_effect=httpx2.ConnectError("no route"))
+        async with _serving(_service(capture_project, monkeypatch, read_as_caller=True)) as client:
+            answer = await _submit_event(client, event_response, authorization=_CALLER)
+    assert answer.status_code == 502
+    assert "send it again" in _stated(answer)
 
 
 async def test_stopping_leaves_the_queue_and_no_worker_behind(

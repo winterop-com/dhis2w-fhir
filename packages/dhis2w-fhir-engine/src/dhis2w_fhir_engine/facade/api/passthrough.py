@@ -208,7 +208,8 @@ class CallerCredentialReader(BaseModel):
         try:
             answer = await self.connection.post(path, json=body, params=params, headers=self._headers())
         except httpx2.HTTPError as error:
-            raise Dhis2ClientError(f"the DHIS2 instance could not be written to as the caller ({error})") from error
+            reason = str(error) or type(error).__name__
+            raise Dhis2ClientError(f"the DHIS2 instance could not be written to as the caller ({reason})") from error
         issue_code = PASSED_THROUGH_REFUSALS.get(answer.status_code)
         if issue_code is not None:
             raise UpstreamRefusalError(

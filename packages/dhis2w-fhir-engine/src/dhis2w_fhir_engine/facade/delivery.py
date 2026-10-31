@@ -16,6 +16,12 @@ THE WORKER SENDS ONLY WHAT THIS SERVER TOOK ON. A receipt it holds for retry say
 `received/` stays there until somebody runs `d2w fhir forward`, because it may be old test submissions, and starting a
 server, upgrading one, or turning off `hold` must not write those to whichever DHIS2 it now points at.
 
+AN ANSWER CAN BE LOST AFTER DHIS2 HAS SAVED. A timeout says nothing about whether the write landed, so it is never
+reported as nothing having been stored. One capture carries one identity on every attempt, so a retry DHIS2 answers with
+"already exists" is that earlier attempt landing rather than a refusal. Under the caller's credentials nothing is kept
+to retry, and a client resending mints a new receipt and so a new event, which the answer warns about by naming the
+event to read first.
+
 A retried capture can still be refused, and by then its submitter has gone. That refusal is filed under `rejected/`,
 logged, and counted by `status`, which is what the capture UI and `GET /facade/delivery` read.
 
@@ -37,7 +43,7 @@ from enum import StrEnum
 
 import httpx2
 from dhis2w_client import Dhis2Client
-from dhis2w_client.errors import Dhis2ClientError
+from dhis2w_client.errors import AuthenticationError, Dhis2ApiError, Dhis2ClientError
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from dhis2w_fhir_engine.facade.capture.validate import ValidatedCapture
@@ -71,6 +77,7 @@ from dhis2w_fhir_engine.facade.overwrite import OverwrittenValue, aggregate_cell
 from dhis2w_fhir_engine.facade.progress import StepAnnouncer
 from dhis2w_fhir_engine.facade.refusals import (
     CaptureNotTranslatedError,
+    CaptureOutcomeUnknownError,
     CaptureOverwriteRefusedError,
     CaptureRefusedByInstanceError,
     UpstreamError,
@@ -88,8 +95,16 @@ from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 
 logger = logging.getLogger(__name__)
 
+#: From here up an answer is about the server rather than the request, and a gateway says it after DHIS2 may have saved.
+_FIRST_SERVER_ERROR_STATUS = 500
+
 #: What a held capture says where this server is the one trying again.
 HELD_AND_RETRYING = "this server keeps trying"
+
+#: What a held capture says where DHIS2 may have saved it and its answer never arrived.
+HELD_ANSWER_LOST = (
+    "its answer never arrived, so DHIS2 may already have it; this server keeps trying and will not send it twice"
+)
 
 #: What a held capture says where nothing here will send it on its own.
 HELD_UNTIL_DRAINED = "nothing sends it until `d2w fhir forward` or `drain` runs"
@@ -139,6 +154,9 @@ class DeliveryOutcome(BaseModel):
     overwritten: tuple[OverwrittenValue, ...] = ()
     """Every value this capture replaced that an earlier receipt of this spool had sent."""
 
+    may_have_arrived: bool = False
+    """Whether DHIS2 may already have this held capture, because the post went out and its answer never came back."""
+
 
 class DeliveryStatus(BaseModel):
     """What a running facade says about the captures it has not landed in DHIS2."""
@@ -165,6 +183,26 @@ class DeliveryStatus(BaseModel):
 
 class _NoVerdictError(Dhis2ClientError):
     """Something answered in DHIS2's place, so the answer says nothing about the capture."""
+
+
+class _AnswerLostError(Dhis2ClientError):
+    """A post went out and no answer about it came back, so DHIS2 may or may not have taken it."""
+
+    def __init__(self, problem: str, event_uid: str | None) -> None:
+        super().__init__(problem)
+        self.event_uid = event_uid
+
+
+def _never_arrived(error: BaseException) -> bool:
+    """Whether a failed post cannot have reached DHIS2: no connection was made, or DHIS2 turned it away first."""
+    seen: BaseException | None = error
+    while seen is not None:
+        if isinstance(seen, httpx2.ConnectError | httpx2.ConnectTimeout | httpx2.PoolTimeout | AuthenticationError):
+            return True
+        if isinstance(seen, Dhis2ApiError) and seen.status_code < _FIRST_SERVER_ERROR_STATUS:
+            return True
+        seen = seen.__cause__
+    return False
 
 
 class _DeliveryGuide(BaseModel):
@@ -234,9 +272,11 @@ class CaptureDeliverer(BaseModel):
             return await self._held(envelope, HELD_AND_RETRYING, retrying=True)
         try:
             async with self.connect() as client:
-                return await self._post(client if caller is None else caller, client, validated, envelope)
+                return await self._post(client if caller is None else caller, client, envelope)
+        except _AnswerLostError as error:
+            return await self._answer_lost(envelope, error, caller=caller)
         except (Dhis2ClientError, httpx2.HTTPError) as error:
-            return await self._could_not_reach(envelope, str(error), caller=caller)
+            return await self._could_not_reach(envelope, str(error) or type(error).__name__, caller=caller)
 
     def start(self) -> None:
         """Start trying the queue, where this facade does. It needs a running event loop."""
@@ -316,17 +356,24 @@ class CaptureDeliverer(BaseModel):
         self,
         poster: ImportPoster,
         client: Dhis2Client,
-        validated: ValidatedCapture,
         envelope: StoredResponseEnvelope,
     ) -> DeliveryOutcome:
         """Post one capture under whoever `poster` is, and file it only if DHIS2 took it."""
         guide = await self._guide_over(client)
-        result = translate_response(QuestionnaireResponse.model_validate(validated.response), guide.conversion)
+        # The receipt's copy, stamped with its id: that id names the event, so every attempt at it is the same event.
+        result = translate_response(QuestionnaireResponse.model_validate(envelope.response), guide.conversion)
         if result.is_refused:
             raise CaptureNotTranslatedError(tuple(refusal.reason for refusal in result.refusals))
         overwritten = await asyncio.to_thread(self._replaced_values, result)
         validate_only = self.mode is CaptureDelivery.VALIDATE_ONLY
-        answer = await post_translation(poster, result, dry_run=validate_only)
+        try:
+            answer = await post_translation(poster, result, dry_run=validate_only)
+        except (Dhis2ClientError, httpx2.HTTPError) as error:
+            if validate_only or _never_arrived(error):
+                raise
+            raise _AnswerLostError(
+                str(error) or type(error).__name__, None if result.event is None else result.event.event
+            ) from error
         if answer.verdict is ForwardImportVerdict.NONE:
             raise _NoVerdictError(f"DHIS2 answered {answer.http_status} with no verdict about this capture")
         if answer.verdict is ForwardImportVerdict.REJECTED:
@@ -357,11 +404,24 @@ class CaptureDeliverer(BaseModel):
         self._note_could_not_reach(problem)
         return held
 
-    async def _held(self, envelope: StoredResponseEnvelope, note: str, *, retrying: bool) -> DeliveryOutcome:
+    async def _answer_lost(
+        self, envelope: StoredResponseEnvelope, error: _AnswerLostError, *, caller: ImportPoster | None
+    ) -> DeliveryOutcome:
+        """Answer a capture that may have landed: never as stored nowhere, or with an invitation to duplicate it."""
+        if caller is not None:
+            raise CaptureOutcomeUnknownError(error.event_uid) from error
+        note = HELD_ANSWER_LOST if self._worker is not None else self.held_note
+        held = await self._held(envelope, note, retrying=self.retries, may_have_arrived=True)
+        self._note_could_not_reach(str(error))
+        return held
+
+    async def _held(
+        self, envelope: StoredResponseEnvelope, note: str, *, retrying: bool, may_have_arrived: bool = False
+    ) -> DeliveryOutcome:
         """Keep one capture in the queue. It blocks on an fsync, which is why it runs off the event loop."""
         kept = envelope.model_copy(update={"held_for_retry": retrying})
         await asyncio.to_thread(self.spool.save, kept)
-        return DeliveryOutcome(kind=DeliveryKind.HELD, envelope=kept, note=note)
+        return DeliveryOutcome(kind=DeliveryKind.HELD, envelope=kept, note=note, may_have_arrived=may_have_arrived)
 
     async def _guide_over(self, client: Dhis2Client) -> _DeliveryGuide:
         """What captures are translated against, read once over the connection the first capture opened."""

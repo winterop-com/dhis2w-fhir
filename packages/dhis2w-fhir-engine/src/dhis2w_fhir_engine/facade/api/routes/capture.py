@@ -201,7 +201,13 @@ def _answered(request: Request, outcome: DeliveryOutcome, validated: ValidatedCa
     if outcome.kind is DeliveryKind.SENT:
         body = sent_outcome(response_id, validated.subject, validated.warnings, replaced=replaced)
         return _outcome_response(201, body, location)
-    body = held_outcome(response_id, validated.subject, validated.warnings, note=outcome.note or "")
+    body = held_outcome(
+        response_id,
+        validated.subject,
+        validated.warnings,
+        note=outcome.note or "",
+        may_have_arrived=outcome.may_have_arrived,
+    )
     return _outcome_response(202, body, location)
 
 

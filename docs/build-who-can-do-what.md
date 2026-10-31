@@ -42,8 +42,10 @@ A capture goes to DHIS2 while the caller waits, under their own credentials, and
   approvals.
 - DHIS2's own record names the clerk, as `storedBy`, rather than the service's account.
 - A 201 means DHIS2 has the data, and a refusal stores nothing.
-- If DHIS2 is away, the capture fails with a 502 and nothing is stored, so **the client must send it again**. A service
-  cannot try again later as the clerk without keeping the clerk's password.
+- If DHIS2 cannot be reached, the capture fails with a 502 and nothing is stored, so **the client must send it again**. A
+  service cannot try again later as the clerk without keeping the clerk's password.
+- If DHIS2 does not answer, the capture fails with a 504, because DHIS2 may already have it. For an event the answer names
+  the event to read first, because **sending an event again makes a second one**.
 
 A deployment that has to take captures while DHIS2 is unreachable needs `authentication=`, where the server holds them
 and keeps trying, and accepts what follows from it.

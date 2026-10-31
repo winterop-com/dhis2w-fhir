@@ -2359,6 +2359,10 @@ in phases that stop at the first level to find an error.
   server. A caller presenting their own account posts at once. The line the server starts
   with says which DHIS2 it posts to, or how to ask. A `ServeSettings` built by hand holds
   until told.
+- **A lost answer is not reported as nothing stored.** A timeout under this run's profile
+  answers `202`, not yet confirmed, and the retry carries the same identity, so it cannot
+  write twice. Under the caller's own credentials it answers `504` and names the event to
+  read first.
 - **`GET /facade/delivery`** reports `delivery`, `posts_as`, `waiting`, `retrying`, `refused`,
   `last_attempt_at`, and `last_problem`, so a capture refused after its sender had gone is
   logged and counted rather than left in a directory.

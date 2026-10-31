@@ -22,7 +22,7 @@ FHIR_JSON_MEDIA_TYPE = "application/fhir+json"
 IssueSeverity = Literal["fatal", "error", "warning", "information"]
 """The `OperationOutcome.issue.severity` values the facade uses."""
 
-IssueCode = Literal["invalid", "not-found", "not-supported", "exception", "processing", "login", "forbidden"]
+IssueCode = Literal["invalid", "not-found", "not-supported", "exception", "processing", "login", "forbidden", "timeout"]
 """The `OperationOutcome.issue.code` values the facade uses.
 
 `login` is R4's own code for "the user or system was not able to be authenticated", which is what a
@@ -359,6 +359,23 @@ class CaptureRefusedByInstanceError(ServeError):
     def __init__(self, status_code: int, reasons: tuple[str, ...]) -> None:
         super().__init__("DHIS2 refused this capture, and nothing was stored: " + "; ".join(reasons))
         self.status_code = status_code
+
+
+class CaptureOutcomeUnknownError(ServeError):
+    """DHIS2 did not answer a capture posted under the caller's credentials, so it may or may not have taken it."""
+
+    status_code = 504
+    issue_code = "timeout"
+
+    def __init__(self, event_uid: str | None) -> None:
+        check = (
+            "Sending it again is safe: DHIS2 refuses or replaces what it already holds."
+            if event_uid is None
+            else f"Its event is `{event_uid}`: read that first, because sending this again makes a second event."
+        )
+        super().__init__(
+            f"DHIS2 did not answer, so it may already have this capture. This server stored nothing. {check}"
+        )
 
 
 class CaptureOverwriteRefusedError(ServeError):

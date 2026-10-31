@@ -155,6 +155,15 @@ _DATA_VALUE_SETS_DRY_RUN_PARAMS = {"dryRun": "true"}
 #: `async=false` makes the answer the import report itself rather than a job reference to poll.
 _TRACKER_PARAMS = {"importStrategy": "CREATE", "async": "false"}
 
+#: What `/api/tracker` answers when told to create a person, an enrollment, or an event it already holds.
+_ALREADY_EXISTS_CODES = frozenset({"E1002", "E1030", "E1080"})
+
+#: What a held capture's import report says where an earlier attempt landed and only its answer was lost.
+_ALREADY_LANDED_MESSAGE = "DHIS2 already holds this capture: an earlier attempt landed, and its answer never arrived"
+
+#: The status an accepted import report carries.
+_ACCEPTED_IMPORT_STATUS = "OK"
+
 
 #: What a dry run adds to a tracker post. v42 has no `dryRun` on `/api/tracker`; the endpoint's own
 #: validate-only mode is `importMode=VALIDATE`, which runs the whole validation pass and persists nothing.
@@ -1090,6 +1099,11 @@ async def _post_translations(
                     filing_issues=tuple(issues),
                     stopped=_non_verdict_stop(entry, imported),
                 )
+            if entry.held_for_retry and _only_says_it_exists(imported):
+                # The identity is this receipt's own, so this is the earlier attempt landing rather than a refusal.
+                imported = imported.model_copy(
+                    update={"status": _ACCEPTED_IMPORT_STATUS, "issues": (), "message": _ALREADY_LANDED_MESSAGE}
+                )
             imports[entry.response_id] = imported
             if cells and imported.is_accepted:
                 if already_sent:
@@ -1116,6 +1130,11 @@ async def _post_translations(
         overwrite_refused=frozenset(refused),
         filing_issues=tuple(issues),
     )
+
+
+def _only_says_it_exists(imported: ForwardImportOutcome) -> bool:
+    """Whether DHIS2's only objection to this payload is that it already holds what the payload creates."""
+    return bool(imported.issues) and all(issue.error_code in _ALREADY_EXISTS_CODES for issue in imported.issues)
 
 
 def _owed_claim_outcome(
