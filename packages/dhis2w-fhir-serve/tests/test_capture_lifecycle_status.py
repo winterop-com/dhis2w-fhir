@@ -145,7 +145,7 @@ async def test_a_marked_submission_is_stored_with_its_status_where_the_dial_is_o
         headers={"content-type": FHIR_JSON},
     )
 
-    assert posted.status_code == 201, posted.text
+    assert posted.status_code == 202, posted.text
     response_id = posted.headers["Location"].rsplit("/", 1)[-1]
     stored = _receipt(capture_project, response_id)
     assert stored["response"]["status"] == status
@@ -190,7 +190,7 @@ async def test_one_dial_receives_only_its_own_status(
             headers={"content-type": FHIR_JSON},
         )
 
-        assert amended.status_code == 201, amended.text
+        assert amended.status_code == 202, amended.text
         assert withdrawn.status_code == 422
         assert WITHDRAWALS_CONFIG_KEY in _diagnostics(withdrawn.json())
 
@@ -229,7 +229,7 @@ async def test_an_unmarked_submission_is_untouched_by_either_dial(
         headers={"content-type": FHIR_JSON},
     )
 
-    assert posted.status_code == 201, posted.text
+    assert posted.status_code == 202, posted.text
     assert event_response["status"] == "completed"
 
 

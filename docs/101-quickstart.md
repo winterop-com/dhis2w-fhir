@@ -451,11 +451,11 @@ Three things beyond reading are worth knowing exist:
   instance's tracked entities, published as whatever resource type your project
   maps each tracked entity type to.
 
-What a client captures lands in a local spool, and
-[`d2w fhir forward`](201-forward.md) drains it back into DHIS2 - dry run by
-default - which closes the loop from published contract to data in the
-instance.
+A capture goes to DHIS2 at once where this project names its profile, which closes
+the loop from published contract to data in the instance. A profile the server only
+found on this machine is never written to: captures stay on the server, and the line
+it starts with says why and how to name it. See [`delivery`](301-serving.md#delivery).
 
 Next: [Set up an IG project](201-set-up-a-project.md), or
 [Run a secured facade](201-run-a-secured-facade.md) for the same road carried
-through securing and forwarding.
+through securing it and sending captures to DHIS2.

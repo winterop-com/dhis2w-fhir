@@ -91,7 +91,7 @@ async def test_a_generated_registration_of_any_type_posts_back_201(
 
     posted = await many_types_capture_client.post("/QuestionnaireResponse", json=generated, headers=FHIR_JSON)
 
-    assert posted.status_code == 201, posted.text
+    assert posted.status_code == 202, posted.text
     assert "Location" in posted.headers
 
 

@@ -16,7 +16,7 @@ from dhis2w_client import BasicAuth, Dhis2Client
 from dhis2w_fhir_engine.facade import assembly as assembly_module
 from dhis2w_fhir_engine.facade import open_facade
 from dhis2w_fhir_engine.facade.api import AnonymousFacadeError, attach_facade, mount_facade, record_caller
-from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.config import CaptureDelivery, FhirProject
 from fastapi import FastAPI, HTTPException, Request
 from fixture_project import AGGREGATE_RESPONSE_FILE, REGISTRATION_TRACKED_ENTITY_TYPE_UID, golden
 
@@ -77,7 +77,7 @@ async def test_metadata_states_only_what_was_mounted(capture_project: FhirProjec
             content=json.dumps(golden(AGGREGATE_RESPONSE_FILE)),
             headers={"content-type": _FHIR_JSON},
         )
-        assert created.status_code == 201
+        assert created.status_code == 202
 
 
 async def test_capture_left_out_with_reads_mounted_refuses_with_the_reason(capture_project: FhirProject) -> None:
@@ -240,12 +240,6 @@ async def test_a_facade_that_takes_captures_will_not_start_with_nobody_checking(
             pass
 
 
-def test_validate_only_is_about_captures_posted_as_the_caller() -> None:
-    """Under any other posture a capture is spooled, so there is nothing for it to validate."""
-    with pytest.raises(ValueError, match="validate_only"):
-        mount_facade(FastAPI(), validate_only=True, allow_anonymous=True)
-
-
 def test_read_as_caller_takes_no_check_of_your_own() -> None:
     """DHIS2 is the check, so a second one would decide nothing it does not decide."""
     with pytest.raises(ValueError, match="read_as_caller"):
@@ -395,7 +389,9 @@ async def test_validate_only_asks_dhis2_and_writes_nothing(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """DHIS2's own rules grade the caller's capture, under its validate-only mode, and no receipt is filed."""
-    application = _holding_a_client(capture_project, monkeypatch, read_as_caller=True, validate_only=True)
+    application = _holding_a_client(
+        capture_project, monkeypatch, read_as_caller=True, delivery=CaptureDelivery.VALIDATE_ONLY
+    )
     with respx.mock(assert_all_called=False) as router:
         router.get(f"{_INSTANCE}/api/me").mock(return_value=httpx.Response(200, json={"username": "clerk"}))
         posted = router.post(f"{_INSTANCE}/api/dataValueSets").mock(return_value=httpx.Response(200, json=_ACCEPTED))

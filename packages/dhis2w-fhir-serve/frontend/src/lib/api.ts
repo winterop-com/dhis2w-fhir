@@ -71,7 +71,7 @@ import {
     type PatientEnrollments,
 } from '@/lib/patients'
 import { authSnapshot, reportUnauthenticated, type AuthenticatedCaller } from '@/lib/auth'
-import type { SpoolListing } from '@/lib/spool'
+import type { DeliveryStatus, SpoolListing } from '@/lib/spool'
 import type { UiConfig } from '@/lib/uiconfig'
 
 /** The media type every FHIR request and response on this server carries. */
@@ -402,8 +402,24 @@ export async function translateCode(
     return readJson<Parameters>(`/ConceptMap/$translate?${parameters.toString()}`)
 }
 
-/** What an accepted capture answered with - the receipt it was stored as, and what the server noted. */
+/**
+ * What became of an accepted capture, which the status of the answer says.
+ *
+ * `sent` is a 201: this DHIS2 instance has it. `held` is a 202: this server holds it and it has not
+ * been sent. `validated` is a 200: the instance graded it, and nothing was written or stored.
+ */
+export type CaptureDelivery = 'sent' | 'held' | 'validated'
+
+/** Read what became of a capture off the status it was answered with. */
+export function captureDeliveryOf(status: number): CaptureDelivery {
+    if (status === 201) return 'sent'
+    return status === 200 ? 'validated' : 'held'
+}
+
+/** What an accepted capture answered with - what became of it, the receipt it was stored as, and what the server noted. */
 export interface CaptureReceipt {
+    /** What became of it. */
+    delivery: CaptureDelivery
     /** The receipt id, off the `Location` the create interaction states. Null when it stated none. */
     responseId: string | null
     /** The information and warning issues the accepted capture still carried. */
@@ -413,12 +429,13 @@ export interface CaptureReceipt {
 /**
  * Submit one filled-in form.
  *
- * The server answers 201 with an OperationOutcome, or a 4xx OperationOutcome naming every question
- * it refused - and an accepted capture can still carry warnings, which is why the caller gets the
- * parsed body rather than a boolean.
+ * The server answers with an OperationOutcome: 201 once this DHIS2 instance has the capture, 202 while
+ * this server holds it unsent, 200 where the instance only graded it, or a refusal naming every reason.
+ * An accepted capture can still carry warnings, which is why the caller gets the parsed body rather
+ * than a boolean.
  *
  * THE RECEIPT ID IS IN THE HEADER, NOT IN THE BODY. R4 says a create states where the created
- * resource is served from in `Location`, and this server does exactly that: the 201 body is the
+ * resource is served from in `Location`, and this server does exactly that: the body is the
  * outcome, so a caller reading the body for an `id` finds none and can only say "a new receipt" for
  * something that has a name. `receiptIdOf` is the one place that header is read.
  */
@@ -432,6 +449,7 @@ export async function postQuestionnaireResponse(response: QuestionnaireResponse)
     const body: unknown = await answer.json().catch(() => null)
     if (!answer.ok) throw new FhirRequestError(answer.status, body as OperationOutcome | null, path)
     return {
+        delivery: captureDeliveryOf(answer.status),
         responseId: receiptIdOf(answer.headers.get('Location')),
         outcome: body as OperationOutcome | null,
     }
@@ -708,6 +726,11 @@ const SPOOL_PAGE_SIZE = 500
  * Sent with `cache: 'no-store'`: this is the one read in the app whose answer
  * changes without anything in the browser having done something.
  */
+/** Read what this server has not landed in DHIS2. */
+export async function readDelivery(): Promise<DeliveryStatus> {
+    return readJson<DeliveryStatus>(`${FACADE_BASE_PATH}/delivery`, { cache: 'no-store' })
+}
+
 export async function readSpool(): Promise<SpoolListing> {
     const path = `${FACADE_BASE_PATH}/spool?_count=${SPOOL_PAGE_SIZE}`
     const first = await readJson<SpoolListing>(path, { cache: 'no-store' })

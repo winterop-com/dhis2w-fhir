@@ -13,8 +13,8 @@ That client stays open for the life of the process, because `GET /Patient` and t
 listing answer from the instance per request; no read of the store ever touches DHIS2 again.
 
 The receipt spool is the one exception, and deliberately so: it is a path rather than a loaded
-index, and every read of it re-reads the directory. `d2w fhir forward` runs as a separate process
-and renames receipt files between the spool's four lifecycle directories while the server is up,
+index, and every read of it re-reads the directory. The server's own retries and `d2w fhir forward`
+both rename receipt files between the spool's four lifecycle directories while the server is up,
 so anything cached would be stale within seconds of a drain.
 
 ## When to reach for it
@@ -24,7 +24,8 @@ so anything cached would be stale within seconds of a drain.
   `open_serve_runtime`, `attach_serve_runtime`, `serve_routers`, `register_error_handlers`) - see
   [Serve as a library](#serve-as-a-library).
 - Get the settings `d2w fhir serve` gets for the same project and the same flags, precedence rules
-  included (`resolve_serve_settings`, `ServeInvocation`).
+  included (`resolve_serve_settings`, `ServeInvocation`). That includes when captures go to DHIS2: a
+  `ServeSettings` you build by hand holds them until told otherwise.
 - Load a project's store, spool, and register surface without an HTTP server at all
   (`open_serve_runtime`, `ServeRuntime`, `ServeContext`).
 - Build the served read set off a live DHIS2 instance, over a client you hold open

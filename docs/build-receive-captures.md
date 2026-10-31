@@ -7,9 +7,8 @@
 
 **You will be able to:**
 
-- check a submission against the published forms
-- translate it into the DHIS2 payload it means
-- post it, and read what DHIS2 said
+- submit a capture, and hear what DHIS2 said
+- do the same work one step at a time: check it against the published forms, translate it, and post it
 - keep it durably through a spool, and drain that into DHIS2
 
 **The runnable version of this page** is steps 2 to 5 of
@@ -18,6 +17,47 @@
 If you mount the routes, `POST /QuestionnaireResponse` does all of this for you: see
 [Mount the routes](build-mount-the-routes.md). This page is the same work as calls you make yourself, in a queue worker or a
 route of your own.
+
+## Submit
+
+`submit` is the one call to reach for. It validates a submission, posts it to DHIS2 at once, and says what became of it.
+
+```python
+from dhis2w_fhir_engine.facade import DeliveryKind
+from dhis2w_fhir_engine.facade.refusals import ServeError
+
+try:
+    outcome = await facade.submit(body, submitted_by="an-integration")
+except ServeError as refusal:
+    print(refusal)  # DHIS2's reasons. Nothing was stored, and the sender is who can fix it
+else:
+    print(outcome.kind is DeliveryKind.SENT, outcome.note)
+```
+
+| `outcome.kind` | What happened | What to tell the sender |
+| --- | --- | --- |
+| `sent` | DHIS2 took it, and the receipt is filed as forwarded | Done |
+| `held` | DHIS2 could not be reached, or this facade holds no connection. The receipt is in the queue | Not yet sent to DHIS2 |
+
+**Refusals raise, because they are the submitter's to hear.** `CaptureRejection` is a submission the guide refuses, and is
+what [Validate](#validate) describes. These three share `ServeError`, and store nothing:
+
+| Raised | Why |
+| --- | --- |
+| `CaptureRefusedByInstanceError` | DHIS2 refused it, and `status_code` is what DHIS2 answered |
+| `CaptureNotTranslatedError` | The guide accepts it and the translator cannot turn it into a DHIS2 payload |
+| `CaptureOverwriteRefusedError` | It holds values already sent, and the project states `[forward] overwrites = "refuse"` |
+
+**Something has to send what is held.** `submit` keeps a capture DHIS2 was away for, and leaves it. Call
+[`drain`](#spool-then-drain) on your own schedule, or have the facade try the queue until it closes:
+
+```python
+deliverer = facade.deliverer()
+facade.keep_delivering(deliverer)  # it needs a running event loop
+outcome = await deliverer.deliver(facade.validate_capture(body))
+```
+
+The rest of this page is the same work one step at a time.
 
 ## Validate
 
@@ -99,8 +139,8 @@ receipt 342ae11492b0492c9cf5b79792ebd9b8 for ANC follow-up - ANC visit
 `unverifiable` is a dry run being honest: that event belongs to an enrollment the first capture would create, and a dry run
 created nothing. `capture` blocks on an fsync, so run it off the event loop inside an async route.
 
-**The drain posts as the connection's account, whoever submitted.** That is the trade described in
-[Who can do what](build-who-can-do-what.md). [Forward captures into DHIS2](201-forward.md) explains the states a receipt
+**The drain posts as the connection's account, whoever submitted.** See
+[Who can do what](build-who-can-do-what.md). [Repair the capture queue](201-forward.md) explains the states a receipt
 moves through, and they are the same files here.
 
 Next: [Read forms and people](build-read-forms-and-people.md).

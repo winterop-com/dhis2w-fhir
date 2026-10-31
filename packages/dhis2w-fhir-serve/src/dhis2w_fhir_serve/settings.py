@@ -7,6 +7,7 @@ from pathlib import Path
 from dhis2w_client.profile import NoProfileError
 from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
 from dhis2w_fhir_engine.facade.config import (
+    CaptureDelivery,
     FhirProject,
     ServeAuth,
     ServeAuthScope,
@@ -39,6 +40,9 @@ class ServeInvocation(BaseModel):
     port: int
     generation: GenerationProfile | None = None
 
+    held_for_an_unnamed_profile: bool = False
+    """Whether captures stay on this server because the only DHIS2 it found is a profile nobody named for this run."""
+
 
 def _resolved_generation(project: FhirProject, profile: str | None, *, required: bool) -> GenerationProfile | None:
     """The DHIS2 instance this run is about, or None when this machine names no profile at all.
@@ -69,6 +73,7 @@ def resolve_serve_settings(
     auth: ServeAuth | None = None,
     auth_scope: ServeAuthScope | None = None,
     registry_package: Path | None = None,
+    delivery: CaptureDelivery | None = None,
 ) -> ServeInvocation:
     """Resolve one invocation of the facade: a stated dial wins, then `[serve]`, then this model's defaults.
 
@@ -129,6 +134,17 @@ def resolve_serve_settings(
         jwt=serve_config.jwt,
     )
     generation = _resolved_generation(project, profile, required=live)
+    stated_delivery = delivery if delivery is not None else serve_config.delivery
+    posts_as_each_caller = resolved_auth is ServeAuth.DHIS2 or (
+        resolved_auth is ServeAuth.JWT and serve_config.jwt.forward_bearer
+    )
+    # A profile this machine fell back to could be an administrator's login to anything, so one test Submit must not
+    # be able to write to it. Somebody naming it says they mean it, and so does a caller presenting their own account.
+    target_is_unnamed = generation is not None and not generation.named and not posts_as_each_caller
+    held_for_an_unnamed_profile = stated_delivery is None and target_is_unnamed
+    resolved_delivery = stated_delivery or (
+        CaptureDelivery.HOLD if held_for_an_unnamed_profile else CaptureDelivery.AT_ONCE
+    )
     if not live and not any((project.ig_directory / COMPILED_RESOURCES_RELATIVE_PATH).glob("*.json")):
         raise compiled_guide_missing(project.config.registry_dependency)
     # The registry a guide depends on is preflighted for the reason every other refusal is: a
@@ -155,6 +171,8 @@ def resolve_serve_settings(
             jwt=serve_config.jwt,
             strict_codes=strict_codes if strict_codes is not None else serve_config.strict_codes,
             capture=serve_config.capture,
+            capture_delivery=resolved_delivery,
+            delivery_retry_seconds=serve_config.delivery_retry_seconds,
             ui=ui if ui is not None else serve_config.ui,
             spool_dir=serve_config.spool_dir,
             basemaps=resolved_basemaps,
@@ -167,4 +185,5 @@ def resolve_serve_settings(
         host=resolved_host,
         port=port if port is not None else serve_config.port,
         generation=generation,
+        held_for_an_unnamed_profile=held_for_an_unnamed_profile,
     )

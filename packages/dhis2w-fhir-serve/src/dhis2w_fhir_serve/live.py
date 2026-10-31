@@ -99,3 +99,14 @@ async def open_live_client(project: FhirProject, settings: ServeSettings) -> Asy
     )
     async with open_client(generation.profile) as client:
         yield client
+
+
+@asynccontextmanager
+async def open_delivery_client(project: FhirProject, settings: ServeSettings) -> AsyncGenerator[Dhis2Client]:
+    """Open the connection one capture reaches DHIS2 through, on a run that reads a compiled guide and holds no client.
+
+    Opened per attempt rather than held, because this server has to start, and to take captures, while DHIS2 is away.
+    """
+    generation = resolve_generation_profile(project, settings.profile)
+    async with open_client(generation.profile) as client:
+        yield client

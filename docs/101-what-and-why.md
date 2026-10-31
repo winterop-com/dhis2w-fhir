@@ -82,11 +82,12 @@ no jar to drop on the server, and no change to your instance's configuration.
 | `d2w fhir generate` / `validate` / `doctor` | Your machine, or a CI runner | Reads metadata over the DHIS2 API. Writes nothing. |
 | The IG build (SUSHI, the HL7 IG Publisher) | Docker, on that same machine | Never talks to DHIS2 at all - it compiles files on disk. |
 | The published guide | Any static web host | Nothing. It is HTML and JSON; it needs no DHIS2 connection and no credentials. |
-| `d2w fhir serve` | A process you run, loopback by default | Reads, in `--live` mode, to build its store at startup. Captures are held in a local spool, not sent onward. |
-| `d2w fhir forward` | Your machine | The only verb that writes. Dry run is the default, and even then payloads go through the DHIS2 endpoint's own validate-only mode, so the instance's rules decide. |
+| `d2w fhir serve` | A process you run, loopback by default | Reads, in `--live` mode, to build its store at startup. Posts each capture to DHIS2 at once where a profile is named for the project, so the instance's rules decide while the sender waits. With no profile named, captures stay in a local spool. |
+| `d2w fhir forward` | Your machine | Posts what a server is still holding. Dry run is the default, and even then payloads go through the DHIS2 endpoint's own validate-only mode, so the instance's rules decide. |
 
 The credentials come from a `d2w` profile, so the account you point at decides what
-the toolchain may see. A read-only account is enough for everything except `forward`.
+the toolchain may see. A read-only account is enough for everything except sending
+captures, which `serve` and `forward` both do.
 
 ## What it does not do
 
@@ -94,10 +95,11 @@ Worth being blunt, because the FHIR word invites assumptions:
 
 - **It is not a live FHIR API in front of DHIS2.** `d2w fhir serve` answers from a
   store built at startup - off the compiled guide, or off a snapshot of the instance
-  with `--live`. It is not a proxy that translates each request through to DHIS2, and
-  a change made in DHIS2 after startup is not visible until it is restarted.
+  with `--live`. Its reads are not a proxy that translates each request through to
+  DHIS2, and a change made in DHIS2 after startup is not visible until it is restarted.
+  A capture is the one request that goes through.
 - **It does not replace DHIS2 data entry.** The capture UI exists so a form can be
-  filled against the published contract and forwarded in; the DHIS2 apps remain how
+  filled against the published contract and sent in; the DHIS2 apps remain how
   routine entry is done.
 - **It does not move analytics.** Indicators, predictors, dashboards, and the
   analytics tables are outside what the guide describes. It publishes the shape of

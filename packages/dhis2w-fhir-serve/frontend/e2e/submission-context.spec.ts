@@ -77,8 +77,8 @@ async function submitCapture(page: Page): Promise<string> {
     )
     await page.getByRole('button', { name: 'Submit' }).click()
     const response = await posted
-    expect(response.status(), await response.text()).toBe(201)
-    await expect(page.getByText('The server accepted this submission')).toBeVisible()
+    expect(response.status(), await response.text()).toBe(202)
+    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
     return (response.headers()['location'] ?? '').split('/').pop() ?? ''
 }
 

@@ -37,8 +37,10 @@ from dhis2w_fhir_engine.facade.capture.outcome import (
     CaptureIssueSeverity,
     CaptureRejection,
     capture_subject_sentence,
+    held_outcome,
     rejection_outcome,
-    success_outcome,
+    sent_outcome,
+    validated_outcome,
 )
 from dhis2w_fhir_engine.facade.capture.resolve import (
     OPTION_CODE_PROPERTY,
@@ -107,8 +109,10 @@ __all__ = [
     "CaptureSubject",
     "ValidatedCapture",
     "build_capture_index",
+    "held_outcome",
     "rejection_outcome",
     "capture_subject_sentence",
-    "success_outcome",
+    "sent_outcome",
+    "validated_outcome",
     "validate_response",
 ]

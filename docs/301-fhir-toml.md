@@ -243,6 +243,8 @@ the file refuses.
 | `[generate.examples]` | [`per_target`](301-what-goes-in.md#per_target) | `1` | how many example responses each form ships with |
 | `[generate.examples]` | [`source`](301-what-goes-in.md#examples-source) | `"synthetic"` | whether example values are invented or copied off the server |
 | `[serve]` | [`capture`](301-serving.md#capture) | `true` | whether the server accepts filled-in forms at all |
+| `[serve]` | [`delivery`](301-serving.md#delivery) | unset | when a capture goes to DHIS2: at once to a profile somebody named, and otherwise it stays on the server |
+| `[serve]` | [`delivery_retry_seconds`](301-serving.md#delivery_retry_seconds) | `60` | how often the server tries its queue while DHIS2 cannot be reached |
 | `[serve]` | [`host`](301-serving.md#host) | `"127.0.0.1"` | who can reach the capture server - the exposure switch |
 | `[serve]` | [`port`](301-serving.md#port) | `8080` | which port it listens on |
 | `[serve]` | [`spool_dir`](301-serving.md#spool_dir) | `".serve/responses"` | which folder the received forms are kept in |

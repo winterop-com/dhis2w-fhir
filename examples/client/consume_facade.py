@@ -35,8 +35,8 @@ import httpx2
 from _fixture import served_facade
 
 FHIR_JSON = "application/fhir+json"
-CREATED = 201
-"""What an accepted capture answers; anything else carries an OperationOutcome saying why not."""
+ACCEPTED = frozenset({201, 202})
+"""What an accepted capture answers: 201 once DHIS2 has it, 202 while the facade holds it."""
 
 
 async def main() -> None:
@@ -71,14 +71,13 @@ async def main() -> None:
             "/QuestionnaireResponse", json=draft, headers={"Content-Type": FHIR_JSON, "Accept": FHIR_JSON}
         )
         print(f"POST /QuestionnaireResponse -> {submitted.status_code} {submitted.headers.get('location', '')}")
-        if submitted.status_code != CREATED:
+        if submitted.status_code not in ACCEPTED:
             print(f"  refused: {submitted.text[:300]}")
             return
 
         # An accepted capture answers an OperationOutcome, and the `Location` header is where the
         # receipt is served from - so the id comes off the header, not out of the body. The receipt
-        # is the submission as it arrived, never a live view of DHIS2 data: nothing has been written
-        # to any instance yet, and `d2w fhir forward` is what does that.
+        # is the submission as it arrived, never a live view of DHIS2 data.
         response_id = submitted.headers["location"].rsplit("/", 1)[-1]
         receipt = (await client.get(f"/QuestionnaireResponse/{response_id}")).raise_for_status().json()
         print(f"receipt {receipt['id']}: answers {receipt['questionnaire']}, authored {receipt.get('authored', '-')}")

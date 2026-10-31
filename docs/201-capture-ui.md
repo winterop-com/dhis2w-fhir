@@ -5,7 +5,8 @@ something a person can use: open a data set and it renders as a form with its
 sections, its disaggregated grids, and its option lists; open a tracker
 programme and it asks for the person, the enrolment dates, and the
 attributes DHIS2 collects at registration. Fill it in, submit it, and the
-submission comes back as a receipt you can read question by question. It is
+submission goes to DHIS2 and comes back as a receipt you can read question by
+question. It is
 how you check that what came out of your instance is still the form your
 staff would recognise - not a replacement for the DHIS2 Capture app.
 
@@ -30,8 +31,7 @@ is something the run tells you about rather than something you remember.
 - search the DHIS2 instance for a person, page through the people it holds, and
   read what it holds about one of them
 - read a receipt back joined to the questions it answers
-- follow a receipt's lifecycle from the browser while `d2w fhir forward`
-  runs in a terminal
+- see from the browser what has not reached DHIS2, and why
 - reach any page, form, or receipt from the command palette on Cmd+K, see every
   key the app answers with `?`, and pick which of the seven themes the screens are
   painted in
@@ -146,14 +146,21 @@ The root route answers one question: what is the state of capture right now.
 
 **Receipts** is the spool's counts off `GET /facade/spool` - `Received`,
 `Forwarded`, `Rejected`, `Withdrawn`, and, when the spool holds files it could
-not read, `Quarantined` - with `Received` set large because it is the one that
-is a task: it is the queue [`d2w fhir forward`](201-forward.md) drains. Each count is a link into the
+not read, `Quarantined` - with `Received` set large because it is what has not
+reached DHIS2. Each count is a link into the
 Responses table already narrowed to that state
 (`#/responses?lifecycle=received` is a link you can send someone), and the
 rejected count names the DHIS2 error code most of its receipts share -
 "Rejected 12" and "Rejected 12, mostly E1029" lead to different afternoons.
 The count is per receipt rather than per issue, because one submission
 carrying forty rows of the same broken rule is still one stuck submission.
+
+**A notice above the counts says what needs someone.** It reads
+`GET /facade/delivery`, and appears on Overview and on Responses only when there is
+something to say: how many submissions are not yet sent to this DHIS2 instance,
+whether this server is still trying and why the last attempt failed, and how many were
+refused after they were submitted. Those are the refusals nobody has been told about,
+because their sender had gone by the time DHIS2 answered.
 
 **Capture a response** puts the served forms underneath as quick-entry cards
 - title, DHIS2 kind, question count - each opening the form itself. **This
@@ -414,10 +421,12 @@ answers *into the form* rather than posting them - so you can change one
 field and submit that. The seed it drew lands in the **Seed** box beside the
 button; the same seed reproduces the same answers, so a form that misbehaved
 can be asked for again by typing that number back in. **Clear** empties it.
-**Submit** posts a `QuestionnaireResponse` and takes you to Responses - and it
-refuses a form with nothing answered in it, because a response carrying no
-answer records nothing while reading back as a capture somebody made. A form
-that asks no questions says that instead.
+**Submit** posts a `QuestionnaireResponse`, and what it does next is DHIS2's answer.
+Sent to this DHIS2 instance, or not yet sent, takes you to Responses and says which.
+A refusal keeps you on the form with DHIS2's reasons beside it and stores nothing, so
+you can fix it and submit again. Submit also refuses a form with nothing answered in
+it, because a response carrying no answer records nothing while reading back as a
+capture somebody made. A form that asks no questions says that instead.
 
 The context that submission carries - the reporting period, the tracked
 entity and enrollment on a tracker form - comes from `$generate` too: the
@@ -428,9 +437,9 @@ whichever period `$generate` chose.
 
 !!! warning "This is a capture UI for exercising a guide"
     It is not a data-entry client for a district office. Submissions carry
-    generated context, the server holds no instance data, and nothing is
-    written to DHIS2 until you run
-    [`d2w fhir forward`](201-forward.md).
+    generated context, and on a run posting at once a Submit writes to the DHIS2
+    instance named on the line the server started with. To try a guide out with
+    nothing written, serve with `--delivery validate-only`.
 
 Two facts about the submission are yours rather than the server's, and they
 sit above the questions - both visible in the screenshot:
@@ -570,13 +579,12 @@ all three:
 
 - **The subject becomes their real tracked-entity uid**, in place of the one
   `$generate` minted - so the submission is about somebody DHIS2 already has.
-- **The submission carries `D2SubjectExists`**, which is what tells
-  [`d2w fhir forward`](201-forward.md) to write onto that person rather than
-  create one.
+- **The submission carries `D2SubjectExists`**, which is what makes it write onto
+  that person rather than create one.
 - **The entity-level questions go read-only and are cleared.** Those are the
   ones DHIS2 writes onto the person rather than onto the enrollment (the form
   states which on each question, as `D2EntityLevel`), and the instance already
-  holds this person's values for them. This is not tidiness: the forwarder
+  holds this person's values for them. This is not tidiness: the translator
   **refuses** a submission that states its subject exists and carries one
   anyway, naming each such answer. Change it on that person's own record in
   DHIS2, or register a new person instead.
@@ -592,13 +600,13 @@ enrollment this event reports against, and it is the one piece of envelope
 context you choose rather than inherit. The `$generate` skeleton proposes one
 - the pair a registration receipt of this program minted, newest forwarded
 first - and mints identifiers of its own only where this server holds no
-registration of the program to answer against, which is the one case a stage
-submission is refused at forward time. What the picker offers is every real
+registration of the program to answer against, which is the one case DHIS2 refuses
+a stage submission for naming an enrollment it cannot find. What the picker offers is every real
 pair this server's own registration receipts minted, each labelled with its
 uid, its enrollment date, and its lifecycle:
 a forwarded registration names objects DHIS2 already holds, a received one
-will only after `d2w fhir forward` runs - still pickable, and the wait is
-said inline rather than discovered at forward time. Rejected registrations
+will only once it has reached DHIS2 - still pickable, and the wait is said inline
+rather than discovered when DHIS2 refuses the event. Rejected registrations
 are never offered. The default is the newest forwarded pair, so an ordinary
 submission lands; with nothing to offer, the synthetic draw stands and the
 page links to the registration form to capture first.
@@ -626,9 +634,9 @@ form without opening a terminal.
 **Responses** is every receipt this server holds, newest first: when it
 arrived, which form it answers, the DHIS2 capture model that form came from,
 how many answers it carries, its receipt id, and - the column that matters -
-**which lifecycle state it is in**. `Received` is the queue
-[`d2w fhir forward`](201-forward.md) drains, `Forwarded` means DHIS2 took it,
-`Rejected` means DHIS2 refused it, and `Withdrawn` means it landed and
+**which lifecycle state it is in**. `Received` means not yet sent to DHIS2,
+`Forwarded` means DHIS2 took it, `Rejected` means DHIS2 refused it after its
+submitter had gone, and `Withdrawn` means it landed and
 [`d2w fhir withdraw`](201-forward.md#withdraw-what-you-forwarded) retracted it afterwards. Two filters sit above the table: the
 lifecycle states as a button group, each carrying its own count, and a form
 picker for narrowing to one questionnaire. The state filter lives in the URL
@@ -690,9 +698,9 @@ the rule, so it is only read as a rule when the form lists it as one.
 
 The lifecycle is which of
 `.serve/responses/{received,forwarded,rejected,withdrawn}/` the file is in, and
-the server re-reads that directory to answer. So running `d2w fhir forward` or
-`d2w fhir withdraw` in another terminal changes what this page shows with
-nothing restarted - hit **Reload**, or just switch back to the browser,
+the server re-reads that directory to answer. So this server's own retries, and
+running `d2w fhir forward` or `d2w fhir withdraw` in another terminal, change what
+this page shows with nothing restarted - hit **Reload**, or just switch back to the browser,
 which refetches on focus.
 
 **Under the receipts sits the other source: one tracked entity in this DHIS2
@@ -1202,7 +1210,7 @@ do to the highlighted row, and spells the chord for whoever arrived by button.
 
 **Nothing in the palette changes what this server holds.** Every action moves
 you, repaints the app, or ends the session. Submitting a form, forwarding a
-receipt and withdrawing one all stay where they are - two keystrokes is the
+receipt, and withdrawing one all stay where they are - two keystrokes is the
 wrong distance from an irreversible act.
 
 **Every chord is a letter.** No row in the palette has a shortcut of its own, and
@@ -1376,5 +1384,5 @@ so the names, counts, and findings in them are whatever was true on the day; the
 spec asserts no number and names no subject, picking whichever tracked entity the
 instance currently holds an answered event for.
 
-Next: [Forward captures into DHIS2](201-forward.md) - drain the queue every
-page of this UI keeps pointing at.
+Next: [Repair the capture queue](201-forward.md) - what to do with a submission that
+did not land.

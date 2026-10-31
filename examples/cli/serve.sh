@@ -55,7 +55,7 @@ TOML
 
 # Serve it. The default binds loopback on port 8080, [serve] port overrides that, and
 # --port overrides both. Startup loads the project, the store, and the response spool once.
-d2w fhir serve --port "$PORT" &
+d2w fhir serve --delivery hold --port "$PORT" &
 SERVER_PID=$!
 trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
 
@@ -105,7 +105,8 @@ curl -sf "${BASE}/Questionnaire/TuL8IOPzpHh/\$generate" | head -c 300
 echo
 
 # The invariant the operation exists for: generated output is immediately postable to the
-# same server. 201 means the server accepts what it just produced.
+# same server. This server runs with --delivery hold, so 202 means it accepts what it just
+# produced and keeps it, not yet sent to DHIS2.
 curl -sf "${BASE}/Questionnaire/TuL8IOPzpHh/\$generate" \
     | curl -s -o /dev/null -w '%{http_code}\n' \
         -X POST "${BASE}/QuestionnaireResponse" \
@@ -154,7 +155,7 @@ curl -s -o /dev/null -w '%{http_code}\n' \
 # scaffold, and `d2w fhir generate` deliberately does not write it.
 d2w fhir generate load-set --per-target 5
 
-# Post the lot. An accepted capture answers 201 with a Location header naming where the
+# Post the lot. A held capture answers 202 with a Location header naming where the
 # receipt is served from; a refused one answers 400 or 422 with an OperationOutcome.
 for response in load/*.json; do
     curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' \

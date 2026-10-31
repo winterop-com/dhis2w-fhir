@@ -7,9 +7,9 @@ DHIS2 API and published as FHIR resources by the IG publisher. One plugin
 covers the whole loop: `init` scaffolds a dockerized project, `validate`
 grades the instance's codes by build impact, `generate` writes the IG source,
 the IG publisher compiles the browsable guide, `serve` runs the
-compiled project as a read-and-capture FHIR endpoint, and `forward` posts what
-that endpoint captured back into DHIS2. `doctor` runs that whole chain against
-one instance and reports what the instance breaks.
+compiled project as a read-and-capture FHIR endpoint that sends each capture to
+DHIS2 as it arrives. `doctor` runs that whole chain against one instance and reports
+what the instance breaks.
 
 Most projects need three things, in this order: a facade running, that facade
 pointed at a DHIS2 instance, and that facade accepting captures in the format
@@ -69,7 +69,7 @@ A service of your own that takes FHIR from one side and reads and writes DHIS2 o
   covers what.
 - [Who can do what](build-who-can-do-what.md) - whose rights DHIS2 applies. The one decision you cannot skip.
 - [Choose where the guide comes from](build-choose-a-guide.md) - live off the instance, compiled, or a published package.
-- [Receive captures](build-receive-captures.md) - validate, translate, post, and spool what is submitted.
+- [Receive captures](build-receive-captures.md) - submit a capture and hear DHIS2's answer, or do it step by step.
 - [Read forms and people](build-read-forms-and-people.md) - the guide, its codes, and a person out of DHIS2 as FHIR.
 - [Round trip](build-round-trip.md) - FHIR into DHIS2 and back out, with FHIRPath and CQL over what came back.
 - [Mount the routes](build-mount-the-routes.md) - put it in your FastAPI application, and test it.
@@ -92,8 +92,8 @@ A service of your own that takes FHIR from one side and reads and writes DHIS2 o
 ## 201 - Operate a project
 
 - [Run a secured facade on a real instance](201-run-a-secured-facade.md) - the
-  eleven steps from nothing to a facade other machines call and a spool draining
-  into DHIS2, each one command deep, handing over to the pages below.
+  eleven steps from nothing to a facade other machines call, sending what it captures
+  to DHIS2, each one command deep, handing over to the pages below.
 - [Check an instance with doctor](201-doctor.md) - the whole chain against one
   instance, in one command, with one verdict. Run this first.
 - [Set up an IG project](201-set-up-a-project.md) - the scaffold, the pinned
@@ -113,8 +113,8 @@ A service of your own that takes FHIR from one side and reads and writes DHIS2 o
   default, and the token, DHIS2, and JWT postures with their scopes.
 - [Capture in the browser](201-capture-ui.md) - the form filler a served
   project offers.
-- [Forward captures into DHIS2](201-forward.md) - draining the serve spool
-  into DHIS2, dry run first.
+- [Repair the capture queue](201-forward.md) - sending what a server is still
+  holding, dry run first, and putting a refused receipt back.
 - [Troubleshooting](201-troubleshooting.md) - publisher exits, heap sizing,
   and the errors worth recognising.
 

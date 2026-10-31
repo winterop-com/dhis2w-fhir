@@ -7,7 +7,7 @@ with no credential is refused too, and `/metadata` stays open because a client h
 expected to meet.
 
 A capture posts at once rather than being spooled, so DHIS2 names the clerk as its author, and if DHIS2 is away the
-capture fails and the client sends it again. `validate_only` is here so this example writes nothing: a real service
+capture fails and the client sends it again. `VALIDATE_ONLY` is here so this example writes nothing: a real service
 leaves it out. The connection you give `open_facade` only builds the guide at startup, so it needs to read metadata.
 
 Usage:
@@ -23,6 +23,7 @@ from contextlib import asynccontextmanager
 
 import httpx2
 from _connect import opened_facade
+from dhis2w_fhir_engine.facade import CaptureDelivery
 from dhis2w_fhir_engine.facade.api import attach_facade, mount_facade
 from fastapi import FastAPI
 
@@ -36,7 +37,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 
 app = FastAPI(lifespan=lifespan)
-mount_facade(app, read_as_caller=True, validate_only=True)
+mount_facade(app, read_as_caller=True, delivery=CaptureDelivery.VALIDATE_ONLY)
 
 
 async def main() -> None:

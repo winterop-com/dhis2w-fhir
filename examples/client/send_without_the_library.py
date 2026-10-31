@@ -35,7 +35,7 @@ import httpx2
 
 FHIR_JSON = "application/fhir+json"
 OK = 200
-CREATED = 201
+ACCEPTED = frozenset({201, 202})
 
 DATA_SET = "BfMAe6Itzgt"
 """The DHIS2 data set being reported. A form is served under the UID of the object it came from."""
@@ -45,7 +45,7 @@ ORGANISATION_UNIT = "y77LiPqLMoq"
 
 It has to be a unit the data set is actually assigned to: the facade accepts a capture reported
 anywhere the guide publishes, but DHIS2 refuses one outside the assignment with E1029 when the
-receipt is forwarded, and the facade says so in a warning on the 201."""
+capture reaches it, and the facade says so in a warning on the answer."""
 
 
 def capture_body(guide: str, form_url: str, link_id: str) -> dict[str, Any]:
@@ -137,9 +137,9 @@ async def main() -> None:
         print(f"\nPOST /QuestionnaireResponse -> {sent.status_code}")
         for issue in sent.json().get("issue", []):
             print(f"  [{issue['severity']}] {issue.get('diagnostics')}")
-        if sent.status_code == CREATED:
+        if sent.status_code in ACCEPTED:
             # The receipt lives at the Location header. The body is an OperationOutcome, so the id
-            # is not in it - and the submission is held at the facade, not yet sent to DHIS2.
+            # is not in it - and a 202 means not yet sent to DHIS2.
             print(f"  receipt: {sent.headers['location']}")
 
 

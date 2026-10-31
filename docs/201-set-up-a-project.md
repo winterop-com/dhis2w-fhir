@@ -331,8 +331,10 @@ first match wins:
 | 4 | the default profile from your `profiles.toml` |
 
 Write step 3 while scaffolding with `d2w fhir init --profile <name>`, or set
-the key by hand later - both land in the same place. If you have no profile
-yet, create one:
+the key by hand later - both land in the same place. Step 4 is a fall-back, and the
+one source [`d2w fhir serve` will not post captures to](301-serving.md#delivery), so a
+project that sends captures to DHIS2 writes step 3. If you have no profile yet, create
+one:
 
 ```console
 $ DHIS2_PASSWORD=district uv run d2w profile add local_basic --auth basic --username admin \

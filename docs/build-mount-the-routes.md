@@ -44,7 +44,7 @@ mount_facade(app, read_as_caller=True)
 | `capture` | on | `POST /QuestionnaireResponse` |
 | `reads` | on | Read and search over the guide, the receipts, and the people |
 | `operations` | on | `$generate`, `$translate`, `$summary`, `$evaluate`, and CDS Hooks |
-| `facade_api` | off | The operational JSON API, under the prefix you name: receipts, terminology, the record |
+| `facade_api` | off | The operational JSON API, under the prefix you name: receipts, what has not reached DHIS2, terminology, the record |
 
 **`/metadata` states what was mounted.** A surface you left out is neither served nor declared.
 
@@ -74,12 +74,15 @@ attach_facade(app, facade, service_base="https://example.org/fhir")
 
 ## Trying a service out
 
-`validate_only=True` runs captures posted as the caller under each endpoint's validate-only mode, so DHIS2's rules grade them
-and nothing is written or stored. The capture answers 200 rather than 201.
+A capture goes to DHIS2 at once. `CaptureDelivery.VALIDATE_ONLY` runs it under each endpoint's validate-only mode instead,
+so DHIS2's rules grade it and nothing is written or stored. The capture answers 200 rather than 201.
 
 ```python
-mount_facade(app, read_as_caller=True, validate_only=True)
+mount_facade(app, read_as_caller=True, delivery=CaptureDelivery.VALIDATE_ONLY)
 ```
+
+`CaptureDelivery.HOLD` keeps every capture in the queue until something drains it, and answers 202. Import `CaptureDelivery`
+from `dhis2w_fhir_engine.facade`.
 
 ## Test it with no port
 
@@ -97,7 +100,7 @@ $ uv run python examples/facade/step9_read_as_the_caller.py
 GET /metadata, no credential -> 200
 GET /Patient, no credential -> 401
 GET /Patient, as a DHIS2 user -> 200 Bundle
-POST /QuestionnaireResponse, as a DHIS2 user -> 200 DHIS2 would take this capture for this caller; nothing was written or stored
+POST /QuestionnaireResponse, as a DHIS2 user -> 200 DHIS2 would take this capture; nothing was written or stored
 ```
 
 Next: [Serve as a library](401-embed-the-facade.md), for the whole of `d2w fhir serve` from a project on disk, or the

@@ -1,10 +1,10 @@
 """Send one submission to a running facade and read the receipt it is handed back.
 
-What a 201 means here is narrower than it looks, and the whole example is about that line:
-the facade understood the submission, checked it against the published form, and wrote it to
-disk durably. **Nothing has reached DHIS2.** No data value exists, no event exists, no data set
-is registered complete. `d2w fhir forward` is what drains the queue into an instance, and until
-it runs the receipt is a promise the facade made about bytes it is holding, nothing more.
+The status is the whole example. `201` means DHIS2 has the data. `202`, which is what the shared
+fixture's facade answers because it runs with `--delivery hold`, means not yet sent to DHIS2: the
+facade understood the submission, checked it against the published form, and wrote it to disk
+durably. No data value exists, no event exists, no data set is registered complete, and the
+receipt is a promise the facade made about bytes it is holding.
 
 Two shapes of the answer surprise a first-time sender, and both are R4 doing what R4 says:
 
@@ -27,7 +27,7 @@ import httpx2
 from _fixture import aggregate_form_id, served_facade
 
 FHIR_JSON = "application/fhir+json"
-CREATED = 201
+ACCEPTED = frozenset({201, 202})
 """What an accepted submission answers. Anything else carries an OperationOutcome saying why not."""
 
 
@@ -44,7 +44,7 @@ async def main() -> None:
 
         sent = await client.post("/QuestionnaireResponse", json=draft, headers={"Content-Type": FHIR_JSON})
         print(f"POST /QuestionnaireResponse -> {sent.status_code}")
-        if sent.status_code != CREATED:
+        if sent.status_code not in ACCEPTED:
             for issue in sent.json().get("issue", []):
                 print(f"  refused [{issue.get('code')}] {issue.get('diagnostics')}")
             return
@@ -74,7 +74,7 @@ async def main() -> None:
             .json()["counts"]
         )
         print(f"  the queue now holds {counts['received']} submission(s) not yet sent to DHIS2")
-        print("  run `d2w fhir forward --import` in the project directory to send them")
+        print("  on a server holding captures, `d2w fhir forward --import` in the project directory sends them")
 
 
 if __name__ == "__main__":

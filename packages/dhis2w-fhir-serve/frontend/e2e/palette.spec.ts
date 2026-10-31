@@ -116,7 +116,7 @@ async function postReceipt(): Promise<string> {
             headers: { 'Content-Type': FHIR_JSON, Accept: FHIR_JSON },
             data: await generated.json(),
         })
-        expect(posted.status(), await posted.text()).toBe(201)
+        expect(posted.status(), await posted.text()).toBe(202)
         return (posted.headers()['location'] ?? '').split('/').pop() ?? ''
     } finally {
         await api.dispose()

@@ -22,7 +22,7 @@ pytestmark = pytest.mark.usefixtures("capture_client")
 async def _diagnostics(client: httpx2.AsyncClient, body: dict[str, Any]) -> str:
     """Post one submission and read the information issue back off the 201."""
     created = await client.post("/QuestionnaireResponse", json=body)
-    assert created.status_code == 201, created.text
+    assert created.status_code == 202, created.text
     diagnostics: str = created.json()["issue"][0]["diagnostics"]
     return diagnostics
 

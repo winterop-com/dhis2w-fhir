@@ -46,7 +46,7 @@ async def _capture(app: FastAPI, response: dict[str, Any]) -> str:
     """Post one submission and answer with the receipt id the server minted for it."""
     async with _client(app) as http:
         posted = await http.post("/QuestionnaireResponse", json=response, headers={"content-type": FHIR_JSON})
-        assert posted.status_code == 201, posted.text
+        assert posted.status_code == 202, posted.text
         return posted.headers["Location"].rsplit("/", 1)[-1]
 
 
@@ -97,7 +97,7 @@ async def test_the_spool_listing_reads_the_directory_the_project_named(
 
     async with _client(app) as http:
         posted = await http.post("/QuestionnaireResponse", json=aggregate_response, headers={"content-type": FHIR_JSON})
-        assert posted.status_code == 201, posted.text
+        assert posted.status_code == 202, posted.text
         body = (await http.get("/facade/spool")).json()
 
     assert body["total"] == 1

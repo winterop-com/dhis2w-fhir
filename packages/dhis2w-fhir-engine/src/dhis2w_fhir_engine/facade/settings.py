@@ -9,7 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from dhis2w_fhir_engine.facade.capture.validate import DEFAULT_STRICT_CODES
 from dhis2w_fhir_engine.facade.config import (
     DEFAULT_BASEMAPS,
+    DEFAULT_DELIVERY_RETRY_SECONDS,
     BasemapSource,
+    CaptureDelivery,
     DataSetsConfig,
     ProjectionConfig,
     SearchConfig,
@@ -116,11 +118,11 @@ class ServeSettings(BaseModel):
     operations: bool = True
     """Whether the operation routes are mounted, which is what `/metadata` declares `$evaluate` for."""
 
-    capture_as_caller: bool = False
-    """Whether a capture posts to DHIS2 at once under the caller's own credentials, rather than being spooled."""
+    capture_delivery: CaptureDelivery = CaptureDelivery.HOLD
+    """When a capture goes to DHIS2. It posts nothing until told, and `resolve_serve_settings` is what decides."""
 
-    capture_validate_only: bool = False
-    """Whether that post runs under the endpoint's validate-only mode, so nothing is written or stored."""
+    delivery_retry_seconds: float = DEFAULT_DELIVERY_RETRY_SECONDS
+    """How often this server tries its queue while DHIS2 cannot be reached, off `[serve] delivery_retry_seconds`."""
 
     authentication_statement: str | None = None
     """What `/metadata` says about who may call, where an application's own check guards the routes."""
@@ -157,3 +159,13 @@ class ServeSettings(BaseModel):
     data_sets: DataSetsConfig = Field(default_factory=DataSetsConfig)
     search: SearchConfig = Field(default_factory=SearchConfig)
     projection: ProjectionConfig = Field(default_factory=ProjectionConfig)
+
+    @property
+    def forwards_credentials(self) -> bool:
+        """Whether a caller's own `Authorization` goes on to DHIS2, for what they read and what they submit."""
+        return self.auth is ServeAuth.DHIS2 or (self.auth is ServeAuth.JWT and self.jwt.forward_bearer)
+
+    @property
+    def has_connection(self) -> bool:
+        """Whether this run knows a DHIS2 to post captures to."""
+        return self.live or self.dhis2_base_url is not None

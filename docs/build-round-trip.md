@@ -33,19 +33,18 @@ graph LR
 
 ## FHIR in
 
-A registration and a visit go into the spool, and a drain commits both. A visit names the person it belongs to, so the
-second `synthesize` adopts the person the first receipt registers.
+A registration and a visit each go to DHIS2 at once. A visit names the person it belongs to, so the second `synthesize`
+adopts the person the first capture registered.
 
 ```python
 registration_form, visit_form = facade.forms()[:2]
 seed = draw_seed()
 
 registration = facade.synthesize(registration_form, seed=seed)
-facade.capture(registration.model_dump_json(exclude_none=True, by_alias=True).encode())
-visit = facade.synthesize(visit_form, seed=seed)
-facade.capture(visit.model_dump_json(exclude_none=True, by_alias=True).encode())
+await facade.submit(registration.model_dump_json(exclude_none=True, by_alias=True).encode())
 
-report = await facade.drain(import_responses=True)
+visit = facade.synthesize(visit_form, seed=seed)
+await facade.submit(visit.model_dump_json(exclude_none=True, by_alias=True).encode())
 ```
 
 A fresh seed gives each run its own identifiers, because DHIS2 never lets a deleted identifier be used again. In a real
@@ -113,7 +112,7 @@ evaluator.evaluate_definition("Completed Visits")
 
 ```console
 $ uv run python examples/facade/step11_round_trip.py
-into DHIS2: 2 spooled, 2 translated, 0 refused, 2 posted, 2 accepted, 0 rejected
+into DHIS2: the person and their visit
 read back: Patient/UiRBU1AL8R5 with 1 visit(s)
 FHIRPath: 3 answers sent, 3 came back, 3 identical
 FHIRPath: the person carries 2 attribute values

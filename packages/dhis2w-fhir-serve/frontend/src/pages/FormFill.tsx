@@ -697,33 +697,43 @@ export function FormFill() {
                     existingSubject,
                 }),
             )
+            // Graded and not kept: there is no receipt to go and look at, and the form stays filled in.
+            if (receipt.delivery === 'validated') {
+                toast.success('This DHIS2 instance would take this submission', {
+                    description: 'Nothing was written or stored.',
+                })
+                return
+            }
             // The receipt is named, because a person who has just submitted six forms needs to
             // know which one this was - and the name is the id the receipt is served under, which
             // is also what the action opens.
             const responseId = receipt.responseId
-            toast.success('The server accepted this submission', {
-                description:
-                    responseId === null
-                        ? 'Stored as a new receipt.'
-                        : `Stored as receipt ${responseId}.`,
-                action:
-                    responseId === null
-                        ? undefined
-                        : {
-                              label: 'Open',
-                              onClick: () => {
-                                  navigate(`/responses/${responseId}`)
-                              },
+            const stored = responseId === null ? 'Stored as a new receipt.' : `Stored as receipt ${responseId}.`
+            const open =
+                responseId === null
+                    ? undefined
+                    : {
+                          label: 'Open',
+                          onClick: () => {
+                              navigate(`/responses/${responseId}`)
                           },
-            })
+                      }
+            if (receipt.delivery === 'sent') {
+                toast.success('Sent to this DHIS2 instance', { description: stored, action: open })
+            } else {
+                toast.warning('Not yet sent to this DHIS2 instance', { description: stored, action: open })
+            }
             navigate('/responses')
         } catch (failure: unknown) {
             if (failure instanceof FhirRequestError && failure.outcome !== null) {
                 setIssues(failure.outcome.issue)
+                // A 5xx is about reaching the instance rather than about this form, and nothing was kept.
                 toast.error(
-                    `The server refused this submission (${failure.outcome.issue.length} ${
-                        failure.outcome.issue.length === 1 ? 'issue' : 'issues'
-                    })`,
+                    failure.status >= 500
+                        ? 'This DHIS2 instance could not take this submission, and nothing was stored. Send it again.'
+                        : `This submission was refused, and nothing was stored (${failure.outcome.issue.length} ${
+                              failure.outcome.issue.length === 1 ? 'issue' : 'issues'
+                          })`,
                 )
             } else {
                 toast.error('This submission could not be sent', {

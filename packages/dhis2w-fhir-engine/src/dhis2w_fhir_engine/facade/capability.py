@@ -105,7 +105,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dhis2w_fhir_engine.facade.config import SearchBackend, ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.config import CaptureDelivery, SearchBackend, ServeAuth, ServeAuthScope
 from dhis2w_fhir_engine.facade.foundation.response_profiles import (
     CAPTURE_SERVER_READ_RESOURCE_TYPES,
     build_captured_response_profile_declarations,
@@ -632,10 +632,27 @@ def _statement_description(
     )
 
 
-#: What this server says where a capture reaches DHIS2 while the caller waits, rather than through a spool.
+#: What this server says where each capture reaches DHIS2 under the caller's own credentials.
 CAPTURE_AS_CALLER_REST_DOCUMENTATION = (
     "Every request presents the caller's own DHIS2 credentials. Reads and captures reach DHIS2 under them, so DHIS2 "
     "applies that caller's rights. A capture answers 201 only once DHIS2 has taken it, and a refusal stores nothing."
+)
+
+#: What this server says where captures reach DHIS2 under its one connection, while the submitter waits.
+CAPTURE_AT_ONCE_REST_DOCUMENTATION = (
+    f"{_REST_DOCUMENTATION} A capture answers 201 only once DHIS2 has taken it, and a refusal stores nothing. "
+    "A 202 means DHIS2 could not be reached: this server holds the capture and keeps trying."
+)
+
+#: What this server says where a capture stays here.
+CAPTURE_HELD_REST_DOCUMENTATION = (
+    f"{_REST_DOCUMENTATION} A capture answers 202: this server holds it, and it has not been sent to DHIS2."
+)
+
+#: What this server says where DHIS2 only grades a capture.
+CAPTURE_VALIDATED_REST_DOCUMENTATION = (
+    f"{_REST_DOCUMENTATION} A capture answers 200: DHIS2 graded it under validate-only, "
+    "and nothing was written or stored."
 )
 
 
@@ -643,9 +660,13 @@ def _rest_documentation(settings: ServeSettings) -> str:
     """What one interaction with this server is, for the three things a process may be."""
     if settings.publishes is not None:
         return PACKAGE_REST_DOCUMENTATION
-    if settings.capture_as_caller:
-        return CAPTURE_AS_CALLER_REST_DOCUMENTATION
-    return _REST_DOCUMENTATION if settings.capture else _VIEWER_REST_DOCUMENTATION
+    if not settings.capture:
+        return _VIEWER_REST_DOCUMENTATION
+    if settings.capture_delivery is CaptureDelivery.HOLD or not settings.has_connection:
+        return CAPTURE_HELD_REST_DOCUMENTATION
+    if settings.capture_delivery is CaptureDelivery.VALIDATE_ONLY:
+        return CAPTURE_VALIDATED_REST_DOCUMENTATION
+    return CAPTURE_AS_CALLER_REST_DOCUMENTATION if settings.forwards_credentials else CAPTURE_AT_ONCE_REST_DOCUMENTATION
 
 
 def _implementation_description(settings: ServeSettings) -> str:

@@ -1,10 +1,10 @@
 """Take a capture with no server and no browser: post a response into an embedded facade, read the file it wrote.
 
 The capture half of the headless story. `embed_the_facade.py` shows the application answering reads;
-this one hands it a `QuestionnaireResponse` and follows what the submission becomes: a `201`, a
-receipt served back at its own address, and a JSON file in the project's spool that
-`d2w fhir forward` will drain later. Nothing here binds a port, opens a browser, or shells out to
-the CLI.
+this one hands it a `QuestionnaireResponse` and follows what the submission becomes: a `202`, because a
+`ServeSettings` built by hand holds captures until told otherwise, a receipt served back at its own
+address, and a JSON file in the project's spool that `d2w fhir forward` will drain later. Nothing here
+binds a port, opens a browser, or shells out to the CLI.
 
 THE POSTURE IS `auth = "none"`, and for an embedded facade that is the honest one. An authentication
 posture answers "which callers on the network may submit"; over an ASGI transport there is no
@@ -39,7 +39,7 @@ from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_serve import create_app
 
 FHIR_JSON = "application/fhir+json"
-CREATED = 201
+HELD = 202
 
 EMBEDDED_BASE_URL = "http://embedded"
 """The authority an ASGI transport puts in front of every path - it names no host and reaches none."""
@@ -69,7 +69,7 @@ async def main() -> None:
             submitted = await client.post(
                 "/QuestionnaireResponse", json=draft, headers={"Content-Type": FHIR_JSON, "Accept": FHIR_JSON}
             )
-            if submitted.status_code != CREATED:
+            if submitted.status_code != HELD:
                 # A refusal is an OperationOutcome saying which answer the form would not take.
                 print(f"refused with {submitted.status_code}: {submitted.text[:300]}")
                 return
@@ -78,7 +78,7 @@ async def main() -> None:
             # the OperationOutcome stating what was stored and what was warned about.
             response_id = submitted.headers["location"].rsplit("/", 1)[-1]
             receipt = (await client.get(f"/QuestionnaireResponse/{response_id}")).raise_for_status().json()
-            print(f"POST -> 201, receipt {receipt['id']} answering {receipt['questionnaire']}")
+            print(f"POST -> {submitted.status_code}, receipt {receipt['id']} answering {receipt['questionnaire']}")
 
     # The application is closed and the receipt is still there, because a capture is a file. This is
     # the same directory `d2w fhir forward` drains and the same one `forward_headless.py` reads.

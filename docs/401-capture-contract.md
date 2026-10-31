@@ -248,9 +248,9 @@ The aggregate contract is unaffected either way: it pins `completed` for the
 reason above, so an `amended` aggregate response is refused by that rule and
 names it, dial or no dial. Admitting `amended` there is a later slice.
 
-With the dial on the submission is stored like any other receipt, its status
-preserved on the stored copy, and it waits in `received/` for a drain. What a
-drain then does with a marked receipt is being built slice by slice - the plan,
+With the dial on the submission goes the way any other capture does, its status
+preserved on the stored copy. What happens to a marked receipt once it reaches DHIS2 is
+being built slice by slice - the plan,
 and what each slice already delivers, is
 [the data lifecycle design](design/data-lifecycle.md).
 
@@ -326,9 +326,8 @@ consequences the capture path states out loud:
 
 - **Uniqueness is not checked.** A `unique` tracked entity attribute is a
   business identifier, and whether a value is already taken is global
-  instance state. The facade stores the receipt; DHIS2 refuses the duplicate
-  at import, and the rejection comes back through the forwarder like any
-  other.
+  instance state. DHIS2 refuses the duplicate at import, and the refusal comes back
+  to the sender like any other.
 - **The minted UIDs are checked for shape, not for freedom.** Both
   `subject.identifier.value` and `D2TrackerEnrollment`'s value have to be DHIS2
   UIDs - one ASCII letter followed by ten alphanumeric places - and a value that

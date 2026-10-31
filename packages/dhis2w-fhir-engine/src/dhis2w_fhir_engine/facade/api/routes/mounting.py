@@ -205,7 +205,7 @@ class ServeRouters(BaseModel):
 
     Mounted under one prefix as an application of its own, which is what gives them an OpenAPI
     document of their own. Their order is the order a reader meets them in: who is calling
-    (`/whoami`), what a running server holds (`/spool`, `/uiconfig`, `/metadata-health`), what it
+    (`/whoami`), what a running server holds (`/spool`, `/delivery`, `/uiconfig`, `/metadata-health`), what it
     answers about the instance (`/tracked-entities/{uid}/enrollments`, the record beside it, and one
     data set's own responses), and what it runs over either (`/evaluate`, `/terminology/*`).
     """
@@ -293,6 +293,7 @@ def facade_routers(
     from dhis2w_fhir_engine.facade.api.routes.capture import router as capture_router
     from dhis2w_fhir_engine.facade.api.routes.cds import router as cds_router
     from dhis2w_fhir_engine.facade.api.routes.data_sets import router as data_sets_router
+    from dhis2w_fhir_engine.facade.api.routes.delivery import router as delivery_router
     from dhis2w_fhir_engine.facade.api.routes.enrollments import router as enrollments_router
     from dhis2w_fhir_engine.facade.api.routes.evaluate import router as evaluate_router
     from dhis2w_fhir_engine.facade.api.routes.evaluate_operation import router as evaluate_operation_router
@@ -333,6 +334,7 @@ def facade_routers(
     facade = (
         *naming,
         spool_router,
+        delivery_router,
         *instance_documents,
         enrollments_router,
         history_router,

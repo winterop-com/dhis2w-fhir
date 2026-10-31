@@ -5,9 +5,8 @@ front of them, so another system can ask for a form the way it would ask any
 web API - *give me the Child Health data set*, *give me the option list for
 this data element*, *here is a filled-in form* - without a DHIS2 login and
 without knowing anything about DHIS2's own API. It is not a second copy of
-DHIS2 and it never writes to your instance: a submission it takes is held as
-a receipt, and putting that receipt into DHIS2 is a separate command on a
-later page.
+DHIS2. The one thing it writes to your instance is what it is sent: a submission
+goes to DHIS2 at once, and DHIS2's answer goes back to the sender.
 
 **Who this is for:** the operator turning a generated project into that
 running endpoint - something a capture client can read forms from and post
@@ -21,6 +20,7 @@ then a SUSHI run (see [Build and publish the guide](201-build-and-publish.md))
 
 - start `d2w fhir serve` in both of its modes and know which one you want
 - set the port, host, coded-answer strictness, and who is served once, in `[serve]`
+- say where a capture goes on this run, and what a 201 and a 202 each mean
 - read a stored capture back and say precisely what it is - a receipt
 - find the spool on disk and read the queue depth off it
 
@@ -250,8 +250,9 @@ auth = "none"               # none | token | dhis2 | jwt - who this facade serve
 auth_scope = "write"        # write gates submissions; all gates everything but /metadata
 strict_codes = false        # true refuses an answer whose code is outside the served terminology
 capture = true              # false serves the guide and receives nothing - the viewer posture
+delivery = "at-once"        # at-once | validate-only | hold - when a capture goes to DHIS2
 ui = false                  # true also serves the capture UI at /
-spool_dir = ".serve/responses"   # where the receipts live, and what d2w fhir forward drains
+spool_dir = ".serve/responses"   # where the receipts live, and where a held capture waits
 ```
 
 `--live` and `--ui` runs read the table too, as do the Makefile targets that
@@ -259,7 +260,8 @@ wrap them - which is the point: a developer whose DHIS2 stack already holds 8080
 `port = 8390` here and every invocation in that project honours it.
 Precedence is **flag beats table beats default** - and `--strict-codes` has
 an explicit `--no-strict-codes` twin so all three levels are reachable from
-the command line.
+the command line. [`delivery`](301-serving.md#delivery) has a default that depends on
+which DHIS2 this run found: see [Posting a capture](#posting-a-capture).
 
 A port something else already holds is refused before any output that looks
 like a start:
@@ -501,12 +503,11 @@ and a row that disagrees with the instance is a defect of the sync whose fix is
 `--rebuild` rather than an edit. Deleting `.serve/projection.sqlite` is a
 supported operation.
 
-**When a capture appears.** A submission still travels spool, then
-[`d2w fhir forward`](201-forward.md), then DHIS2, then the next sync - so a
-captured value appears in a synced server one sync interval after DHIS2 accepted
-it. The receipt is readable from the spool immediately, which is what the spool is
-for. There is no write-through, and there will not be one: it would make this copy
-a second system of record.
+**When a capture appears.** A submission goes to DHIS2, and then waits for the next
+sync - so a captured value appears in a synced server one sync interval after DHIS2
+accepted it. The receipt is readable from the spool immediately, which is what the
+spool is for. There is no write-through, and there will not be one: it would make
+this copy a second system of record.
 
 ### What it still cannot do
 
@@ -548,12 +549,6 @@ The two are never mixed. A receipt keeps the id the submission was accepted
 under whatever DHIS2 later made of it; a record carries the DHIS2 event UID and
 whatever the instance holds under it this second.
 
-Writing a receipt into DHIS2 is a separate, explicit act:
-[`d2w fhir forward`](201-forward.md). Until you run it, accepting a capture
-means the submission was understood and kept, and nothing has been written
-to an instance. The server says so itself, in the OperationOutcome of every
-accepted capture and in `/metadata`'s `implementation.description` above.
-
 ## Posting a capture
 
 `POST /QuestionnaireResponse` is the only write, and a project can decline to
@@ -564,7 +559,8 @@ offer it: `capture = false` refuses every submission and drops `create` from
 One response per request - a Bundle is refused with a message saying so. The
 easiest first capture is
 the server's own `$generate` operation posted straight back: ask the server
-to fill in one of its own forms, then hand the answer back to it.
+to fill in one of its own forms, then hand the answer back to it. This writes to
+DHIS2, because this project names its profile:
 
 ```console
 $ curl -s 'localhost:8390/Questionnaire/BfMAe6Itzgt/$generate?seed=4242' -o response.json
@@ -574,11 +570,55 @@ HTTP/1.1 201 Created
 date: Sat, 15 Aug 2026 18:07:03 GMT
 server: uvicorn
 location: http://localhost:8390/QuestionnaireResponse/9c0d30598b194aef9e1e1e8f4bab70ec
-content-length: 434
+content-length: 464
 content-type: application/fhir+json
 
-{"resourceType":"OperationOutcome","issue":[{"severity":"information","code":"informational","diagnostics":"stored response 9c0d30598b194aef9e1e1e8f4bab70ec, holding Child Health (BfMAe6Itzgt), reported from organisation unit Bo (Location/O6uvpzGd5pu), for period 202607, keyed to attribute option combo Improve access to clean water (pO5CEqK6c1s); a stored response is the submission as received - a receipt, not a live view of DHIS2 data"}]}
+{"resourceType":"OperationOutcome","issue":[{"severity":"information","code":"informational","diagnostics":"sent to DHIS2 and stored as response 9c0d30598b194aef9e1e1e8f4bab70ec, holding Child Health (BfMAe6Itzgt), reported from organisation unit Bo (Location/O6uvpzGd5pu), for period 202607, keyed to attribute option combo Improve access to clean water (pO5CEqK6c1s); a stored response is the submission as received - a receipt, not a live view of DHIS2 data"}]}
 ```
+
+The answer says what became of it:
+
+| Answer | What it means | What to do |
+| --- | --- | --- |
+| `201 Created` | DHIS2 has the data, and the receipt is filed as `forwarded` | Nothing |
+| A refusal, with DHIS2's reasons | DHIS2 refused it, and nothing is stored. Usually a `409` | Fix the form and send it again |
+| `202 Accepted` | Not yet sent to DHIS2. The receipt is in `received/`, and the first issue says what happens next | Nothing, where it says this server keeps trying. Otherwise see [Repair the capture queue](201-forward.md) |
+| `200 OK` | Under `--delivery validate-only`, DHIS2 graded it and would take it. Nothing is written or stored | Nothing |
+| `502 Bad Gateway` | DHIS2 could not be reached under the caller's own credentials, or under `validate-only`. Nothing is stored | Send it again |
+
+**Where it goes depends on who asked and which DHIS2 this run knows:**
+
+- **Under `dhis2`, and `jwt` with `forward_bearer`,** the capture posts under the
+  caller's own credentials, so DHIS2 applies their rights and its record names them.
+  This service keeps no password, so it cannot try again later: if DHIS2 is away the
+  answer is a `502`.
+- **Otherwise it posts as this run's profile,** to the DHIS2 that profile names. If
+  DHIS2 is away the capture is held and the server keeps trying on its own, and later
+  captures queue behind it rather than overtake it.
+- **A profile nobody named is never written to.** The profile has to come from
+  `profile` in `fhir.toml`, `d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with
+  credentials. One this machine merely fell back to could be anybody's, so captures
+  stay on the server until somebody names it or states `--delivery at-once`.
+- **With no profile at all,** captures stay on the server too.
+
+The line the server starts with says which of these this run is:
+
+```
+captures: post at once to http://localhost:8080, as profile local_basic
+```
+
+```
+captures: stay on this server, because profile local_basic (http://localhost:8080) was found rather than named; name it with `profile =` in fhir.toml or `d2w -p`, or state --delivery at-once, to post to it
+```
+
+`GET /facade/delivery` says what has not landed in DHIS2, and why:
+
+```console
+$ curl -s localhost:8390/facade/delivery
+{"delivery":"at-once","posts_as":"connection","waiting":0,"refused":0,"last_attempt_at":null,"last_problem":null}
+```
+
+[`delivery`](301-serving.md#delivery) has the three settings in full.
 
 `?seed=` is optional and reproducible: the same seed against the same form
 draws the same answers, so a submission that misbehaved can be asked for
@@ -673,18 +713,17 @@ forwarder follows it there.
 Each file holds the response as received plus the receipt metadata around it
 - when it was accepted, which form kind it declared, which questionnaire it
 answered, and every warning recorded against it. The server holds no index of
-any of that: every read re-scans the directory, because
-[`d2w fhir forward`](201-forward.md) is a separate process renaming these
-files while the server runs, and anything remembered would be stale the
-moment the first drain finished.
+any of that: every read re-scans the directory, because this server's own retries
+and [`d2w fhir forward`](201-forward.md) both rename these files while the server
+runs, and anything remembered would be stale the moment the first drain finished.
 
 A write is atomic *and* durable - a temporary file, `fsync`, a rename, then
 an `fsync` of the directory - so a reader never sees a half-written receipt
-and the `201` a client is answered with is a promise that survives the
+and the `202` a client is answered with is a promise that survives the
 machine losing power.
 
 `ls .serve/responses/received | wc -l` is therefore the pending count, with
-no extra bookkeeping: the directory *is* the queue
+no extra bookkeeping: the directory *is* the queue this server retries and
 [`d2w fhir forward`](201-forward.md) drains, which is why it is named
 `received/` rather than `responses/` - `forwarded/`, `rejected/`, and
 `withdrawn/` are its siblings.
@@ -741,14 +780,17 @@ $ curl -s 'localhost:8390/facade/spool?_count=2' | jq '{total, rows: (.responses
 
 `d2w fhir spool` answers the same question from the other side, off the
 directory alone and with no DHIS2 connection - see
-[Forward captures into DHIS2](201-forward.md#reading-the-queue).
+[Repair the capture queue](201-forward.md#reading-the-queue).
 
 ## Generating a load set
 
 `d2w fhir generate load-set` writes a synthetic corpus to POST at a running
-facade:
+facade. These are real captures, so on a server posting at once they write to DHIS2.
+Serve with `--delivery hold` to keep them on the server, where
+[`d2w fhir forward`](201-forward.md) can grade them with nothing written:
 
 ```console
+$ d2w fhir serve --delivery hold
 $ d2w fhir generate load-set --per-target 2 --salt docs201
 running 2 step(s)
 [1/2] instance metadata: 14 questionnaire target(s)
@@ -759,7 +801,7 @@ $ for response in load/*.json; do
       -H 'Content-Type: application/fhir+json' \
       --data-binary "@${response}"
   done | sort | uniq -c
-  28 201
+  28 202
 ```
 
 The corpus is drawn to be instance-valid - every response is captured at a
@@ -788,10 +830,10 @@ the scaffold gitignores it, and the IG publisher never renders it.
   it could not read. R4's `_format=json` overrides the header, so any query is
   a link a browser can open.
 - **The store is a snapshot.** Restart to serve regenerated state.
-- **The server never writes to DHIS2.** A capture is a receipt and nothing
-  more. Writing to the instance is [`d2w fhir forward`](201-forward.md).
+- **The only thing it writes to DHIS2 is what it is sent.** A capture is the one
+  write this server makes, and it never changes what DHIS2 holds on its own account.
 
 Next: [Capture in the browser](201-capture-ui.md) - the same facade with a
-UI on it - then [Forward captures into DHIS2](201-forward.md).
+UI on it - then [Repair the capture queue](201-forward.md).
 [Run a secured facade](201-run-a-secured-facade.md) walks the whole path in
 one page, securing included.

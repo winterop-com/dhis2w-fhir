@@ -6,24 +6,23 @@ address answers 405 with an OperationOutcome naming the key. The refusal is a ro
 same shape, and only one of them says why. Nothing else about the resource type moves - the receipts
 already spooled are read, searched, and counted at the same paths.
 
-The interaction is FHIR's `create`, and it answers the way R4 says a create answers - 201, a
-`Location` header naming where the created resource is served from, and an OperationOutcome
-saying what happened. What is created is a receipt: the submission as it arrived, stamped with
-the id it is now served under, plus every warning the server had to record about it.
+The interaction is FHIR's `create`, answered by what became of the capture: 201 once DHIS2 has taken it, 202 while this
+server holds it unsent, and 200 where DHIS2 only graded it under validate-only. A 201 or a 202 names where the receipt
+is served from in `Location`. A refusal answers with DHIS2's reasons and stores nothing, because the submitter is the
+one who can act on it. `dhis2w_fhir_engine.facade.delivery` is what decides, and says why.
 
 The body is read as raw bytes rather than through a FastAPI request model. A capture is validated
 against the served IG - its questionnaires, its terminology, its profiles - which is a contract a
 FastAPI parameter model cannot express, and reading the bytes here is also what keeps the stored
 copy byte-faithful to what the client sent.
 
-Nothing here talks to DHIS2. Accepting a capture means the submission was understood and kept,
-not that it has been written to an instance. Kept means durable: the receipt is fsynced and its
-directory entry with it before the 201 goes out, so a 201 is a promise that survives power loss.
+A held capture is durable: the receipt is fsynced and its directory entry with it before the 202 goes out, so a 202 is
+a promise that survives power loss.
 
 A CORRECTION OR A WITHDRAWAL IS REFUSED HERE where the project's dials are off. `[forward]
 corrections` and `[forward] withdrawals` are read off `fhir.toml` onto the capture state, and a
 submission carrying `status = "amended"` or `status = "entered-in-error"` against an off dial is
-answered 422 with the key named. With the dial on it is stored like any other receipt, status and
+answered 422 with the key named. With the dial on it goes the way any other capture does, status and
 all - see `dhis2w_fhir_engine.facade.capture.validate`.
 
 WHO SUBMITTED IT is stamped on the receipt where this run established anybody. Under
@@ -35,45 +34,38 @@ authenticates nobody knows nobody.
 
 from __future__ import annotations
 
-from dhis2w_client.errors import Dhis2ClientError
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from dhis2w_fhir_engine.facade.api.auth import request_identity
 from dhis2w_fhir_engine.facade.api.passthrough import caller_reader
-from dhis2w_fhir_engine.facade.api.routes.context import conversion_context, serve_context
+from dhis2w_fhir_engine.facade.api.routes.context import delivery_state, serve_context
 from dhis2w_fhir_engine.facade.capability import QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE
 from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
-from dhis2w_fhir_engine.facade.capture.outcome import CaptureIssue, CaptureRejection, rejection_outcome, success_outcome
+from dhis2w_fhir_engine.facade.capture.outcome import (
+    CaptureRejection,
+    held_outcome,
+    rejection_outcome,
+    sent_outcome,
+    validated_outcome,
+)
 from dhis2w_fhir_engine.facade.capture.validate import (
     CaptureLifecyclePostures,
-    CaptureSubject,
     ValidatedCapture,
     validate_response,
 )
-from dhis2w_fhir_engine.facade.conversion.translator import translate_response
-from dhis2w_fhir_engine.facade.forward import claim_completeness, post_translation
-from dhis2w_fhir_engine.facade.forward_records import ForwardImportRecord, ForwardImportVerdict
-from dhis2w_fhir_engine.facade.overwrite import aggregate_cells
+from dhis2w_fhir_engine.facade.config import CaptureDelivery
+from dhis2w_fhir_engine.facade.delivery import DeliveryKind, DeliveryOutcome
 from dhis2w_fhir_engine.facade.refusals import (
     FHIR_JSON_MEDIA_TYPE,
     CaptureDisabledError,
-    CaptureNotTranslatedError,
-    CaptureRefusedByInstanceError,
     PackagePublishesNoFormsError,
     UnsupportedMediaTypeError,
-    UpstreamError,
-)
-from dhis2w_fhir_engine.facade.response_spool import (
-    StoredResponseEnvelope,
-    mint_receipt,
 )
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
-from dhis2w_fhir_engine.r4.resources import QuestionnaireResponse
 
 #: Where the capture state is held on the app. It is deliberately not part of `ServeContext`: the
 #: context is everything the lifespan loaded, and this is built by the first request that needs a
@@ -157,73 +149,14 @@ async def create_questionnaire_response(request: Request) -> Response:
             content=rejection_outcome(rejection.issues).model_dump(mode="json", exclude_none=True, by_alias=True),
             media_type=FHIR_JSON_MEDIA_TYPE,
         )
-    if context.settings.capture_as_caller:
-        return await _post_as_the_caller(request, validated)
-    envelope = _receipt(validated, request)
-    # Off the event loop: the write is a temporary file, an fsync of it, a rename, and an fsync of
-    # the directory - blocking work the facade must not do inline, since the point of the fsyncs is
-    # that they wait for the device.
-    await run_in_threadpool(context.spool.save, envelope)
-    return _created(request, envelope.response_id, validated.subject, validated.warnings)
-
-
-async def _post_as_the_caller(request: Request, validated: ValidatedCapture) -> Response:
-    """Post one capture at once under the caller's own credentials, so DHIS2 applies their rights and names them.
-
-    A spooled capture is posted later by whoever drains it, and this facade holds no caller's credentials to do that
-    with, so a clerk could have the service write what DHIS2 refuses the clerk. Here DHIS2 decides while the caller
-    waits. A receipt is filed only for what DHIS2 took, so a refusal, or DHIS2 being away, stores nothing and the
-    caller knows to act on it.
-    """
-    context = serve_context(request)
-    conversion = conversion_context(request)
-    if conversion is None:
-        raise UpstreamError("this facade posts captures as the caller and was attached with nothing to translate them")
-    result = translate_response(QuestionnaireResponse.model_validate(validated.response), conversion)
-    if result.is_refused:
-        raise CaptureNotTranslatedError(tuple(refusal.reason for refusal in result.refusals))
-    reader = await caller_reader(request)
-    validate_only = context.settings.capture_validate_only
-    try:
-        answer = await post_translation(reader, result, dry_run=validate_only)
-    except Dhis2ClientError as error:
-        raise UpstreamError(
-            f"DHIS2 could not take this capture, and nothing was stored: send it again ({error})"
-        ) from error
-    if answer.verdict is ForwardImportVerdict.NONE:
-        raise UpstreamError(
-            f"DHIS2 answered {answer.http_status} with no verdict, and nothing was stored: send it again"
-        )
-    if answer.verdict is ForwardImportVerdict.REJECTED:
-        reasons = tuple(issue.line for issue in answer.issues) or (answer.message or "no reason stated",)
-        raise CaptureRefusedByInstanceError(answer.http_status or 409, reasons)
-    if validate_only:
-        return JSONResponse(
-            status_code=200,
-            content={
-                "resourceType": "OperationOutcome",
-                "issue": [
-                    {
-                        "severity": "information",
-                        "code": "informational",
-                        "diagnostics": "DHIS2 would take this capture for this caller; nothing was written or stored",
-                    }
-                ],
-            },
-            media_type=FHIR_JSON_MEDIA_TYPE,
-        )
-    envelope = _receipt(validated, request)
-    envelope_cells = aggregate_cells(result.data_value_set) if result.data_value_set is not None else ()
-    claim = result.completeness if context.project.config.forward.register_completeness else None
-    record = ForwardImportRecord(
-        **answer.model_dump(),
-        target_kind=result.target_kind,
-        received_at=envelope.received_at,
-        cells=envelope_cells,
-        completeness=None if claim is None else await claim_completeness(reader, claim),
+    delivery = delivery_state(request)
+    posts_as_the_caller = delivery.posts_as_caller and delivery.mode is not CaptureDelivery.HOLD
+    caller = await caller_reader(request) if posts_as_the_caller else None
+    identity = request_identity(request)
+    outcome = await delivery.deliver(
+        validated, submitted_by=None if identity is None else identity.username, caller=caller
     )
-    await run_in_threadpool(context.spool.save_forwarded, envelope, record)
-    return _created(request, envelope.response_id, validated.subject, validated.warnings)
+    return _answered(request, outcome, validated)
 
 
 def _require_json_body(request: Request) -> None:
@@ -256,23 +189,27 @@ def capture_state(request: Request) -> CaptureState:
     return state
 
 
-def _receipt(validated: ValidatedCapture, request: Request) -> StoredResponseEnvelope:
-    """Mint the receipt for one accepted submission, under the caller this request authenticated as."""
-    identity = request_identity(request)
-    return mint_receipt(validated, submitted_by=None if identity is None else identity.username)
-
-
-def _created(
-    request: Request, response_id: str, subject: CaptureSubject, warnings: tuple[CaptureIssue, ...]
-) -> Response:
-    """Answer an accepted capture: 201, where the receipt is served from, what it holds, and what was noted."""
+def _answered(request: Request, outcome: DeliveryOutcome, validated: ValidatedCapture) -> Response:
+    """Answer an accepted capture with what became of it, and where its receipt is served from if there is one."""
+    response_id = outcome.envelope.response_id
+    replaced = tuple(value.line for value in outcome.overwritten)
+    if outcome.kind is DeliveryKind.VALIDATED:
+        return _outcome_response(200, validated_outcome(validated.warnings, replaced=replaced), None)
     stated = serve_context(request).settings.service_base
     base_url = (stated if stated is not None else str(request.base_url)).rstrip("/")
+    location = f"{base_url}/{QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE}/{response_id}"
+    if outcome.kind is DeliveryKind.SENT:
+        body = sent_outcome(response_id, validated.subject, validated.warnings, replaced=replaced)
+        return _outcome_response(201, body, location)
+    body = held_outcome(response_id, validated.subject, validated.warnings, note=outcome.note or "")
+    return _outcome_response(202, body, location)
+
+
+def _outcome_response(status_code: int, body: BaseModel, location: str | None) -> Response:
+    """One OperationOutcome as a FHIR response, under the `Location` a stored receipt is served from."""
     return JSONResponse(
-        status_code=201,
-        content=success_outcome(response_id, subject, warnings).model_dump(
-            mode="json", exclude_none=True, by_alias=True
-        ),
+        status_code=status_code,
+        content=body.model_dump(mode="json", exclude_none=True, by_alias=True),
         media_type=FHIR_JSON_MEDIA_TYPE,
-        headers={"Location": f"{base_url}/{QUESTIONNAIRE_RESPONSE_RESOURCE_TYPE}/{response_id}"},
+        headers=None if location is None else {"Location": location},
     )

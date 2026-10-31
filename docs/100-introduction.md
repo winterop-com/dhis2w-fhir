@@ -115,11 +115,20 @@ StructureDefinitions, so a client validates against your published contract
 rather than against documentation. [The capture contract](401-capture-contract.md)
 states every one of them field by field.
 
-The server answers `201 Created` and holds the submission in a local spool as a
-**receipt**; nothing reaches DHIS2 at the moment of capture. A receipt starts
-`received`, becomes `forwarded` or `rejected` when
-[`d2w fhir forward`](201-forward.md) drains the spool into the instance, and
-`withdrawn` if a forwarded one is later retracted.
+The server posts the submission to DHIS2 while the client waits, so the answer is
+DHIS2's. `201 Created` means DHIS2 has the data, and a refusal comes back with
+DHIS2's reasons and stores nothing. If DHIS2 cannot be reached, the server answers
+`202 Accepted`, which means not yet sent to DHIS2, keeps the submission, and tries
+again on its own.
+
+What it keeps is a **receipt**: `forwarded` once DHIS2 took it, `received` while it
+waits, `rejected` if DHIS2 refused it after its sender had gone, and `withdrawn` if
+a forwarded one is later retracted.
+
+**A run only writes to a DHIS2 somebody named.** A profile the server merely found
+on this machine could be anybody's, so captures stay on the server until the project
+names it, and the line the server starts with says which DHIS2 it posts to. See
+[`delivery`](301-serving.md#delivery).
 
 ![The Responses table: the lifecycle states as a filter row carrying their own counts, and a row per receipt with what it answers and where it is now](img/capture-ui-responses.png)
 
@@ -131,8 +140,9 @@ capability and the page that owns it.
 - **Capture in the browser.** `d2w fhir serve --ui` serves a form filler at `/`
   that renders the published forms, picks the organisation unit and reporting
   period, and shows every receipt's state - [Capture in the browser](201-capture-ui.md).
-- **Forward captures into DHIS2.** `d2w fhir forward` translates the spool into
-  DHIS2 imports and posts them, dry run by default - [Forward captures into DHIS2](201-forward.md).
+- **Repair the capture queue.** `d2w fhir forward` posts what a server is still
+  holding, dry run by default, for a server told to hold captures and for a refused
+  receipt put back in the queue - [Repair the capture queue](201-forward.md).
 - **Decide who may call it.** A facade binds loopback and asks nobody who they
   are until you say otherwise; token, DHIS2-credential, and JWT postures are all
   available - [Secure the facade](201-secure.md).

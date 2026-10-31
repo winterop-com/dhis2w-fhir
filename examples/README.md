@@ -40,6 +40,7 @@ The compile step (`make setup && make sushi` inside a scaffolded project) needs 
 | [`validate_hostile_names.sh`](cli/validate_hostile_names.sh) | `d2w fhir validate --hostile-names` — grade the same instance under each hostile-names posture | yes |
 | [`spool.sh`](cli/spool.sh) | `d2w fhir spool`, `requeue` — the capture queue, read and rewound offline | yes |
 | [`serve.sh`](cli/serve.sh) | `d2w fhir serve` — compile, serve, post a load set, read the receipts | no: docker compile, binds a port |
+| [`delivery.sh`](cli/delivery.sh) | `d2w fhir serve --delivery` - when a capture goes to DHIS2, and `GET /facade/delivery` for what has not arrived | yes: `--live`, and it writes nothing to DHIS2 |
 | [`serve_auth_postures.sh`](cli/serve_auth_postures.sh) | `d2w fhir serve --auth` - the four postures: the bind refusal an absent key earns, `token`, `dhis2` read as the caller, `jwt` and its issuer | yes |
 | [`evaluate.sh`](cli/evaluate.sh) | `POST /facade/evaluate` and `POST /$evaluate` over a served guide, from curl - the OperationDefinition the contract lives in, FHIRPath over a stored form, a parse failure answered 200, and the `Parameters` a CQL library comes back as | yes |
 | [`serve_projection_search.sh`](cli/serve_projection_search.sh) | `[serve.search] backend = "projection"` - `_content` and the as-of header from the synced copy, and the refusal without one | yes |

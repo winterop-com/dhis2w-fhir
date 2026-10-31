@@ -145,7 +145,8 @@ the read-set a capture client needs is present.
 **capture** asks the served endpoint to fill in each published form
 (`$generate`) and posts each answer straight back at it
 (`POST /QuestionnaireResponse`), holding it to the invariant the operation
-exists for: **what this server generates, this server accepts, 201**. A
+exists for: **what this server generates, this server accepts**. It holds what it
+accepts rather than posting it, so this phase writes nothing to DHIS2. A
 form the server cannot generate against is a warning; an endpoint refusing
 its own output is a failure. Registration forms are captured before their
 stages, because a stage response answers against the enrollment a spooled
@@ -290,7 +291,7 @@ published guide to read. It opens with what it connected to:
 │         │         │         │ NamingSystem 26, OperationDefinition 1, Organization   │
 │         │         │         │ 108, Questionnaire 5, QuestionnaireResponse 5,         │
 │         │         │         │ StructureDefinition 27, StructureMap 1, ValueSet 25    │
-│capture  │ pass    │ 0.0     │ 5 form(s), 5 generated, 5 accepted as 201              │
+│capture  │ pass    │ 0.0     │ 5 form(s), 5 generated, 5 accepted                     │
 │forward  │ fail    │ 0.2     │ 5 spooled, 5 translated, 0 refused, 5 posted (validate │
 │         │         │         │ only), 3 accepted, 1 rejected, 1 unverifiable          │
 │oracle   │ pass    │ 0.0     │ organisation units: 108 resource(s) over 107 DHIS2     │
@@ -395,7 +396,7 @@ substitute
 [5/10] validate: warn - 1,634 object(s) swept; 0 selection error(s), 5 selection warning(s),
 0 error(s) and 5 warning(s) instance-wide
 [6/10] serve: pass - 355 resource(s) from the compiled guide: ...
-[7/10] capture: pass - 5 form(s), 5 generated, 5 accepted as 201
+[7/10] capture: pass - 5 form(s), 5 generated, 5 accepted
 [8/10] forward: fail - 5 spooled, 5 translated, 0 refused, 5 posted (validate only),
 3 accepted, 1 rejected, 1 unverifiable
 [9/10] oracle: pass - organisation units: 108 resource(s) over 107 DHIS2 object(s), ...

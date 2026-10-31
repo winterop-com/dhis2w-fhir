@@ -227,7 +227,7 @@ grep -H 'subjectType' ig/input/fsh/tracker-programs/*/registration.fsh
 
 # --- 4. Serve it, and read what it declares -----------------------------------------------------
 start_facade() {
-    d2w fhir serve --live --no-ui --port "$PORT" >facade.log 2>&1 &
+    d2w fhir serve --delivery hold --live --no-ui --port "$PORT" >facade.log 2>&1 &
     SERVER_PID=$!
     for _ in $(seq 1 90); do
         if [ "$(curl -s -o /dev/null -w '%{http_code}' "${BASE}/metadata")" = "200" ]; then

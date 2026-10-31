@@ -352,13 +352,26 @@ class CaptureNotTranslatedError(ServeError):
 
 
 class CaptureRefusedByInstanceError(ServeError):
-    """DHIS2 refused a capture posted under the caller's own credentials, so nothing was stored."""
+    """DHIS2 refused a capture posted at once, so the submitter hears why and nothing was stored."""
 
     issue_code = "processing"
 
     def __init__(self, status_code: int, reasons: tuple[str, ...]) -> None:
         super().__init__("DHIS2 refused this capture, and nothing was stored: " + "; ".join(reasons))
         self.status_code = status_code
+
+
+class CaptureOverwriteRefusedError(ServeError):
+    """A capture holding a value an earlier receipt sent, where `[forward] overwrites` refuses that, so nothing went."""
+
+    status_code = 409
+    issue_code = "processing"
+
+    def __init__(self, values: tuple[str, ...]) -> None:
+        super().__init__(
+            'this capture holds values already sent to DHIS2, and `[forward] overwrites = "refuse"` is set, so '
+            "nothing was sent: " + "; ".join(values)
+        )
 
 
 class BadSearchError(ServeError):

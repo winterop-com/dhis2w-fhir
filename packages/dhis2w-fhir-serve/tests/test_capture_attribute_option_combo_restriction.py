@@ -417,4 +417,4 @@ async def test_a_registry_mode_guide_generates_an_absolute_location_reference(
     reference = generated["subject"]["reference"]
 
     assert reference.startswith(f"{REGISTRY_CANONICAL}/Location/")
-    assert posted.status_code == 201
+    assert posted.status_code == 202

@@ -223,9 +223,8 @@ function SpoolOffer({
             )}
             {selected !== null && selected.lifecycle === 'received' && (
                 <p className="text-status-received text-xs">
-                    DHIS2 has not received this registration yet. Run{' '}
-                    <code className="font-mono">d2w fhir forward</code> so the registration lands
-                    first - until then this submission cannot import.
+                    DHIS2 has not received this registration yet, and this submission cannot
+                    import until it has.
                 </p>
             )}
         </>

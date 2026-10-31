@@ -96,7 +96,7 @@ async def main() -> None:
     # `dhis2` and `jwt` postures establish an identity and the capture route stamps it onto the
     # receipt; `token` is a deployment secret, not an account.
     print("\nA static token names no person - this receipt records no reporter.")
-    print("Not yet sent to DHIS2 - run `d2w fhir forward --import` in the project directory to send it.")
+    print("On a server holding captures, `d2w fhir forward --import` in the project directory sends it.")
 
 
 def report(refusal: FacadeError) -> None:

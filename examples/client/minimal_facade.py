@@ -5,8 +5,8 @@ request is over there is no record that it happened. Everything the next three l
 held for the process, a durable receipt, a queue that outlives an unreachable instance - is a
 guarantee this level does without, on purpose, because the application around it already has one.
 
-`d2w fhir serve` is the complete facade - capability statement, published guide, a live register, a
-durable spool, and `d2w fhir forward` draining it. Most integrations want none of that: they have a
+`d2w fhir serve` is the complete facade - capability statement, published guide, a live register, and
+a durable queue it retries on its own. Most integrations want none of that: they have a
 FastAPI application already, and somewhere to put a failure already. What they need is the one thing
 they cannot write themselves - a captured `QuestionnaireResponse` as the DHIS2 import payload it
 means. That is `translate_response`, and `build_facade` below is the whole recipe around it.

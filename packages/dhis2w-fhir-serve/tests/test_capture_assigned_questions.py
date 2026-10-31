@@ -129,7 +129,7 @@ async def test_a_generated_draft_of_such_a_form_still_posts_back(capture_client:
         headers={"Content-Type": "application/fhir+json"},
     )
 
-    assert posted.status_code == 201
+    assert posted.status_code == 202
     assert not [issue for issue in posted.json()["issue"] if "E1307" in (issue.get("diagnostics") or "")]
 
 

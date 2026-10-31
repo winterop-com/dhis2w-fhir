@@ -5,7 +5,7 @@
 # engine wheel from this checkout so it verifies the code in front of it. A real project runs
 # `uv add dhis2w-fhir-engine uvicorn` instead.
 #
-# Every caller presents their own DHIS2 credentials, so DHIS2 applies their own rights. `validate_only` is here so this
+# Every caller presents their own DHIS2 credentials, so DHIS2 applies their own rights. `VALIDATE_ONLY` is here so this
 # writes nothing, and a real service leaves it out. The connection the service holds is admin only because this runs
 # against a local demo instance: see docs/build-who-can-do-what.md for what to give a real one.
 #
@@ -38,7 +38,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dhis2w_client import BasicAuth, Dhis2Client
-from dhis2w_fhir_engine.facade import FacadeConfig, open_facade
+from dhis2w_fhir_engine.facade import CaptureDelivery, FacadeConfig, open_facade
 from dhis2w_fhir_engine.facade.api import attach_facade, mount_facade
 from fastapi import FastAPI
 
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 
 app = FastAPI(lifespan=lifespan)
-mount_facade(app, read_as_caller=True, validate_only=True)
+mount_facade(app, read_as_caller=True, delivery=CaptureDelivery.VALIDATE_ONLY)
 PYTHON
 
 port=8398

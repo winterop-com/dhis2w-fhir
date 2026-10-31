@@ -62,7 +62,6 @@ from dhis2w_fhir_serve.oidc import (
     cache_seconds,
     discover_issuer,
 )
-from dhis2w_fhir_serve.runtime import _forwards_credentials
 from dhis2w_fhir_serve.settings import resolve_serve_settings
 from fastapi import FastAPI
 from joserfc import jwt as jose_jwt
@@ -567,7 +566,7 @@ async def test_a_capture_records_the_username_the_token_named(
             content=json.dumps(aggregate_response),
             headers={"Authorization": f"Bearer {issuer.sign()}"},
         )
-        assert created.status_code == 201
+        assert created.status_code == 202
         listing = (await http.get("/facade/spool")).json()
 
     assert [row["submitted_by"] for row in listing["responses"] if row["submitted_by"] is not None] == [CALLER]
@@ -871,4 +870,4 @@ def test_forward_bearer_written_down_is_what_the_runtime_opens_a_pool_for(
     invocation = resolve_serve_settings(project, live=True)
 
     assert invocation.settings.jwt.forward_bearer is True
-    assert _forwards_credentials(invocation.settings) is True
+    assert invocation.settings.forwards_credentials is True

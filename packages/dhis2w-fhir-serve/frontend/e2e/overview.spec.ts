@@ -40,7 +40,7 @@ async function captureOne(request: APIRequestContext, seed: number): Promise<voi
         headers: { 'Content-Type': FHIR_JSON, Accept: FHIR_JSON },
         data: await generated.json(),
     })
-    expect(posted.status(), await posted.text()).toBe(201)
+    expect(posted.status(), await posted.text()).toBe(202)
 }
 
 /** The number printed on one lifecycle tile. */

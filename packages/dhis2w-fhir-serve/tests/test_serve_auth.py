@@ -49,7 +49,7 @@ from dhis2w_fhir_engine.facade.api.auth import (
 from dhis2w_fhir_engine.facade.api.passthrough import CallerCredentialReader, UpstreamRefusalError
 from dhis2w_fhir_engine.facade.api.routes.mounting import FACADE_MOUNT_PATH
 from dhis2w_fhir_engine.facade.api.routes.whoami import TOKEN_CALLER_NAME, WHOAMI_PATH, authenticated_caller
-from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
+from dhis2w_fhir_engine.facade.config import CaptureDelivery, FhirProject, ServeAuth, ServeAuthScope, load_fhir_config
 from dhis2w_fhir_engine.facade.register.reader import FACADE_PROVENANCE_HEADER, open_pass_through_client
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.settings import ServeSettings
@@ -104,6 +104,7 @@ def _settings(project: FhirProject, posture: ServeAuth, scope: ServeAuthScope) -
         auth=posture,
         auth_scope=scope,
         dhis2_base_url=INSTANCE_URL if posture is ServeAuth.DHIS2 else None,
+        capture_delivery=CaptureDelivery.HOLD,
     )
 
 
@@ -293,7 +294,7 @@ async def test_the_token_posture_answers_a_capture_only_for_a_token_it_holds(
         assert anonymous.headers["www-authenticate"] == challenge_for(ServeAuth.TOKEN)
         assert anonymous.json()["issue"][0]["code"] == "login"
         assert wrong.status_code == 401
-        assert right.status_code == 201
+        assert right.status_code == 202
 
 
 async def test_a_credential_in_the_wrong_scheme_is_refused_by_the_token_posture(
@@ -326,7 +327,7 @@ async def test_a_token_capture_records_no_submitter(
             content=json.dumps(aggregate_response),
             headers={"Authorization": "Bearer first-token"},
         )
-        assert created.status_code == 201
+        assert created.status_code == 202
         listing = (await http.get("/facade/spool")).json()
 
     captured = [row for row in listing["responses"] if row["submitted_by"] is not None]
@@ -531,7 +532,7 @@ async def test_the_instance_is_read_once_for_a_run_of_requests_inside_the_cache_
     async with _client(app) as http:
         for _ in range(3):
             answered = await http.post("/QuestionnaireResponse", content=body, headers={"Authorization": CALLER_BASIC})
-            assert answered.status_code == 201
+            assert answered.status_code == 202
 
     assert dhis2_identity.calls.call_count == 1
 
@@ -551,7 +552,7 @@ async def test_the_cached_answer_expires_and_the_instance_is_read_again(
     async with _client(app) as http:
         for _ in range(2):
             answered = await http.post("/QuestionnaireResponse", content=body, headers={"Authorization": CALLER_BASIC})
-            assert answered.status_code == 201
+            assert answered.status_code == 202
 
     assert dhis2_identity.calls.call_count == 2
 
@@ -602,7 +603,7 @@ async def test_the_validated_username_lands_on_the_receipt(
             content=json.dumps(aggregate_response),
             headers={"Authorization": CALLER_BASIC},
         )
-        assert created.status_code == 201
+        assert created.status_code == 202
         listing = (await http.get("/facade/spool")).json()
 
     captured = [row for row in listing["responses"] if row["submitted_by"] is not None]
@@ -682,7 +683,7 @@ async def test_the_none_posture_serves_every_caller(
 
     async with _client(app) as http:
         created = await http.post("/QuestionnaireResponse", content=json.dumps(aggregate_response))
-        assert created.status_code == 201
+        assert created.status_code == 202
         assert (await http.get("/metadata")).status_code == 200
         listing = (await http.get("/facade/spool")).json()
 

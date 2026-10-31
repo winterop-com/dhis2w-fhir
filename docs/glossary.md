@@ -132,7 +132,7 @@ response naming none against such a form is refused, because DHIS2 answers
 **data value**
 : One measured number or answer, keyed in DHIS2 by
 `(dataElement, period, orgUnit, categoryOptionCombo, attributeOptionCombo)`. It
-is one answer item in a `QuestionnaireResponse`; `d2w fhir forward` reassembles
+is one answer item in a `QuestionnaireResponse`; the translator reassembles
 the key from the response's answers, its `D2Period`, its subject, and its
 `D2AttributeOptionCombo`.
 
@@ -361,7 +361,7 @@ per tracker program stage, and per tracker program registration.
 
 **QuestionnaireResponse**
 : One filled-in form. This is what a capture client posts, what the spool
-stores, and what `d2w fhir forward` converts into a DHIS2 payload.
+stores, and what the translator converts into a DHIS2 payload.
 
 **`linkId`**
 : The key joining a response answer to the question it answers. For a
@@ -482,8 +482,8 @@ run, because what it writes is not IG source.
 **conversion layer**
 : The code that turns a captured `QuestionnaireResponse` into the DHIS2 import
 payload its form kind calls for - a data value set, an event, a tracked entity,
-an enrollment. **Phase A** is that translator in Python, which is what
-`d2w fhir forward` drives and what ships today. **Phase B** is publishing the
+an enrollment. **Phase A** is that translator in Python, which is what a capture
+and `d2w fhir forward` both drive and what ships today. **Phase B** is publishing the
 same contract *in the guide*, as logical models and StructureMaps, so a bridge
 written in another language does not have to read Python to agree with it.
 
@@ -532,11 +532,17 @@ says what the import counted, in `rejected/` it says why DHIS2 refused, and in
 `withdrawn/` it says what DHIS2 answered when `d2w fhir withdraw` asked for the
 event back. Every import writes one.
 
+**delivery**
+: When a capture goes to DHIS2, stated by `[serve] delivery`. `at-once` posts while the
+sender waits, so they hear DHIS2's answer; `validate-only` has DHIS2 grade it and writes
+nothing; `hold` keeps it on the server. A run only posts at once to a DHIS2 somebody named.
+
 **forward / drain**
 : `d2w fhir forward` reads the spool, converts every received response into the
-DHIS2 payload its form kind calls for, and posts it. Dry run is the default;
-`--import` is what actually writes. A drain that meets a server error stops and
-preserves the rest rather than continuing.
+DHIS2 payload its form kind calls for, and posts it. It is for what a server is still
+holding. Dry run is the default; `--import` is what actually writes. A drain that meets
+a server error stops and preserves the rest rather than continuing. A server retrying
+its own queue runs the same drain.
 
 **strict codes**
 : The switch that turns four capture gradings from warnings into refusals -

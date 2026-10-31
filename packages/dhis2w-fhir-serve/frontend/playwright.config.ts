@@ -74,7 +74,7 @@ export default defineConfig({
     webServer: {
         command: [
             `uv run python ${fixtureBuilder} ${fixtureProject}`,
-            `uv run d2w fhir serve ${fixtureProject} --ui --host 127.0.0.1 --port ${String(E2E_PORT)}`,
+            `uv run d2w fhir serve ${fixtureProject} --ui --delivery hold --host 127.0.0.1 --port ${String(E2E_PORT)}`,
         ].join(' && '),
         cwd: repositoryRoot,
         // `/metadata` rather than `/`: it is the one path that proves the FHIR

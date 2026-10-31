@@ -74,14 +74,48 @@ def rejection_outcome(issues: tuple[CaptureIssue, ...]) -> OperationOutcome:
     return OperationOutcome(issue=[_issue(issue) for issue in issues])
 
 
-def success_outcome(response_id: str, subject: CaptureSubject, warnings: tuple[CaptureIssue, ...]) -> OperationOutcome:
-    """The body an accepted capture answers with: what was stored, then whatever the server had to note."""
-    stored = OperationOutcomeIssue(
-        severity="information",
-        code="informational",
-        diagnostics=f"stored response {response_id}, holding {capture_subject_sentence(subject)}; {RECEIPT_NOTE}",
+def sent_outcome(
+    response_id: str, subject: CaptureSubject, warnings: tuple[CaptureIssue, ...], *, replaced: tuple[str, ...] = ()
+) -> OperationOutcome:
+    """The body a capture DHIS2 took answers with: what was stored, what it replaced, and what the server noted."""
+    return _accepted_outcome(
+        f"sent to DHIS2 and stored as response {response_id}, holding {capture_subject_sentence(subject)}; "
+        f"{RECEIPT_NOTE}",
+        warnings,
+        replaced,
     )
-    return OperationOutcome(issue=[stored, *(_issue(warning) for warning in warnings)])
+
+
+def held_outcome(
+    response_id: str, subject: CaptureSubject, warnings: tuple[CaptureIssue, ...], *, note: str
+) -> OperationOutcome:
+    """The body a capture this server holds answers with: that it has not been sent, and what happens next."""
+    return _accepted_outcome(
+        f"not yet sent to DHIS2: stored as response {response_id}, holding {capture_subject_sentence(subject)}; {note}",
+        warnings,
+        (),
+    )
+
+
+def validated_outcome(warnings: tuple[CaptureIssue, ...], *, replaced: tuple[str, ...] = ()) -> OperationOutcome:
+    """The body a capture DHIS2 only graded answers with."""
+    return _accepted_outcome("DHIS2 would take this capture; nothing was written or stored", warnings, replaced)
+
+
+def _accepted_outcome(
+    statement: str, warnings: tuple[CaptureIssue, ...], replaced: tuple[str, ...]
+) -> OperationOutcome:
+    """One accepted capture's statement, followed by every value it replaced and every warning it carried."""
+    return OperationOutcome(
+        issue=[
+            OperationOutcomeIssue(severity="information", code="informational", diagnostics=statement),
+            *(
+                OperationOutcomeIssue(severity="warning", code="informational", diagnostics=f"replaced {line}")
+                for line in replaced
+            ),
+            *(_issue(warning) for warning in warnings),
+        ]
+    )
 
 
 def capture_subject_sentence(subject: CaptureSubject) -> str:

@@ -11,14 +11,14 @@ teaches them in order; this page lists every capability in one place.
 **Packages:** `dhis2w-fhir`, `dhis2w-fhir-serve` | **Install:** `uv tool install "dhis2w-cli[fhir,serve]"`
 
 Turn a DHIS2 instance into a published FHIR R4 Implementation Guide, serve that
-guide as a read-and-capture facade, and drain what was captured back into DHIS2.
+guide as a read-and-capture facade that sends what it captures to DHIS2.
 The version-neutral `fhir` plugin is the `dhis2w-fhir` package, which `d2w`
 mounts through the `dhis2w.plugins.v1` entry point when the `dhis2w-cli[fhir]`
 extra installs it; the facade is `dhis2w-fhir-serve`, pulled in by the
 `dhis2w-cli[serve]` extra so an install that only generates stays FastAPI-free.
 
 Four verbs over one project directory - `init`, `generate`, `validate`,
-`serve` - plus `forward` to close the loop and `doctor` to drive the whole
+`serve` - plus `forward` to repair a capture queue and `doctor` to drive the whole
 chain in one command.
 
 ### Scaffold a project
@@ -1835,11 +1835,11 @@ bound to loopback by default that loads the project once at startup.
 - **Attribution.** Under `dhis2`, the validated username lands on the receipt as
   `submitted_by`; `d2w fhir spool --details` shows it as a **Captured by** column
   when any receipt has one, and the forward report carries it through. It is
-  facade-side provenance and says nothing about the identity DHIS2 stores: a
-  drain posts as the forwarding profile, and `storedBy` is DHIS2's own stamp of
-  that profile.
+  facade-side provenance. A capture posted at once goes under the caller's own
+  credentials, so `storedBy` names them too. Under `--delivery hold`, a drain posts as
+  the forwarding profile, and `storedBy` is DHIS2's own stamp of that profile.
 - **Configuration.** `host`, `port`, `auth`, `auth_scope`, `strict_codes`,
-  `capture`, `ui`, and
+  `capture`, `delivery`, `delivery_retry_seconds`, `ui`, and
   `spool_dir` fall back to the `[serve]` table of `fhir.toml`, which
   `make serve` / `make serve-live` read too, with flags
   beating the table beating the defaults and `--strict-codes` /
@@ -2245,8 +2245,8 @@ deliberately not SDC's `$populate`, which means fill-from-real-context.
 - **Wrapped in the context its form kind's response profile requires**: a
   `D2Period` and a `Location` subject for aggregate, plus one
   `D2AttributeOptionCombo` drawn out of the vocabulary the form declares where
-  it declares one - whatever the form kind, which is what holds the 201
-  invariant for a data set or a program on a non-default category combo,
+  it declares one - whatever the form kind, which is what keeps a generated response
+  acceptable for a data set or a program on a non-default category combo,
   `--strict-codes` included; an `authored` instant
   for event; and for tracker-event an `authored` instant plus the
   tracked-entity and enrollment pair a registration receipt in this project's
@@ -2259,7 +2259,7 @@ deliberately not SDC's `$populate`, which means fill-from-real-context.
   program, which the contract admits either way because it checks the shape of
   those identifiers rather than their existence.
 - **The invariant that generated output POSTed back to this server's own
-  `/QuestionnaireResponse` answers 201** is held as a test per form kind, in
+  `/QuestionnaireResponse` is accepted** is held as a test per form kind, in
   both store modes, and under `--strict-codes`.
 - **An optional `seed`** (query for GET, a `Parameters` body for POST, an R4
   `integer` so `0..2147483647`) makes a call byte-reproducible and rides back
@@ -2304,8 +2304,8 @@ in phases that stop at the first level to find an error.
   not checked for uniqueness, which is global instance state DHIS2 enforces at
   import.
 - **The answer** is an OperationOutcome naming each issue by FHIRPath
-  expression, or 201 with a `Location` header and an OperationOutcome carrying
-  the warnings the server had to record.
+  expression, or what became of the capture, with a `Location` header and an
+  OperationOutcome carrying the warnings the server had to record.
 - **Coded answers are lenient by default**: a code that names the right option
   in the wrong spelling resolves through the option-UID and DHIS2-code tiers
   and records a warning; a code the served terminology does not hold at all is
@@ -2336,17 +2336,44 @@ in phases that stop at the first level to find an error.
   carries a date of its own, which the instance grades against the same window
   on import.
 
+#### Delivery
+
+- **A capture goes to DHIS2 at once, so its sender hears DHIS2's answer.** `201` means
+  DHIS2 has the data. A refusal answers with DHIS2's reasons and stores nothing.
+  `[forward] overwrites = "refuse"` holds here too, as a `409`. An allowed overwrite
+  names each value it replaced, as a warning on the answer.
+- **`[serve] delivery` and `--delivery` say otherwise for a run or a project.**
+  `validate-only` has DHIS2 grade each capture, answers `200`, and writes nothing.
+  `hold` keeps every capture in the queue, answers `202`, and sends nothing until
+  `d2w fhir forward` runs.
+- **Where DHIS2 cannot be reached, who posts decides.** Under the caller's own
+  credentials (`dhis2`, and `jwt` with `forward_bearer`) there is no password to retry
+  with, so the answer is a `502` and nothing is stored. Under the facade's one connection
+  the capture is held and answered `202`, which means not yet sent to DHIS2. A worker in
+  the server retries the queue every `[serve] delivery_retry_seconds`, and later captures
+  join the queue rather than overtake it.
+- **`d2w fhir serve` only posts at once to a DHIS2 somebody named**: `profile` in
+  `fhir.toml`, `d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with credentials. A profile the
+  machine fell back to could be anybody's, so captures stay on the server, and the line
+  the server starts with says which DHIS2 it posts to, or why it will not and how to name
+  it. A `ServeSettings` built by hand holds until told.
+- **`GET /facade/delivery`** reports `delivery`, `posts_as`, `waiting`, `refused`,
+  `last_attempt_at`, and `last_problem`, so a capture refused after its sender had gone is
+  logged and counted rather than left in a directory.
+- **`/metadata` says what a capture will do on this server**, in `rest.documentation`.
+
 #### Receipts and the spool
 
-- **An accepted response is stored as a receipt**: the submission as it
+- **A capture the server keeps is stored as a receipt**: the submission as it
   arrived, stamped with the id it is served under, written atomically to
-  `.serve/responses/received/<id>.json`. So reading one back through
+  `.serve/responses/received/<id>.json` while it waits, and to `forwarded/` once DHIS2
+  has it. So reading one back through
   `GET /QuestionnaireResponse/{id}` or `?questionnaire=` says what was
-  submitted and never what DHIS2 now holds, and `ls` on that directory is the
-  pending count the forwarding phase will drain.
-- **The 201 says what the receipt holds, not only which receipt it is.** The
-  information issue names the tuple `d2w fhir forward` grades the submission by
-  and DHIS2 keys the values it writes by - the form, the organisation unit
+  submitted and never what DHIS2 now holds, and `ls` on `received/` is the
+  pending count.
+- **The answer says what the receipt holds, not only which receipt it is.** The
+  information issue names the tuple DHIS2 grades the submission by
+  and keys the values it writes by - the form, the organisation unit
   reported from, the period where the form reports for one, and the attribute
   option combo where the form declares one - each as its published name beside
   its DHIS2 UID, with the logical id still leading. A client posting a batch can
@@ -2356,7 +2383,7 @@ in phases that stop at the first level to find an error.
   receipt page states the same four facts in its capture context block.
 - **The spool is a directory rather than an index**: reads re-read `received/`,
   `forwarded/`, `rejected/`, and `withdrawn/` on every request, because
-  `fhir forward` renames receipts between them from another process while the
+  the server's own retries and `fhir forward` rename receipts between them while the
   server is up, and a receipt keeps reading back after a drain rather than
   expiring the id its sender was handed. `[serve] spool_dir` is where that
   tree lives.
@@ -2384,7 +2411,7 @@ in phases that stop at the first level to find an error.
   receipt deletes the marker, and so does `d2w fhir requeue` - a receipt
   entering the queue has been refused by no drain.
 - **A capture is durable before it is acknowledged**: the temporary file is
-  `fsync`ed, renamed, and the directory entry `fsync`ed too, so the 201
+  `fsync`ed, renamed, and the directory entry `fsync`ed too, so a 202
   promises a receipt that survives power loss rather than one that reached the
   page cache.
 - **A file that no longer reads as a receipt is moved to a fourth directory**,
@@ -2457,7 +2484,7 @@ no operator, no second command, and no schedule, and that stays the product.
 - **DHIS2 stays the record.** No route writes the projection, no operator writes
   it, and a row that disagrees with the instance is a defect of this command whose
   fix is `--rebuild` rather than an edit. Deleting the file is supported. A capture
-  still travels spool, `d2w fhir forward`, DHIS2, then the next sync, so a captured
+  goes to DHIS2 and waits for the next sync, so a captured
   value appears in a synced server one sync interval after DHIS2 accepted it -
   stated rather than hidden behind a write-through.
 
@@ -2596,8 +2623,8 @@ shipped inside the wheel.
 
 #### Overview
 
-- **Four spool counts as stat tiles**, with `Received` (the queue
-  `fhir forward` drains) set at hero size and every tile linking into the
+- **Four spool counts as stat tiles**, with `Received` (what has not reached DHIS2)
+  set at hero size and every tile linking into the
   Responses table with that lifecycle already selected via
   `#/responses?lifecycle=`.
 - **A withdrawn receipt states what the instance keeps**, in the withdrawal
@@ -2830,7 +2857,7 @@ control per R4 item type.
   (pinned as one exported constant in `lib/patients.ts` and derived off the
   form's own canonical like every other extension url this UI writes), and
   makes every `D2EntityLevel` question read-only and cleared with the reason
-  stated. That is load-bearing rather than tidy, because `fhir forward` refuses
+  stated. That is load-bearing rather than tidy, because the translator refuses
   a submission that states its subject exists and carries an optional
   entity-level answer anyway, while a program-mandatory one rides the
   enrollment instead - DHIS2 answers `E1018` to a mandatory program attribute
@@ -3442,11 +3469,12 @@ an identifier search and a paged listing on one page, with a detail route at
   (Metadata health, a tracked entity's record, and the record under the
   Responses table). The live shoot serves a copy of the project's `fhir.toml`
   with the spool pointed at a temporary directory, and only ever reads.
-### Forward captures into DHIS2
+### Repair the capture queue
 
-`d2w fhir forward` is the third verb, and it closes the loop
-IG -> form -> QuestionnaireResponse -> DHIS2. It reads the receipts out of
-`.serve/responses/received/` and drains them.
+`d2w fhir forward` sends what a server is still holding: captures held under
+`--delivery hold`, with no profile named, or a refused receipt put back with
+`d2w fhir requeue`. It reads the receipts out of `.serve/responses/received/` and drains
+them. A server posting through its one connection runs the same drain on its own.
 
 #### Translation context
 
@@ -3604,8 +3632,8 @@ Each response goes through `dhis2w_fhir_engine.facade.conversion` all-or-nothing
   `.serve/responses/.drain.lock` for its whole length with its own process id
   written inside, so a second drain of the same project fails at once naming
   the holder rather than posting every payload twice and racing its renames,
-  and the kernel releases it however the run ended. `fhir serve` never takes
-  it.
+  and the kernel releases it however the run ended. A server trying its own queue takes
+  it for each attempt, and skips that attempt while another drain holds it.
 - **A file in `received/` that will not read as a receipt is quarantined** to
   `malformed/` with its reason and named on the report while the drain proceeds
   with the rest, and abandoned temporary files older than an hour are swept as
@@ -3847,7 +3875,8 @@ typed phases.
   compiler would have written them.
 - **capture** - `$generate` over every published form, posted straight back
   through an in-process `httpx2.AsyncClient` over the ASGI app, holding the
-  endpoint to its 201 invariant, registrations before their stages.
+  endpoint to accepting its own output, registrations before their stages. Its server
+  holds what it accepts, so this phase writes nothing.
 - **forward** - the corpus drained at the real instance in validate-only mode,
   rejections rolled up by cause.
 - **oracle** (`--live`) - the instance judges the served output: every served
@@ -4040,7 +4069,7 @@ The graded `d2w fhir` series is this site, routed from
   page by page, with screenshots produced by a committed, skipped-by-default
   Playwright spec against the fixture suite server
   (`frontend/e2e/docs-screenshots.spec.ts`), including how to re-shoot them.
-- [Forward captures into DHIS2](201-forward.md) - the
+- [Repair the capture queue](201-forward.md) - the
   dry-run-first workflow on DHIS2's own validate-only modes, the six steps of a
   run, the four receipt states, refusal versus rejection, the drain lock,
   reading the queue with `fhir spool` and putting a refused receipt back with
@@ -4110,14 +4139,18 @@ refusal text a mistake produces, captured from real misconfigured runs.
 [Build a middleware](build-a-middleware.md).
 
 - `FacadeConfig`, `open_facade`, and `Facade` load one guide off a live instance, a compiled directory, or a published
-  `package.tgz`. `Facade` offers `forms`, `synthesize`, `validate_capture`, `capture`, `translate`, `post`, and `drain`.
+  `package.tgz`. `Facade` offers `forms`, `synthesize`, `validate_capture`, `submit`, `capture`, `translate`, `post`, and
+  `drain`. `submit` validates a capture and posts it at once, and a refusal raises.
+- `CaptureDeliverer` posts a capture at once, holds what DHIS2 was away for, and keeps trying the queue. `DeliveryOutcome`
+  says what became of a capture and `DeliveryStatus` what has not landed.
 - `post_translation` posts one translated payload and answers with DHIS2's verdict; `drain_responses` drains a spool
   through a connection the caller holds.
 - `mount_facade` mounts `/metadata`, capture, reads, operations, and the operational API by flag, behind your own
   authentication dependency if you give one, and `/metadata` states what was mounted and what your check requires.
-  `read_as_caller` has DHIS2 apply each caller's own rights to reads and to captures, which post at once rather than being
-  spooled; under `authentication` everyone who gets in acts as the connection's one account. A facade that can take a
-  capture or read a person refuses to start with neither, unless `allow_anonymous` says so.
+  `read_as_caller` has DHIS2 apply each caller's own rights to reads and to captures; under `authentication` everyone who
+  gets in acts as the connection's one account. A facade that can take a capture or read a person refuses to start with
+  neither, unless `allow_anonymous` says so. `delivery` takes a `CaptureDelivery`: at once by default, and `VALIDATE_ONLY`
+  or `HOLD` otherwise.
   `attach_facade` hands it an opened facade, with an optional stated service base, and `record_caller` lets your check
   name its caller for `/whoami`.
 - `examples/facade/` is the numbered path through these, ending in a round trip: a capture committed into DHIS2, read back
@@ -4253,7 +4286,9 @@ d2w fhir            FHIR IG generation (SUSHI/FSH + pre-built JSON, package dhis
                         UI, --auth none|token|dhis2|jwt with --auth-scope
                         write|all
                         says who is served and how much of the surface the
-                        posture covers, and host/port/authentication/strict
+                        posture covers, --delivery (at-once, validate-only, hold)
+                        says when a capture goes to DHIS2, and
+                        host/port/authentication/delivery/strict
                         codes fall back to the [serve]
                         table of fhir.toml - where capture and spool_dir carry
                         no flag, capture=false being the viewer posture and
@@ -4270,7 +4305,7 @@ d2w fhir            FHIR IG generation (SUSHI/FSH + pre-built JSON, package dhis
                         unanswered (E1307) and a submitted answer to one is a
                         warning naming the rule; stored responses are receipts; the
                         profile is the root d2w -p, resolved before the start banner)
-  forward               Drain the capture spool back into DHIS2: translate every
+  forward               Send what a server is still holding into DHIS2: translate every
                         received QuestionnaireResponse into its /api/dataValueSets
                         envelope or /api/tracker event and post it. DRY RUN IS THE
                         DEFAULT - every payload goes to the real endpoint under its

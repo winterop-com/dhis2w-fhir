@@ -23,7 +23,7 @@ from dhis2w_fhir_engine.facade.api.routes.mounting import (
 )
 from dhis2w_fhir_engine.facade.api.routes.negotiation import require_json_is_acceptable
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime, attach_serve_runtime
-from dhis2w_fhir_engine.facade.config import ServeAuth, ServeAuthScope
+from dhis2w_fhir_engine.facade.config import CaptureDelivery, ServeAuth, ServeAuthScope
 from dhis2w_fhir_engine.facade.provenance import server_version
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
@@ -65,7 +65,7 @@ class MountedSurfaces(BaseModel):
     facade_api: bool = False
     reads_as_caller: bool = False
     allows_anonymous: bool = False
-    validate_only: bool = False
+    delivery: CaptureDelivery = CaptureDelivery.AT_ONCE
 
     def reads_people(self) -> bool:
         """Whether anything mounted here can answer with a person out of DHIS2."""
@@ -85,7 +85,7 @@ def mount_facade(
     authentication_statement: str = OWN_AUTHENTICATION_STATEMENT,
     read_as_caller: bool = False,
     allow_anonymous: bool = False,
-    validate_only: bool = False,
+    delivery: CaptureDelivery = CaptureDelivery.AT_ONCE,
 ) -> None:
     """Mount the surfaces asked for. Declare your own routes first: the reads claim every one-segment path.
 
@@ -100,12 +100,16 @@ def mount_facade(
     checks them, and DHIS2 applies that caller's rights to everything done for them. A read goes out under their
     credentials, and so does a capture, which posts at once rather than being spooled: DHIS2 names them as its author,
     and if DHIS2 is away the capture fails and the client sends it again. It takes no `authentication`, because DHIS2
-    is the check. `validate_only` runs those posts under the endpoint's validate-only mode, for trying a service out.
+    is the check.
 
-    WITH `authentication`, EVERYONE WHO GETS IN ACTS AS ONE ACCOUNT. A read goes through the connection given to
-    `open_facade`, and a capture is spooled and later drained through it, so DHIS2 applies that account's rights and
-    not the caller's: your check decides who may ask and nothing about what they can reach. A clerk could have the
-    service write where DHIS2 would refuse the clerk. Give that connection only what every caller may do.
+    WITH `authentication`, EVERYONE WHO GETS IN ACTS AS ONE ACCOUNT. A read and a capture both go through the connection
+    given to `open_facade`, so DHIS2 applies that account's rights and not the caller's: your check decides who may ask
+    and nothing about what they can reach. A clerk could have the service write where DHIS2 would refuse the clerk. Give
+    that connection only what every caller may do. If DHIS2 is away the capture is held, and a worker keeps trying it.
+
+    `delivery` is when a capture goes to DHIS2, and at once is the default: DHIS2's answer goes back to the submitter,
+    and a refusal stores nothing. `validate-only` has DHIS2 grade each capture and writes nothing, for trying a service
+    out. `hold` keeps every capture in the queue until something drains it.
 
     WITH NEITHER, A FACADE REFUSES TO START if it can take a capture, or if it holds a client and can answer with a
     person, because nothing else stops this service being reached from another host. `allow_anonymous` says that is
@@ -113,8 +117,6 @@ def mount_facade(
     """
     if read_as_caller and authentication is not None:
         raise ValueError("read_as_caller makes DHIS2 the check, so it takes no authentication of your own: pass one")
-    if validate_only and not read_as_caller:
-        raise ValueError("validate_only applies to captures posted as the caller, so it needs read_as_caller")
     posture = ServeAuth.DHIS2 if read_as_caller else ServeAuth.NONE if authentication is None else ServeAuth.TOKEN
     routers = facade_routers(capture=capture, auth=posture, auth_scope=auth_scope)
     check = require_authenticated if authentication is None else authentication
@@ -159,7 +161,7 @@ def mount_facade(
             facade_api=facade_api is not None,
             reads_as_caller=read_as_caller,
             allows_anonymous=allow_anonymous,
-            validate_only=validate_only,
+            delivery=delivery,
         ),
     )
 
@@ -185,8 +187,8 @@ def attach_facade(app: FastAPI, facade: Facade, *, service_base: str | None = No
         strict_codes=facade.strict_codes,
         capture=mounted.capture,
         reads=mounted.reads,
-        capture_as_caller=mounted.reads_as_caller,
-        capture_validate_only=mounted.validate_only,
+        capture_delivery=mounted.delivery,
+        delivery_retry_seconds=serve.delivery_retry_seconds,
         operations=mounted.operations,
         auth=mounted.auth,
         auth_scope=mounted.auth_scope,
@@ -205,6 +207,9 @@ def attach_facade(app: FastAPI, facade: Facade, *, service_base: str | None = No
         register_surface=surface,
         server_version=server_version(),
     )
+    delivery = facade.deliverer(mode=mounted.delivery, posts_as_caller=settings.forwards_credentials)
+    if mounted.capture:
+        facade.keep_delivering(delivery)
     attach_serve_runtime(
         app,
         ServeRuntime(
@@ -219,6 +224,6 @@ def attach_facade(app: FastAPI, facade: Facade, *, service_base: str | None = No
             ),
             live_client=facade.client,
             caller_client=facade.caller_client if mounted.reads_as_caller else None,
-            conversion=facade.conversion if mounted.reads_as_caller else None,
+            delivery=delivery,
         ),
     )

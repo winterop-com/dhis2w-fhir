@@ -14,9 +14,9 @@ What the client is doing that a raw caller has to remember:
 - **A refusal is an exception with the reasons attached.** Anything that is not an answer raises
   `FacadeError` carrying the `OperationOutcome` the facade refused with, one issue per thing wrong.
   There is no status code to check.
-- **A 201 is not a DHIS2 write.** The facade understood the submission, checked it against the
-  published form, and wrote it to disk durably. Nothing has reached DHIS2 yet; `d2w fhir forward`
-  is what drains the queue into an instance.
+- **Accepted is not always in DHIS2.** A server posting at once answers 201 once DHIS2 has it. The
+  shared fixture's facade runs with `--delivery hold`, so here the submission is on disk durably and
+  has not been sent; `d2w fhir forward` is what drains that queue into an instance.
 
 Usage:
     uv run python examples/client/send_with_the_client.py [BASE_URL]
@@ -80,7 +80,7 @@ async def main() -> None:
         stored = await facade.read_response(receipt.response_id)
         print(f"read back {stored.id}: answers {stored.questionnaire}, status {stored.status}")
         print(f"  identical to what was sent: {stored.item == draft.item}")
-        print("Not yet sent to DHIS2 - run `d2w fhir forward --import` in the project directory to send it.")
+        print("On a server holding captures, `d2w fhir forward --import` in the project directory sends it.")
 
 
 if __name__ == "__main__":

@@ -252,8 +252,8 @@ framework and no command line.
 ### Opening a facade
 
 `open_facade` loads one guide into a `Facade` you hold: from a `FacadeConfig`, with no `fhir.toml`, or from a project
-on disk. `validate_capture`, `capture`, `translate`, `post`, and `drain` are the functions `d2w fhir serve` and
-`d2w fhir forward` run.
+on disk. `validate_capture`, `submit`, `capture`, `translate`, `post`, and `drain` are the functions `d2w fhir serve` and
+`d2w fhir forward` run. `submit` is the one to reach for: it validates a submission and posts it at once.
 
 With no compiled guide and a client, `open_facade` builds the same guide off the instance, so `uv add` and a URL are
 enough: no `fhir.toml`, no SUSHI, no docker.
@@ -266,8 +266,16 @@ enough: no `fhir.toml`, no SUSHI, no docker.
 A facade that can take a capture or read a person refuses to start until you state who may: see
 [Who can do what](build-who-can-do-what.md).
 `/metadata` states what was mounted. Declare your own routes first: the reads claim every one-segment path.
+`delivery` says when a capture goes to DHIS2, and at once is the default.
 
 ::: dhis2w_fhir_engine.facade.api.compose
+
+### Delivery
+
+`CaptureDeliverer` posts a capture at once, holds what DHIS2 was away for, and keeps trying the queue. `status` is what
+`GET /facade/delivery` answers. See [`delivery`](301-serving.md#delivery).
+
+::: dhis2w_fhir_engine.facade.delivery
 
 ### The drain
 
@@ -411,9 +419,9 @@ what the project publishes.
 
 Every received QuestionnaireResponse, written atomically to `.serve/responses/received/` and read
 back from whichever of `received/`, `forwarded/`, `rejected/`, and `withdrawn/` it has since been
-moved to - the first three by `d2w fhir forward`, the fourth by `d2w fhir withdraw`. The directory
-is the index and is re-read on every call, because those commands rename files while the server
-runs. A stored response is a receipt - the submission as it arrived, never a live view of DHIS2
+moved to - the first three by the server's retries and `d2w fhir forward`, the fourth by
+`d2w fhir withdraw`. A capture DHIS2 took at once is filed straight into `forwarded/`. The directory
+is the index and is re-read on every call, because those rename files while the server runs. A stored response is a receipt - the submission as it arrived, never a live view of DHIS2
 data.
 
 ::: dhis2w_fhir_engine.facade.response_spool
@@ -543,6 +551,12 @@ module docstring states the reasoning in full.
 
 ::: dhis2w_fhir_engine.facade.api.routes.spool
 
+### Delivery status
+
+`GET /facade/delivery` - what this server has not landed in DHIS2, and why.
+
+::: dhis2w_fhir_engine.facade.api.routes.delivery
+
 ### The register
 
 `GET /{resourceType}` and `GET /{resourceType}/{id}`, answered from the DHIS2 instance rather than
@@ -623,8 +637,8 @@ from the spool for QuestionnaireResponse.
 ### Generating a response
 
 `GET|POST /Questionnaire/{id}/$generate` and the synthesizer behind it: one served form filled in
-from the very capture index a submission is validated against, so the generated response posts back
-at the same server for a 201.
+from the very capture index a submission is validated against, so the generated response posted back
+at the same server is accepted.
 
 ::: dhis2w_fhir_engine.facade.api.routes.generate
 
@@ -711,8 +725,8 @@ hand-written against the routes it mounts rather than generated from a schema.
 Three shapes are worth knowing before the first call. A `create` answers an
 `OperationOutcome` and not the resource, so the id of an accepted submission is the last
 segment of the `Location` header - `CaptureReceipt` carries both, plus the warnings the
-answer stated. A 201 means the facade stored the submission durably, not that anything
-reached DHIS2; `d2w fhir forward` is what drains the queue. And an expression that will not
+answer stated. A 201 means DHIS2 has the data, and a 202 means not yet sent to DHIS2: the facade
+holds it. A refusal raises. And an expression that will not
 parse is a 200 carrying its line and column, so `evaluate` answers an `EvaluationOutcome`
 rather than raising - `FacadeError` is reserved for a request the facade cannot serve at all.
 

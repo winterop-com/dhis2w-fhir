@@ -4,8 +4,8 @@ A served Questionnaire already says everything an answer to it has to satisfy: t
 each question takes, the inclusive bounds a numeric one admits, whether it repeats, and the ValueSet a
 coded one is drawn from. The capture index reads exactly those facts to *check* a submission; this
 module reads the same index to *write* one. The invariant that makes the operation worth having is the
-round trip - a generated response posted back to this server's own `/QuestionnaireResponse` answers
-201 - and the way it is held is that both directions read one index, so a rule can never be enforced
+round trip - a generated response posted back to this server's own `/QuestionnaireResponse` is accepted -
+and the way it is held is that both directions read one index, so a rule can never be enforced
 on receipt without being honoured on generation.
 
 An answer is drawn on the axis DHIS2 grades it on, which is the DHIS2 value type rather than the FHIR
@@ -728,7 +728,7 @@ class _Generator(BaseModel):
 
         The capture contract checks the shape of these identifiers rather than their existence,
         which is what lets a form kind whose context is data rather than metadata be generated at
-        all - and what keeps the 201 round trip standing whichever way the pair was decided.
+        all - and what keeps the round trip standing whichever way the pair was decided.
         """
         return _shaped_uid(self._random)
 

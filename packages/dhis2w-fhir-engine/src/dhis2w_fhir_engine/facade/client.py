@@ -20,10 +20,9 @@ what it did. `CaptureReceipt` carries both, which is why `submit_response` answe
 than the `OperationOutcome` on its own: a caller reading only the body would find no id on any
 capture the facade ever accepts.
 
-A RECEIPT IS NOT A DHIS2 WRITE. A 201 means the facade understood the submission, checked it against
-the published form, and wrote it to disk durably. Nothing has reached DHIS2 - `d2w fhir forward` is
-what drains the queue into an instance, and until it runs the receipt is a promise about bytes the
-facade is holding.
+THE STATUS SAYS WHAT BECAME OF IT. A 201 means DHIS2 has the capture. A 202 means the facade checked it
+against the published form and holds it durably, and it has not been sent. A 200 means DHIS2 graded it
+and nothing was written or stored. A refusal raises, carrying DHIS2's reasons.
 """
 
 from __future__ import annotations

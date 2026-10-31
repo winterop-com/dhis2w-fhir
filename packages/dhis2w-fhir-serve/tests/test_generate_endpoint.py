@@ -1,12 +1,12 @@
 """`Questionnaire/{id}/$generate`: what the operation answers with, and the round trip that justifies it.
 
 The invariant every other test here supports: **a generated response posted back to this server's own
-`/QuestionnaireResponse` answers 201**. It is asserted per served form kind - aggregate, event, and
+`/QuestionnaireResponse` accepts it**. It is asserted per served form kind - aggregate, event, and
 tracker event - over the compiled goldens, and again over a strict-codes server, because a generated
 coding has to be the exact concept code the contract asks for rather than one of the lenient
 fall-back spellings.
 
-Two things a 201 does not settle, and which are tested here beside it, because DHIS2 grades them and
+Two things accepting it does not settle, and which are tested here beside it, because DHIS2 grades them and
 this server does not: a value has to be spelled the way its DHIS2 value type is parsed, and a stage
 event has to name a tracked entity and an enrollment that exist. Both are what the difference between
 "this server accepts it" and "`d2w fhir forward` lands it" is made of.
@@ -193,7 +193,7 @@ def _answers(response: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 @pytest.mark.parametrize("resource_id", EVERY_FORM_ID)
-async def test_a_generated_response_posts_back_201(capture_client: httpx2.AsyncClient, resource_id: str) -> None:
+async def test_a_generated_response_is_accepted_back(capture_client: httpx2.AsyncClient, resource_id: str) -> None:
     """The invariant: whatever kind of form it fills, `$generate` output is accepted by this same server."""
     generated = await _generate(capture_client, resource_id, seed=7)
     assert generated.status_code == 200
@@ -201,12 +201,12 @@ async def test_a_generated_response_posts_back_201(capture_client: httpx2.AsyncC
 
     posted = await _post_back(capture_client, generated)
 
-    assert posted.status_code == 201
+    assert posted.status_code == 202
     assert "Location" in posted.headers
 
 
 @pytest.mark.parametrize("resource_id", EVERY_FORM_ID)
-async def test_a_seedless_generated_response_posts_back_201(
+async def test_a_seedless_generated_response_is_accepted_back(
     capture_client: httpx2.AsyncClient, resource_id: str
 ) -> None:
     """Naming no seed is not a lesser mode: the server draws one and the response is just as valid."""
@@ -215,12 +215,12 @@ async def test_a_seedless_generated_response_posts_back_201(
 
     posted = await _post_back(capture_client, generated)
 
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
 
 @pytest.mark.parametrize("strict_codes", [True])
 @pytest.mark.parametrize("resource_id", EVERY_FORM_ID)
-async def test_a_generated_response_posts_back_201_under_strict_codes(
+async def test_a_generated_response_is_accepted_back_under_strict_codes(
     capture_client: httpx2.AsyncClient, resource_id: str
 ) -> None:
     """A generated coding is the exact concept code the contract asks for, so strict mode accepts it too."""
@@ -228,7 +228,7 @@ async def test_a_generated_response_posts_back_201_under_strict_codes(
 
     posted = await _post_back(capture_client, generated)
 
-    assert posted.status_code == 201
+    assert posted.status_code == 202
     assert not [issue for issue in posted.json()["issue"] if issue["severity"] == "warning"]
 
 
@@ -298,7 +298,7 @@ async def test_an_aggregate_response_reports_for_the_period_type_its_form_declar
     assert declared["type"]["valueCode"] == period_type
     assert reported.period_type == period_type
     assert reported.end_date < datetime.date.today(), "the newest *completed* period, so it is already reportable"
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
 
 async def test_an_aggregate_form_declaring_no_period_type_reports_monthly(
@@ -323,7 +323,7 @@ async def test_an_aggregate_form_declaring_no_period_type_reports_monthly(
 
     assert declared["type"]["valueCode"] == DEFAULT_PERIOD_TYPE
     assert parse_period(declared["iso"]["valueString"]).period_type == DEFAULT_PERIOD_TYPE
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
 
 async def test_the_golden_aggregate_form_reports_the_type_it_publishes(capture_client: httpx2.AsyncClient) -> None:
@@ -449,7 +449,7 @@ async def test_a_registration_response_dates_the_incident_a_form_declares_its_pr
 
     assert len(incident_at) == 1
     assert incident_at[0]["valueDateTime"].endswith("Z")
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
 
 @pytest.mark.parametrize("seed", list(VARIANCE_SEEDS))
@@ -481,7 +481,7 @@ async def test_a_registration_dates_the_incident_before_the_enrolment_and_both_b
     enrolled_at = _extensions(response, ENROLLED_AT_URL)[0]["valueDateTime"]
 
     assert incident_at <= enrolled_at <= response["authored"]
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
 
 async def test_the_ordered_dates_stay_inside_the_window_and_reproduce_from_the_seed(
@@ -1004,7 +1004,7 @@ async def test_a_format_constrained_answer_is_spelled_the_way_its_dhis2_value_ty
     assert len(answered["DeLetter001"]) == 1
     assert username.isalnum()
     assert len(username) >= MINIMUM_USERNAME_LENGTH
-    assert posted == 201
+    assert posted == 202
 
 
 async def test_a_free_text_answer_is_a_seeded_word_behind_an_example_prefix(
@@ -1033,7 +1033,7 @@ async def test_a_value_type_holding_a_document_or_a_dhis2_reference_is_left_unan
     answered = {item["linkId"] for item in response.get("item", []) if item.get("answer")}
 
     assert not answered & set(WIDE_UNANSWERED_QUESTIONS)
-    assert posted == 201
+    assert posted == 202
 
 
 async def test_a_format_constrained_answer_is_the_same_for_the_same_seed(
@@ -1082,14 +1082,14 @@ async def test_a_stage_response_answers_against_the_pair_a_captured_registration
 ) -> None:
     """A stage event naming a pair that never existed is refused `E1079`, so a spooled registration's is adopted."""
     registration = await _generate(capture_client, REGISTRATION_ID, seed=5)
-    assert (await _post_back(capture_client, registration)).status_code == 201
+    assert (await _post_back(capture_client, registration)).status_code == 202
 
     generated = await _generate(capture_client, STAGE_ID, seed=5)
     posted = await _post_back(capture_client, generated)
 
     assert generated.json()["questionnaire"] == STAGE_QUESTIONNAIRE
     assert _tracker_pair(generated.json()) == _tracker_pair(registration.json())
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
 
 async def test_a_stage_response_prefers_a_forwarded_registration_over_a_received_one(
@@ -1151,7 +1151,7 @@ async def test_a_stage_response_mints_a_pair_when_no_registration_of_its_program
     """
     before = await _generate(capture_client, TRACKER_EVENT_ID, seed=6)
     registration = await _generate(capture_client, REGISTRATION_ID, seed=5)
-    assert (await _post_back(capture_client, registration)).status_code == 201
+    assert (await _post_back(capture_client, registration)).status_code == 202
 
     after = await _generate(capture_client, TRACKER_EVENT_ID, seed=6)
     minted = _tracker_pair(after.json())

@@ -21,7 +21,7 @@ import pytest
 import respx
 from dhis2w_core.client_context import open_client
 from dhis2w_fhir.service import resolve_generation_profile
-from dhis2w_fhir_engine.facade.config import FhirProject, load_fhir_config
+from dhis2w_fhir_engine.facade.config import CaptureDelivery, FhirProject, load_fhir_config
 from dhis2w_fhir_engine.facade.live import build_live_store
 from dhis2w_fhir_engine.facade.live_inputs import fetch_live_ig_inputs
 from dhis2w_fhir_engine.facade.registry_package import RegistryMissingError
@@ -623,7 +623,9 @@ async def test_live_generate_output_posts_back_at_the_live_server(
     the documented `Monthly` default - which is still a period this server's own capture path accepts.
     """
     _mock_instance()
-    app = create_app(ServeSettings(project_dir=live_project.project_root, live=True))
+    app = create_app(
+        ServeSettings(project_dir=live_project.project_root, live=True, capture_delivery=CaptureDelivery.HOLD)
+    )
     generated: dict[str, httpx2.Response] = {}
     posted: dict[str, httpx2.Response] = {}
 
@@ -639,7 +641,7 @@ async def test_live_generate_output_posts_back_at_the_live_server(
                 )
 
     assert [response.status_code for response in generated.values()] == [200, 200, 200]
-    assert [response.status_code for response in posted.values()] == [201, 201, 201]
+    assert [response.status_code for response in posted.values()] == [202, 202, 202]
     assert generated["BfMAe6Itzgt"].json()["subject"]["reference"] in {
         "Location/ImspTQPwCqd",
         "Location/O6uvpzGd5pu",

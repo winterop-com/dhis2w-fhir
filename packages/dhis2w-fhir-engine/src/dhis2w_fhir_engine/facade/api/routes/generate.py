@@ -3,7 +3,7 @@
 The operation answers one served Questionnaire with a synthetic QuestionnaireResponse: every question
 answered with a value its own type, bounds, and terminology binding admit, wrapped in the context its
 form kind's response profile requires. What makes it worth serving is that the answer is immediately
-postable - `$generate` output sent to this server's own `POST /QuestionnaireResponse` answers 201,
+postable - `$generate` output sent to this server's own `POST /QuestionnaireResponse` is accepted,
 which is the round trip a capture UI's fill-with-test-data button and an API-driven stress corpus both
 stand on. `tests/test_generate_endpoint.py` holds that invariant per form kind.
 

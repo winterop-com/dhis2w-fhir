@@ -42,7 +42,8 @@ mount_facade(app, read_as_caller=True)
 uv run uvicorn main:app
 ```
 
-That serves `/metadata`, read and search over the forms and the people, `$generate`, and `POST /QuestionnaireResponse`.
+That serves `/metadata`, read and search over the forms and the people, `$generate`, and `POST /QuestionnaireResponse`,
+which sends each capture to DHIS2 while the caller waits, so they hear DHIS2's answer.
 `read_as_caller` has every caller present their own DHIS2 credentials, so DHIS2 applies their rights, and `admin` here is
 for a local demo instance only. **Read
 [Who can do what](https://winterop-com.github.io/dhis2w-fhir/build-who-can-do-what/) before anyone else can reach your

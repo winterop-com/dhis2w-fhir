@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 
 import { KindBadge } from '@/components/KindBadge'
+import { DeliveryNotice } from '@/components/DeliveryNotice'
 import { PageHeader, PageState } from '@/components/PageState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -40,8 +41,8 @@ import { cn, countedNoun, formatCount } from '@/lib/utils'
  * The root route: the state of capture, right now, in one screen.
  *
  * THE QUESTION THIS PAGE ANSWERS is "is there anything for me to do" - and the answer is one
- * number, the count of receipts sitting in `received`. That is the queue `d2w fhir forward`
- * drains, so a non-zero received count is the only thing on this page that is a task. Everything
+ * number, the count of receipts sitting in `received`. Those have not reached this DHIS2 instance,
+ * so a non-zero received count is the only thing on this page that is a task. Everything
  * else here is context for it: what became of the ones already drained, which forms a new capture
  * can be started from, and which guide this process is actually serving.
  *
@@ -97,6 +98,7 @@ export function Overview() {
             />
 
             <div className="space-y-8">
+                {servesForms(config) && <DeliveryNotice />}
                 {/* A package receives nothing and stores no receipt, so there is no queue to
                     report on - five tiles reading 0 would describe a loop this project is not in. */}
                 {servesForms(config) && (

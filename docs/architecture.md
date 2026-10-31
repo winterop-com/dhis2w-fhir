@@ -45,7 +45,7 @@ d2w fhir generate load-set          Synthetic response corpus into load/ (not IG
 d2w fhir validate                   FHIR-safety of the instance's codes (exit 1 on errors; --no-fail)
 d2w fhir serve [DIRECTORY]          Serve the project as a FHIR read + capture facade
 d2w fhir sync [DIRECTORY]           Fill a durable FHIR copy of the instance's register on disk
-d2w fhir forward [DIRECTORY]        Drain the capture spool into DHIS2 (dry run by default)
+d2w fhir forward [DIRECTORY]        Send what a server is still holding into DHIS2 (dry run by default)
 d2w fhir doctor                     Run the whole chain against one instance and report what it breaks
 ```
 
@@ -656,15 +656,27 @@ DHIS2's answer to give, and asking it here would put a read on the capture
 path.
 
 **Nothing in `capture/` talks to DHIS2**, and every extension URL, identifier
-system, and profile URL it needs is derived from `fhir.toml` alone. Acceptance
-is a 201 with a `Location` header and an informational `OperationOutcome`
-carrying one issue per warning.
+system, and profile URL it needs is derived from `fhir.toml` alone.
+
+### Delivery
+
+`facade/delivery.py` decides what becomes of a capture once it is valid. It posts at
+once, so the submitter hears DHIS2's answer: a 201 once DHIS2 has it, and a refusal that
+stores nothing. Who posts decides what happens when DHIS2 cannot be reached. Under the
+caller's own credentials there is no password to retry with, so the answer is a 502.
+Under the facade's one connection the capture is held, answered with a 202, and retried
+by a worker in the server, and later captures join the queue rather than overtake it. The
+worker runs the same drain `d2w fhir forward` runs, under the same lock. What it meets
+refused is filed under `rejected/`, logged, and counted by `GET /facade/delivery`.
+
+`d2w fhir serve` only posts at once to a DHIS2 somebody named, decided in
+`resolve_serve_settings`. A profile the machine merely fell back to holds captures.
 
 ### The spool
 
-Everything captured lands in `<project>/.serve/responses`, one file per
-submission, in three subdirectories that *are* the lifecycle: `received/`,
-`forwarded/`, `rejected/`. A receipt holds the submission byte-faithfully as it
+Everything kept lands in `<project>/.serve/responses`, one file per
+submission, in subdirectories that *are* the lifecycle: `received/`,
+`forwarded/`, `rejected/`, `withdrawn/`. A receipt holds the submission byte-faithfully as it
 arrived plus the id the server stamped on it, its form kind, its
 questionnaire, its arrival instant, and any warnings it was accepted with.
 
@@ -675,8 +687,8 @@ import counted, in `rejected/` why DHIS2 refused, and in `withdrawn/` what
 DHIS2 answered when `d2w fhir withdraw` asked for the event back.
 
 The spool is the deliberate exception to load-once. It is a path rather than a
-loaded index and every read re-reads the directory, because `d2w fhir forward`
-is a separate process moving files while the server is up. Writes are atomic,
+loaded index and every read re-reads the directory, because the server's own retries
+and `d2w fhir forward` both move files while the server is up. Writes are atomic,
 and a receipt stays readable through `GET /QuestionnaireResponse/{id}` in
 every state the served facade knows.
 
@@ -734,7 +746,8 @@ agree. Only then does the kind's translator run. Posting order puts people
 first - tracked entity, tracker, enrollment, then data value set, event,
 tracker event - because DHIS2 refuses an event whose enrollment it cannot find.
 
-`d2w fhir forward` drives it. A dry run is the default and posts everything
+A capture drives it one response at a time, and the drain drives it for a queue.
+For a drain a dry run is the default and posts everything
 under the endpoint's own validate-only mode, so DHIS2's own rules grade the
 whole spool without a write; `--import` commits. A drain that meets a server
 error stops and preserves the rest rather than continuing, every import writes
@@ -767,7 +780,7 @@ tracker program, and a registry root the selected forms are actually assigned
 under), **generate**, **compile** (a real FSH compiler where one exists,
 skipped where none does), **validate**, **serve** (the store built in process,
 no socket and no subprocess), **capture** (every published form filled by
-`$generate` and posted back, holding the endpoint to its own 201 invariant),
+`$generate` and posted back, holding the endpoint to accepting its own output),
 **forward** (the spool drained under validate-only), **oracle**, and **drift**.
 
 The oracle phase needs `--live`: the DHIS2 instance judges the served resources

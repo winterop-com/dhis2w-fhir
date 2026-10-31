@@ -30,7 +30,7 @@ make sushi
 
 # Capture one aggregate load set and land it.
 post_load_set() {
-    d2w fhir serve --port "$PORT" &
+    d2w fhir serve --delivery hold --port "$PORT" &
     SERVER_PID=$!
     trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
     sleep 5

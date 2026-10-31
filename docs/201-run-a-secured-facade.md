@@ -4,8 +4,8 @@
 by the right callers, and landing what it captures in DHIS2.
 
 **Before you start:** `uv` and Docker installed, a DHIS2 URL, and an account on
-it. The account needs read access for everything here except step 10, which
-writes.
+it. The account needs read access for everything here except sending captures, from
+step 9 on, which writes.
 
 **You will be able to:**
 
@@ -17,7 +17,7 @@ This page is the order, not the depth. Every step is one command, one sentence
 about what success looks like, and the page that owns it - go there when a step
 needs more than a command. The [Quickstart](101-quickstart.md) is the same road
 run fast on one machine, and stops at a served endpoint; this one carries on
-through securing it and draining it.
+through securing it and sending captures to DHIS2.
 
 Steps 1 to 5 are quick. Step 6 is the only expensive one, and steps 7 onward do
 not wait for it.
@@ -62,6 +62,14 @@ want for a project a colleague will also run.
 ```console
 $ DHIS2_PASSWORD=... uv run d2w profile add ministry --auth basic --username reporter \
     --url https://dhis2.example.org --local --default
+```
+
+Then name it in `fhir.toml`, so everyone who runs this project reads the same
+server. Naming it is also what lets the server post captures to it: a profile it only
+found on the machine is never written to.
+
+```toml
+profile = "ministry"
 ```
 
 **Success:** the profile path echoed back, and `uv run d2w fhir validate`
@@ -189,36 +197,43 @@ $ uv run d2w fhir serve --auth token --ui
 **Depth:** [Capture in the browser](201-capture-ui.md).
 
 Whether captures arrive through those screens or through
-`POST /QuestionnaireResponse` from another system, they land in the same spool
-and meet the same profiles - [The capture contract](401-capture-contract.md)
-states what a submission must carry.
+`POST /QuestionnaireResponse` from another system, they meet the same profiles -
+[The capture contract](401-capture-contract.md) states what a submission must carry.
 
-## Step 10: drain the spool into DHIS2
+## Step 10: send a capture to DHIS2
 
-This is the only step that writes to your instance. Dry run is the default and
-validates the whole queue without writing a byte - even then the payloads go
-through DHIS2's own validate-only mode, so the instance's rules decide.
+A capture goes to DHIS2 at once, and this is the step that writes to your instance.
+The server's first lines say which DHIS2 it posts to, and as whom. Before you submit
+anything real, read that line. To have DHIS2 grade captures with nothing written,
+serve with `--delivery validate-only`.
 
 ```console
-$ uv run d2w fhir forward
-$ uv run d2w fhir forward --import
+$ curl -s 'localhost:8091/Questionnaire/<form>/$generate' -o response.json
+$ curl -s -X POST localhost:8091/QuestionnaireResponse \
+    -H 'Authorization: Bearer a-long-random-value' \
+    -H 'Content-Type: application/fhir+json' --data-binary @response.json -D -
+$ curl -s -H 'Authorization: Bearer a-long-random-value' localhost:8091/facade/delivery
 ```
 
-**Success:** every receipt moved out of `received` - into `forwarded` where DHIS2
-accepted it, or `rejected` where DHIS2 refused it, with the reason named. One
-drain runs at a time; there is no daemon mode, so a scheduler invokes this.
+**Success:** a `201` means DHIS2 has the data. A refusal answers with DHIS2's reasons
+and stores nothing. A `202` means not yet sent to DHIS2: the server holds it and keeps
+trying, and `GET /facade/delivery` says why the last attempt could not reach DHIS2.
 
-**Depth:** [Forward captures into DHIS2](201-forward.md).
+**Depth:** [Posting a capture](201-serve.md#posting-a-capture), and
+[Repair the capture queue](201-forward.md) for what a server is still holding.
 
 ## Step 11: keep it running
 
-The facade is now doing its job. Four commands are the day-to-day:
+The facade is now doing its job, and retries what DHIS2 was away for on its own.
+Watch `GET /facade/delivery`: `waiting` is what has not reached DHIS2, and `refused`
+is what DHIS2 refused after its sender had gone, which someone has to look at. Four
+commands are the day-to-day:
 
 - `d2w fhir spool` reads the queue - what is waiting, what DHIS2 refused, and
   why - with no DHIS2 connection and no profile.
 - `d2w fhir requeue <id>` puts a refused receipt back in the queue after you
   have fixed what refused it.
-- `d2w fhir withdraw <id>` retracts from DHIS2 something a drain already landed.
+- `d2w fhir withdraw <id>` retracts from DHIS2 something that already landed.
 - `d2w fhir init --refresh` brings the project's scaffold-managed files up to
   date without touching a line you wrote, so a toolchain move is a reviewable
   diff.
@@ -228,7 +243,7 @@ republish. Generated files are replaced and hand-authored files beside them are
 never touched - [Regeneration and hand-authoring](401-regeneration-and-hand-authoring.md)
 draws that line.
 
-**Depth:** [Forward captures into DHIS2](201-forward.md) for the spool commands,
+**Depth:** [Repair the capture queue](201-forward.md) for the spool commands,
 and [Troubleshooting](201-troubleshooting.md) for the errors worth recognising.
 
 Next: [Consume the FHIR API](401-consume-the-fhir-api.md) - what a client can now
