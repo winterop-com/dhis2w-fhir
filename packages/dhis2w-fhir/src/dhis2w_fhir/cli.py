@@ -2682,6 +2682,9 @@ def serve_command(
     )
     if settings.capture and settings.publishes is None:
         _hint("captures", _delivery_line(invocation))
+        left = _captures_left_in_the_queue(settings)
+        if left:
+            _hint("queue", f"{left:,} earlier capture(s) stay on this server until `d2w fhir forward` runs")
     if settings.ui:
         # The bundle is a build artifact, so the run says which one it is serving. A checkout with a
         # stale one never reaches this line; a wheel's bundle is whatever the release packaged.
@@ -2718,6 +2721,14 @@ def _delivery_line(invocation: ServeInvocation) -> str:
     return (
         f"{verb}, as the connection this run holds" if generation is None else f"{verb}, as profile {generation.name}"
     )
+
+
+def _captures_left_in_the_queue(settings: ServeSettings) -> int:
+    """How many captures this run found in its queue and will not send, because nobody asked it to send them."""
+    from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle, ResponseSpool
+
+    spool = ResponseSpool.at(settings.project_dir, settings.spool_dir)
+    return sum(1 for receipt in spool.receipts((ResponseLifecycle.RECEIVED,)) if not receipt.held_for_retry)
 
 
 def _serve_surface(*, capture: bool, ui: bool, publishes: str | None = None) -> str:

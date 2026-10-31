@@ -322,8 +322,8 @@ async def test_a_worker_is_not_stopped_by_an_error_nobody_expected(
     assert deliverer.status().waiting == 1
 
 
-def _spool_holding_one(project: FhirProject) -> ResponseSpool:
-    """The project's spool with one capture in its queue, held by a facade with no connection."""
+def _spool_holding_one(project: FhirProject, *, held_for_retry: bool = True) -> ResponseSpool:
+    """The project's spool with one capture in its queue, which a server either took on sending or merely found."""
     spool = ResponseSpool.at(project.project_root)
     validated = validate_response(
         json.dumps(golden(AGGREGATE_RESPONSE_FILE)).encode(),
@@ -332,13 +332,72 @@ def _spool_holding_one(project: FhirProject) -> ResponseSpool:
         load_compiled_store(project),
         False,
     )
-    spool.save(mint_receipt(validated))
+    spool.save(mint_receipt(validated).model_copy(update={"held_for_retry": held_for_retry}))
     return spool
 
 
 async def _a_moment() -> None:
     """Let the worker run."""
     await asyncio.sleep(0.01)
+
+
+async def test_starting_a_server_does_not_send_what_it_found_in_the_queue(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Old test submissions can be sitting there, and a restart or an upgrade must not write them to a real DHIS2."""
+    _spool_holding_one(capture_project, held_for_retry=False)
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        posted = router.post(_DATA_VALUE_SETS).mock(return_value=httpx.Response(200, json=_ACCEPTED))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            await asyncio.sleep(0.05)
+            status = (await client.get("/facade/delivery")).json()
+    assert not posted.called
+    assert status["waiting"] == 1
+    assert status["retrying"] == 0
+    on_disk = _receipts_on_disk(capture_project)
+    assert len(on_disk) == 1 and on_disk[0].startswith("received/")
+
+
+async def test_what_a_server_found_does_not_hold_up_a_new_capture(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A new capture goes at once, and the old one stays exactly where it was."""
+    _spool_holding_one(capture_project, held_for_retry=False)
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        posted = router.post(_DATA_VALUE_SETS).mock(return_value=httpx.Response(200, json=_ACCEPTED))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            answer = await _capture(client)
+    assert answer.status_code == 201
+    assert posted.call_count == 1
+    assert sorted(path.split("/")[0] for path in _receipts_on_disk(capture_project)) == ["forwarded", "received"]
+
+
+async def test_a_held_capture_says_so_on_its_file_and_a_restart_goes_on_trying_it(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A restart during an outage must not strand what the last run took on, and must still leave the rest alone."""
+    _spool_holding_one(capture_project, held_for_retry=False)
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_DATA_VALUE_SETS).mock(side_effect=httpx2.ConnectError("no route"))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            held = await _capture(client)
+        assert held.status_code == 202
+        held_id = held.headers["location"].rsplit("/", 1)[-1]
+
+        route.mock(side_effect=None, return_value=httpx.Response(200, json=_ACCEPTED))
+        async with _connection() as connection, open_facade(capture_project, client=connection) as facade:
+            deliverer = facade.deliverer()
+            assert deliverer.status().retrying == 1
+            await deliverer.attempt()
+    assert route.call_count >= 1
+    sent = facade.spool.get(held_id)
+    assert sent is not None
+    assert sent.lifecycle is ResponseLifecycle.FORWARDED
+    assert deliverer.status().waiting == 1
+    assert deliverer.status().retrying == 0
 
 
 async def test_stopping_leaves_the_queue_and_no_worker_behind(

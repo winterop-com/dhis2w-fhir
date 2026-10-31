@@ -46,11 +46,17 @@ graph LR
 | --- | --- |
 | DHIS2 could not be reached, on a server posting through its one connection | The server, on its own. There is nothing to run |
 | The project states `[serve] delivery = "hold"`, or the run passed `--delivery hold` | `d2w fhir forward` |
-| The server found a DHIS2 profile that nobody named for this project, or found none at all | `d2w fhir forward`, or name the profile and restart: see [`delivery`](301-serving.md#delivery) |
-| You put a refused receipt back with `d2w fhir requeue` | The server, if it is posting through its one connection. Otherwise `d2w fhir forward` |
+| The server found a DHIS2 profile that nobody named for this project, or found none at all | `d2w fhir forward`. Naming the profile sends new captures at once and leaves these here |
+| You put a refused receipt back with `d2w fhir requeue` | `d2w fhir forward`, or the server if it was already retrying that capture |
 
-`GET /facade/delivery` says how many are waiting, and why the last attempt could
-not reach DHIS2. `forward` writes to the instance, so it is deliberately a verb you
+**A server only sends what it took on sending.** A receipt it held because DHIS2 could
+not be reached says so on its file, and a restart goes on trying it. Everything else
+stays put, however the server is started: old test submissions may be sitting here, and
+starting a server, upgrading one, or turning off `hold` must not write them to
+whichever DHIS2 it now points at. Read them, then send or remove them yourself.
+
+`GET /facade/delivery` says how many are waiting, how many of those the server is
+retrying, and why the last attempt could not reach DHIS2. `forward` writes to the instance, so it is deliberately a verb you
 have to ask twice:
 
 ```bash

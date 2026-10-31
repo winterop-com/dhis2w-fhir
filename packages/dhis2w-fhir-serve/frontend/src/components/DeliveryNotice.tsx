@@ -20,7 +20,7 @@ export function DeliveryNotice() {
     return (
         <div className="mb-4 space-y-2">
             {notices.map((notice) => (
-                <Notice key={notice.lifecycle} notice={notice} />
+                <Notice key={notice.title} notice={notice} />
             ))}
         </div>
     )

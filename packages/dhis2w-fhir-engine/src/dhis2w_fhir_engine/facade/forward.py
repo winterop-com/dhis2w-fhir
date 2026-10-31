@@ -728,6 +728,7 @@ async def drain_spool(
     corrections: CorrectionPosture,
     withdrawals: WithdrawalPosture,
     reporter: ProgressReporter | None,
+    only_held_for_retry: bool = False,
 ) -> ForwardReport:
     """Run one drain, with the spool lock already held - the body `forward_responses` documents.
 
@@ -740,7 +741,7 @@ async def drain_spool(
     layout = spool_layout(project)
     sweep_orphan_temporary_files(layout)
     reading = read_received_responses(layout)
-    spooled = reading.responses
+    spooled = tuple(entry for entry in reading.responses if entry.held_for_retry or not only_held_for_retry)
     quarantined_note = f", {len(reading.quarantined):,} moved to malformed/" if reading.quarantined else ""
     progress.complete(f"{len(spooled):,} pending response(s){quarantined_note}")
 
@@ -1940,12 +1941,14 @@ async def drain_responses(
     corrections: CorrectionPosture | None = None,
     withdrawals: WithdrawalPosture | None = None,
     reporter: ProgressReporter | None = None,
+    only_held_for_retry: bool = False,
 ) -> ForwardReport:
     """Drain a project's capture spool through a connection the caller holds, against a guide it already read.
 
     A dry run is the default, under each endpoint's own validate-only mode. Every dial left as None falls
     to what the project's configuration says. The connection stays open afterwards: its lifetime is the
     caller's. The lock, the filing, and the stop on a server error are the same ones `d2w fhir forward` runs.
+    `only_held_for_retry` sends what a server took on sending, and leaves the rest of the queue where it is.
     """
 
     @asynccontextmanager
@@ -1969,6 +1972,7 @@ async def drain_responses(
             corrections=corrections if corrections is not None else forward_config.corrections,
             withdrawals=withdrawals if withdrawals is not None else forward_config.withdrawals,
             reporter=reporter,
+            only_held_for_retry=only_held_for_retry,
         )
 
 

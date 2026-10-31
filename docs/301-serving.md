@@ -541,6 +541,11 @@ to is one DHIS2 refuses. A capture the server retries can still be refused, and 
 its sender has gone: it is filed under `rejected/`, logged, and counted in
 `GET /facade/delivery` and on the capture screens.
 
+**A server only sends what it took on sending.** A capture it held because DHIS2 could
+not be reached says so on its file, and a restart goes on trying it. Anything else in the
+queue stays there until [`d2w fhir forward`](201-forward.md) runs, so changing this key,
+naming a profile, or upgrading writes nothing that was already waiting.
+
 **Whose rights DHIS2 applies.** Under [`auth = "dhis2"`](#auth), and `"jwt"` with
 [`forward_bearer`](#jwt-forward_bearer), a capture goes under the caller's own
 credentials. This server keeps no password, so it cannot try again later, which is why

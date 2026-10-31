@@ -2357,7 +2357,7 @@ in phases that stop at the first level to find an error.
   machine fell back to could be anybody's, so captures stay on the server, and the line
   the server starts with says which DHIS2 it posts to, or why it will not and how to name
   it. A `ServeSettings` built by hand holds until told.
-- **`GET /facade/delivery`** reports `delivery`, `posts_as`, `waiting`, `refused`,
+- **`GET /facade/delivery`** reports `delivery`, `posts_as`, `waiting`, `retrying`, `refused`,
   `last_attempt_at`, and `last_problem`, so a capture refused after its sender had gone is
   logged and counted rather than left in a directory.
 - **`/metadata` says what a capture will do on this server**, in `rest.documentation`.

@@ -210,6 +210,15 @@ class StoredResponseEnvelope(BaseModel):
     captured this" is answered, and the instance is where "who wrote this" is.
     """
 
+    held_for_retry: bool = False
+    """Whether this server took on sending this capture itself, because DHIS2 could not be reached when it arrived.
+
+    It is what a retry is allowed to send. A receipt without it stays in the queue until somebody runs
+    `d2w fhir forward`, whatever put it there: a server under `hold`, or with no connection, or an earlier version,
+    can leave test submissions behind, and starting a server must not write those to whichever DHIS2 it now points at.
+    On the file rather than in memory, so a restart during an outage goes on trying.
+    """
+
     warnings: tuple[str, ...] = ()
     response: dict[str, Any]
     """The QuestionnaireResponse as received, stamped with its `id` - the same escape hatch `StoreEntry.body` documents.

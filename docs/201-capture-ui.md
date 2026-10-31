@@ -158,8 +158,9 @@ carrying forty rows of the same broken rule is still one stuck submission.
 **A notice above the counts says what needs someone.** It reads
 `GET /facade/delivery`, and appears on Overview and on Responses only when there is
 something to say: how many submissions are not yet sent to this DHIS2 instance,
-whether this server is still trying and why the last attempt failed, and how many were
-refused after they were submitted. Those are the refusals nobody has been told about,
+whether this server is still trying and why the last attempt failed or nothing is
+sending them until `d2w fhir forward` runs, and how many were refused after they were
+submitted. Those are the refusals nobody has been told about,
 because their sender had gone by the time DHIS2 answered.
 
 **Capture a response** puts the served forms underneath as quick-entry cards

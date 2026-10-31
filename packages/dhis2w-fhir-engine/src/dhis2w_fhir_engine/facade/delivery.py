@@ -9,8 +9,12 @@ WHO POSTS IT decides what happens when DHIS2 cannot be reached:
 - **The caller's own credentials.** This service keeps no caller's password, so it cannot try again later. The capture
   fails, nothing is stored, and the client sends it again.
 - **This facade's one connection.** The capture is held in the spool and the answer says it has not been sent. A worker
-  retries the queue while the server runs, so nobody has to run anything. Later captures join the queue rather than
-  overtake it, because a visit posted ahead of the registration it belongs to is one DHIS2 refuses.
+  retries it while the server runs, so nobody has to run anything. Later captures join it rather than overtake it,
+  because a visit posted ahead of the registration it belongs to is one DHIS2 refuses.
+
+THE WORKER SENDS ONLY WHAT THIS SERVER TOOK ON. A receipt it holds for retry says so on its file. Anything else in
+`received/` stays there until somebody runs `d2w fhir forward`, because it may be old test submissions, and starting a
+server, upgrading one, or turning off `hold` must not write those to whichever DHIS2 it now points at.
 
 A retried capture can still be refused, and by then its submitter has gone. That refusal is filed under `rejected/`,
 logged, and counted by `status`, which is what the capture UI and `GET /facade/delivery` read.
@@ -138,6 +142,9 @@ class DeliveryStatus(BaseModel):
     waiting: int = 0
     """Captures in the queue that have not reached DHIS2, and that nothing has refused."""
 
+    retrying: int = 0
+    """How many of those this server is sending on its own. The rest stay until `d2w fhir forward` runs."""
+
     refused: int = 0
     """Captures that were refused after their submitter had gone, which someone has to look at."""
 
@@ -206,14 +213,14 @@ class CaptureDeliverer(BaseModel):
         """
         envelope = mint_receipt(validated, submitted_by=submitted_by)
         if self.mode is CaptureDelivery.HOLD:
-            return await self._held(envelope, HELD_UNTIL_DRAINED)
+            return await self._held(envelope, HELD_UNTIL_DRAINED, retrying=False)
         if self.connect is None:
             if self.mode is CaptureDelivery.VALIDATE_ONLY or caller is not None:
                 raise UpstreamError("this facade holds no connection to DHIS2, so nothing could grade this capture")
-            return await self._held(envelope, HELD_UNTIL_DRAINED)
+            return await self._held(envelope, HELD_UNTIL_DRAINED, retrying=False)
         if caller is None and self._worker is not None and self._queue_owed:
             self._wake.set()
-            return await self._held(envelope, HELD_AND_RETRYING)
+            return await self._held(envelope, HELD_AND_RETRYING, retrying=True)
         try:
             async with self.connect() as client:
                 return await self._post(client if caller is None else caller, client, validated, envelope)
@@ -224,7 +231,7 @@ class CaptureDeliverer(BaseModel):
         """Start trying the queue, where this facade does. It needs a running event loop."""
         if not self.retries or self._worker is not None:
             return
-        self._queue_owed = self._waiting() > 0
+        self._queue_owed = self._retrying() > 0
         self._worker = asyncio.create_task(self._keep_delivering(), name="capture-delivery")
 
     async def stop(self) -> None:
@@ -242,14 +249,16 @@ class CaptureDeliverer(BaseModel):
         if connect is None:
             return
         problems_when_started = self._problems_noted
-        if await asyncio.to_thread(self._waiting) == 0:
+        if await asyncio.to_thread(self._retrying) == 0:
             self._note_reachable(problems_when_started)
             return
         self._last_attempt_at = current_instant()
         try:
             async with connect() as client:
                 guide = await self._guide_over(client)
-                report = await drain_responses(client, self.project, guide.artifacts, import_responses=True)
+                report = await drain_responses(
+                    client, self.project, guide.artifacts, import_responses=True, only_held_for_retry=True
+                )
         except SpoolLockedError:
             logger.info("capture delivery: another drain holds the spool, so this attempt is skipped")
             return
@@ -267,11 +276,13 @@ class CaptureDeliverer(BaseModel):
         """What this facade has not landed in DHIS2. It reads the spool, so call it off an event loop."""
         held = self.spool.receipts((ResponseLifecycle.RECEIVED,))
         waiting = self._still_waiting(held)
+        retrying = self._still_waiting(tuple(receipt for receipt in held if receipt.held_for_retry))
         rejected = self.spool.count_by_lifecycle().get(ResponseLifecycle.REJECTED, 0)
         return DeliveryStatus(
             delivery=self.mode,
             posts_as=self._actor(),
             waiting=waiting,
+            retrying=retrying,
             refused=rejected + (len(held) - waiting),
             last_attempt_at=self._last_attempt_at,
             last_problem=self._last_problem,
@@ -330,14 +341,16 @@ class CaptureDeliverer(BaseModel):
         if caller is not None or self.mode is CaptureDelivery.VALIDATE_ONLY:
             raise UpstreamError(f"DHIS2 could not take this capture, and nothing was stored: send it again ({problem})")
         # Saved before it is noted: a worker that read an empty queue in between would clear the problem it never saw.
-        held = await self._held(envelope, HELD_AND_RETRYING if self._worker is not None else HELD_UNTIL_DRAINED)
+        note = HELD_AND_RETRYING if self._worker is not None else HELD_UNTIL_DRAINED
+        held = await self._held(envelope, note, retrying=self.retries)
         self._note_could_not_reach(problem)
         return held
 
-    async def _held(self, envelope: StoredResponseEnvelope, note: str) -> DeliveryOutcome:
+    async def _held(self, envelope: StoredResponseEnvelope, note: str, *, retrying: bool) -> DeliveryOutcome:
         """Keep one capture in the queue. It blocks on an fsync, which is why it runs off the event loop."""
-        await asyncio.to_thread(self.spool.save, envelope)
-        return DeliveryOutcome(kind=DeliveryKind.HELD, envelope=envelope, note=note)
+        kept = envelope.model_copy(update={"held_for_retry": retrying})
+        await asyncio.to_thread(self.spool.save, kept)
+        return DeliveryOutcome(kind=DeliveryKind.HELD, envelope=kept, note=note)
 
     async def _guide_over(self, client: Dhis2Client) -> _DeliveryGuide:
         """What captures are translated against, read once over the connection the first capture opened."""
@@ -376,9 +389,10 @@ class CaptureDeliverer(BaseModel):
             raise CaptureOverwriteRefusedError(tuple(value.line for value in replaced))
         return replaced
 
-    def _waiting(self) -> int:
-        """How many queued captures are waiting for DHIS2, leaving out those a drain has already refused."""
-        return self._still_waiting(self.spool.receipts((ResponseLifecycle.RECEIVED,)))
+    def _retrying(self) -> int:
+        """How many queued captures this server took on sending, leaving out those a drain has already refused."""
+        held = self.spool.receipts((ResponseLifecycle.RECEIVED,))
+        return self._still_waiting(tuple(receipt for receipt in held if receipt.held_for_retry))
 
     def _still_waiting(self, held: tuple[StoredReceipt, ...]) -> int:
         """How many of these queued captures no drain has refused."""

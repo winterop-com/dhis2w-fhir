@@ -611,11 +611,18 @@ captures: post at once to http://localhost:8080, as profile local_basic
 captures: stay on this server, because profile local_basic (http://localhost:8080) was found rather than named; name it with `profile =` in fhir.toml or `d2w -p`, or state --delivery at-once, to post to it
 ```
 
+Captures a server finds in its queue stay there: it only sends what it took on sending
+itself. The line says how many, so nothing is a surprise:
+
+```
+queue: 3 earlier capture(s) stay on this server until `d2w fhir forward` runs
+```
+
 `GET /facade/delivery` says what has not landed in DHIS2, and why:
 
 ```console
 $ curl -s localhost:8390/facade/delivery
-{"delivery":"at-once","posts_as":"connection","waiting":0,"refused":0,"last_attempt_at":null,"last_problem":null}
+{"delivery":"at-once","posts_as":"connection","waiting":0,"retrying":0,"refused":0,"last_attempt_at":null,"last_problem":null}
 ```
 
 [`delivery`](301-serving.md#delivery) has the three settings in full.

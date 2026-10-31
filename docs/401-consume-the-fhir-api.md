@@ -1722,7 +1722,7 @@ UI's notices read, and what a monitoring check should watch. Plain `application/
 
 ```console
 $ curl -s localhost:8389/facade/delivery
-{"delivery":"at-once","posts_as":"connection","waiting":2,"refused":1,"last_attempt_at":"2026-08-10T19:50:02.114Z","last_problem":"no route to host"}
+{"delivery":"at-once","posts_as":"connection","waiting":2,"retrying":2,"refused":1,"last_attempt_at":"2026-08-10T19:50:02.114Z","last_problem":"no route to host"}
 ```
 
 | Field | What it says |
@@ -1730,6 +1730,7 @@ $ curl -s localhost:8389/facade/delivery
 | `delivery` | `at-once`, `validate-only`, or `hold`: how this run sends captures |
 | `posts_as` | `caller`, `connection`, or `nobody`: whose rights DHIS2 applies. `nobody` is a run holding captures |
 | `waiting` | captures that have not reached DHIS2, and that nothing has refused |
+| `retrying` | how many of those this server is sending on its own. The rest stay until `d2w fhir forward` runs |
 | `refused` | captures refused after their sender had gone, which someone has to look at |
 | `last_attempt_at` | when this server last tried its queue, and null where it has not since it started |
 | `last_problem` | why that attempt could not reach DHIS2, and null where it did |
