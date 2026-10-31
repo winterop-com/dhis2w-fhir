@@ -3500,9 +3500,9 @@ def forward_command(
 ) -> None:
     r"""Repair the capture queue: send what a server is still holding, and read what became of it.
 
-    A running `d2w fhir serve` posts captures at once and retries the ones DHIS2 was away for, so this is for what
-    remains: captures held under `--delivery hold`, or by a server with no connection, and a refused receipt
-    `d2w fhir requeue` has put back.
+    A `d2w fhir serve` asked to send with `\[serve] delivery = "at-once"` posts captures as they arrive and retries
+    the ones DHIS2 was away for, so this is for what remains: captures a server was not asked to send, or held with no
+    connection, and a refused receipt `d2w fhir requeue` has put back.
 
     DRY RUN IS THE DEFAULT. Every payload is posted to the real instance under the endpoint's own
     validate-only mode, so DHIS2's rules decide the answer and nothing is written; `--import` commits.
