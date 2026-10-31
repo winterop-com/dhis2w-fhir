@@ -44,7 +44,10 @@ test('reads three receipts in turn without losing the filter or the place in the
     // A reader who has narrowed to one state, which is the ordinary way this table is read.
     await page.getByRole('button', { name: /^Received, / }).click()
     await expect(page).toHaveURL(/#\/responses\?lifecycle=received$/)
-    const stated = await page.getByTestId('status-bar-summary').textContent()
+    // The line says nothing until the spool has been read, so this waits for the reading rather than recording its absence.
+    const summary = page.getByTestId('status-bar-summary')
+    await expect(summary).toHaveText(/^Showing /)
+    const stated = await summary.textContent()
 
     const sheet = page.getByTestId('receipt-sheet')
     for (const receiptId of receipts) {
@@ -58,7 +61,7 @@ test('reads three receipts in turn without losing the filter or the place in the
     // The narrowing, the address, and the line at the foot of the window are what they were before
     // any of it - three receipts read, and nothing about the table to redo.
     await expect(page).toHaveURL(/#\/responses\?lifecycle=received$/)
-    await expect(page.getByTestId('status-bar-summary')).toHaveText(stated ?? '')
+    await expect(summary).toHaveText(stated ?? '')
     await expect(page.getByTestId('status-bar-note')).toHaveText('Received')
 })
 

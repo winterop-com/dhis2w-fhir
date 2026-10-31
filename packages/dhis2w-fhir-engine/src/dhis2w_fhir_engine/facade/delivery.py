@@ -71,6 +71,7 @@ from dhis2w_fhir_engine.facade.refusals import (
 from dhis2w_fhir_engine.facade.response_spool import (
     ResponseLifecycle,
     ResponseSpool,
+    StoredReceipt,
     StoredResponseEnvelope,
     current_instant,
     mint_receipt,
@@ -264,14 +265,14 @@ class CaptureDeliverer(BaseModel):
 
     def status(self) -> DeliveryStatus:
         """What this facade has not landed in DHIS2. It reads the spool, so call it off an event loop."""
-        waiting = self._waiting()
-        held = len(self.spool.receipts((ResponseLifecycle.RECEIVED,)))
+        held = self.spool.receipts((ResponseLifecycle.RECEIVED,))
+        waiting = self._still_waiting(held)
         rejected = self.spool.count_by_lifecycle().get(ResponseLifecycle.REJECTED, 0)
         return DeliveryStatus(
             delivery=self.mode,
             posts_as=self._actor(),
             waiting=waiting,
-            refused=rejected + (held - waiting),
+            refused=rejected + (len(held) - waiting),
             last_attempt_at=self._last_attempt_at,
             last_problem=self._last_problem,
         )
@@ -377,11 +378,11 @@ class CaptureDeliverer(BaseModel):
 
     def _waiting(self) -> int:
         """How many queued captures are waiting for DHIS2, leaving out those a drain has already refused."""
-        return sum(
-            1
-            for receipt in self.spool.receipts((ResponseLifecycle.RECEIVED,))
-            if self.spool.refusal_record(receipt.response_id) is None
-        )
+        return self._still_waiting(self.spool.receipts((ResponseLifecycle.RECEIVED,)))
+
+    def _still_waiting(self, held: tuple[StoredReceipt, ...]) -> int:
+        """How many of these queued captures no drain has refused."""
+        return sum(1 for receipt in held if self.spool.refusal_record(receipt.response_id) is None)
 
     def _actor(self) -> DeliveryActor:
         """Whose rights DHIS2 applies to what this facade posts."""
