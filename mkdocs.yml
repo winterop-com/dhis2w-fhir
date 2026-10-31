@@ -110,7 +110,7 @@ nav:
       - Serve the guide: 201-serve.md
       - Secure the facade: 201-secure.md
       - Capture in the browser: 201-capture-ui.md
-      - Forward captures into DHIS2: 201-forward.md
+      - Repair the capture queue: 201-forward.md
       - Troubleshooting: 201-troubleshooting.md
   - 301 - Configure fhir.toml:
       - The settings file: 301-fhir-toml.md

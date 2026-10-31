@@ -72,7 +72,7 @@ async def test_each_form_kind_is_created_and_then_served_from_its_location(
 
     created = await capture_client.post("/QuestionnaireResponse", json=body)
 
-    assert created.status_code == 201
+    assert created.status_code == 202
     assert created.headers["content-type"] == FHIR_JSON
     location = created.headers["Location"]
     assert location.startswith(f"{BASE_URL}/QuestionnaireResponse/")
@@ -82,10 +82,9 @@ async def test_each_form_kind_is_created_and_then_served_from_its_location(
 
     assert read.status_code == 200
     assert read.json() == {**body, "id": response_id}
-    assert created.json()["issue"][0]["diagnostics"].startswith(f"stored response {response_id}, holding ")
-    assert created.json()["issue"][0]["diagnostics"].endswith(
-        "; a stored response is the submission as received - a receipt, not a live view of DHIS2 data"
-    )
+    stated = created.json()["issue"][0]["diagnostics"]
+    assert stated.startswith(f"not yet sent to DHIS2: stored as response {response_id}, holding ")
+    assert stated.endswith("; nothing sends it until `d2w fhir forward` or `drain` runs")
     assert _spooled(capture_project, response_id)["form_kind"] == form_kind
 
 
@@ -108,7 +107,7 @@ async def test_a_warning_rides_back_on_the_created_outcome(capture_client: httpx
     created = await capture_client.post("/QuestionnaireResponse", json=submission)
 
     issues = created.json()["issue"]
-    assert created.status_code == 201
+    assert created.status_code == 202
     assert issues[1]["severity"] == "warning"
     assert issues[1]["code"] == "code-invalid"
     assert "the contract expects concept code 'OpFever0001'" in issues[1]["diagnostics"]
@@ -169,7 +168,7 @@ async def test_every_json_spelling_of_the_content_type_is_accepted(
         "/QuestionnaireResponse", content=json.dumps(aggregate_response), headers={"Content-Type": content_type}
     )
 
-    assert created.status_code == 201
+    assert created.status_code == 202
 
 
 async def test_a_body_declaring_no_content_type_is_read_as_the_json_it_has_to_be(
@@ -177,7 +176,7 @@ async def test_a_body_declaring_no_content_type_is_read_as_the_json_it_has_to_be
 ) -> None:
     created = await capture_client.post("/QuestionnaireResponse", content=json.dumps(aggregate_response))
 
-    assert created.status_code == 201
+    assert created.status_code == 202
 
 
 async def test_a_bundle_is_refused_with_the_one_response_per_request_rule(
@@ -281,7 +280,7 @@ async def test_a_response_naming_its_unit_absolutely_is_created_like_any_other(
     response_id = created.headers["Location"].rsplit("/", 1)[-1]
     listed = (await capture_client.get("/facade/spool")).json()
 
-    assert created.status_code == 201
+    assert created.status_code == 202
     assert [issue for issue in created.json()["issue"] if issue["severity"] == "error"] == []
     assert _spooled(capture_project, response_id)["form_kind"] == "aggregate"
     assert listed["responses"][0]["organisation_unit"] == _ABSOLUTE_UNIT
@@ -298,7 +297,7 @@ async def test_a_tracker_response_naming_its_unit_absolutely_on_the_extension_is
 
     created = await capture_client.post("/QuestionnaireResponse", json=tracker_response)
 
-    assert created.status_code == 201
+    assert created.status_code == 202
     assert [issue for issue in created.json()["issue"] if issue["severity"] == "error"] == []
 
 
@@ -310,7 +309,7 @@ async def test_an_organisation_unit_answer_named_absolutely_is_created_too(
 
     created = await capture_client.post("/QuestionnaireResponse", json=submission)
 
-    assert created.status_code == 201
+    assert created.status_code == 202
     assert [issue for issue in created.json()["issue"] if issue["severity"] == "error"] == []
 
 

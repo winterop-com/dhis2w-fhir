@@ -26,6 +26,7 @@ from dhis2w_core.cli_output import ColumnSpec, DetailRow, is_json_output, render
 from dhis2w_core.progress import animated_progress, make_reporter
 from dhis2w_core.rich_console import STDERR_CONSOLE
 from dhis2w_fhir_engine.facade.config import (
+    CaptureDelivery,
     CorrectionPosture,
     HostileNamePosture,
     OverwritePosture,
@@ -64,6 +65,7 @@ if TYPE_CHECKING:
     # extra may not be installed, and a name used in an annotation costs no import at runtime.
     from dhis2w_fhir_engine.facade.settings import ServeSettings
     from dhis2w_fhir_serve import SyncReport
+    from dhis2w_fhir_serve.settings import ServeInvocation
 
     from dhis2w_fhir.doctor import DoctorReport
     from dhis2w_fhir.scaffold.project_templates import ProjectTemplate
@@ -2542,6 +2544,15 @@ def serve_command(
             "is refused.",
         ),
     ] = None,
+    delivery: Annotated[
+        CaptureDelivery | None,
+        typer.Option(
+            "--delivery",
+            help="When a capture goes to DHIS2, overriding `\\[serve] delivery`. `at-once` posts while the submitter "
+            "waits, so they hear DHIS2's answer, and keeps trying a capture DHIS2 was away for; `validate-only` has "
+            "DHIS2 grade it and writes nothing; `hold` keeps it here until `d2w fhir forward` runs.",
+        ),
+    ] = None,
     auth_scope: Annotated[
         ServeAuthScope | None,
         typer.Option(
@@ -2605,7 +2616,8 @@ def serve_command(
     the vocabularies, the register listings - are at `/facade`, described by the OpenAPI document at
     `/facade/openapi.json` and browsable at `/facade/docs`.
 
-    Received QuestionnaireResponses are stored as receipts, so reading one back says what was submitted.
+    A received QuestionnaireResponse goes to DHIS2 at once, and the answer says what DHIS2 said: see `--delivery`.
+    What it became is stored as a receipt, so reading one back says what was submitted.
 
     `--live` builds the store from the instance at startup, as the profile `d2w -p` names.
 
@@ -2651,6 +2663,7 @@ def serve_command(
             auth=auth,
             auth_scope=auth_scope,
             registry_package=registry_package,
+            delivery=delivery,
         )
     except ServeAuthConfigurationError as error:
         raise typer.BadParameter(str(error), param_hint="--auth") from error
@@ -2667,6 +2680,8 @@ def serve_command(
     _line(
         f"starting {project.project_root} on http://{invocation.host}:{invocation.port} as a {surface} (ctrl-c to stop)"
     )
+    if settings.capture and settings.publishes is None:
+        _hint("captures", _delivery_line(invocation))
     if settings.ui:
         # The bundle is a build artifact, so the run says which one it is serving. A checkout with a
         # stale one never reaches this line; a wheel's bundle is whatever the release packaged.
@@ -2680,6 +2695,29 @@ def serve_command(
             else "no profile resolved, so the screens link no identity to a DHIS2 instance",
         )
     _run_server(application, host=invocation.host, port=invocation.port)
+
+
+def _delivery_line(invocation: ServeInvocation) -> str:
+    """Where a capture goes on this run and at which DHIS2, said once as it starts, because it can write real data."""
+    settings = invocation.settings
+    generation = invocation.generation
+    if invocation.held_for_an_unnamed_profile and generation is not None:
+        return (
+            f"stay on this server, because profile {generation.name} ({generation.profile.base_url}) was found rather "
+            "than named; name it with `profile =` in fhir.toml or `d2w -p`, or state --delivery at-once, to post to it"
+        )
+    if settings.capture_delivery is CaptureDelivery.HOLD:
+        return "stay on this server until `d2w fhir forward` runs"
+    if not settings.has_connection:
+        return "stay on this server until `d2w fhir forward` runs, because no DHIS2 profile resolved"
+    grading = settings.capture_delivery is CaptureDelivery.VALIDATE_ONLY
+    target = settings.dhis2_base_url or "the DHIS2 this run reads"
+    verb = f"are graded by {target} and nothing is written" if grading else f"post at once to {target}"
+    if settings.forwards_credentials:
+        return f"{verb}, as each caller"
+    return (
+        f"{verb}, as the connection this run holds" if generation is None else f"{verb}, as profile {generation.name}"
+    )
 
 
 def _serve_surface(*, capture: bool, ui: bool, publishes: str | None = None) -> str:
@@ -3446,7 +3484,11 @@ def forward_command(
     ] = False,
     progress: ProgressOption = True,
 ) -> None:
-    r"""Drain the capture spool into DHIS2 - translate every received response and post it.
+    r"""Repair the capture queue: send what a server is still holding, and read what became of it.
+
+    A running `d2w fhir serve` posts captures at once and retries the ones DHIS2 was away for, so this is for what
+    remains: captures held under `--delivery hold`, or by a server with no connection, and a refused receipt
+    `d2w fhir requeue` has put back.
 
     DRY RUN IS THE DEFAULT. Every payload is posted to the real instance under the endpoint's own
     validate-only mode, so DHIS2's rules decide the answer and nothing is written; `--import` commits.

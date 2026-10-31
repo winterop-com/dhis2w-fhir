@@ -717,6 +717,24 @@ class ServeAuthScope(StrEnum):
     ALL = "all"
 
 
+#: How long a server waits between two attempts at its queue, where `[serve] delivery_retry_seconds` says nothing.
+DEFAULT_DELIVERY_RETRY_SECONDS = 60.0
+
+
+class CaptureDelivery(StrEnum):
+    """When a capture this server accepts goes to DHIS2: the `[serve] delivery` key."""
+
+    #: Post while the submitter waits, so they hear DHIS2's answer. Where DHIS2 cannot be reached under this server's
+    #: one connection, the capture is held and the server keeps trying.
+    AT_ONCE = "at-once"
+
+    #: Post under each endpoint's validate-only mode, so DHIS2 grades the capture. Nothing is written or stored.
+    VALIDATE_ONLY = "validate-only"
+
+    #: Keep every capture in the queue, and post nothing until `d2w fhir forward` runs.
+    HOLD = "hold"
+
+
 class ServeConfig(BaseModel):
     """How `d2w fhir serve` runs this project - the `[serve]` table of `fhir.toml`.
 
@@ -735,6 +753,11 @@ class ServeConfig(BaseModel):
     offer is `None`, and the page reaches no origin but this server. It is the one part of this
     table that makes the browser talk to anybody else, which is why it is stated rather than
     inferred.
+
+    `delivery` is when a capture goes to DHIS2, and `delivery_retry_seconds` is how often the server tries its queue
+    while DHIS2 cannot be reached. See `dhis2w_fhir_engine.facade.delivery` for what each posture does and why. Left
+    unset, a capture goes at once to a DHIS2 somebody named, by the `profile` key, `--profile`, or the environment. A
+    profile this machine merely fell back to could be anybody's, so captures stay here until one of those says so.
 
     `capture` is whether this server receives submissions at all. True - the default - mounts the
     create route, declares `create` on QuestionnaireResponse in `/metadata`, and lets the capture
@@ -798,6 +821,8 @@ class ServeConfig(BaseModel):
 
     strict_codes: bool = False
     capture: bool = True
+    delivery: CaptureDelivery | None = None
+    delivery_retry_seconds: float = Field(default=DEFAULT_DELIVERY_RETRY_SECONDS, gt=0)
     ui: bool = False
     spool_dir: str = SPOOL_RELATIVE_PATH
     basemaps: list[BasemapSource] = Field(default_factory=lambda: list(DEFAULT_BASEMAPS))

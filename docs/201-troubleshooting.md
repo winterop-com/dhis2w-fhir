@@ -233,9 +233,21 @@ refuses to start.
 | `` error: `--ui` needs a built frontend at .../dhis2w_fhir_serve/static, and there is none. Build it with `make ui` (an installed wheel ships it already). `` | Running `--ui` from a source checkout that never built the frontend bundle. | `make ui` in the checkout; installed wheels ship the bundle. |
 | `` error: the capture UI bundle at .../dhis2w_fhir_serve/static is older than the frontend source - it was built from <fingerprint> and the source now reads <fingerprint>. Run `make ui` to rebuild it. `` | A checkout whose frontend source moved since the bundle was built - a pull, a branch, or an edit of your own. The browser would otherwise run the older JavaScript with nothing saying so. | `make ui`. Only a checkout is graded this way; an installed wheel carries no frontend source to compare against. |
 
+## Capture answers
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| A capture answers `202` with `not yet sent to DHIS2 ... this server keeps trying` | DHIS2 could not be reached, or answered with no verdict. The server holds the capture and later ones queue behind it. | Nothing, once DHIS2 is back. `GET /facade/delivery` names the problem in `last_problem`. |
+| A capture answers `202` with `not yet sent to DHIS2 ... nothing sends it until` `` `d2w fhir forward` `` `or` `` `drain` `` `runs` | This run holds captures: the startup line says why. | Name the profile if that is the reason, or see [Repair the capture queue](201-forward.md) for what it already holds. |
+| `captures: stay on this server, because profile <name> (<url>) was found rather than named` at startup | The only DHIS2 this run found is a profile this machine fell back to, and nothing named it. It could be anybody's, so nothing is written to it. | Set `profile` in `fhir.toml`, or run `d2w -p <name> fhir serve`, or state `--delivery at-once` if you mean that DHIS2. |
+| A capture answers `502` with `DHIS2 could not take this capture, and nothing was stored: send it again` | DHIS2 could not be reached under the caller's own credentials, or under `--delivery validate-only`. Nothing can be retried for them. | Send it again once DHIS2 is back. |
+| A capture answers `409` with `DHIS2 refused this capture, and nothing was stored` | DHIS2 refused it, for the reasons named. | Fix the form or the instance, and send it again. |
+| A capture answers `409` with `this capture holds values already sent to DHIS2` | The project states `[forward] overwrites = "refuse"`, and an earlier receipt sent the same aggregate values. | Correct the earlier submission, or see [Overwrites](201-forward.md#overwrites). |
+| A capture answers `422` with `this capture could not be translated, and nothing was sent to DHIS2` | The guide accepts the form and the translator cannot turn it into a DHIS2 payload. | Fix the guide or the data, and send it again. |
+
 ## Forward outcomes
 
-`d2w fhir forward` ([Forward captures into DHIS2](201-forward.md)) is a dry
+`d2w fhir forward` ([Repair the capture queue](201-forward.md)) is a dry
 run by default - nothing is written, nothing moves. Its closing lines are
 outcomes, not crashes:
 

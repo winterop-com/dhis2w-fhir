@@ -188,7 +188,7 @@ def test_a_runtime_names_what_a_facade_holds(tmp_path: Path) -> None:
     """`ServeContext` is what is served; the connections and the issuer's keys are what serves it."""
     fields = set(ServeRuntime.model_fields)
 
-    assert fields == {"context", "live_client", "caller_client", "jwt_verifier", "projection_store", "conversion"}
+    assert fields == {"context", "live_client", "caller_client", "jwt_verifier", "projection_store", "delivery"}
 
 
 async def test_the_pass_through_connection_is_opened_only_for_the_dhis2_posture(

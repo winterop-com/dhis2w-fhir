@@ -50,7 +50,7 @@ test('Enter in a text box on a form does not post the capture', async ({ page, r
     // Nowhere else, nothing accepted, and nothing in the spool: the page a person was filling in is
     // the page they are still on.
     await expect(page).toHaveURL(new RegExp(`#/forms/${AGGREGATE_FORM}$`))
-    await expect(page.getByText('The server accepted this submission')).toHaveCount(0)
+    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toHaveCount(0)
     expect(await spoolTotal(request)).toBe(before)
 })
 
@@ -63,7 +63,7 @@ test('Enter in a question box does not post the capture either', async ({ page, 
     await coverage.press('Enter')
 
     await expect(page).toHaveURL(new RegExp(`#/forms/${TEMPORAL_FORM}$`))
-    await expect(page.getByText('The server accepted this submission')).toHaveCount(0)
+    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toHaveCount(0)
     expect(await spoolTotal(request)).toBe(before)
     // The answer is still there to submit deliberately, which is the other half of swallowing the key.
     await expect(coverage).toHaveValue('58.3')

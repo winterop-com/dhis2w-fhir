@@ -5,6 +5,7 @@ import {
     UnguardedPathError,
     apiConfiguration,
     apiFetch,
+    captureDeliveryOf,
     checkCredential,
     checkReachability,
     configureApi,
@@ -591,5 +592,13 @@ describe('asking the server to fill a form', () => {
         await generateResponse('lyLU2wR22tC', undefined, undefined, 'XVl0bL5Bl4q')
 
         expect(calls[0].url).toBe('/Questionnaire/lyLU2wR22tC/$generate?attributeOptionCombo=XVl0bL5Bl4q')
+    })
+})
+
+describe('captureDeliveryOf', () => {
+    it('reads what became of a capture off the status it was answered with', () => {
+        expect(captureDeliveryOf(201)).toBe('sent')
+        expect(captureDeliveryOf(202)).toBe('held')
+        expect(captureDeliveryOf(200)).toBe('validated')
     })
 })

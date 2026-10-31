@@ -581,7 +581,7 @@ test.describe('a registration answering for a person the instance already holds'
 
         await page.getByLabel('Household size').fill('4')
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('The server accepted this submission')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         // The stored document, read back off the real spool: the three things that changed.
@@ -652,7 +652,7 @@ test.describe('a stage form finding its enrollment in the instance', () => {
         await expect(page.getByText('Filled with test data')).toBeVisible()
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('The server accepted this submission')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
 
         // The stored stage receipt names the instance's own pair, on both halves.
         const receipt = await newestReceipt(request, STAGE_FORM)
@@ -695,7 +695,7 @@ test.describe('a person-only registration form', () => {
         await page.getByRole('button', { name: 'Fill with test data' }).click()
         await expect(page.getByText('Filled with test data')).toBeVisible()
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('The server accepted this submission')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         // Exact text, not a substring: the kind badge reads "Registration", and a substring match

@@ -22,9 +22,9 @@
  * Which of the spool's four directories a receipt currently sits in.
  *
  * These are states of a *file*, and the whole reason the Responses page has a
- * reload button: `d2w fhir forward` renames receipts between the directories
- * from another process, so what this says can change with nothing happening in
- * the browser at all. `d2w fhir withdraw` is the second such process, and the
+ * reload button: this server's own retries, and `d2w fhir forward` from another
+ * process, rename receipts between the directories, so what this says can change
+ * with nothing happening in the browser at all. `d2w fhir withdraw` is the second such process, and the
  * state it files a receipt into is the one nothing moves it back out of.
  */
 export const RESPONSE_LIFECYCLES = ['received', 'forwarded', 'rejected', 'withdrawn'] as const
@@ -65,9 +65,9 @@ export interface LifecycleHint {
 /** One line per state, for the filter tooltips and the empty-state prose. */
 export const LIFECYCLE_HINTS: Record<ResponseLifecycle, LifecycleHint> = {
     received: {
-        lead: 'Captured, not yet sent to this DHIS2 instance. Sending it is a separate step:',
+        lead: 'Not yet sent to this DHIS2 instance. Where this server is not sending it on its own, run',
         command: 'd2w fhir forward',
-        tail: '',
+        tail: '.',
     },
     forwarded: { lead: 'Translated, posted, and accepted by this DHIS2 instance.', command: null, tail: '' },
     rejected: {
@@ -500,4 +500,58 @@ export function topRejectionCause(responses: SpoolResponseSummary[]): RejectionC
 /** Every lifecycle state present in one listing, in the canonical order. */
 export function lifecyclesPresent(listing: SpoolListing): ResponseLifecycle[] {
     return RESPONSE_LIFECYCLES.filter((lifecycle) => listing.counts[lifecycle] > 0)
+}
+
+/** What `GET /facade/delivery` answers: how captures reach DHIS2 here, and what has not. */
+export interface DeliveryStatus {
+    delivery: 'at-once' | 'validate-only' | 'hold'
+    posts_as: 'caller' | 'connection' | 'nobody'
+    waiting: number
+    refused: number
+    last_attempt_at: string | null
+    last_problem: string | null
+}
+
+/** One thing a person should know about what has not reached the instance, and which receipts it is about. */
+export interface DeliveryNoticeText {
+    lifecycle: 'received' | 'rejected'
+    title: string
+    detail: string
+}
+
+/** "1 submission" or "4 submissions". */
+function submissions(count: number): string {
+    return count === 1 ? '1 submission' : `${count} submissions`
+}
+
+/**
+ * What a status comes to in words, and nothing where nothing is wrong.
+ *
+ * Whether this server is trying decides the sentence: a queue it is working through asks nothing of
+ * the reader, and one nothing is sending has to name the command that would.
+ */
+export function deliveryNotices(status: DeliveryStatus): DeliveryNoticeText[] {
+    const notices: DeliveryNoticeText[] = []
+    if (status.waiting > 0) {
+        const retrying = status.delivery === 'at-once' && status.posts_as === 'connection'
+        const problem = status.last_problem === null ? '' : ` The last attempt failed: ${status.last_problem}.`
+        notices.push({
+            lifecycle: 'received',
+            title: `${submissions(status.waiting)} not yet sent to this DHIS2 instance`,
+            detail: retrying
+                ? `This server keeps trying.${problem}`
+                : `Nothing sends ${status.waiting === 1 ? 'it' : 'them'} until d2w fhir forward runs.`,
+        })
+    }
+    if (status.refused > 0) {
+        notices.push({
+            lifecycle: 'rejected',
+            title: `${submissions(status.refused)} refused by this DHIS2 instance`,
+            detail:
+                status.refused === 1
+                    ? 'It was refused after it was submitted, so nobody has been told. Its receipt says why.'
+                    : 'They were refused after they were submitted, so nobody has been told. Each receipt says why.',
+        })
+    }
+    return notices
 }

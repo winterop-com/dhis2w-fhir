@@ -1,8 +1,8 @@
 """Step 11: the whole way round: FHIR in, into DHIS2, FHIR back out, and questions asked of what came back.
 
-This joins the other steps. A capture spooled as in step 5 is committed rather than validated, read back as in step 6,
-and evaluated as in step 1. What goes in and what comes out are the same shape, because the form a capture is checked
-against is the form its event is read back through, so FHIRPath can ask both documents the same question.
+This joins the other steps. A capture goes to DHIS2 at once, is read back as in step 6, and is evaluated as in step 1.
+What goes in and what comes out are the same shape, because the form a capture is checked against is the form its event
+is read back through, so FHIRPath can ask both documents the same question.
 
 This is the one step that writes. It registers one made-up person with one visit and deletes them afterwards. DHIS2
 keeps a hidden copy of a deleted record, so run this against a demo instance.
@@ -19,7 +19,7 @@ from typing import Any
 
 from _connect import opened_facade
 from dhis2w_fhir_engine import CQLEvaluator, FHIRPathEvaluator, unwrap_primitives
-from dhis2w_fhir_engine.facade import Facade
+from dhis2w_fhir_engine.facade import DeliveryKind, Facade
 from dhis2w_fhir_engine.facade.history.projection import RecordProjection
 from dhis2w_fhir_engine.facade.history.wire import fetch_tracked_entity_record
 from dhis2w_fhir_engine.facade.register.index import TrackedEntityIndex
@@ -112,6 +112,13 @@ async def _round_trip(facade: Facade, visit: BaseModel, tracked_entity_uid: str)
         print(f"CQL: {definition} = {evaluator.evaluate_definition(definition)}")
 
 
+async def _sent(facade: Facade, response: BaseModel) -> None:
+    """Post one capture at once, and stop if it did not land. DHIS2 refusing it raises, with DHIS2's reasons."""
+    outcome = await facade.submit(response.model_dump_json(exclude_none=True, by_alias=True).encode())
+    if outcome.kind is not DeliveryKind.SENT:
+        raise SystemExit(f"DHIS2 did not take this capture: {outcome.note}")
+
+
 async def main() -> None:
     """Send one person and one visit in, read them back, and delete them."""
     async with opened_facade() as facade:
@@ -119,20 +126,16 @@ async def main() -> None:
         seed = draw_seed()
 
         registration = facade.synthesize(registration_form, seed=seed)
-        facade.capture(registration.model_dump_json(exclude_none=True, by_alias=True).encode())
-        visit = facade.synthesize(visit_form, seed=seed)
-        facade.capture(visit.model_dump_json(exclude_none=True, by_alias=True).encode())
-
         translated = facade.translate(registration)
         if translated.tracked_entity is None or translated.tracked_entity.trackedEntity is None:
             raise SystemExit(f"{registration_form.title} does not register anybody")
         tracked_entity_uid = translated.tracked_entity.trackedEntity
 
         try:
-            report = await facade.drain(import_responses=True)
-            print("into DHIS2:", report.counts_line)
-            if len(report.accepted) != len(report.outcomes):
-                raise SystemExit("DHIS2 did not accept both captures")
+            await _sent(facade, registration)
+            visit = facade.synthesize(visit_form, seed=seed)
+            await _sent(facade, visit)
+            print("into DHIS2: the person and their visit")
             await _round_trip(facade, visit, tracked_entity_uid)
         finally:
             await _delete(facade, tracked_entity_uid)

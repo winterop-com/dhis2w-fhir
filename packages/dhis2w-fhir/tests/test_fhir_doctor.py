@@ -752,7 +752,7 @@ def _capture_app(*, accept: bool) -> FastAPI:
     @app.post("/QuestionnaireResponse")
     async def create() -> JSONResponse:
         if accept:
-            return JSONResponse(status_code=201, content={"resourceType": "OperationOutcome"})
+            return JSONResponse(status_code=202, content={"resourceType": "OperationOutcome"})
         return JSONResponse(
             status_code=422,
             content={"resourceType": "OperationOutcome", "issue": [{"diagnostics": "answer 3 is out of bounds"}]},
@@ -767,7 +767,7 @@ def _form(resource_id: str, form_kind: str = "aggregate") -> _ServedResource:
 
 
 async def test_capture_accepts_what_the_endpoint_generated() -> None:
-    """The 201 invariant holding is what a passing capture phase means."""
+    """The 202 invariant holding is what a passing capture phase means."""
     async with httpx2.AsyncClient(
         transport=httpx2.ASGITransport(app=_capture_app(accept=True)), base_url="http://serve.test"
     ) as http:
@@ -791,7 +791,7 @@ async def test_capture_fails_when_the_endpoint_refuses_its_own_output() -> None:
     assert "answer 3 is out of bounds" in outcome.findings[0].detail
     graded = grade_capture([outcome])
     assert graded.outcome is DoctorOutcome.FAILED
-    assert graded.evidence == "1 form(s), 1 generated, 0 accepted as 201"
+    assert graded.evidence == "1 form(s), 1 generated, 0 accepted"
 
 
 def test_one_note_is_one_finding_however_many_targets_raised_it() -> None:
@@ -1085,7 +1085,7 @@ async def test_the_two_questionnaire_families_are_separated_by_their_identifier_
 
 
 def test_capture_grading_of_an_ungeneratable_form_only_degrades_the_phase() -> None:
-    """A form the server cannot generate against is a note; only a refused 201 breaks the phase."""
+    """A form the server cannot generate against is a note; only a refused 202 breaks the phase."""
     outcome = CaptureOutcome(
         generated=False,
         accepted=False,

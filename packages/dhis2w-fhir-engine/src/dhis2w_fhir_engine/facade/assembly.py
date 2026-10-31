@@ -10,18 +10,20 @@ from __future__ import annotations
 import datetime
 import tarfile
 from contextlib import asynccontextmanager
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import httpx2
 from dhis2w_client import Dhis2Client
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from dhis2w_fhir_engine.facade.capture.index import CaptureIndexCache
 from dhis2w_fhir_engine.facade.capture.naming import CaptureNaming
 from dhis2w_fhir_engine.facade.capture.validate import DEFAULT_STRICT_CODES, ValidatedCapture, validate_response
 from dhis2w_fhir_engine.facade.config import (
     FHIR_CONFIG_FILENAME,
+    CaptureDelivery,
     FhirProject,
     FhirProjectConfig,
     GenerateConfig,
@@ -42,6 +44,7 @@ from dhis2w_fhir_engine.facade.conversion.schemas import (
     ConversionResult,
 )
 from dhis2w_fhir_engine.facade.conversion.translator import translate_response
+from dhis2w_fhir_engine.facade.delivery import CaptureDeliverer, DeliveryOutcome, holding_connection
 from dhis2w_fhir_engine.facade.forward import ForwardReport, drain_responses, fetch_value_types, post_translation
 from dhis2w_fhir_engine.facade.forward_records import ForwardImportOutcome
 from dhis2w_fhir_engine.facade.live import build_live_store
@@ -118,6 +121,8 @@ class Facade(BaseModel):
 
     strict_codes: bool = DEFAULT_STRICT_CODES
 
+    _delivering: list[CaptureDeliverer] = PrivateAttr(default_factory=list)
+
     def forms(self) -> tuple[Questionnaire, ...]:
         """Every form this facade publishes."""
         entries = self.store.search(QUESTIONNAIRE_RESOURCE_TYPE, SearchQuery())
@@ -159,6 +164,36 @@ class Facade(BaseModel):
             import_responses=import_responses,
             coded_answer_mode=self.conversion.coded_answer_mode,
         )
+
+    async def submit(self, body: bytes, *, submitted_by: str | None = None) -> DeliveryOutcome:
+        """Validate one submission and post it at once. DHIS2 refusing it raises, so the submitter can hear why."""
+        return await self.deliverer().deliver(self.validate_capture(body), submitted_by=submitted_by)
+
+    def deliverer(
+        self, *, mode: CaptureDelivery = CaptureDelivery.AT_ONCE, posts_as_caller: bool = False
+    ) -> CaptureDeliverer:
+        """What posts this facade's captures, under one way of running it."""
+        return CaptureDeliverer(
+            project=self.project,
+            spool=self.spool,
+            mode=mode,
+            posts_as_caller=posts_as_caller,
+            connect=None if self.client is None else partial(holding_connection, self.client),
+            retry_seconds=self.project.config.serve.delivery_retry_seconds,
+            artifacts=self.artifacts,
+            conversion=self.conversion,
+        )
+
+    def keep_delivering(self, deliverer: CaptureDeliverer) -> None:
+        """Have one deliverer try the queue until this facade closes. It needs a running event loop."""
+        deliverer.start()
+        self._delivering.append(deliverer)
+
+    async def stop_delivering(self) -> None:
+        """Stop trying the queue. What is in it stays there."""
+        for deliverer in self._delivering:
+            await deliverer.stop()
+        self._delivering.clear()
 
     def _connection(self) -> Dhis2Client:
         """The connection this facade holds, or the refusal saying one is needed."""
@@ -207,7 +242,11 @@ async def open_facade(
         yield _facade(project, store, artifacts, value_types, mode, None, None)
         return
     async with open_pass_through_client(client.base_url, provenance=facade_provenance()) as callers:
-        yield _facade(project, store, artifacts, value_types, mode, client, callers)
+        facade = _facade(project, store, artifacts, value_types, mode, client, callers)
+        try:
+            yield facade
+        finally:
+            await facade.stop_delivering()
 
 
 def _facade(

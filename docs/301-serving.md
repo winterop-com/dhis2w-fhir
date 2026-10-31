@@ -14,13 +14,14 @@
 - turn strict code checking on, serve the data-entry screens, and choose the
   map backgrounds the screens offer (or offer none, for an air-gapped
   deployment)
-- decide whether the server accepts filled-in forms at all, and where the ones
-  it accepts are kept
+- decide whether the server accepts filled-in forms at all, when they go to DHIS2,
+  and where the ones it keeps are kept
 - decide whether the server answers questions about people at all, who can be
   found, and how many of them one page holds
 - decide what answers a search for one of them
 - decide whether the server assembles a patient summary about one of them
-- state the posture every `d2w fhir forward` in the project runs in
+- state the posture every `d2w fhir forward` in the project runs in, for what a server
+  is still holding
 
 `d2w fhir serve` starts a small
 web server on your computer that serves the guide's content and accepts
@@ -69,7 +70,9 @@ Two things to know before the options:
 - **Give the facade profile the rights the guide needs and no more**, in every
   posture. The startup store build, the instance address `/facade/uiconfig` hands the
   capture screens, and `d2w fhir forward`'s drain all run as that profile in
-  every posture, because none of them acts on behalf of a caller. And DHIS2
+  every posture, because none of them acts on behalf of a caller. A capture
+  posted at once runs as that profile too, under every posture that does not pass the
+  caller's own credentials on. And DHIS2
   skips its tracker ownership and access-level model outright for a superuser,
   writing no break-the-glass audit entry when it does - so a facade running as
   an administrator reads past sharing, ownership, and access levels with
@@ -271,6 +274,10 @@ through the same brief cache the guarded addresses use.
 is on and the DHIS2 instance trusts the same issuer. Where it is off - the
 default - the register is not served at all rather than served as the facade.
 
+A capture posted at once goes the same way a register read does: under `dhis2`, and
+under `jwt` with `forward_bearer`, it goes under the caller's own credentials, so DHIS2
+applies their rights and its record names them. See [`delivery`](#delivery).
+
 The startup store build, the instance address `/facade/uiconfig` hands the screens, and
 `d2w fhir forward`'s drain stay on the facade's own profile in every posture,
 because none of them acts on behalf of a caller - so give that profile the
@@ -461,7 +468,7 @@ unrecognisable stops the run with a printout naming `serve.strict_codes`.
 ### `capture`
 
 **In plain words.** Whether the server accepts filled-in forms at all. On -
-the default - it receives submissions, stores each as a receipt, and says so
+the default - it receives submissions, [sends them on](#delivery), and says so
 in the machine-readable description of itself it serves at `/metadata`. Off,
 it publishes the guide and receives nothing: a submission is refused, and the
 description no longer offers to take one.
@@ -512,6 +519,79 @@ no command-line flag for this one: it changes what the server tells every
 client it is, which is a decision the project makes rather than one
 invocation.
 
+### `delivery`
+
+**In plain words.** When a filled-in form goes to DHIS2. `"at-once"` posts it while the
+sender waits, so they hear DHIS2's answer. `"validate-only"` has DHIS2 grade it under
+each endpoint's validate-only mode and writes nothing. `"hold"` keeps it on this server
+until [`d2w fhir forward`](201-forward.md) runs.
+
+**What each one answers.**
+
+| Setting | DHIS2 takes it | DHIS2 refuses it | DHIS2 cannot be reached |
+| --- | --- | --- | --- |
+| `"at-once"`, posting as this run's profile | `201`, filed as `forwarded` | The refusal with DHIS2's reasons, usually a `409`, and nothing stored | `202`, held in the queue, and the server keeps trying |
+| `"at-once"`, posting as each caller | `201`, filed as `forwarded` | The refusal with DHIS2's reasons, and nothing stored | `502`, nothing stored, and the client sends it again |
+| `"validate-only"` | `200`, and nothing written or stored | The refusal with DHIS2's reasons, and nothing stored | `502`, nothing stored, and the client sends it again |
+| `"hold"` | `202`, held in the queue. DHIS2 is not asked | | |
+
+A `202` means not yet sent to DHIS2. **Later captures queue behind the ones waiting**
+rather than overtake them, because a visit posted ahead of the registration it belongs
+to is one DHIS2 refuses. A capture the server retries can still be refused, and by then
+its sender has gone: it is filed under `rejected/`, logged, and counted in
+`GET /facade/delivery` and on the capture screens.
+
+**Whose rights DHIS2 applies.** Under [`auth = "dhis2"`](#auth), and `"jwt"` with
+[`forward_bearer`](#jwt-forward_bearer), a capture goes under the caller's own
+credentials. This server keeps no password, so it cannot try again later, which is why
+that row answers `502`. Under every other posture it goes as this run's profile.
+
+**If you leave it out, it depends on which DHIS2 this run found.** Captures go at once
+to a DHIS2 somebody named: [`profile`](301-identity.md#profile) in this file,
+`d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with credentials. They go at once too where
+each caller presents their own account. A profile this machine merely fell back to could
+be an administrator's login to anything, so one test submission must not be able to
+write to it: captures stay on the server, and the line the server starts with says why
+and how to name it. That includes a default profile in the project's own
+`.dhis2/profiles.toml`, because a default is what was found rather than what was named.
+With no profile at all they stay on the server too.
+
+**When you would change it.** `"validate-only"` to try a guide or a client out against a
+real instance. `"hold"` where captures must be reviewed or sent on a schedule, accepting
+that nobody hears DHIS2's answer until then. Under `dhis2`, `"hold"` also means
+`d2w fhir forward` posts as its own profile, so DHIS2 judges that profile and not the
+person who submitted. `"at-once"` written down to post to a profile you do not want to
+name in this file.
+
+**Example.**
+
+```toml
+[serve]
+delivery = "validate-only"
+```
+
+Or for one run, `d2w fhir serve --delivery validate-only`.
+
+**Default:** unset, which behaves as above. **If you get it wrong:** anything but the
+three values stops the run with a printout naming `serve.delivery`.
+
+### `delivery_retry_seconds`
+
+**In plain words.** How often the server tries its queue while DHIS2 cannot be reached.
+It only applies where the server retries at all: `delivery` at once, posting as this
+run's profile. A quiet server asks DHIS2 nothing, because an attempt at an empty queue
+makes no request.
+
+**Example.**
+
+```toml
+[serve]
+delivery_retry_seconds = 300
+```
+
+**Default:** `60` - **If you get it wrong:** it has to be a number above zero, and
+anything else stops the run with a printout naming `serve.delivery_retry_seconds`.
+
 ### `ui`
 
 **In plain words.** Whether the server also offers data-entry screens in the
@@ -542,8 +622,9 @@ unrecognisable stops the run with a printout naming `serve.ui`.
 ### `spool_dir`
 
 **In plain words.** Which folder the received forms are kept in. Every
-submission the server accepts is written there as a file, and that folder is
-also the queue [`d2w fhir forward`](201-forward.md) drains into DHIS2.
+submission the server keeps is written there as a file, and that folder is
+also the queue the server retries and [`d2w fhir forward`](201-forward.md) drains into
+DHIS2.
 
 **One setting, both halves.** It sits in `[serve]` because the server is what
 writes the files, and the forwarder reads this very key rather than having one
@@ -1496,8 +1577,8 @@ published definition rather than one this project invented.
 
 ## Forwarding it: the `[forward]` section { #forward }
 
-`d2w fhir forward` is the other half of the loop the capture server opens - see
-[Forward captures into DHIS2](201-forward.md). Six options in `fhir.toml`
+`d2w fhir forward` sends what a server is still holding - see
+[Repair the capture queue](201-forward.md). Six options in `fhir.toml`
 belong to it, and each but `live` has a command-line flag that outranks it for one run:
 **flag beats table beats default**, the same order the rest of `[serve]`
 follows. Which folder a drain reads is not here - it is
@@ -1541,10 +1622,10 @@ without saving, so DHIS2's own rules decide whether it would be accepted while
 nothing is stored and no receipt moves. On, the bare run commits.
 
 **Why a project would say it.** Because typing `--import` on every run is how
-a team ends up with one person who forgot. A project whose drains are routine -
-a nightly job, a clerk running `d2w fhir forward` at the end of the day - states
-`import = true` once, and a run that is meant to check rather than to write
-says `--dry-run` on the command line for that one run.
+a team ends up with one person who forgot. A project that holds its captures and
+drains them routinely, as a nightly job, states `import = true` once, and a run that
+is meant to check rather than to write says `--dry-run` on the command line for that
+one run.
 
 **Example.**
 
@@ -1607,9 +1688,9 @@ unrecognisable stops the run with a printout naming
 a form this project already forwarded sent - the same data element, category
 option combo, period, organisation unit, and reporting dimension. `"allow"` -
 the default - sends it, and the run names every figure it replaced along with
-the form that sent it before. `"refuse"` sends nothing at all: any form
-carrying such a figure stays in the queue with the covered figures written down
-beside it.
+the form that sent it before. `"refuse"` sends nothing at all: a capture posted at once
+answers a `409` naming the covered figures and stores nothing, and a form a drain meets
+stays in the queue with the covered figures written down beside it.
 
 **When you would change it.** Turn it to `"refuse"` in a deployment where
 forwarded figures must only change through a declared correction that somebody

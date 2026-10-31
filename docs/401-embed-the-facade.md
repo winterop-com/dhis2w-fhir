@@ -88,6 +88,11 @@ Constructing `ServeSettings` directly - as above - states the settings outright
 and skips those refusals, which is the right trade for a process that decides
 its own configuration. See [Serving](301-serving.md) for what the table holds.
 
+**A `ServeSettings` you build by hand holds every capture until told otherwise,** because
+it has not said which DHIS2 it means. Pass `capture_delivery=CaptureDelivery.AT_ONCE` to
+post at once, or use `resolve_serve_settings`, which decides the way
+[`delivery`](301-serving.md#delivery) describes.
+
 ## Capture with no server
 
 The capture surface is a route like any other, so an embedded facade receives
@@ -96,7 +101,7 @@ submissions by being handed one:
 ```console
 $ uv run python examples/client/capture_headless.py
 $generate on BfMAe6Itzgt: a completed draft with 2 item(s)
-POST -> 201, receipt 65feb2ba5fd84c3784525312197b72f2 answering http://example.org/fhir/example-demo/Questionnaire/BfMAe6Itzgt
+POST -> 202, receipt 65feb2ba5fd84c3784525312197b72f2 answering http://example.org/fhir/example-demo/Questionnaire/BfMAe6Itzgt
 spool: .../.serve/responses
   14 not yet sent to DHIS2, 2 accepted by DHIS2, 0 refused by DHIS2, 0 unreadable
   this run wrote 65feb2ba5fd84c3784525312197b72f2: aggregate capture, received, at 2026-08-22T10:31:27Z
@@ -138,7 +143,7 @@ dry run, lenient coded answers
 A dry run is the default and it is a real run: every payload goes to the real
 endpoint under that endpoint's own validate-only mode, so DHIS2's rules decide
 each answer while nothing is written and no receipt moves. See
-[Forward captures into DHIS2](201-forward.md) for the states and the postures.
+[Repair the capture queue](201-forward.md) for the states and the postures.
 
 ## The local storage layer
 

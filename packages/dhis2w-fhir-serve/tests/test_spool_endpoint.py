@@ -334,7 +334,7 @@ async def test_the_capture_context_is_derived_from_the_stored_resource(
         content=json.dumps(tracker_response),
         headers={"Content-Type": FHIR_JSON_MEDIA_TYPE},
     )
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
     body = (await capture_client.get("/facade/spool")).json()
 
@@ -357,7 +357,7 @@ async def test_an_aggregate_row_states_its_reporting_period(
         content=json.dumps(aggregate_response),
         headers={"Content-Type": FHIR_JSON_MEDIA_TYPE},
     )
-    assert posted.status_code == 201
+    assert posted.status_code == 202
 
     row = (await capture_client.get("/facade/spool")).json()["responses"][0]
 

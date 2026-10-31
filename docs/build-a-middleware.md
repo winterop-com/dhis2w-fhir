@@ -68,7 +68,8 @@ $ curl -u admin:district 'localhost:8399/Questionnaire?_count=1'
 ```
 
 That is a FHIR facade over your DHIS2: `/metadata`, read and search over the forms and the people, `$generate`, and
-`POST /QuestionnaireResponse`. Each line of it is a choice you can change:
+`POST /QuestionnaireResponse`, which sends each capture to DHIS2 while the caller waits, so they hear DHIS2's answer. Each
+line of it is a choice you can change:
 
 | The line | What it does | Read more |
 | --- | --- | --- |
@@ -106,7 +107,7 @@ Take these in order, or go straight to what your service needs. Every piece work
 | --- | --- | --- |
 | [Who can do what](build-who-can-do-what.md) | The one decision you cannot skip: whose rights DHIS2 applies | Steps 8 and 9 |
 | [Choose where the guide comes from](build-choose-a-guide.md) | Live off the instance, compiled, or a published package | Step 2 |
-| [Receive captures](build-receive-captures.md) | Validate, translate, post, and spool what is submitted | Steps 2 to 5 |
+| [Receive captures](build-receive-captures.md) | Submit a capture and hear DHIS2's answer, or validate, translate, post, and spool it step by step | Steps 2 to 5 |
 | [Read forms and people](build-read-forms-and-people.md) | The guide, its codes, and a person out of DHIS2 as FHIR | Step 6 |
 | [Round trip](build-round-trip.md) | FHIR into DHIS2 and back out, with FHIRPath and CQL over what came back | Step 11 |
 | [Mount the routes](build-mount-the-routes.md) | Put it in your FastAPI application, and test it | Steps 7 to 9 |

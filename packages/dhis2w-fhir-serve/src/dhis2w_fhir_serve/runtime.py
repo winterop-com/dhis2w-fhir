@@ -40,12 +40,14 @@ turns a failure into the same refusal the other postures raise.
 from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
+from functools import partial
 from typing import TYPE_CHECKING
 
 from dhis2w_client import Dhis2Client
 from dhis2w_fhir_engine.facade.api.metadata import build_served_metadata
 from dhis2w_fhir_engine.facade.api.runtime import ServeContext, ServeRuntime
 from dhis2w_fhir_engine.facade.config import FhirProject, ServeAuth, load_project
+from dhis2w_fhir_engine.facade.delivery import CaptureDeliverer, holding_connection
 from dhis2w_fhir_engine.facade.live import build_live_store
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 from dhis2w_fhir_engine.facade.provenance import facade_provenance, server_version
@@ -57,11 +59,12 @@ from dhis2w_fhir_engine.facade.settings import ServeSettings
 from dhis2w_fhir_engine.facade.store import ResourceStore, attach_builtin_conformance, load_compiled_store
 
 from dhis2w_fhir_serve.auth_setup import open_jwt_verifier
-from dhis2w_fhir_serve.live import open_live_client
+from dhis2w_fhir_serve.live import open_delivery_client, open_live_client
 from dhis2w_fhir_serve.projection.factory import build_projection_store
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
+    from collections.abc import AsyncGenerator, Callable
+    from contextlib import AbstractAsyncContextManager
     from pathlib import Path
 
     from dhis2w_fhir_engine.facade.config import ProjectionConfig
@@ -99,7 +102,7 @@ async def open_serve_runtime(
         if settings.live and live is None:
             live = await connections.enter_async_context(open_live_client(project, settings))
         caller = None
-        if live is not None and _forwards_credentials(settings) and settings.dhis2_base_url is not None:
+        if live is not None and settings.forwards_credentials and settings.dhis2_base_url is not None:
             caller = await connections.enter_async_context(
                 open_pass_through_client(settings.dhis2_base_url, provenance=facade_provenance())
             )
@@ -109,6 +112,17 @@ async def open_serve_runtime(
         )
         store = await build_store(settings, project, live)
         spool = ResponseSpool.at(project.project_root, settings.spool_dir)
+        delivery = CaptureDeliverer(
+            project=project,
+            spool=spool,
+            mode=settings.capture_delivery,
+            posts_as_caller=settings.forwards_credentials,
+            connect=_delivery_connection(project, settings, live),
+            retry_seconds=settings.delivery_retry_seconds,
+        )
+        if settings.capture:
+            delivery.start()
+            connections.push_async_callback(delivery.stop)
         register_surface = RegisterSurface.resolve(
             TrackedEntityIndex.from_store(project, store), settings.tracked_entities
         )
@@ -133,14 +147,19 @@ async def open_serve_runtime(
             caller_client=caller,
             jwt_verifier=verifier,
             projection_store=projection,
+            delivery=delivery,
         )
 
 
-def _forwards_credentials(settings: ServeSettings) -> bool:
-    """Whether this run's posture sends a caller's own `Authorization` on to DHIS2, and so needs the pool."""
-    if settings.auth is ServeAuth.DHIS2:
-        return True
-    return settings.auth is ServeAuth.JWT and settings.jwt.forward_bearer
+def _delivery_connection(
+    project: FhirProject, settings: ServeSettings, live: Dhis2Client | None
+) -> Callable[[], AbstractAsyncContextManager[Dhis2Client]] | None:
+    """What captures reach DHIS2 through: the client a live run holds, or a profile opened per attempt, or nothing."""
+    if live is not None:
+        return partial(holding_connection, live)
+    if settings.dhis2_base_url is None:
+        return None
+    return partial(open_delivery_client, project, settings)
 
 
 async def build_store(settings: ServeSettings, project: FhirProject, client: Dhis2Client | None) -> ResourceStore:

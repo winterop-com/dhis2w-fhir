@@ -16,6 +16,8 @@ import {
     type SpoolListing,
     type SpoolResponseSummary,
     type SpoolWithdrawal,
+    deliveryNotices,
+    type DeliveryStatus,
 } from '@/lib/spool'
 
 /**
@@ -396,5 +398,46 @@ describe('withdrawalSummary', () => {
         expect(withdrawalSummary(withdrawal({ withdrawn_at: '2026-01-02T23:45:00Z' }))).toContain(
             formatInstant('2026-01-02T23:45:00Z'),
         )
+    })
+})
+
+describe('deliveryNotices', () => {
+    const quiet: DeliveryStatus = {
+        delivery: 'at-once',
+        posts_as: 'connection',
+        waiting: 0,
+        refused: 0,
+        last_attempt_at: null,
+        last_problem: null,
+    }
+
+    it('says nothing while nothing is wrong', () => {
+        expect(deliveryNotices(quiet)).toEqual([])
+    })
+
+    it('says a server trying on its own asks nothing of the reader, and what stopped the last attempt', () => {
+        const [notice] = deliveryNotices({ ...quiet, waiting: 2, last_problem: 'connection refused' })
+        expect(notice.lifecycle).toBe('received')
+        expect(notice.title).toBe('2 submissions not yet sent to this DHIS2 instance')
+        expect(notice.detail).toBe('This server keeps trying. The last attempt failed: connection refused.')
+    })
+
+    it('names the command where nothing is sending them', () => {
+        const [notice] = deliveryNotices({ ...quiet, delivery: 'hold', posts_as: 'nobody', waiting: 1 })
+        expect(notice.title).toBe('1 submission not yet sent to this DHIS2 instance')
+        expect(notice.detail).toBe('Nothing sends it until d2w fhir forward runs.')
+    })
+
+    it('says a refusal nobody heard about is the instance speaking, and how to read it', () => {
+        const [notice] = deliveryNotices({ ...quiet, refused: 3 })
+        expect(notice.lifecycle).toBe('rejected')
+        expect(notice.title).toBe('3 submissions refused by this DHIS2 instance')
+    })
+
+    it('says both where both are true', () => {
+        expect(deliveryNotices({ ...quiet, waiting: 1, refused: 1 }).map((notice) => notice.lifecycle)).toEqual([
+            'received',
+            'rejected',
+        ])
     })
 })

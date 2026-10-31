@@ -19,10 +19,10 @@ submission is ([The capture contract](401-capture-contract.md)).
 ## Two postures
 
 `d2w fhir serve` is the complete facade. It publishes the guide, states its own
-capabilities at `/metadata`, answers the register off the live instance, stores
-every submission as a receipt, and hands that spool to `d2w fhir forward`, which
-drains it into DHIS2 and files each receipt under what DHIS2 said. Nothing in
-that chain is optional to it: the durability *is* the product.
+capabilities at `/metadata`, answers the register off the live instance, posts each
+submission to DHIS2 at once, holds what DHIS2 was away for and keeps trying it, and
+files each receipt under what DHIS2 said. Nothing in that chain is optional to it: the
+durability *is* the product.
 
 Most integrations do not want a second server. They have an application, it
 already has authentication, logging, and a queue for work that failed, and what
@@ -366,8 +366,7 @@ cannot keep.
 ## When to stop building
 
 Each level closes the gap below it. The gap left at the top is not a fifth level -
-it is `d2w fhir serve` plus `d2w fhir forward`, and every item is something the
-served chain already does:
+it is `d2w fhir serve`, and every item is something the served chain already does:
 
 | Still missing at level four | What the served chain provides |
 | --- | --- |
@@ -375,8 +374,8 @@ served chain already does:
 | the guide itself | the published implementation guide served beside the API, so a client reads the forms it is submitting against - [Serve the guide](201-serve.md) |
 | the register | `Patient` search and read off the live instance, which is how a client resolves who a person is |
 | capture screens | the capture UI a person fills a form in, served from the same process |
-| a refused receipt's second chance | `d2w fhir spool` lists the queue and `d2w fhir requeue` puts a rejected receipt back in it once the cause is fixed - [Forward captures into DHIS2](201-forward.md#putting-a-refused-receipt-back-in-the-queue) |
-| a drain that is its own process | `d2w fhir forward` runs on its own schedule, so a slow or unreachable instance cannot hold up the process that is receiving captures |
+| a refused receipt's second chance | `d2w fhir spool` lists the queue and `d2w fhir requeue` puts a rejected receipt back in it once the cause is fixed - [Repair the capture queue](201-forward.md#putting-a-refused-receipt-back-in-the-queue) |
+| a retry that needs nobody | a capture DHIS2 was away for is held and retried by the server, later captures queue behind it, and a slow or unreachable instance cannot lose what was accepted - [`delivery`](301-serving.md#delivery) |
 | the five form kinds, all of them | every profile of [the capture contract](401-capture-contract.md), including registration and stage forms |
 | completeness registration | a `completed` aggregate response also registers the data set complete, after DHIS2 takes the values - [Data set completeness](201-forward.md#data-set-completeness) |
 | a drain report | `ForwardReport` - counts, per-receipt outcomes, rejection reasons rolled up by cause - [`forward_spool.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/forward_spool.py) |

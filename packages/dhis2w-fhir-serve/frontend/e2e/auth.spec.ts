@@ -154,7 +154,7 @@ async function nameTheCaller(
     })
 }
 
-/** What an accepted capture answers with, which is all the form screen reads off a 201. */
+/** What an accepted capture answers with, which is all the form screen reads off it. */
 const ACCEPTED_OUTCOME = {
     resourceType: 'OperationOutcome',
     issue: [{ severity: 'information', code: 'informational', diagnostics: 'stored as `receipt-auth-spec`' }],
@@ -182,7 +182,7 @@ async function guardTheCapture(page: Page, sent: string[], accepted: string = EX
         sent.push(credential ?? '')
         const refused = credential !== accepted
         await route.fulfill({
-            status: refused ? 401 : 201,
+            status: refused ? 401 : 202,
             contentType: 'application/fhir+json',
             headers: refused
                 ? { 'WWW-Authenticate': 'Bearer realm="d2w fhir serve"' }
@@ -222,7 +222,7 @@ test('a DHIS2-posture facade asks who this is, and is the app again once it know
     await expect(page.getByText('Filled with test data')).toBeVisible()
     await page.getByRole('button', { name: 'Submit' }).click()
 
-    await expect(page.getByText('The server accepted this submission')).toBeVisible()
+    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
     expect(sent.at(-1)).toBe(EXPECTED_AUTHORIZATION)
 })
 
@@ -355,6 +355,6 @@ test('a JWT-posture facade names the issuer to get a token from, and sends what 
     await expect(page.getByText('Filled with test data')).toBeVisible()
     await page.getByRole('button', { name: 'Submit' }).click()
 
-    await expect(page.getByText('The server accepted this submission')).toBeVisible()
+    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
     expect(sent.at(-1)).toBe(EXPECTED_BEARER)
 })

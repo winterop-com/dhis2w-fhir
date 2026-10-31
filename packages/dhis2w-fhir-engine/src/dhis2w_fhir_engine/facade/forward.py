@@ -895,7 +895,7 @@ def _forwarded_cell_index(layout: SpoolLayout, conversion: ConversionReport) -> 
     return build_forwarded_cell_index(layout)
 
 
-def _configured_coded_answer_mode(project: FhirProject) -> CodedAnswerMode:
+def configured_coded_answer_mode(project: FhirProject) -> CodedAnswerMode:
     """The coded-answer dial a project forwards under, which is the one it captures under."""
     return CodedAnswerMode.STRICT if project.config.serve.strict_codes else CodedAnswerMode.LENIENT
 
@@ -1960,7 +1960,7 @@ async def drain_responses(
             connect=connect,
             read_guide=lambda: artifacts,
             build_guide=None,
-            mode=coded_answer_mode if coded_answer_mode is not None else _configured_coded_answer_mode(project),
+            mode=coded_answer_mode if coded_answer_mode is not None else configured_coded_answer_mode(project),
             import_responses=import_responses if import_responses is not None else forward_config.import_responses,
             register_completeness=(
                 register_completeness if register_completeness is not None else forward_config.register_completeness

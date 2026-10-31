@@ -137,7 +137,7 @@ async def test_an_aggregate_form_reads_back_as_the_form_that_was_captured(
     captured = await round_trip_client.post(
         "/QuestionnaireResponse", json=aggregate_response, headers={"Content-Type": "application/fhir+json"}
     )
-    assert captured.status_code == 201, captured.text
+    assert captured.status_code == 202, captured.text
 
     report = await forward_responses(_profile(), capture_project, import_responses=True)
     assert [outcome.response_id for outcome in report.rejected] == []

@@ -1,7 +1,7 @@
-"""What DHIS2 said about a submission after `d2w fhir forward` drained the queue.
+"""What DHIS2 said about a submission the facade held, after a drain.
 
 A receipt has three states, and only the facade's own listing can tell you which one a receipt is
-in. Kept is not imported: a receipt sits in `received` from the moment the facade answered 201
+in. Kept is not imported: a held receipt sits in `received` from the moment the facade answered 202
 until a drain moves it, and a drain moves it to `forwarded` when DHIS2 took the payload or to
 `rejected` when DHIS2 refused it, writing what DHIS2 said beside it either way. Nothing about a
 receipt disappears at any point - it stays readable in every state, because expiring the id a

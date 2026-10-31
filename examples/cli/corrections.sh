@@ -38,7 +38,7 @@ d2w fhir init demo-corrections --id dhis2.fhir.correctionsdemo \
 cd demo-corrections
 
 start_facade() {
-    d2w fhir serve --live --no-ui --port "$PORT" >facade.log 2>&1 &
+    d2w fhir serve --delivery hold --live --no-ui --port "$PORT" >facade.log 2>&1 &
     SERVER_PID=$!
     trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
     for _ in $(seq 1 90); do
@@ -70,7 +70,7 @@ start_facade
 d2w fhir generate load-set --per-target 1
 
 # An ordinary submission, under the defaults. Accepted, spooled, and served back at the Location
-# the 201 names.
+# the 202 names.
 echo "completed, dials off:         $(post_as completed)"
 
 # A correction, under the same defaults. Refused - and the refusal names the key that would receive

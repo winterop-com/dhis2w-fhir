@@ -311,4 +311,4 @@ async def test_a_draft_filed_under_a_named_combo_posts_back(capture_project: Fhi
             headers={"Content-Type": "application/fhir+json"},
         )
 
-    assert posted.status_code == 201
+    assert posted.status_code == 202

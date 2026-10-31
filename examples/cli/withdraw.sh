@@ -25,7 +25,7 @@ withdrawals = "retract"
 TOML
 
 # Fill the spool: serve the guide off the instance, POST one event response at it.
-d2w fhir serve --live --port "$PORT" &
+d2w fhir serve --delivery hold --live --port "$PORT" &
 SERVER_PID=$!
 trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
 sleep 20

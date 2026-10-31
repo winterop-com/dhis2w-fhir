@@ -45,7 +45,7 @@ tracked_entity_types = ["nEenWmSyUEp"]
 TOML
 
 start_facade() {
-    d2w fhir serve --live --no-ui --port "$PORT" "$@" >facade.log 2>&1 &
+    d2w fhir serve --delivery hold --live --no-ui --port "$PORT" "$@" >facade.log 2>&1 &
     SERVER_PID=$!
     trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
     for _ in $(seq 1 90); do
@@ -72,7 +72,7 @@ status() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
 # the line to write. An absent key is nobody's decision; `auth = "none"` written out is somebody's,
 # and passes this check. The refusal costs no connection - the posture is settled before the store
 # is built - so this run neither reads DHIS2 nor binds the interface it is refusing.
-d2w fhir serve --live --host 0.0.0.0 --port "$PORT" \
+d2w fhir serve --delivery hold --live --host 0.0.0.0 --port "$PORT" \
     || echo "the bind was refused - who reaches this facade and who it answers are one decision"
 
 # --- token: one shared secret, handed to whoever integrates --------------------------------------
@@ -139,7 +139,7 @@ d2w fhir spool --details
 # issuer publishes. So it needs no instance - and it needs the issuer, which is a property of the
 # deployment rather than of one invocation and therefore has no flag. Stating the posture without
 # naming one is refused before anything starts.
-d2w fhir serve --live --auth jwt --port "$PORT" \
+d2w fhir serve --delivery hold --live --auth jwt --port "$PORT" \
     || echo "the posture was refused - a verifier with no issuer trusts everything or nothing"
 
 # Named, it is two lines. `audience` is what the token must be addressed to, `username_claim` is

@@ -11,13 +11,13 @@ from pydantic import BaseModel, ConfigDict
 from dhis2w_fhir_engine.facade.api.auth import JWT_VERIFIER_ATTRIBUTE, TokenVerifier
 from dhis2w_fhir_engine.facade.api.routes.context import (
     CALLER_CLIENT_ATTRIBUTE,
-    CONVERSION_CONTEXT_ATTRIBUTE,
+    DELIVERY_ATTRIBUTE,
     LIVE_CLIENT_ATTRIBUTE,
     PROJECTION_STORE_ATTRIBUTE,
     SERVE_CONTEXT_ATTRIBUTE,
 )
 from dhis2w_fhir_engine.facade.config import FhirProject
-from dhis2w_fhir_engine.facade.conversion.schemas import ConversionContext
+from dhis2w_fhir_engine.facade.delivery import CaptureDeliverer
 from dhis2w_fhir_engine.facade.projection.base import ProjectionStore
 from dhis2w_fhir_engine.facade.register.surface import RegisterSurface
 from dhis2w_fhir_engine.facade.response_spool import ResponseSpool
@@ -83,8 +83,8 @@ class ServeRuntime(BaseModel):
     only writer - and every read of it states the cursor it was read at.
     """
 
-    conversion: ConversionContext | None = None
-    """What a capture is translated with where it posts at once rather than being spooled for a drain."""
+    delivery: CaptureDeliverer | None = None
+    """What captures reach DHIS2 through, and what keeps trying the ones that could not. See `facade.delivery`."""
 
 
 def attach_serve_runtime(app: FastAPI, runtime: ServeRuntime) -> None:
@@ -101,4 +101,4 @@ def attach_serve_runtime(app: FastAPI, runtime: ServeRuntime) -> None:
     setattr(app.state, CALLER_CLIENT_ATTRIBUTE, runtime.caller_client)
     setattr(app.state, JWT_VERIFIER_ATTRIBUTE, runtime.jwt_verifier)
     setattr(app.state, PROJECTION_STORE_ATTRIBUTE, runtime.projection_store)
-    setattr(app.state, CONVERSION_CONTEXT_ATTRIBUTE, runtime.conversion)
+    setattr(app.state, DELIVERY_ATTRIBUTE, runtime.delivery)

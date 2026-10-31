@@ -37,7 +37,7 @@ d2w fhir init demo-data-set --id dhis2.fhir.datasetdemo \
 cd demo-data-set
 
 start_facade() {
-    d2w fhir serve --live --no-ui --port "$PORT" >facade.log 2>&1 &
+    d2w fhir serve --delivery hold --live --no-ui --port "$PORT" >facade.log 2>&1 &
     SERVER_PID=$!
     trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
     for _ in $(seq 1 120); do

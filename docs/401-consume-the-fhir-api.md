@@ -1218,7 +1218,7 @@ $ curl -s 'localhost:8389/Questionnaire/BfMAe6Itzgt/$generate?seed=4242' \
 }
 ```
 
-**Its output posted back to the same server answers 201.** That is the
+**Its output posted back to the same server is accepted.** That is the
 whole point, and it is a test in this repository rather than a claim - per
 form kind, in both store modes, with strict codes on. A capture UI gets its
 "fill with test data" button from it; a stress corpus becomes an API loop.
@@ -1309,7 +1309,7 @@ share. That is what makes a generated stage event importable - DHIS2 refuses
 an event naming an enrollment it cannot resolve with `E1079` and `E1313`. Only
 where the spool holds no registration of that program does a stage response
 mint a pair of its own. So a stage response is reproducible from its seed
-*and* the spool it was drawn against: running `d2w fhir forward` between two
+*and* the spool it was drawn against: a receipt reaching DHIS2 between two
 calls can move which registration is answered against.
 
 A Questionnaire the server does not hold is a 404 OperationOutcome - the same
@@ -1497,9 +1497,20 @@ $ curl -s -X POST localhost:8389/QuestionnaireResponse \
 {"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"not-supported","diagnostics":"this endpoint accepts one QuestionnaireResponse per request; post each response on its own request","expression":["Bundle"]}]}
 ```
 
-An accepted capture answers `201 Created`, a `Location` header naming where
-the receipt is served from, and an OperationOutcome that says what storage
-means here:
+An accepted capture goes to DHIS2 at once, and the answer says what became of it:
+
+| Answer | What it means |
+| --- | --- |
+| `201 Created` | DHIS2 has the data. `Location` names where the receipt is served from |
+| `202 Accepted` | Not yet sent to DHIS2. This server holds it, `Location` names where the receipt is served from, and the first issue says what happens next |
+| `200 OK` | The server runs with `delivery = "validate-only"`. DHIS2 graded it, and nothing was written or stored |
+| `409`, or DHIS2's own status | DHIS2 refused it, or `[forward] overwrites = "refuse"` did, and nothing was stored. The issues say why, and the sender is the one who can fix it |
+| `422` with `could not be translated` | The form is valid and the translator cannot turn it into a DHIS2 payload, and nothing was sent or stored |
+| `502` | DHIS2 could not take it, and this server cannot try again for you, because it posts under your own credentials or under `validate-only`. Nothing was stored, so send it again |
+
+**A `201` is the only answer that means DHIS2 has it,** so a client should not treat a
+`202` as done. `/metadata` says which of these a server gives, in
+`rest.documentation`: [`delivery`](301-serving.md#delivery) has the settings.
 
 ```console
 $ curl -s 'localhost:8389/Questionnaire/BfMAe6Itzgt/$generate?seed=4242' -o response.json
@@ -1509,10 +1520,10 @@ HTTP/1.1 201 Created
 date: Mon, 10 Aug 2026 19:43:24 GMT
 server: uvicorn
 location: http://localhost:8389/QuestionnaireResponse/d78a53c1afe54f09aeb104d0fd1844c2
-content-length: 367
+content-length: 397
 content-type: application/fhir+json
 
-{"resourceType":"OperationOutcome","issue":[{"severity":"information","code":"informational","diagnostics":"stored response d78a53c1afe54f09aeb104d0fd1844c2, holding Child Health (BfMAe6Itzgt), reported from organisation unit Sierra Leone (Location/ImspTQPwCqd), for period 202608; a stored response is the submission as received - a receipt, not a live view of DHIS2 data"}]}
+{"resourceType":"OperationOutcome","issue":[{"severity":"information","code":"informational","diagnostics":"sent to DHIS2 and stored as response d78a53c1afe54f09aeb104d0fd1844c2, holding Child Health (BfMAe6Itzgt), reported from organisation unit Sierra Leone (Location/ImspTQPwCqd), for period 202608; a stored response is the submission as received - a receipt, not a live view of DHIS2 data"}]}
 ```
 
 Validation runs in phases, and the phase that finds an error is the last one
@@ -1539,8 +1550,8 @@ $ curl -s -X POST localhost:8389/QuestionnaireResponse \
 ```
 
 Warnings never reject: they ride back on the accepted capture's
-OperationOutcome, after the informational issue naming the stored id, and into
-the stored receipt. Which findings are warnings, which are always refusals, and
+OperationOutcome, after the informational issue naming the stored id and any value
+it replaced, and into the stored receipt. Which findings are warnings, which are always refusals, and
 which five the `--strict-codes` dial moves between the two is enumerated in
 [the capture contract](401-capture-contract.md#what-the-server-refuses-and-what-it-only-warns-about).
 
@@ -1550,7 +1561,7 @@ fixing the refusal sees the advice that came with it in the same round trip.
 
 Reading receipts back is plain FHIR - `GET /QuestionnaireResponse/{id}`
 answers the submission verbatim in whatever lifecycle state it is in,
-because forwarding a receipt must not expire the id its sender was handed.
+because a receipt moving must not expire the id its sender was handed.
 
 ## The facade's own API {#facade-api}
 
@@ -1569,6 +1580,7 @@ they are an application of their own under `/facade`:
 | `GET /facade/docs` | the same document as a page to read and to try requests from |
 | `GET /facade/whoami` | who this server decided the caller is ([Secure the facade](201-secure.md#checking-a-credential-without-spending-one)) |
 | `GET /facade/spool` | the receipt envelopes, below |
+| `GET /facade/delivery` | what has not reached DHIS2, below |
 | `GET /facade/uiconfig` | what a screen may know about this run, below |
 | `GET /facade/metadata-health` | the `d2w fhir validate` findings over the served selection, with translation coverage |
 | `POST /facade/evaluate` | the same evaluation as `$evaluate`, in this project's own JSON |
@@ -1696,11 +1708,31 @@ $ curl -s 'localhost:8389/facade/spool?page=12'
 {"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"invalid","diagnostics":"`page` is not a page of this listing: its value comes from the `next` or `previous` link of a result, and is not a number a client composes"}]}
 ```
 
-Every read re-reads the directory, because `d2w fhir forward` and `d2w fhir
-withdraw` rename files while this server runs. It is what the capture UI's
+Every read re-reads the directory, because this server's retries, `d2w fhir forward`,
+and `d2w fhir withdraw` all rename files while it runs. It is what the capture UI's
 Overview and Responses pages read, and the lifecycle states are the spool
-directories those two commands move receipts between - see
-[Forward captures into DHIS2](201-forward.md).
+directories those move receipts between - see
+[Repair the capture queue](201-forward.md).
+
+### `/facade/delivery`: what has not reached DHIS2
+
+Most refusals reach the sender in the response. This is for what is left: a capture held
+while DHIS2 was away, and one refused after its sender had gone. It is what the capture
+UI's notices read, and what a monitoring check should watch. Plain `application/json`:
+
+```console
+$ curl -s localhost:8389/facade/delivery
+{"delivery":"at-once","posts_as":"connection","waiting":2,"refused":1,"last_attempt_at":"2026-08-10T19:50:02.114Z","last_problem":"no route to host"}
+```
+
+| Field | What it says |
+| --- | --- |
+| `delivery` | `at-once`, `validate-only`, or `hold`: how this run sends captures |
+| `posts_as` | `caller`, `connection`, or `nobody`: whose rights DHIS2 applies. `nobody` is a run holding captures |
+| `waiting` | captures that have not reached DHIS2, and that nothing has refused |
+| `refused` | captures refused after their sender had gone, which someone has to look at |
+| `last_attempt_at` | when this server last tried its queue, and null where it has not since it started |
+| `last_problem` | why that attempt could not reach DHIS2, and null where it did |
 
 ### `/facade/uiconfig`: what the UI is allowed to know
 

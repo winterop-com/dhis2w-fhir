@@ -216,6 +216,9 @@ _DOCKER_PROBE_TIMEOUT_SECONDS = 30
 #: How many UIDs one `id:in:[...]` filter carries when the oracle resolves a family against the instance.
 _ORACLE_BATCH_SIZE = 100
 
+#: What the in-process server answers an accepted capture with: it holds no connection, so it writes nothing to DHIS2.
+_HELD_CAPTURE_STATUS = 202
+
 #: The base URL the in-process capture client addresses the ASGI app under. Nothing binds a socket -
 #: httpx2 needs an absolute base for relative paths and this is the name it uses for one.
 _IN_PROCESS_BASE_URL = "http://fhir-doctor.invalid"
@@ -414,7 +417,7 @@ def grade_capture(captured: Sequence[CaptureOutcome]) -> PhaseOutcome:
     findings = [finding for outcome in captured for finding in outcome.findings]
     generated = sum(1 for outcome in captured if outcome.generated)
     accepted = sum(1 for outcome in captured if outcome.accepted)
-    evidence = f"{len(captured):,} form(s), {generated:,} generated, {accepted:,} accepted as 201"
+    evidence = f"{len(captured):,} form(s), {generated:,} generated, {accepted:,} accepted"
     return grade(DoctorPhase.CAPTURE, evidence, findings)
 
 
@@ -1108,7 +1111,7 @@ class _DoctorRun:
         return True
 
     async def _capture(self, stack: AsyncExitStack, *, served: bool) -> None:
-        """Generate one response per published form and post it back, holding the endpoint to its 201 invariant."""
+        """Generate one response per published form and post it back, holding the endpoint to accepting itt."""
         self._progress.start(DoctorPhase.CAPTURE.value, "capturing a generated corpus")
         started = time.perf_counter()
         if not served:
@@ -1713,7 +1716,7 @@ async def _capture_one(http: httpx2.AsyncClient, form: _ServedResource, index: i
         content=generated.content,
         headers={"Content-Type": "application/fhir+json"},
     )
-    if posted.status_code != 201:
+    if posted.status_code != _HELD_CAPTURE_STATUS:
         return CaptureOutcome(
             generated=True,
             accepted=False,

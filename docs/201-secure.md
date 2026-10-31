@@ -138,9 +138,10 @@ the instance, exactly as it arrived:
 | `GET /facade/tracked-entities/{uid}/events` (the record, and one event of it) | The caller |
 | `GET /Patient/{uid}/$summary` and `GET /Patient/$summary?identifier=` | The caller |
 | `POST /facade/evaluate` and `POST /$evaluate` with a `registered` context | The caller |
+| `POST /QuestionnaireResponse` | The caller, so DHIS2 applies their rights to what they submit |
 | The store built at startup | The facade's profile |
 | The instance address `/facade/uiconfig` hands the screens | The facade's profile |
-| `d2w fhir forward`'s drain | The forwarding profile |
+| `d2w fhir forward`'s drain, of anything held | The forwarding profile |
 
 DHIS2 then applies its own five gates - authority, sharing, the data element
 bits, the organisation unit scopes, and ownership with access levels - to the
@@ -184,10 +185,19 @@ facade validated the submission under. `d2w fhir spool --details` shows it as
 a **Captured by** column when any receipt has one, and the forward report
 carries it through.
 
-**That is who handed the submission over, and not who wrote the data.**
-`d2w fhir forward` posts as the forwarding profile, and `storedBy` on the
-instance is DHIS2's own stamp of that profile. The receipt is where "who
-captured this" is answered; the instance is where "who wrote this" is.
+**A capture posted at once is written by the person who sent it,** so `storedBy` on
+the instance names them, and DHIS2 refuses them whatever it would refuse them directly.
+Measured against DHIS2 2.43.2, with one clerk scoped to a single facility: a capture for
+another facility answered `409` with `E8011` and stored nothing, and one for their own
+answered `201`, with `storedBy` naming them on all 116 values.
+
+**Under `--delivery hold`, the receipt says who handed it over and the instance says
+who wrote it, and those are different people.** `d2w fhir forward` posts as the
+forwarding profile, DHIS2 judges that profile, and `storedBy` is DHIS2's stamp of it.
+Measured against DHIS2 2.43.2, a clerk scoped to one facility submitted for another
+and the forward was accepted, where posting directly answered a `409`. A project that
+holds captures under this posture should give the forwarding profile only the write
+access every submitter should have.
 
 ### The DHIS2 posture's 401 names `xBasic`
 
@@ -345,6 +355,5 @@ postures run end to end in
 and the register read as the caller in
 [`examples/client/read_register_as_yourself.py`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/client/read_register_as_yourself.py).
 
-Next: [Forward captures into DHIS2](201-forward.md) - what the facade does
-with what it accepted. [Run a secured facade](201-run-a-secured-facade.md) is
+Next: [Repair the capture queue](201-forward.md) - what to do with what did not land. [Run a secured facade](201-run-a-secured-facade.md) is
 where this step sits in the whole path.

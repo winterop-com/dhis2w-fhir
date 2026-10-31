@@ -41,7 +41,7 @@ async function generateAndPost(request: APIRequestContext, questionnaireId: stri
         headers: { 'Content-Type': FHIR_JSON, Accept: FHIR_JSON },
         data: await generated.json(),
     })
-    expect(posted.status(), await posted.text()).toBe(201)
+    expect(posted.status(), await posted.text()).toBe(202)
 
     const location = posted.headers()['location']
     expect(location).toBeTruthy()

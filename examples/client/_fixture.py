@@ -413,6 +413,9 @@ def _start_facade(project_root: Path, auth: str) -> str:
         "--no-ui",
         "--auth",
         auth,
+        # These examples are about reading and submitting, and run against a shared demo stack, so nothing is written.
+        "--delivery",
+        "hold",
     ]
     # Both streams go to a file rather than a pipe. A live run narrates every step it takes, and a
     # pipe nobody drains fills its buffer and blocks the server mid-startup - so the log is a file

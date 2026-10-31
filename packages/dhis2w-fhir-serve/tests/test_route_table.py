@@ -151,6 +151,7 @@ def test_the_groups_are_the_two_surfaces_and_the_specification_beside_them() -> 
     assert facade_paths == {
         "/whoami",
         "/spool",
+        "/delivery",
         "/uiconfig",
         "/metadata-health",
         "/tracked-entities/{tracked_entity_uid}/enrollments",
@@ -192,6 +193,7 @@ def test_the_facade_api_publishes_a_document_of_exactly_what_it_serves() -> None
     assert set(document["paths"]) == {
         "/whoami",
         "/spool",
+        "/delivery",
         "/uiconfig",
         "/metadata-health",
         "/tracked-entities/{tracked_entity_uid}/enrollments",
@@ -331,7 +333,7 @@ async def test_a_hand_mounted_facade_receives_a_capture_the_way_the_factory_does
             from_factory = await served.post("/QuestionnaireResponse", content=body)
             from_embedded = await mounted.post("/QuestionnaireResponse", content=body)
 
-            assert from_factory.status_code == from_embedded.status_code == 201
+            assert from_factory.status_code == from_embedded.status_code == 202
             assert from_factory.headers["location"] == from_embedded.headers["location"]
             assert from_factory.content == from_embedded.content
 

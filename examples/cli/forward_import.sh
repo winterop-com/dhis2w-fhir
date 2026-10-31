@@ -35,7 +35,7 @@ make sushi
 
 # Fill the spool: serve the guide, POST a load set at it. Every accepted response is written
 # to .serve/responses/received/<id>.json as a receipt - the queue the forwarder drains.
-d2w fhir serve --port "$PORT" &
+d2w fhir serve --delivery hold --port "$PORT" &
 SERVER_PID=$!
 trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
 sleep 5

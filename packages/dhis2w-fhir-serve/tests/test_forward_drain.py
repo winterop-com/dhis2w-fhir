@@ -114,7 +114,7 @@ async def _capture(client: httpx2.AsyncClient, response: dict[str, Any]) -> str:
     posted = await client.post(
         "/QuestionnaireResponse", json=response, headers={"Content-Type": "application/fhir+json"}
     )
-    assert posted.status_code == 201, posted.text
+    assert posted.status_code == 202, posted.text
     return posted.headers["Location"].rsplit("/", 1)[-1]
 
 

@@ -42,12 +42,12 @@ from dhis2w_fhir_engine.facade.forward import (
     _TRACKER_PATH,
     ForwardReport,
     _compiled_artifacts_or_none,
-    _configured_coded_answer_mode,
     _post_body,
     _relative_path,
     _tracker_import_outcome,
     _uid_filter,
     _utc_instant,
+    configured_coded_answer_mode,
     drain_spool,
     spool_layout,
 )
@@ -686,6 +686,8 @@ class GenerationProfile(BaseModel):
     name: str
     origin: str
     profile: Profile
+    named: bool = False
+    """Whether this run or this project named the profile, rather than it being the one this machine fell back to."""
 
 
 def resolve_generation_profile(project: FhirProject, explicit: str | None = None) -> GenerationProfile:
@@ -699,7 +701,8 @@ def resolve_generation_profile(project: FhirProject, explicit: str | None = None
         origin = "fhir.toml"
     else:
         origin = resolved.source
-    return GenerationProfile(name=resolved.name, origin=origin, profile=resolved.profile)
+    named = bool(explicit or environment or project.config.profile) or resolved.source == "env-raw"
+    return GenerationProfile(name=resolved.name, origin=origin, profile=resolved.profile, named=named)
 
 
 class ValidationContext(BaseModel):
@@ -3644,7 +3647,7 @@ async def forward_responses(
     A file in `received/` that does not read as a receipt is moved to `malformed/` with its reason
     beside it and named in the report; the drain proceeds with the rest.
     """
-    mode = coded_answer_mode if coded_answer_mode is not None else _configured_coded_answer_mode(project)
+    mode = coded_answer_mode if coded_answer_mode is not None else configured_coded_answer_mode(project)
     forward_config = project.config.forward
     importing = import_responses if import_responses is not None else forward_config.import_responses
     registering = register_completeness if register_completeness is not None else forward_config.register_completeness
