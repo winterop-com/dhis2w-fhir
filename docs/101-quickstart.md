@@ -451,10 +451,11 @@ Three things beyond reading are worth knowing exist:
   instance's tracked entities, published as whatever resource type your project
   maps each tracked entity type to.
 
-A capture goes to DHIS2 at once where this project names its profile, which closes
-the loop from published contract to data in the instance. A profile the server only
-found on this machine is never written to: captures stay on the server, and the line
-it starts with says why and how to name it. See [`delivery`](301-serving.md#delivery).
+A capture stays on the server until you ask for it to be sent. State
+`delivery = "at-once"` under `[serve]` and it goes to DHIS2 while the sender waits, which
+closes the loop from published contract to data in the instance. `profile` alone only says
+which DHIS2 to read, and the line the server starts with says which of these it is. See
+[`delivery`](301-serving.md#delivery).
 
 Next: [Set up an IG project](201-set-up-a-project.md), or
 [Run a secured facade](201-run-a-secured-facade.md) for the same road carried

@@ -9,6 +9,9 @@ profile = "{{ profile }}"           # DHIS2 profile to read metadata from
 # profile = "myserver"              # optional: DHIS2 profile to read metadata from
 {% endif %}
 
+# [serve]
+# delivery = "at-once"              # post captures to that DHIS2 as they arrive; this writes real data
+
 [ig]
 id = "{{ ig_id }}"
 canonical = "{{ canonical }}"

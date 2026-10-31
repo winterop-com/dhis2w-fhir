@@ -535,7 +535,8 @@ event back. Every import writes one.
 **delivery**
 : When a capture goes to DHIS2, stated by `[serve] delivery`. `at-once` posts while the
 sender waits, so they hear DHIS2's answer; `validate-only` has DHIS2 grade it and writes
-nothing; `hold` keeps it on the server. A run only posts at once to a DHIS2 somebody named.
+nothing; `hold` keeps it on the server. Left unset, a capture stays on the server unless a
+caller presents their own account.
 
 **forward / drain**
 : `d2w fhir forward` reads the spool, converts every received response into the

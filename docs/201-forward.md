@@ -1,6 +1,7 @@
 # Repair the capture queue
 
-A capture goes to DHIS2 at once, and its sender hears DHIS2's answer: see
+Where a server is asked to send it, a capture goes to DHIS2 at once and its sender hears
+DHIS2's answer: see
 [Posting a capture](201-serve.md#posting-a-capture). This page is for what is left
 over. `d2w fhir forward` takes the captures a server is still holding and imports
 them as data values, tracked entities, enrollments, and events - through
@@ -9,9 +10,9 @@ under the same rules, with the same error codes coming back. Run it once and it
 validates the whole queue without writing a byte; run it again with `--import` and
 it commits.
 
-**Who this is for:** the operator with captures still on the server: a server
-running with `--delivery hold`, a server with no DHIS2 profile named, or a refused
-receipt they have put back in the queue.
+**Who this is for:** the operator with captures still on the server: a server nothing
+asked to send them, a server with no DHIS2 profile, or a refused receipt they have put
+back in the queue.
 
 **Before you start:** a project with receipts in
 `.serve/responses/received/` ([Serve the guide](201-serve.md)) and a DHIS2
@@ -35,7 +36,7 @@ graph LR
     forward["d2w fhir forward"]
     dhis2["DHIS2"]
 
-    capture -->|"posted at once"| dhis2
+    capture -->|"posted at once, where asked"| dhis2
     capture -->|"held"| queue
     queue -->|"the server keeps trying"| dhis2
     queue -->|"an operator asks"| forward
@@ -46,7 +47,7 @@ graph LR
 | --- | --- |
 | DHIS2 could not be reached, on a server posting through its one connection | The server, on its own. There is nothing to run |
 | The project states `[serve] delivery = "hold"`, or the run passed `--delivery hold` | `d2w fhir forward` |
-| The server found a DHIS2 profile that nobody named for this project, or found none at all | `d2w fhir forward`. Naming the profile sends new captures at once and leaves these here |
+| Nothing asked the server to send it: no `[serve] delivery`, or no DHIS2 profile at all | `d2w fhir forward`. Stating `delivery = "at-once"` posts new captures and leaves these here |
 | You put a refused receipt back with `d2w fhir requeue` | `d2w fhir forward`, or the server if it was already retrying that capture |
 
 **A server only sends what it took on sending.** A receipt it held because DHIS2 could

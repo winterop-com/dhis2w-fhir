@@ -47,9 +47,9 @@ Every `d2w fhir generate` in this project now reads from the DHIS2 server the
 **Default:** unset - **If you leave it out:** the command falls back to
 whatever default connection is configured on your computer, and refuses with a
 "no profile" message when there is none. A project should name its profile
-here so every person who runs it reads the same server. **Naming it is also what
-lets `d2w fhir serve` post captures to it:** a connection the server merely fell back
-to could be anybody's, so captures stay on the server. See
+here so every person who runs it reads the same server. **Naming it does not let
+`d2w fhir serve` write to it:** a project can point this at a national instance to build a
+guide, so captures stay on the server until `delivery = "at-once"` is stated. See
 [`delivery`](301-serving.md#delivery).
 
 **What wins over this line.** Three things can name the connection, and the

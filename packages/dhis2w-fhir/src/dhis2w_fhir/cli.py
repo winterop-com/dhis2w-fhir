@@ -2550,7 +2550,9 @@ def serve_command(
             "--delivery",
             help="When a capture goes to DHIS2, overriding `\\[serve] delivery`. `at-once` posts while the submitter "
             "waits, so they hear DHIS2's answer, and keeps trying a capture DHIS2 was away for; `validate-only` has "
-            "DHIS2 grade it and writes nothing; `hold` keeps it here until `d2w fhir forward` runs.",
+            "DHIS2 grade it and writes nothing; `hold` keeps it here until `d2w fhir forward` runs. Unstated, a "
+            "capture stays here, because `profile` says which DHIS2 to read and not that it may be written to. A "
+            "caller presenting their own account under `--auth dhis2` posts at once.",
         ),
     ] = None,
     auth_scope: Annotated[
@@ -2616,7 +2618,7 @@ def serve_command(
     the vocabularies, the register listings - are at `/facade`, described by the OpenAPI document at
     `/facade/openapi.json` and browsable at `/facade/docs`.
 
-    A received QuestionnaireResponse goes to DHIS2 at once, and the answer says what DHIS2 said: see `--delivery`.
+    A received QuestionnaireResponse goes to DHIS2 where this run is asked to send it: see `--delivery`.
     What it became is stored as a receipt, so reading one back says what was submitted.
 
     `--live` builds the store from the instance at startup, as the profile `d2w -p` names.
@@ -2704,10 +2706,11 @@ def _delivery_line(invocation: ServeInvocation) -> str:
     """Where a capture goes on this run and at which DHIS2, said once as it starts, because it can write real data."""
     settings = invocation.settings
     generation = invocation.generation
-    if invocation.held_for_an_unnamed_profile and generation is not None:
+    if invocation.held_until_asked and generation is not None:
         return (
-            f"stay on this server, because profile {generation.name} ({generation.profile.base_url}) was found rather "
-            "than named; name it with `profile =` in fhir.toml or `d2w -p`, or state --delivery at-once, to post to it"
+            'stay on this server, because nothing asks for them to be sent; state `delivery = "at-once"` under '
+            f"[serve] in fhir.toml, or pass --delivery at-once, to post them to {generation.profile.base_url} "
+            f"as profile {generation.name}"
         )
     if settings.capture_delivery is CaptureDelivery.HOLD:
         return "stay on this server until `d2w fhir forward` runs"

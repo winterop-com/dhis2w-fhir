@@ -669,8 +669,9 @@ by a worker in the server, and later captures join the queue rather than overtak
 worker runs the same drain `d2w fhir forward` runs, under the same lock. What it meets
 refused is filed under `rejected/`, logged, and counted by `GET /facade/delivery`.
 
-`d2w fhir serve` only posts at once to a DHIS2 somebody named, decided in
-`resolve_serve_settings`. A profile the machine merely fell back to holds captures.
+`d2w fhir serve` holds captures under its one account until `[serve] delivery = "at-once"`
+is stated, decided in `resolve_serve_settings`. `profile` says which DHIS2 to read and
+nothing about writing to it. A caller presenting their own account posts at once.
 
 ### The spool
 

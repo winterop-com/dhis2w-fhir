@@ -756,8 +756,8 @@ class ServeConfig(BaseModel):
 
     `delivery` is when a capture goes to DHIS2, and `delivery_retry_seconds` is how often the server tries its queue
     while DHIS2 cannot be reached. See `dhis2w_fhir_engine.facade.delivery` for what each posture does and why. Left
-    unset, a capture goes at once to a DHIS2 somebody named, by the `profile` key, `--profile`, or the environment. A
-    profile this machine merely fell back to could be anybody's, so captures stay here until one of those says so.
+    unset, a capture stays on this server, because `profile` says which DHIS2 to read and not that it may be written to.
+    It goes at once where a caller presents their own account.
 
     `capture` is whether this server receives submissions at all. True - the default - mounts the
     create route, declares `create` on QuestionnaireResponse in `/metadata`, and lets the capture

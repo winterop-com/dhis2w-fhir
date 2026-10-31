@@ -5,8 +5,9 @@ front of them, so another system can ask for a form the way it would ask any
 web API - *give me the Child Health data set*, *give me the option list for
 this data element*, *here is a filled-in form* - without a DHIS2 login and
 without knowing anything about DHIS2's own API. It is not a second copy of
-DHIS2. The one thing it writes to your instance is what it is sent: a submission
-goes to DHIS2 at once, and DHIS2's answer goes back to the sender.
+DHIS2. The one thing it can write to your instance is what it is sent, and only where
+you ask it to: with `delivery = "at-once"` stated, a submission goes to DHIS2 and DHIS2's
+answer goes back to the sender.
 
 **Who this is for:** the operator turning a generated project into that
 running endpoint - something a capture client can read forms from and post
@@ -559,24 +560,25 @@ offer it: `capture = false` refuses every submission and drops `create` from
 One response per request - a Bundle is refused with a message saying so. The
 easiest first capture is
 the server's own `$generate` operation posted straight back: ask the server
-to fill in one of its own forms, then hand the answer back to it. This writes to
-DHIS2, because this project names its profile:
+to fill in one of its own forms, then hand the answer back to it. Nothing here has
+asked for captures to be sent, so this stays on the server:
 
 ```console
 $ curl -s 'localhost:8390/Questionnaire/BfMAe6Itzgt/$generate?seed=4242' -o response.json
 $ curl -s -X POST localhost:8390/QuestionnaireResponse \
     -H 'Content-Type: application/fhir+json' --data-binary @response.json -D -
-HTTP/1.1 201 Created
+HTTP/1.1 202 Accepted
 date: Sat, 15 Aug 2026 18:07:03 GMT
 server: uvicorn
 location: http://localhost:8390/QuestionnaireResponse/9c0d30598b194aef9e1e1e8f4bab70ec
 content-length: 464
 content-type: application/fhir+json
 
-{"resourceType":"OperationOutcome","issue":[{"severity":"information","code":"informational","diagnostics":"sent to DHIS2 and stored as response 9c0d30598b194aef9e1e1e8f4bab70ec, holding Child Health (BfMAe6Itzgt), reported from organisation unit Bo (Location/O6uvpzGd5pu), for period 202607, keyed to attribute option combo Improve access to clean water (pO5CEqK6c1s); a stored response is the submission as received - a receipt, not a live view of DHIS2 data"}]}
+{"resourceType":"OperationOutcome","issue":[{"severity":"information","code":"informational","diagnostics":"not yet sent to DHIS2: stored as response 9c0d30598b194aef9e1e1e8f4bab70ec, holding Child Health (BfMAe6Itzgt), reported from organisation unit Bo (Location/O6uvpzGd5pu), for period 202607, keyed to attribute option combo Improve access to clean water (pO5CEqK6c1s); nothing sends it until `d2w fhir forward` runs, and `[serve] delivery = \"at-once\"` posts new captures"}]}
 ```
 
-The answer says what became of it:
+With `delivery = "at-once"` stated, the same request goes to DHIS2 and answers `201`. The
+answer says what became of it:
 
 | Answer | What it means | What to do |
 | --- | --- | --- |
@@ -592,13 +594,12 @@ The answer says what became of it:
   caller's own credentials, so DHIS2 applies their rights and its record names them.
   This service keeps no password, so it cannot try again later: if DHIS2 is away the
   answer is a `502`.
-- **Otherwise it posts as this run's profile,** to the DHIS2 that profile names. If
-  DHIS2 is away the capture is held and the server keeps trying on its own, and later
-  captures queue behind it rather than overtake it.
-- **A profile nobody named is never written to.** The profile has to come from
-  `profile` in `fhir.toml`, `d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with
-  credentials. One this machine merely fell back to could be anybody's, so captures
-  stay on the server until somebody names it or states `--delivery at-once`.
+- **Otherwise it stays on the server until you ask.** `profile` says which DHIS2 to read
+  metadata from, and a project can point it at a national instance to build a guide, so
+  one test submission must not be able to write there. State `delivery = "at-once"` under
+  `[serve]`, or pass `--delivery at-once`, and it posts as this run's profile. If DHIS2 is
+  away the capture is held and the server keeps trying on its own, and later captures
+  queue behind it rather than overtake it.
 - **With no profile at all,** captures stay on the server too.
 
 The line the server starts with says which of these this run is:
@@ -608,7 +609,7 @@ captures: post at once to http://localhost:8080, as profile local_basic
 ```
 
 ```
-captures: stay on this server, because profile local_basic (http://localhost:8080) was found rather than named; name it with `profile =` in fhir.toml or `d2w -p`, or state --delivery at-once, to post to it
+captures: stay on this server, because nothing asks for them to be sent; state `delivery = "at-once"` under [serve] in fhir.toml, or pass --delivery at-once, to post them to http://localhost:8080 as profile local_basic
 ```
 
 Captures a server finds in its queue stay there: it only sends what it took on sending

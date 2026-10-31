@@ -551,22 +551,19 @@ naming a profile, or upgrading writes nothing that was already waiting.
 credentials. This server keeps no password, so it cannot try again later, which is why
 that row answers `502`. Under every other posture it goes as this run's profile.
 
-**If you leave it out, it depends on which DHIS2 this run found.** Captures go at once
-to a DHIS2 somebody named: [`profile`](301-identity.md#profile) in this file,
-`d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with credentials. They go at once too where
-each caller presents their own account. A profile this machine merely fell back to could
-be an administrator's login to anything, so one test submission must not be able to
-write to it: captures stay on the server, and the line the server starts with says why
-and how to name it. That includes a default profile in the project's own
-`.dhis2/profiles.toml`, because a default is what was found rather than what was named.
-With no profile at all they stay on the server too.
+**If you leave it out, captures stay on this server.** [`profile`](301-identity.md#profile)
+says which DHIS2 to read metadata from, and a project can point it at a national instance
+to build a guide, so one test submission must not be able to write there. Writing as this
+run's one account has to be asked for, here or with `--delivery at-once`, and the line the
+server starts with says how. They go at once anyway where each caller presents their own
+account, because their credentials say which DHIS2 they mean and DHIS2 applies their rights.
 
-**When you would change it.** `"validate-only"` to try a guide or a client out against a
+**When you would change it.** `"at-once"` once this project should write to its DHIS2, so
+submitters hear its answer. `"validate-only"` to try a guide or a client out against a
 real instance. `"hold"` where captures must be reviewed or sent on a schedule, accepting
 that nobody hears DHIS2's answer until then. Under `dhis2`, `"hold"` also means
 `d2w fhir forward` posts as its own profile, so DHIS2 judges that profile and not the
-person who submitted. `"at-once"` written down to post to a profile you do not want to
-name in this file.
+person who submitted.
 
 **Example.**
 

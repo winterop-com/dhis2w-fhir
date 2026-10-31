@@ -2338,7 +2338,8 @@ in phases that stop at the first level to find an error.
 
 #### Delivery
 
-- **A capture goes to DHIS2 at once, so its sender hears DHIS2's answer.** `201` means
+- **Where a server is asked to send it, a capture goes to DHIS2 at once, so its sender
+  hears DHIS2's answer.** `201` means
   DHIS2 has the data. A refusal answers with DHIS2's reasons and stores nothing.
   `[forward] overwrites = "refuse"` holds here too, as a `409`. An allowed overwrite
   names each value it replaced, as a warning on the answer.
@@ -2352,11 +2353,12 @@ in phases that stop at the first level to find an error.
   the capture is held and answered `202`, which means not yet sent to DHIS2. A worker in
   the server retries the queue every `[serve] delivery_retry_seconds`, and later captures
   join the queue rather than overtake it.
-- **`d2w fhir serve` only posts at once to a DHIS2 somebody named**: `profile` in
-  `fhir.toml`, `d2w -p <name>`, `DHIS2_PROFILE`, or `DHIS2_URL` with credentials. A profile the
-  machine fell back to could be anybody's, so captures stay on the server, and the line
-  the server starts with says which DHIS2 it posts to, or why it will not and how to name
-  it. A `ServeSettings` built by hand holds until told.
+- **`d2w fhir serve` writes as its one account only where asked**, by `[serve] delivery =
+  "at-once"` or `--delivery at-once`. `profile` says which DHIS2 to read, and a project can
+  point it at a national instance to build a guide, so captures otherwise stay on the
+  server. A caller presenting their own account posts at once. The line the server starts
+  with says which DHIS2 it posts to, or how to ask. A `ServeSettings` built by hand holds
+  until told.
 - **`GET /facade/delivery`** reports `delivery`, `posts_as`, `waiting`, `retrying`, `refused`,
   `last_attempt_at`, and `last_problem`, so a capture refused after its sender had gone is
   logged and counted rather than left in a directory.

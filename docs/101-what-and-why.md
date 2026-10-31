@@ -82,7 +82,7 @@ no jar to drop on the server, and no change to your instance's configuration.
 | `d2w fhir generate` / `validate` / `doctor` | Your machine, or a CI runner | Reads metadata over the DHIS2 API. Writes nothing. |
 | The IG build (SUSHI, the HL7 IG Publisher) | Docker, on that same machine | Never talks to DHIS2 at all - it compiles files on disk. |
 | The published guide | Any static web host | Nothing. It is HTML and JSON; it needs no DHIS2 connection and no credentials. |
-| `d2w fhir serve` | A process you run, loopback by default | Reads, in `--live` mode, to build its store at startup. Posts each capture to DHIS2 at once where a profile is named for the project, so the instance's rules decide while the sender waits. With no profile named, captures stay in a local spool. |
+| `d2w fhir serve` | A process you run, loopback by default | Reads, in `--live` mode, to build its store at startup. Posts each capture to DHIS2 at once where `delivery = "at-once"` is stated, so the instance's rules decide while the sender waits. With no profile named, captures stay in a local spool. |
 | `d2w fhir forward` | Your machine | Posts what a server is still holding. Dry run is the default, and even then payloads go through the DHIS2 endpoint's own validate-only mode, so the instance's rules decide. |
 
 The credentials come from a `d2w` profile, so the account you point at decides what

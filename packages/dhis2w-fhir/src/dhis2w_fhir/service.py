@@ -686,8 +686,6 @@ class GenerationProfile(BaseModel):
     name: str
     origin: str
     profile: Profile
-    named: bool = False
-    """Whether this run or this project named the profile, rather than it being the one this machine fell back to."""
 
 
 def resolve_generation_profile(project: FhirProject, explicit: str | None = None) -> GenerationProfile:
@@ -701,8 +699,7 @@ def resolve_generation_profile(project: FhirProject, explicit: str | None = None
         origin = "fhir.toml"
     else:
         origin = resolved.source
-    named = bool(explicit or environment or project.config.profile) or resolved.source == "env-raw"
-    return GenerationProfile(name=resolved.name, origin=origin, profile=resolved.profile, named=named)
+    return GenerationProfile(name=resolved.name, origin=origin, profile=resolved.profile)
 
 
 class ValidationContext(BaseModel):

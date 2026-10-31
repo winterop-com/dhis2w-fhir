@@ -1497,7 +1497,7 @@ $ curl -s -X POST localhost:8389/QuestionnaireResponse \
 {"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"not-supported","diagnostics":"this endpoint accepts one QuestionnaireResponse per request; post each response on its own request","expression":["Bundle"]}]}
 ```
 
-An accepted capture goes to DHIS2 at once, and the answer says what became of it:
+An accepted capture goes to DHIS2 where the server is asked to send it, and the answer says what became of it:
 
 | Answer | What it means |
 | --- | --- |

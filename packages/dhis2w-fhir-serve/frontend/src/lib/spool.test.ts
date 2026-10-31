@@ -426,7 +426,9 @@ describe('deliveryNotices', () => {
     it('names the command where nothing is sending them', () => {
         const [notice] = deliveryNotices({ ...quiet, delivery: 'hold', posts_as: 'nobody', waiting: 1 })
         expect(notice.title).toBe('1 submission not yet sent to this DHIS2 instance')
-        expect(notice.detail).toBe('Nothing sends it until d2w fhir forward runs.')
+        expect(notice.detail).toBe(
+            'Nothing sends it until d2w fhir forward runs. To post new submissions as they arrive, state delivery = "at-once" under [serve] in fhir.toml.',
+        )
     })
 
     it('says a refusal nobody heard about is the instance speaking, and how to read it', () => {

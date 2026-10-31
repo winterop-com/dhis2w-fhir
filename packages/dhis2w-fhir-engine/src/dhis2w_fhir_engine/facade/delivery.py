@@ -20,8 +20,11 @@ A retried capture can still be refused, and by then its submitter has gone. That
 logged, and counted by `status`, which is what the capture UI and `GET /facade/delivery` read.
 
 `hold` turns all of this off: captures stay in the spool until `d2w fhir forward` posts them. A server with no DHIS2
-connection at all holds captures the same way, because it has no other choice. So does `d2w fhir serve` where the only
-DHIS2 it can find is a profile this machine fell back to: nothing is written to an instance nobody named.
+connection at all holds captures the same way, because it has no other choice.
+
+`d2w fhir serve` HOLDS UNTIL ASKED, under its one account. `profile` says which DHIS2 to read metadata from, and a
+project can point it at a national instance to build a guide, so `[serve] delivery = "at-once"` is what permits writing.
+A caller presenting their own account has asked, and an application handing `open_facade` a connection has too.
 """
 
 from __future__ import annotations
@@ -90,6 +93,11 @@ HELD_AND_RETRYING = "this server keeps trying"
 
 #: What a held capture says where nothing here will send it on its own.
 HELD_UNTIL_DRAINED = "nothing sends it until `d2w fhir forward` or `drain` runs"
+
+#: What a held capture says on `d2w fhir serve`, where one line in `fhir.toml` changes what happens to the next one.
+HELD_UNTIL_ASKED = (
+    'nothing sends it until `d2w fhir forward` runs, and `[serve] delivery = "at-once"` posts new captures'
+)
 
 
 class DeliveryKind(StrEnum):
@@ -181,6 +189,9 @@ class CaptureDeliverer(BaseModel):
     """Opens this facade's connection for one attempt, and None where it holds none. It may raise: DHIS2 can be away."""
 
     retry_seconds: float = DEFAULT_DELIVERY_RETRY_SECONDS
+    held_note: str = HELD_UNTIL_DRAINED
+    """What a capture this facade will not send says happens next."""
+
     artifacts: CompiledArtifacts | None = None
     conversion: ConversionContext | None = None
 
@@ -213,11 +224,11 @@ class CaptureDeliverer(BaseModel):
         """
         envelope = mint_receipt(validated, submitted_by=submitted_by)
         if self.mode is CaptureDelivery.HOLD:
-            return await self._held(envelope, HELD_UNTIL_DRAINED, retrying=False)
+            return await self._held(envelope, self.held_note, retrying=False)
         if self.connect is None:
             if self.mode is CaptureDelivery.VALIDATE_ONLY or caller is not None:
                 raise UpstreamError("this facade holds no connection to DHIS2, so nothing could grade this capture")
-            return await self._held(envelope, HELD_UNTIL_DRAINED, retrying=False)
+            return await self._held(envelope, self.held_note, retrying=False)
         if caller is None and self._worker is not None and self._queue_owed:
             self._wake.set()
             return await self._held(envelope, HELD_AND_RETRYING, retrying=True)
@@ -341,7 +352,7 @@ class CaptureDeliverer(BaseModel):
         if caller is not None or self.mode is CaptureDelivery.VALIDATE_ONLY:
             raise UpstreamError(f"DHIS2 could not take this capture, and nothing was stored: send it again ({problem})")
         # Saved before it is noted: a worker that read an empty queue in between would clear the problem it never saw.
-        note = HELD_AND_RETRYING if self._worker is not None else HELD_UNTIL_DRAINED
+        note = HELD_AND_RETRYING if self._worker is not None else self.held_note
         held = await self._held(envelope, note, retrying=self.retries)
         self._note_could_not_reach(problem)
         return held

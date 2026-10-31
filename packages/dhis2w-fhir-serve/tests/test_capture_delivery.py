@@ -14,8 +14,8 @@ import httpx2
 import pytest
 import respx
 from dhis2w_client import BasicAuth, Dhis2Client
-from dhis2w_core.profile import Profile, ResolvedProfile
-from dhis2w_fhir.service import GenerationProfile, resolve_generation_profile
+from dhis2w_core.profile import Profile
+from dhis2w_fhir.service import GenerationProfile
 from dhis2w_fhir_engine.facade import CaptureDeliverer, CaptureDelivery, DeliveryKind, open_facade
 from dhis2w_fhir_engine.facade import assembly as assembly_module
 from dhis2w_fhir_engine.facade import forward as forward_module
@@ -467,7 +467,9 @@ async def test_a_server_with_no_connection_holds_the_capture_and_says_so(capture
         answer = await _capture(client)
         status = (await client.get("/facade/delivery")).json()
     assert answer.status_code == 202
-    assert _stated(answer).endswith("; nothing sends it until `d2w fhir forward` or `drain` runs")
+    assert _stated(answer).endswith(
+        '; nothing sends it until `d2w fhir forward` runs, and `[serve] delivery = "at-once"` posts new captures'
+    )
     assert status["posts_as"] == "nobody"
     assert status["waiting"] == 1
 
@@ -575,10 +577,10 @@ def test_metadata_says_what_a_capture_will_do_on_this_server(
     assert _rest_documentation(ServeSettings(project_dir=capture_project.project_root, **settings)) == expected
 
 
-def _found_profile(named: bool) -> GenerationProfile:
-    """A profile resolved for a run, somebody having named it or this machine having fallen back to it."""
+def _found_profile() -> GenerationProfile:
+    """A profile resolved for a run, which is enough to read metadata from it."""
     profile = Profile(base_url=_INSTANCE, auth="basic", username="someone", password="its-own")
-    return GenerationProfile(name="found", origin="test", profile=profile, named=named)
+    return GenerationProfile(name="found", origin="fhir.toml", profile=profile)
 
 
 def _with_serve(project: FhirProject, **keys: Any) -> FhirProject:
@@ -588,36 +590,33 @@ def _with_serve(project: FhirProject, **keys: Any) -> FhirProject:
 
 
 @pytest.mark.parametrize(
-    ("named", "stated", "expected", "held_for_it"),
+    ("stated", "expected", "held_until_asked"),
     [
-        pytest.param(True, None, CaptureDelivery.AT_ONCE, False, id="named-posts-at-once"),
-        pytest.param(False, None, CaptureDelivery.HOLD, True, id="found-holds-so-a-test-submit-writes-nothing"),
-        pytest.param(False, CaptureDelivery.AT_ONCE, CaptureDelivery.AT_ONCE, False, id="found-and-asked-for-posts"),
-        pytest.param(True, CaptureDelivery.HOLD, CaptureDelivery.HOLD, False, id="named-and-asked-to-hold-holds"),
+        pytest.param(None, CaptureDelivery.HOLD, True, id="a-profile-alone-writes-nothing"),
+        pytest.param(CaptureDelivery.AT_ONCE, CaptureDelivery.AT_ONCE, False, id="asking-posts"),
+        pytest.param(CaptureDelivery.HOLD, CaptureDelivery.HOLD, False, id="asking-to-hold-holds"),
+        pytest.param(CaptureDelivery.VALIDATE_ONLY, CaptureDelivery.VALIDATE_ONLY, False, id="asking-to-grade-grades"),
     ],
 )
-def test_a_run_only_posts_at_once_to_a_dhis2_somebody_named(
+def test_naming_a_profile_is_not_permission_to_write_to_it(
     capture_project: FhirProject,
     monkeypatch: pytest.MonkeyPatch,
-    named: bool,
     stated: CaptureDelivery | None,
     expected: CaptureDelivery,
-    held_for_it: bool,
+    held_until_asked: bool,
 ) -> None:
-    """Profiles are discovered, and the one found could be an administrator's login to anything."""
-    monkeypatch.setattr(
-        "dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile(named)
-    )
+    """`profile` says which DHIS2 to read metadata from, and a project can point it at a national instance."""
+    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile())
     invocation = resolve_serve_settings(capture_project, delivery=stated)
     assert invocation.settings.capture_delivery is expected
-    assert invocation.held_for_an_unnamed_profile is held_for_it
+    assert invocation.held_until_asked is held_until_asked
 
 
 def test_delivery_comes_off_the_project_and_a_flag_beats_it(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A deployment states it once, and one run may state otherwise."""
-    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile(True))
+    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile())
     holding = _with_serve(capture_project, delivery=CaptureDelivery.HOLD)
     assert resolve_serve_settings(holding).settings.capture_delivery is CaptureDelivery.HOLD
     stated = resolve_serve_settings(holding, delivery=CaptureDelivery.VALIDATE_ONLY)
@@ -629,35 +628,15 @@ def test_a_settings_object_posts_nothing_until_told(capture_project: FhirProject
     assert ServeSettings(project_dir=capture_project.project_root).capture_delivery is CaptureDelivery.HOLD
 
 
-def test_a_caller_presenting_their_own_account_needs_no_named_profile(
+def test_a_caller_presenting_their_own_account_needs_nothing_stated(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Their credentials say which DHIS2 they mean, and DHIS2 applies their rights rather than an administrator's."""
-    monkeypatch.setattr(
-        "dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile(False)
-    )
+    monkeypatch.setattr("dhis2w_fhir_serve.settings._resolved_generation", lambda *_args, **_keys: _found_profile())
     monkeypatch.setattr("dhis2w_fhir_serve.settings.preflight_auth", lambda **_keys: None)
     invocation = resolve_serve_settings(capture_project, auth=ServeAuth.DHIS2, live=True)
     assert invocation.settings.capture_delivery is CaptureDelivery.AT_ONCE
-    assert not invocation.held_for_an_unnamed_profile
-
-
-def test_a_profile_says_whether_somebody_named_it(
-    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Falling back to a machine's default is the one case that names nothing."""
-    found = ResolvedProfile(
-        name="found",
-        profile=Profile(base_url=_INSTANCE, auth="basic", username="someone", password="its-own"),
-        source="global-toml",
-        layer="global-toml",
-    )
-    monkeypatch.setattr("dhis2w_fhir.service.resolve", lambda _name: found)
-    monkeypatch.delenv("DHIS2_PROFILE", raising=False)
-    assert not resolve_generation_profile(capture_project).named
-    assert resolve_generation_profile(capture_project, "found").named
-    monkeypatch.setenv("DHIS2_PROFILE", "found")
-    assert resolve_generation_profile(capture_project).named
+    assert not invocation.held_until_asked
 
 
 async def test_a_compiled_run_with_a_profile_posts_through_a_connection_it_opens_per_attempt(

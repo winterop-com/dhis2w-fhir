@@ -91,8 +91,9 @@ see [Pluggable auth](https://winterop-com.github.io/dhis2w/architecture/auth/).
 
 `d2w fhir serve` follows the same rules, and asks one thing more. Its
 [`dhis2` posture](201-secure.md#under-dhis2-the-register-is-read-as-you) is `read_as_caller`, and `token` is your own
-`authentication=`. It will not bind beyond loopback until a posture is stated. And it only posts as its own account to a
-DHIS2 somebody named: a profile it merely found on the machine could be anybody's, so captures stay on the server. See
+`authentication=`. It will not bind beyond loopback until a posture is stated. And it only writes as its own account where
+`[serve] delivery = "at-once"` asks it to, because `profile` says which DHIS2 to read and a project can point that at a
+national instance to build a guide. A service you compose has asked already, by handing `open_facade` a connection. See
 [`delivery`](301-serving.md#delivery).
 
 Next: [Choose where the guide comes from](build-choose-a-guide.md).

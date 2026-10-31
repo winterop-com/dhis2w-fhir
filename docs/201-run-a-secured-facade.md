@@ -65,8 +65,7 @@ $ DHIS2_PASSWORD=... uv run d2w profile add ministry --auth basic --username rep
 ```
 
 Then name it in `fhir.toml`, so everyone who runs this project reads the same
-server. Naming it is also what lets the server post captures to it: a profile it only
-found on the machine is never written to.
+server. Naming it says which DHIS2 to read, and does not let the server write to it.
 
 ```toml
 profile = "ministry"
@@ -202,10 +201,17 @@ Whether captures arrive through those screens or through
 
 ## Step 10: send a capture to DHIS2
 
-A capture goes to DHIS2 at once, and this is the step that writes to your instance.
-The server's first lines say which DHIS2 it posts to, and as whom. Before you submit
-anything real, read that line. To have DHIS2 grade captures with nothing written,
-serve with `--delivery validate-only`.
+This is the step that writes to your instance, so it has to be asked for. Add this to
+`fhir.toml` and restart the server:
+
+```toml
+[serve]
+delivery = "at-once"
+```
+
+The server's first lines now say which DHIS2 it posts to, and as whom. Before you submit
+anything real, read that line. To have DHIS2 grade captures with nothing written, state
+`delivery = "validate-only"` instead.
 
 ```console
 $ curl -s 'localhost:8091/Questionnaire/<form>/$generate' -o response.json

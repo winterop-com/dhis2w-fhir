@@ -547,7 +547,9 @@ export function deliveryNotices(status: DeliveryStatus): DeliveryNoticeText[] {
         notices.push({
             lifecycle: 'received',
             title: `${submissions(untended)} not yet sent to this DHIS2 instance`,
-            detail: `Nothing sends ${untended === 1 ? 'it' : 'them'} until d2w fhir forward runs.`,
+            detail: `Nothing sends ${untended === 1 ? 'it' : 'them'} until d2w fhir forward runs.${
+                status.delivery === 'hold' ? ' To post new submissions as they arrive, state delivery = "at-once" under [serve] in fhir.toml.' : ''
+            }`,
         })
     }
     if (status.refused > 0) {

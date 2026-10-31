@@ -40,8 +40,8 @@ class ServeInvocation(BaseModel):
     port: int
     generation: GenerationProfile | None = None
 
-    held_for_an_unnamed_profile: bool = False
-    """Whether captures stay on this server because the only DHIS2 it found is a profile nobody named for this run."""
+    held_until_asked: bool = False
+    """Whether captures stay on this server because nothing asked for them to be sent, which a run says as it starts."""
 
 
 def _resolved_generation(project: FhirProject, profile: str | None, *, required: bool) -> GenerationProfile | None:
@@ -138,13 +138,11 @@ def resolve_serve_settings(
     posts_as_each_caller = resolved_auth is ServeAuth.DHIS2 or (
         resolved_auth is ServeAuth.JWT and serve_config.jwt.forward_bearer
     )
-    # A profile this machine fell back to could be an administrator's login to anything, so one test Submit must not
-    # be able to write to it. Somebody naming it says they mean it, and so does a caller presenting their own account.
-    target_is_unnamed = generation is not None and not generation.named and not posts_as_each_caller
-    held_for_an_unnamed_profile = stated_delivery is None and target_is_unnamed
-    resolved_delivery = stated_delivery or (
-        CaptureDelivery.HOLD if held_for_an_unnamed_profile else CaptureDelivery.AT_ONCE
-    )
+    # `profile` says which DHIS2 to read metadata from, and a project can point it at a national instance to build a
+    # guide. One test submission must not be able to write there, so writing as this run's one account has to be asked
+    # for. A caller presenting their own account has asked, and DHIS2 applies their rights rather than an admin's.
+    resolved_delivery = stated_delivery or (CaptureDelivery.AT_ONCE if posts_as_each_caller else CaptureDelivery.HOLD)
+    held_until_asked = stated_delivery is None and resolved_delivery is CaptureDelivery.HOLD
     if not live and not any((project.ig_directory / COMPILED_RESOURCES_RELATIVE_PATH).glob("*.json")):
         raise compiled_guide_missing(project.config.registry_dependency)
     # The registry a guide depends on is preflighted for the reason every other refusal is: a
@@ -185,5 +183,5 @@ def resolve_serve_settings(
         host=resolved_host,
         port=port if port is not None else serve_config.port,
         generation=generation,
-        held_for_an_unnamed_profile=held_for_an_unnamed_profile,
+        held_until_asked=held_until_asked,
     )
