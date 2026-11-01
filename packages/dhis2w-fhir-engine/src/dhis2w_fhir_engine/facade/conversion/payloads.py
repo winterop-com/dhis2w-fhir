@@ -82,6 +82,7 @@ from dhis2w_fhir_engine.facade.foundation.schemas import (
     PERIOD_RANGE_SUB_EXTENSION,
     PERIOD_TYPE_SUB_EXTENSION,
 )
+from dhis2w_fhir_engine.facade.names import GENERATE_SEED_IDENTIFIER_SEGMENT
 from dhis2w_fhir_engine.facade.period import parse_period
 from dhis2w_fhir_engine.facade.resources.examples.synthetic import derived_seed, synthetic_uid
 
@@ -660,9 +661,16 @@ def response_event_uid(response: QuestionnaireResponse) -> str | None:
 
 
 def capture_identifier_label(response: QuestionnaireResponse) -> str | None:
-    """The `identifier` a response names its submission by, as `system|value`, or None where it carries no value."""
+    """The `identifier` a response names its submission by, as `system|value`, or None where it names none.
+
+    `$generate` states the seed it drew a response from as an identifier, so the same seed can be asked for again. That
+    names the draw, not a submission: the capture screen submits every form on a drawn skeleton, and two people filling
+    from one seed are two visits. So an identifier under a guide's seed system names no submission.
+    """
     identifier = response.identifier
     if identifier is None or not identifier.value:
+        return None
+    if (identifier.system or "").endswith(f"/{GENERATE_SEED_IDENTIFIER_SEGMENT}"):
         return None
     return f"{identifier.system or ''}|{identifier.value}"
 

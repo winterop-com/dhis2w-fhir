@@ -551,6 +551,21 @@ async def test_a_capture_sent_twice_under_one_identifier_lands_once_and_is_answe
     assert len(_receipts_on_disk(capture_project)) == 1
 
 
+async def test_two_captures_filled_from_one_drawn_seed_are_two_events(
+    capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
+) -> None:
+    """The capture screen sends the seed its skeleton was drawn from, and two people filling from it are two visits."""
+    drawn = {**event_response, "identifier": {"system": "http://example.org/fhir/demo/id/generate-seed", "value": "42"}}
+    with respx.mock(assert_all_called=False) as router:
+        _instance(router)
+        route = router.post(_TRACKER).mock(return_value=httpx.Response(200, json=_TRACKER_TOOK_IT))
+        async with _serving(_service(capture_project, monkeypatch)) as client:
+            first = await _submit_event(client, drawn)
+            second = await _submit_event(client, drawn)
+    assert (first.status_code, second.status_code) == (201, 201)
+    assert _event_posted(route, 0) != _event_posted(route, 1)
+
+
 async def test_two_submissions_under_different_identifiers_name_different_events(
     capture_project: FhirProject, monkeypatch: pytest.MonkeyPatch, event_response: dict[str, Any]
 ) -> None:

@@ -44,6 +44,16 @@ def test_a_form_version_does_not_change_the_event() -> None:
     assert response_event_uid(_response("a" * 32, value="visit-0001", form=_FORM + "|0.2.0")) == plain
 
 
+def test_the_seed_a_draft_was_drawn_from_names_no_submission() -> None:
+    """The capture screen submits every form on a drawn skeleton, so its seed identifier is no submission's name."""
+    body: dict[str, Any] = {"resourceType": "QuestionnaireResponse", "id": "d" * 32, "status": "completed"}
+    body["questionnaire"] = _FORM
+    body["identifier"] = {"system": "http://example.org/fhir/demo/id/generate-seed", "value": "42"}
+    response = QuestionnaireResponse.model_validate(body)
+    assert capture_identifier_label(response) is None
+    assert response_event_uid(response) == receipt_event_uid("d" * 32)
+
+
 def test_without_an_identifier_the_receipt_names_the_event() -> None:
     """A response the client did not name is named by the receipt this server minted for it."""
     response = _response("c" * 32)

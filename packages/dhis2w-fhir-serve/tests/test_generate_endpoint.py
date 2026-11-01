@@ -22,8 +22,8 @@ from typing import Any
 
 import httpx2
 import pytest
-from dhis2w_fhir_engine.facade.capture.naming import GENERATE_SEED_IDENTIFIER_SEGMENT
 from dhis2w_fhir_engine.facade.config import FhirProject
+from dhis2w_fhir_engine.facade.names import GENERATE_SEED_IDENTIFIER_SEGMENT
 from dhis2w_fhir_engine.facade.period import parse_period
 from dhis2w_fhir_engine.facade.response_spool import ResponseLifecycle, ResponseSpool, StoredResponseEnvelope
 from dhis2w_fhir_engine.facade.settings import ServeSettings

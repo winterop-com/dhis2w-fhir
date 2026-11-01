@@ -24,7 +24,6 @@ from dhis2w_fhir_engine.facade.capture.index import (
     build_capture_index,
 )
 from dhis2w_fhir_engine.facade.capture.naming import (
-    GENERATE_SEED_IDENTIFIER_SEGMENT,
     PERIOD_ISO_SUB_EXTENSION,
     PERIOD_RANGE_SUB_EXTENSION,
     PERIOD_TYPE_SUB_EXTENSION,
@@ -67,6 +66,7 @@ from dhis2w_fhir_engine.facade.capture.validate import (
     ValidatedCapture,
     validate_response,
 )
+from dhis2w_fhir_engine.facade.names import GENERATE_SEED_IDENTIFIER_SEGMENT
 
 __all__ = [
     "AMENDED_STATUS",
