@@ -222,7 +222,7 @@ test('a DHIS2-posture facade asks who this is, and is the app again once it know
     await expect(page.getByText('Filled with test data')).toBeVisible()
     await page.getByRole('button', { name: 'Submit' }).click()
 
-    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+    await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
     expect(sent.at(-1)).toBe(EXPECTED_AUTHORIZATION)
 })
 
@@ -355,6 +355,6 @@ test('a JWT-posture facade names the issuer to get a token from, and sends what 
     await expect(page.getByText('Filled with test data')).toBeVisible()
     await page.getByRole('button', { name: 'Submit' }).click()
 
-    await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+    await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
     expect(sent.at(-1)).toBe(EXPECTED_BEARER)
 })
