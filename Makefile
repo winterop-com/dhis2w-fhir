@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install lint test test-slow coverage ui ui-if-available lint-frontend test-frontend e2e-frontend frontend-dev screenshot verify-examples check-engine-install check-examples verify-igs publisher-check-summary docs docs-serve build clean
+.PHONY: help install lint test test-slow coverage ui ui-if-available lint-frontend test-frontend e2e-frontend frontend-dev screenshot verify-examples check-engine-install check-fhir-install check-examples verify-igs publisher-check-summary docs docs-serve build clean
 
 FRONTEND_DIR := packages/dhis2w-fhir-serve/frontend
 # Where `make frontend-dev` proxies the capture UI's FHIR calls: a running `d2w fhir serve`.
@@ -84,6 +84,17 @@ check-engine-install:  ## Install the engine wheel alone in a clean environment 
 	uv venv -q --python 3.13 "$$work/venv" && \
 	uv pip install -q --python "$$work/venv/bin/python" "$$work"/dist/*.whl && \
 	"$$work/venv/bin/python" scripts/check_engine_boundaries.py
+
+check-fhir-install:  ## Install the plugin wheel with dhis2w-cli and no dhis2w-fhir-serve, and check that d2w starts
+	@work=$$(mktemp -d); trap 'rm -rf "$$work"' EXIT; \
+	uv build -q --package dhis2w-fhir --wheel --out-dir "$$work/dist" && \
+	uv build -q --package dhis2w-fhir-engine --wheel --out-dir "$$work/dist" && \
+	uv venv -q --python 3.13 "$$work/venv" && \
+	uv pip install -q --python "$$work/venv/bin/python" "$$work"/dist/*.whl dhis2w-cli && \
+	"$$work/venv/bin/python" -c 'import importlib.util, sys; sys.exit("dhis2w_fhir_serve is installed" if importlib.util.find_spec("dhis2w_fhir_serve") else 0)' && \
+	"$$work/venv/bin/d2w" --version && \
+	"$$work/venv/bin/d2w" fhir --help > /dev/null && \
+	echo "[ok] d2w and d2w fhir start without dhis2w-fhir-serve"
 
 check-examples:  ## Check that every `d2w ...` command an example script runs exists (no DHIS2 needed)
 	uv run python scripts/check_example_refs.py
