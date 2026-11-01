@@ -16,6 +16,8 @@ The version-neutral `fhir` plugin is the `dhis2w-fhir` package, which `d2w`
 mounts through the `dhis2w.plugins.v1` entry point when the `dhis2w-cli[fhir]`
 extra installs it; the facade is `dhis2w-fhir-serve`, pulled in by the
 `dhis2w-cli[serve]` extra so an install that only generates stays FastAPI-free.
+`make check-fhir-install` installs the plugin with `dhis2w-cli` and no facade, and checks
+that `d2w` and `d2w fhir` start.
 
 Four verbs over one project directory - `init`, `generate`, `validate`,
 `serve` - plus `forward` to repair a capture queue and `doctor` to drive the whole

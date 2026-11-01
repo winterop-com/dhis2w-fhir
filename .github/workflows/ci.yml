@@ -44,6 +44,9 @@ jobs:
       - name: Check the engine installed alone
         run: make check-engine-install
 
+      - name: Check the plugin installed without the facade
+        run: make check-fhir-install
+
       - name: Check the example commands
         run: make check-examples
 
