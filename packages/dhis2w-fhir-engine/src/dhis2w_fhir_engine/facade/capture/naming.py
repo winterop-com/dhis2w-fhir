@@ -20,7 +20,7 @@ from pydantic import BaseModel, ConfigDict
 
 from dhis2w_fhir_engine.facade.conversion.values import LOCATION_REFERENCE_PREFIX, location_id_of
 from dhis2w_fhir_engine.facade.foundation.schemas import IDENTIFIER_SYSTEM_SUBJECTS, FoundationNaming
-from dhis2w_fhir_engine.facade.names import join_id_tokens
+from dhis2w_fhir_engine.facade.names import GENERATE_SEED_IDENTIFIER_SEGMENT, join_id_tokens
 from dhis2w_fhir_engine.r4.resources import Extension, Period
 
 if TYPE_CHECKING:
@@ -35,11 +35,6 @@ PERIOD_RANGE_SUB_EXTENSION = "period"
 
 #: The identifier-system segment of each DHIS2 object kind a captured response names, by subject token.
 _SEGMENTS_BY_TOKEN = {subject.token: subject.segment for subject in IDENTIFIER_SYSTEM_SUBJECTS}
-
-#: The path segment under the IG canonical that a `$generate` seed is stated as an identifier under.
-#: It hangs off the canonical rather than off `identifier_system_base`, because a seed is a fact
-#: about this server's operation, not a DHIS2 object identifier.
-GENERATE_SEED_IDENTIFIER_SEGMENT = "id/generate-seed"
 
 
 class CaptureNaming(BaseModel):

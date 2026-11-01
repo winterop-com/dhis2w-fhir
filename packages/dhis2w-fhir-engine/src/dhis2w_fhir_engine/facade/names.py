@@ -190,6 +190,11 @@ def is_valid_fhir_id(value: str) -> bool:
 #: The R4 `id` length limit every emitted artifact id is bounded against.
 FHIR_ID_MAX_LENGTH = 64
 
+#: The path segment under the IG canonical that a `$generate` seed is stated as an identifier under.
+#: It hangs off the canonical rather than off `identifier_system_base`, because a seed is a fact
+#: about this server's operation, not a DHIS2 object identifier.
+GENERATE_SEED_IDENTIFIER_SEGMENT = "id/generate-seed"
+
 #: How long a FHIR computer-friendly `name` may be, and the shape of it: an upper-case letter, then
 #: letters, digits and underscores. It is what SUSHI writes a guide's `name:` as - anything else it
 #: rewrites into this shape without saying so, which is why the rule is checked where the name is given.

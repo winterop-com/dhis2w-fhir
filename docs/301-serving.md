@@ -551,7 +551,9 @@ nothing is kept to retry, so the answer is a `504` saying DHIS2 may already have
 form and the identifier, so every send of it names the same event. Where DHIS2 answers
 "already exists", the server reads that event back: holding the same answers, it is this
 capture landing, answered `200`; holding others, the identifier was reused, and the capture
-is refused with `409` and nothing stored. Each submission needs its own identifier. A
+is refused with `409` and nothing stored. Each submission needs its own identifier, never
+reused by any device: a UUID, not a counter. The seed identifier `$generate` stamps on a
+draft names the draw rather than a submission, and is ignored. A
 capture without one names an event per receipt, so the `504` names the event to read first,
 because sending it again makes a second event.
 

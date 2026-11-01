@@ -25,9 +25,9 @@ for _ in $(seq 1 90); do
     sleep 1
 done
 
-# The client names this submission once, and keeps the name for every send of it. A name is used once for good: an
-# event this example withdraws at the end burns its UID, so each run takes a new one.
-IDENTIFIER="visit-$(date +%s)"
+# The client names this submission once, when the form is started, and keeps the name for every send of it. The name
+# is a UUID, never a counter: no other submission, from this device or any other, may carry it.
+IDENTIFIER="$(python3 -c 'import uuid; print(uuid.uuid4())')"
 identified() {
     curl -s "${BASE}/Questionnaire/EVTsupVis01/\$generate?seed=$1" |
         IDENTIFIER="$IDENTIFIER" python3 -c '

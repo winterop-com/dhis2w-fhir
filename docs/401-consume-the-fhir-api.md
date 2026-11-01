@@ -1517,8 +1517,12 @@ has the settings.
 **Name each submission with an `identifier` to make sending it again safe.** A form that sets
 `QuestionnaireResponse.identifier` (a `system` and a `value` the client keeps, one per
 submission) names the same DHIS2 event every time it is sent, so a resend after a lost answer
-cannot make a second visit. Reusing an identifier for another submission is refused with
-`409`, because DHIS2 already holds different answers under it. A worked run is at
+cannot make a second visit. **The value must never be used for another submission, by this
+device or any other**: mint a UUID when the form is started, not a per-device counter such as
+`visit-0001`. Reusing an identifier for another submission is refused with `409`, because
+DHIS2 already holds different answers under it. The seed identifier `$generate` stamps on a
+draft (`<canonical>/id/generate-seed`) names the draw, not a submission, so it is ignored
+here, and the capture screen, which submits on a drawn draft, makes one event per capture. A worked run is at
 [`examples/cli/resend_with_identifier.sh`](https://github.com/winterop-com/dhis2w-fhir/blob/main/examples/cli/resend_with_identifier.sh).
 
 ```console
