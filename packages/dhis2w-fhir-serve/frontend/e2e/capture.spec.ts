@@ -265,7 +265,7 @@ test.describe('filling a form in the browser', () => {
         await expect(page.getByText('Filled with test data')).toBeVisible()
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         // NAMED, NOT COUNTED. A clerk who files six forms in a morning needs to know which receipt
         // this one became - the id the create interaction states in `Location` - and the toast
         // carries the way straight to it.
@@ -329,7 +329,7 @@ test.describe('a form whose data set reports per attribute option combo', () => 
         await expect(submit).toBeEnabled()
 
         await submit.click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         await page.getByRole('row').filter({ hasText: 'EPI Stock' }).first().click()
@@ -407,7 +407,7 @@ test.describe('a form whose assignment narrows where it may be reported from', (
         await expect(picker).toContainText(CHOSEN_UNIT)
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         await page.getByRole('row').filter({ hasText: 'Outbreak response' }).first().click()
@@ -508,7 +508,7 @@ test.describe('a form whose assignment narrows where it may be reported from', (
 
         // The round trip is unchanged by which mode found the unit.
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         await page.getByRole('row').filter({ hasText: 'Outbreak response' }).first().click()
@@ -553,7 +553,7 @@ test.describe('a form asking for an organisation unit as an answer', () => {
         await expect(answer).toContainText('Bombali')
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
 
         await page.getByRole('row').filter({ hasText: 'Temporal capture' }).first().click()
         const row = page.getByRole('row').filter({ hasText: 'DeVisitUnit1' })
@@ -624,7 +624,7 @@ test.describe('filling a tracker-event form', () => {
         await expect(page.getByText('Filled with test data')).toBeVisible()
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         const listed = page.getByRole('row').filter({ hasText: 'Baby Postnatal' }).first()
@@ -712,7 +712,7 @@ test.describe('a tracker registration form', () => {
         await expect(page.getByText('Filled with test data')).toBeVisible()
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         const receipt = page.getByRole('row').filter({ hasText: form.title }).first()
@@ -763,8 +763,11 @@ test.describe('a stage form answering for a captured registration', () => {
         if (form === null) return
 
         // Capture one registration - the same generate-then-post round trip the browser performs
-        // - and keep the pair it minted, which is what the picker must offer back.
-        const generated = await request.get(`/Questionnaire/${form.id}/$generate?seed=61`, {
+        // - and keep the pair it minted, which is what the picker must offer back. The seed is this
+        // attempt's own: the server outlives a retry, and a fixed seed mints the same enrollment
+        // again, so the picker would offer it twice.
+        const seed = Date.now() % 2_000_000_000
+        const generated = await request.get(`/Questionnaire/${form.id}/$generate?seed=${seed}`, {
             headers: { Accept: FHIR_JSON },
         })
         expect(generated.status(), await generated.text()).toBe(200)
@@ -814,7 +817,7 @@ test.describe('a stage form answering for a captured registration', () => {
         await expect(picker).toContainText(enrollment)
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         // The stored stage receipt carries the chosen pair - the spool derives both off the
@@ -916,7 +919,7 @@ test.describe('the shape a form is drawn in', () => {
         expect(drawnValue).not.toBe('')
 
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         await page.getByRole('row').filter({ hasText: 'Child Health' }).first().click()
@@ -1029,7 +1032,7 @@ test.describe('the shape a form is drawn in', () => {
 
         await page.getByLabel(WHOLE_NUMBER_CELL).fill('7')
         await page.getByRole('button', { name: 'Submit' }).click()
-        await expect(page.getByText('Not yet sent to this DHIS2 instance')).toBeVisible()
+        await expect(page.getByText('Not yet sent to this DHIS2 instance', { exact: true })).toBeVisible()
         await expect(page).toHaveURL(/#\/responses$/)
 
         // The receipt reads back the same link ids the table's own submission wrote - the assertions
