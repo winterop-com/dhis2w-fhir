@@ -44,7 +44,6 @@ from dhis2w_fhir_engine.facade.resources.attribute_combos.restrictions import (
 from dhis2w_fhir_engine.facade.resources.questionnaires.assignments import EMPTY_ASSIGNMENT_REMEDY
 from dhis2w_fhir_engine.facade.spool import MALFORMED_RESPONSES_RELATIVE_PATH
 from dhis2w_fhir_engine.facade.status import ORGANISATION_UNIT_PACKAGE
-from dhis2w_fhir_serve.settings import resolve_serve_settings
 from pydantic import BaseModel, ConfigDict
 from typer.core import TyperGroup
 
@@ -2640,6 +2639,7 @@ def serve_command(
     try:
         from dhis2w_fhir_engine.facade.log import configure_logging
         from dhis2w_fhir_serve import ServeAuthConfigurationError, create_app
+        from dhis2w_fhir_serve.settings import resolve_serve_settings
 
         # The stamp exists so the capture UI can be told apart from the last one built, which keeps it
         # off the serve package's library surface: it is read from its own module, not the package root.
